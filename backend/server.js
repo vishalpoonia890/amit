@@ -132,8 +132,12 @@ app.post('/api/register', async (req, res) => {
 
     // Validate referral code if provided
     let referredById = null;
-    if (referralCode) {
-      // Check if referral code is a valid user ID
+     if (referralCode && referralCode.trim() !== '') {
+        const parsedCode = parseInt(referralCode, 10);
+
+        if (isNaN(parsedCode)) {
+            return res.status(400).json({ error: 'Invalid referral code format.' });
+        }
       const { data: referrer, error: referrerError } = await supabase
         .from('users')
         .select('id')
