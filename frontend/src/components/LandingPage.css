@@ -1,0 +1,174 @@
+/* src/components/LandingPage.css */
+.landing-page {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+.landing-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 30px;
+  background-color: var(--card-bg);
+  box-shadow: 0 2px 4px var(--shadow-color);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.logo-circle-landing {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--primary-color);
+  color: white;
+  display: grid;
+  place-items: center;
+}
+
+.auth-buttons button {
+  margin-left: 15px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease-in-out;
+}
+
+.login-btn {
+  background-color: transparent;
+  border: 1px solid var(--primary-color);
+  color: var(--primary-color);
+}
+
+.login-btn:hover {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.register-btn {
+  background-color: var(--primary-color);
+  color: white;
+}
+.register-btn:hover {
+    background-color: var(--primary-hover);
+}
+
+.theme-toggle-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.hero-section {
+  position: relative;
+  height: 70vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: white;
+}
+
+.hero-background-video {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  object-fit: cover; z-index: 1;
+}
+
+.hero-overlay {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background-color: rgba(0,0,0,0.6); z-index: 2;
+}
+
+.hero-content {
+  z-index: 3;
+  padding: 20px;
+}
+
+.hero-content h1 { font-size: clamp(2rem, 5vw, 3.5rem); margin-bottom: 1rem;}
+.hero-content p { font-size: clamp(1rem, 2vw, 1.25rem); }
+
+.cta-button {
+  margin-top: 1.5rem;
+  padding: 15px 30px; font-size: 1.2em;
+  background-color: var(--primary-color);
+  color: white; border: none; border-radius: 25px; cursor: pointer;
+  transition: background-color 0.3s;
+}
+.cta-button:hover {
+    background-color: var(--primary-hover);
+}
+
+.product-details-section {
+  padding: 50px 20px;
+  text-align: center;
+}
+
+.product-details-section h2 {
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+}
+
+.scroller-wrapper {
+  overflow: hidden;
+  -webkit-mask: linear-gradient(90deg, transparent, white 20%, white 80%, transparent);
+  mask: linear-gradient(90deg, transparent, white 20%, white 80%, transparent);
+}
+
+.scroller {
+  display: flex;
+  width: max-content;
+  gap: 20px;
+  animation: scroll 30s linear infinite;
+}
+
+@keyframes scroll {
+  to { transform: translate(calc(-50% - 10px)); }
+}
+
+.product-card-landing {
+  background: var(--card-bg);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px var(--shadow-color);
+  width: 300px;
+  text-align: left;
+}
+
+.product-card-landing img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.product-info {
+  padding: 20px;
+}
+.purchase-btn {
+    width: 100%;
+    margin-top: 1rem;
+    padding: 10px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.landing-footer {
+    padding: 20px;
+    background-color: var(--card-bg);
+    border-top: 1px solid var(--border-color);
+}

@@ -1,0 +1,89 @@
+/* src/components/AdminPanel.css */
+.admin-panel {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    color: var(--text-color);
+}
+
+.admin-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.admin-header h1 {
+    color: var(--primary-color);
+    margin-bottom: 20px;
+    font-size: 2em;
+}
+
+.admin-nav {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap; /* Allow wrapping on small screens */
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.admin-nav button {
+    background-color: var(--button-bg-color); /* Define in global CSS */
+    color: var(--button-text-color); /* Define in global CSS */
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    flex-grow: 1; /* Allow buttons to grow */
+    max-width: 150px; /* Limit max width for better appearance */
+}
+
+.admin-nav button:hover {
+    background-color: var(--button-bg-hover); /* Define in global CSS */
+}
+
+.admin-nav button.active {
+    background-color: var(--primary-color);
+    color: white;
+    box-shadow: var(--button-active-shadow); /* Define in global CSS */
+}
+
+.admin-content {
+    background-color: var(--card-bg-color);
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: var(--card-shadow);
+}
+
+/* --- Mobile Responsiveness --- */
+@media (max-width: 768px) {
+    .admin-header h1 {
+        font-size: 1.7em;
+    }
+
+    .admin-nav {
+        flex-direction: column; /* Stack buttons vertically */
+        align-items: center; /* Center stacked buttons */
+        gap: 10px;
+    }
+
+    .admin-nav button {
+        width: 80%; /* Make buttons take more width */
+        max-width: 250px; /* Adjust max width for stacked buttons */
+        font-size: 0.9em;
+    }
+
+    .admin-content {
+        padding: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .admin-header h1 {
+        font-size: 1.5em;
+    }
+    .admin-nav button {
+        width: 90%;
+        max-width: none; /* Remove max-width for very small screens */
+    }
+}

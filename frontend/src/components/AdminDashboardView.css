@@ -1,0 +1,175 @@
+/* src/components/AdminDashboardView.css */
+.admin-view {
+    padding: 10px;
+    color: var(--text-color);
+}
+
+.summary-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.summary-card {
+    background-color: var(--bg-color-alt); /* Slightly different bg for cards */
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: var(--card-shadow-sm); /* Smaller shadow */
+    text-align: center;
+    border-left: 5px solid var(--primary-color);
+}
+
+.summary-card h4 {
+    margin-top: 0;
+    color: var(--text-color-light);
+    font-size: 1em;
+}
+
+.summary-card p {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: var(--accent-color);
+}
+
+.daily-recycle-section {
+    background-color: var(--card-bg-color);
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: var(--card-shadow);
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.daily-recycle-section h2 {
+    color: var(--primary-color);
+    margin-bottom: 15px;
+    font-size: 1.6em;
+}
+
+.recycle-btn {
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.recycle-btn:hover {
+    background-color: var(--accent-hover-color); /* Define in global CSS */
+}
+
+.requests-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Two columns for desktop */
+    gap: 20px;
+}
+
+.requests-section {
+    background-color: var(--card-bg-color);
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: var(--card-shadow);
+}
+
+.requests-section h2 {
+    color: var(--primary-color);
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 1.4em;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+}
+
+.requests-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.request-card {
+    background-color: var(--bg-color-alt);
+    border-radius: 8px;
+    padding: 15px;
+    border: 1px solid var(--border-color);
+    font-size: 0.95em;
+}
+
+.request-card p {
+    margin: 5px 0;
+}
+
+.request-card strong {
+    color: var(--text-color);
+}
+
+.request-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.approve-btn, .reject-btn {
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color 0.2s ease;
+    color: white;
+}
+
+.approve-btn {
+    background-color: var(--accent-color);
+}
+
+.approve-btn:hover {
+    background-color: var(--accent-hover-color);
+}
+
+.reject-btn {
+    background-color: #dc3545; /* Red */
+}
+
+.reject-btn:hover {
+    background-color: #c82333; /* Darker red */
+}
+
+/* --- Mobile Responsiveness --- */
+@media (max-width: 768px) {
+    .summary-cards {
+        grid-template-columns: 1fr; /* Stack cards on mobile */
+    }
+
+    .requests-grid {
+        grid-template-columns: 1fr; /* Stack request sections on mobile */
+    }
+
+    .requests-section h2 {
+        font-size: 1.2em;
+    }
+
+    .recycle-btn, .approve-btn, .reject-btn {
+        padding: 10px 20px;
+        font-size: 1em;
+    }
+}
+
+@media (max-width: 480px) {
+    .summary-card h4 {
+        font-size: 0.9em;
+    }
+    .summary-card p {
+        font-size: 1.3em;
+    }
+    .request-card {
+        padding: 12px;
+        font-size: 0.85em;
+    }
+    .request-actions {
+        flex-direction: column; /* Stack action buttons */
+    }
+}

@@ -1,0 +1,67 @@
+/* Add or modify these styles for FakeWithdrawalPopup */
+
+.fake-withdrawal-popup {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  background-color: #ffffff;
+  color: #333;
+  padding: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  z-index: 2000;
+  transform: translateY(200%);
+  opacity: 0;
+  transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+  min-width: 280px;
+  border-left: 5px solid #22c55e; /* Green accent color */
+}
+
+.fake-withdrawal-popup.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.fake-withdrawal-popup p {
+  margin: 0;
+  line-height: 1.4;
+}
+
+.fake-withdrawal-popup .popup-title {
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 8px;
+}
+
+/* NEW: Styles to group name and amount */
+.fake-withdrawal-popup .popup-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.fake-withdrawal-popup .popup-name {
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.fake-withdrawal-popup .popup-amount {
+  font-weight: 700;
+  color: #16a34a; /* Darker green */
+  font-size: 1.2rem;
+}
+
+/* NEW: Style for the location text */
+.fake-withdrawal-popup .popup-location {
+  font-size: 0.9rem;
+  color: #64748b; /* Softer text color */
+  margin: 4px 0;
+}
+
+.fake-withdrawal-popup .popup-timestamp {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  margin-top: 8px;
+  text-align: right;
+}

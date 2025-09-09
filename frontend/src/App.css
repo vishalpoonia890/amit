@@ -1,0 +1,200 @@
+/* src/App.css */
+
+/* --- Base Styles and Theme Variables --- */
+:root {
+    --primary-color: #ff6600; /* Orange */
+    --secondary-color: #4CAF50; /* Green */
+    --text-color-light: #333;
+    --text-color-dark: #eee;
+    --bg-color-light: #f4f7f6;
+    --bg-color-dark: #1a1a2e;
+    --card-bg-light: #ffffff;
+    --card-bg-dark: #2a2a4a;
+    --border-color-light: #ddd;
+    --border-color-dark: #333;
+    --shadow-light: rgba(0, 0, 0, 0.1);
+    --shadow-dark: rgba(0, 0, 0, 0.3);
+    --input-bg-light: #f0f0f0;
+    --input-bg-dark: #333355;
+    --accent-color: #28a745; /* Green for profit/positive values */
+}
+
+body.light-theme {
+    --text-color: var(--text-color-light);
+    --bg-color: var(--bg-color-light);
+    --card-bg: var(--card-bg-light);
+    --border-color: var(--border-color-light);
+    --shadow: var(--shadow-light);
+    --input-bg: var(--input-bg-light);
+    --top-nav-bg: #ffffff;
+    --top-nav-text-color: #333333;
+    --button-bg: var(--primary-color);
+    --button-text-color: #ffffff;
+    --button-hover-bg: #e65c00;
+}
+
+body.dark-theme {
+    --text-color: var(--text-color-dark);
+    --bg-color: var(--bg-color-dark);
+    --card-bg: var(--card-bg-dark);
+    --border-color: var(--border-color-dark);
+    --shadow: var(--shadow-dark);
+    --input-bg: var(--input-bg-dark);
+    --top-nav-bg: #1e1e3f; /* Dark background for top nav */
+    --top-nav-text-color: #f0f0f0;
+    --button-bg: var(--primary-color);
+    --button-text-color: #ffffff;
+    --button-hover-bg: #ff8533;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+#root {
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+.App {
+    width: 100%;
+    max-width: 480px; /* Standard mobile app width */
+    background-color: var(--bg-color);
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 0 10px var(--shadow);
+    position: relative;
+    overflow: hidden;
+}
+
+.app-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    width: 100%;
+}
+
+/* --- MAIN CONTENT LAYOUT FIX --- */
+.main-content {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding-bottom: 70px; /* Space for bottom nav */
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    transition: background-color 0.3s ease, color 0.3s ease;
+    
+    /* FIX: Add padding to prevent content from hiding under fixed TopNav. */
+    /* Matches TopNav height (60px on desktop, 50px on mobile). */
+    padding-top: 60px;
+}
+
+/* --- RESPONSIVE ADJUSTMENT FOR LAYOUT FIX --- */
+@media (max-width: 768px) {
+    .main-content {
+        padding-top: 50px; /* Matches mobile TopNav height */
+    }
+}
+
+.loading-app {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    text-align: center;
+}
+
+/* --- Authentication Form Styles --- */
+.auth-page-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    width: 100%;
+    background-color: var(--bg-color);
+    padding: 20px;
+}
+
+.auth-form-container {
+    background-color: var(--card-bg);
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px var(--shadow);
+    width: 100%;
+    max-width: 380px;
+    text-align: center;
+}
+
+.auth-header {
+    margin-bottom: 30px;
+}
+
+.auth-logo {
+    font-size: 2em;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-bottom: 10px;
+}
+
+.auth-header h1 {
+    font-size: 1.8em;
+    margin-bottom: 5px;
+    color: var(--text-color);
+}
+
+.auth-header p {
+    color: var(--text-color);
+    opacity: 0.7;
+}
+
+.auth-form .form-group {
+    margin-bottom: 15px;
+}
+
+.auth-form .form-group input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: var(--input-bg);
+    color: var(--text-color);
+    font-size: 1em;
+}
+
+.auth-button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1em;
+    cursor: pointer;
+    background-color: var(--primary-color);
+    color: white;
+    margin-top: 15px;
+}
+
+.auth-button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+.auth-footer button {
+    background: none;
+    border: none;
+    color: var(--primary-color);
+    font-size: 1em;
+    cursor: pointer;
+    font-weight: bold;
+}

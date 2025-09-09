@@ -1,0 +1,229 @@
+/* src/components/ProductsAndPlans.css */
+
+.plans-page {
+  padding: 20px;
+  background-color: var(--background-color-dark); /* Using CSS variables for theme */
+  color: var(--text-color);
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+}
+
+.plans-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.plans-header h1 {
+  font-size: 2em;
+  color: var(--primary-color);
+  margin-bottom: 20px;
+}
+
+.category-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  background-color: var(--card-background);
+  padding: 8px;
+  border-radius: 8px;
+  box-shadow: var(--shadow-light);
+}
+
+.category-tab {
+  background-color: transparent;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1em;
+  font-weight: bold;
+  color: var(--text-color-secondary);
+  transition: all 0.3s ease;
+  flex-grow: 1; /* Allow tabs to grow and fill space */
+}
+
+.category-tab:hover:not(.active) {
+  background-color: var(--hover-color);
+}
+
+.category-tab.active {
+  background-color: var(--primary-color);
+  color: #fff;
+  box-shadow: var(--shadow-medium);
+}
+
+.category-tab:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.error-message {
+  color: #ff4d4f;
+  text-align: center;
+  margin-bottom: 20px;
+  font-weight: bold;
+}
+
+.plans-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Responsive grid */
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.plan-card {
+  background-color: var(--card-background);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow-dark);
+  transition: transform 0.2s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: center; /* Center content within the card */
+}
+
+.plan-card:hover {
+  transform: translateY(-5px);
+}
+
+.product-image {
+  width: 100%;
+  height: 150px; /* Fixed height for product images */
+  object-fit: cover; /* Ensures image covers the area */
+  border-bottom: 1px solid var(--border-color);
+}
+
+.plan-card-body {
+  padding: 15px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.plan-card-body h3 {
+  font-size: 1.4em;
+  color: var(--primary-color);
+  margin-bottom: 10px;
+}
+
+.plan-card-body .price {
+  font-size: 1.2em;
+  font-weight: bold;
+  color: var(--accent-color);
+  margin-bottom: 15px;
+}
+
+.plan-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+  border-top: 1px solid var(--border-color);
+  padding-top: 15px;
+}
+
+.plan-details div {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.95em;
+  padding: 0 5px;
+}
+
+.plan-details span {
+  color: var(--text-color-secondary);
+}
+
+.plan-details strong {
+  color: var(--text-color);
+}
+
+.purchase-button,
+.confirm-btn,
+.cancel-btn {
+  width: 100%;
+  padding: 12px 0;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1em;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: auto; /* Push buttons to the bottom */
+}
+
+.purchase-button {
+  background-color: var(--button-background);
+  color: white;
+}
+
+.purchase-button:hover:not(:disabled) {
+  background-color: var(--button-hover);
+}
+
+.confirmation-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: auto;
+}
+
+.confirm-btn {
+  background-color: #28a745; /* Green for confirm */
+  color: white;
+}
+
+.confirm-btn:hover:not(:disabled) {
+  background-color: #218838;
+}
+
+.cancel-btn {
+  background-color: #dc3545; /* Red for cancel */
+  color: white;
+}
+
+.cancel-btn:hover:not(:disabled) {
+  background-color: #c82333;
+}
+
+.purchase-button:disabled,
+.confirm-btn:disabled,
+.cancel-btn:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+/* Theme variables (add these to your App.css or a dedicated theme file) */
+.dark-theme {
+  --background-color-dark: #1a1a2e;
+  --card-background: #232946;
+  --primary-color: #e0ac2b; /* A golden/yellowish primary color */
+  --accent-color: #e0ac2b;
+  --text-color: #e0e0e0;
+  --text-color-secondary: #b0b0b0;
+  --button-background: #e0ac2b;
+  --button-hover: #c49622;
+  --border-color: rgba(255, 255, 255, 0.1);
+  --hover-color: #2a304e;
+  --shadow-light: rgba(0, 0, 0, 0.1);
+  --shadow-medium: rgba(0, 0, 0, 0.3);
+  --shadow-dark: rgba(0, 0, 0, 0.5);
+}
+
+.light-theme {
+  --background-color-dark: #f0f2f5;
+  --card-background: #ffffff;
+  --primary-color: #007bff;
+  --accent-color: #007bff;
+  --text-color: #333333;
+  --text-color-secondary: #666666;
+  --button-background: #007bff;
+  --button-hover: #0056b3;
+  --border-color: rgba(0, 0, 0, 0.1);
+  --hover-color: #e9ecef;
+  --shadow-light: rgba(0, 0, 0, 0.05);
+  --shadow-medium: rgba(0, 0, 0, 0.1);
+  --shadow-dark: rgba(0, 0, 0, 0.2);
+}
