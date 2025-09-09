@@ -1,17 +1,16 @@
-/* src/components/BottomNav.css */
 .bottom-nav {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  /* Removed max-width here, let it span full width */
-  margin: 0 auto; /* Keep centering if you re-introduce max-width */
+  margin: 0 auto;
   display: flex;
   justify-content: space-around;
-  background-color: var(--header-footer-bg); /* Use the new opaque theme variable */
+  /* FIXED: background-color is now a solid, non-transparent variable */
+  background-color: var(--header-footer-bg); 
   border-top: 1px solid var(--border-color);
   z-index: 1000;
-  height: 65px; /* Slightly increased height for better touch target */
+  height: 65px;
   box-shadow: 0 -2px 10px var(--shadow-color);
 }
 
@@ -21,20 +20,20 @@
   align-items: center;
   justify-content: center;
   flex-grow: 1;
-  background: none; /* Ensure no default background */
+  background: none;
   border: none;
   color: var(--nav-text);
   cursor: pointer;
   padding: 5px 0;
   transition: color 0.2s, background-color 0.2s;
   position: relative;
-  text-decoration: none; /* In case it's rendered as a link */
+  text-decoration: none;
 }
 
 /* Active state has a top border indicator */
 .nav-item.active {
   color: var(--primary-color);
-  background-color: var(--nav-active-bg); /* Highlight background on active */
+  background-color: var(--nav-active-bg);
 }
 
 .nav-item.active::before {
@@ -48,7 +47,7 @@
   border-radius: 0 0 3px 3px;
 }
 
-.nav-item:hover:not(.active) { /* Hover effect only for non-active items */
+.nav-item:hover:not(.active) {
   color: var(--primary-color);
   background-color: var(--nav-active-bg);
 }
@@ -60,13 +59,13 @@
 
 .nav-label {
   font-size: 11px;
-  white-space: nowrap; /* Prevent label from wrapping */
+  white-space: nowrap;
 }
 
 /* --- Mobile Responsiveness for BottomNav --- */
 @media (max-width: 768px) {
   .bottom-nav {
-    height: 60px; /* Slightly smaller height on mobile */
+    height: 60px;
   }
   .nav-icon {
     font-size: 22px;
@@ -78,7 +77,7 @@
 
 @media (max-width: 480px) {
   .bottom-nav {
-    height: 55px; /* Even smaller for very small phones */
+    height: 55px;
   }
   .nav-icon {
     font-size: 20px;
