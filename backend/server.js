@@ -263,11 +263,13 @@ app.post('/api/login', async (req, res) => {
 app.get('/api/data', authenticateToken, async (req, res) => {
   try {
     // Fetch user data from Supabase
+    // FIXED: Selecting 'balance' and 'withdrawable_wallet' to match the schema
     const { data: user, error } = await supabase
       .from('users')
-      .select('id, name, email, mobile, balance, recharge_balance, product_revenue_wallet, withdrawable_wallet, is_admin')
+      .select('id, name, email, mobile, balance, withdrawable_wallet, is_admin')
       .eq('id', req.user.id)
       .single();
+
 
     if (error) {
       console.error('Supabase fetch error:', error);
@@ -358,7 +360,7 @@ app.post('/api/purchase-plan', authenticateToken, async (req, res) => {
     // Fetch user recharge_balance
     const { data: user, error: userError } = await supabase
       .from('users')
-      .select('recharge_balance')
+      .select('balance')
       .eq('id', userId)
       .single();
 
@@ -367,15 +369,15 @@ app.post('/api/purchase-plan', authenticateToken, async (req, res) => {
     }
 
     // Check sufficient balance
-    if (user.recharge_balance < planData.price) {
+    if (user.balance < planData.price) {
       // Return a detailed error message
       return res.status(400).json({ 
-        error: `Insufficient Balance. Your balance is ₹${user.recharge_balance.toFixed(2)}, but the plan costs ₹${planData.price.toFixed(2)}.` 
+        error: `Insufficient Balance. Your balance is ₹${user.balance.toFixed(2)}, but the plan costs ₹${planData.price.toFixed(2)}.` 
       });
     }
 
     // Deduct plan price atomically using RPC
-    const { data: decResult, error: decError } = await supabase.rpc('decrement_user_recharge_balance', {
+    const { data: decResult, error: decError } = await supabase.rpc('decrement_user_balance', {
       user_id: userId,
       amount: planData.price
     });
@@ -405,7 +407,7 @@ app.post('/api/purchase-plan', authenticateToken, async (req, res) => {
     if (investmentError) {
       console.error('Failed to record investment:', investmentError);
       // Rollback deduction if investment fails
-      await supabase.rpc('increment_user_recharge_balance', {
+      await supabase.rpc('increment_user_balance', {
         user_id: userId,
         amount: planData.price
       });
@@ -690,7 +692,7 @@ app.get('/api/financial-summary', authenticateToken, async (req, res) => {
     // Fetch user's wallet balances
     const { data: user, error: userError } = await supabase
       .from('users')
-      .select('product_revenue_wallet, recharge_balance')
+      .select('withdrawable_wallet, balance')
       .eq('id', userId)
       .single();
 
@@ -699,8 +701,8 @@ app.get('/api/financial-summary', authenticateToken, async (req, res) => {
       return res.status(500).json({ error: 'Failed to fetch user data' });
     }
 
-    const productRevenueWallet = parseFloat(user.product_revenue_wallet) || 0;
-    const rechargeBalance = parseFloat(user.recharge_balance) || 0;
+    const productRevenueWallet = parseFloat(user.withdrawable_wallet) || 0;
+    const rechargeBalance = parseFloat(user.balance) || 0;
 
     // Fetch user investments to calculate total theoretical profit
     const { data: investments, error: investmentsError } = await supabase
@@ -1305,14 +1307,14 @@ app.post('/api/admin/recharge/:id/approve', authenticateAdmin, async (req, res) 
     const rechargeAmount = parseFloat(recharge.amount);
 
     // Update recharge_balance using RPC
-    const { error: rechargeBalanceError } = await supabase.rpc('increment_user_recharge_balance', {
+    const { error: rechargeBalanceError } = await supabase.rpc('increment_user_balance', {
       user_id: recharge.user_id,
       amount: rechargeAmount
     });
 
     if (rechargeBalanceError) {
-      console.error('Supabase balance update error:', rechargeBalanceError);
-      return res.status(500).json({ error: 'Failed to update user balance: ' + rechargeBalanceError.message });
+      console.error('Supabase balance update error:', balanceError);
+      return res.status(500).json({ error: 'Failed to update user balance: ' + balanceError.message });
     }
 
     // Update recharge status to approved
@@ -1328,7 +1330,7 @@ app.post('/api/admin/recharge/:id/approve', authenticateAdmin, async (req, res) 
     if (rechargeUpdateError) {
       console.error('Supabase recharge update error:', rechargeUpdateError);
       // Rollback user balance update
-      await supabase.rpc('decrement_user_recharge_balance', {
+      await supabase.rpc('decrement_user_balance', {
         user_id: recharge.user_id,
         amount: rechargeAmount
       });
@@ -1511,7 +1513,7 @@ app.post('/api/admin/user/balance-adjust', authenticateAdmin, async (req, res) =
     // Get user
     const { data: user, error: userError } = await supabase
       .from('users')
-      .select('recharge_balance')
+      .select('balance')
       .eq('id', userId)
       .single();
 
@@ -1522,26 +1524,26 @@ app.post('/api/admin/user/balance-adjust', authenticateAdmin, async (req, res) =
     // Calculate new balance
     const adjustmentAmount = parseFloat(amount);
     
-    let updateError;
+    let rpcError;
     if (adjustmentAmount >= 0) {
       // Adding to balance
-      updateError = await supabase.rpc('increment_user_recharge_balance', {
+      const { error } = await supabase.rpc('increment_user_balance', {
         user_id: userId,
         amount: adjustmentAmount
       });
     } else {
       // Subtracting from balance
-      const result = await supabase.rpc('decrement_user_recharge_balance', {
+      const result = await supabase.rpc('decrement_user_balance', {
         user_id: userId,
         amount: Math.abs(adjustmentAmount)
       });
-      updateError = result.error;
+      rpcError = .error;
     }
 
-    if (updateError) {
-      console.error('Supabase balance update error:', updateError);
+    if (rpcError) {
+      console.error('Supabase balance update error:', rpcError);
       return res.status(500).json({ 
-        error: 'Failed to update user balance: ' + updateError.message,
+        error: 'Failed to update user balance: ' + rpcError.message,
         details: {
           userId: userId,
           adjustmentAmount: amount
@@ -1567,13 +1569,13 @@ app.post('/api/admin/user/balance-adjust', authenticateAdmin, async (req, res) =
       // Rollback user balance update
       if (adjustmentAmount >= 0) {
         // Rollback addition
-        await supabase.rpc('decrement_user_recharge_balance', {
+        await supabase.rpc('decrement_user_balance', {
           user_id: userId,
           amount: adjustmentAmount
         });
       } else {
         // Rollback subtraction
-        await supabase.rpc('increment_user_recharge_balance', {
+        await supabase.rpc('increment_user_balance', {
           user_id: userId,
           amount: Math.abs(adjustmentAmount)
         });
@@ -1641,7 +1643,7 @@ app.post('/api/admin/daily-recycle', authenticateAdmin, async (req, res) => {
         
         if (dailyIncome && dailyIncome > 0) {
           // Add daily income to user's product revenue wallet
-          const { error: updateUserError } = await supabase.rpc('increment_user_product_revenue_wallet', {
+          const { error: updateUserError } = await supabase.rpc('increment_user_withdrawable_wallet', {
             user_id: investment.user_id,
             amount: dailyIncome
           });
