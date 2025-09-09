@@ -1537,7 +1537,7 @@ app.post('/api/admin/user/balance-adjust', authenticateAdmin, async (req, res) =
         user_id: userId,
         amount: Math.abs(adjustmentAmount)
       });
-      rpcError = .error;
+      rpcError = error;
     }
 
     if (rpcError) {
