@@ -1,5 +1,3 @@
-// src/App.js
-
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import './App.css';
@@ -149,8 +147,9 @@ function App() {
             <div className="auth-form-container">
                 <div className="auth-header"><div className="auth-logo">InvestmentPlus</div><h1>Welcome Back</h1><p>Sign in to your account.</p></div>
                 <form onSubmit={handleLogin} className="auth-form">
-                    <div className="form-group"><input type="tel" name="mobile" placeholder="Mobile Number" value={loginFormData.mobile} onChange={handleLoginInputChange} required /></div>
-                    <div className="form-group"><input type="password" name="password" placeholder="Password" value={loginFormData.password} onChange={handleLoginInputChange} required /></div>
+                    {/* FIXED: Added autocomplete attributes */}
+                    <div className="form-group"><input type="tel" name="mobile" placeholder="Mobile Number" value={loginFormData.mobile} onChange={handleLoginInputChange} required autoComplete="tel" /></div>
+                    <div className="form-group"><input type="password" name="password" placeholder="Password" value={loginFormData.password} onChange={handleLoginInputChange} required autoComplete="current-password" /></div>
                     <button type="submit" className="auth-button" disabled={loading}>{loading ? 'Logging in...' : 'Login'}</button>
                 </form>
                 <div className="auth-footer"><p>Don’t have an account? <button onClick={() => setView('register')}>Sign up</button></p></div>
@@ -163,11 +162,12 @@ function App() {
             <div className="auth-form-container">
                 <div className="auth-header"><div className="auth-logo">InvestmentPlus</div><h1>Create Account</h1><p>Start your investment journey.</p></div>
                 <form onSubmit={handleRegister} className="auth-form">
-                    <div className="form-group"><input type="text" name="username" placeholder="Username" value={registerFormData.username} onChange={handleRegisterInputChange} required /></div>
-                    <div className="form-group"><input type="tel" name="mobile" placeholder="Mobile Number (10 digits)" value={registerFormData.mobile} onChange={handleRegisterInputChange} required pattern="\d{10}" /></div>
-                    <div className="form-group"><input type="password" name="password" placeholder="Password" value={registerFormData.password} onChange={handleRegisterInputChange} required /></div>
-                    <div className="form-group"><input type="password" name="confirmPassword" placeholder="Confirm Password" value={registerFormData.confirmPassword} onChange={handleRegisterInputChange} required /></div>
-                    <div className="form-group"><input type="text" name="referralCode" placeholder="Referral Code (Optional)" value={registerFormData.referralCode} onChange={handleRegisterInputChange} /></div>
+                    {/* FIXED: Added autocomplete attributes */}
+                    <div className="form-group"><input type="text" name="username" placeholder="Username" value={registerFormData.username} onChange={handleRegisterInputChange} required autoComplete="username" /></div>
+                    <div className="form-group"><input type="tel" name="mobile" placeholder="Mobile Number (10 digits)" value={registerFormData.mobile} onChange={handleRegisterInputChange} required pattern="\d{10}" autoComplete="tel" /></div>
+                    <div className="form-group"><input type="password" name="password" placeholder="Password" value={registerFormData.password} onChange={handleRegisterInputChange} required autoComplete="new-password" /></div>
+                    <div className="form-group"><input type="password" name="confirmPassword" placeholder="Confirm Password" value={registerFormData.confirmPassword} onChange={handleRegisterInputChange} required autoComplete="new-password" /></div>
+                    <div className="form-group"><input type="text" name="referralCode" placeholder="Referral Code (Optional)" value={registerFormData.referralCode} onChange={handleRegisterInputChange} autoComplete="off" /></div>
                     <button type="submit" className="auth-button" disabled={loading}>{loading ? 'Registering...' : 'Register'}</button>
                 </form>
                 <div className="auth-footer"><p>Already have an account? <button onClick={() => setView('login')}>Login</button></p></div>
