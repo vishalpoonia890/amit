@@ -1,8 +1,6 @@
-// src/components/ProductsAndPlans.js
-
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-// import './ProductsAndPlans.css'; // Ensure you create this CSS file
+import './ProductsAndPlans.css'; // Ensure you create this CSS file
 
 const API_BASE_URL = process.env.NODE_ENV === 'production' ? 'https://investmentpro-nu7s.onrender.com' : '';
 
@@ -27,7 +25,8 @@ function ProductsAndPlans({ token, onPlanPurchase }) {
             setAllPlans(fetchedPlans);
 
             // Dynamically determine categories from fetched data and create display names
-            const categoryMap = { 'general': 'Primary', 'vip': 'VIP', 'session':G 'Sessions' };
+            // FIXED: Removed the erroneous 'G' from this line
+            const categoryMap = { 'general': 'Primary', 'vip': 'VIP', 'session': 'Sessions' };
             const uniqueInternalCategories = [...new Set(fetchedPlans.map(plan => plan.category || 'general'))];
             const displayCategories = uniqueInternalCategories.map(cat => categoryMap[cat.toLowerCase()] || cat);
             
