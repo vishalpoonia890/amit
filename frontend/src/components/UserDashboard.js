@@ -1,7 +1,7 @@
 // src/components/UserDashboard.js
 
 import React from 'react';
-import './UserDashboard.css';
+import './UserDashboard.css'; 
 
 // Mock data for product display placeholders. Replace with API data as needed.
 const mockProductData = {
