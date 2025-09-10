@@ -1,0 +1,204 @@
+/* src/components/GameView.css */
+
+.maintenance-screen {
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--text-color-light);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.maintenance-screen h2 {
+    color: var(--primary-color);
+    margin-bottom: 15px;
+}
+
+.color-game-container {
+    padding: 15px;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    background-color: var(--card-bg-color);
+    border-radius: 8px;
+    margin-bottom: 15px;
+    box-shadow: var(--card-shadow);
+}
+
+.countdown-timer {
+    font-size: 1.5em;
+    font-weight: 700;
+    color: var(--accent-color);
+}
+
+.betting-area {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.color-btn {
+    padding: 20px 10px;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-size: 1.1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+.color-btn:hover {
+    transform: translateY(-2px);
+}
+.color-btn.red { background-color: var(--red-color); }
+.color-btn.green { background-color: var(--green-color); }
+.color-btn.violet { background-color: var(--violet-color); }
+
+.number-bets {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+}
+.number-bets button {
+    padding: 15px 5px;
+    background-color: var(--card-bg-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    border-radius: 8px;
+    font-size: 1.2em;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+}
+.number-bets button:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.bet-slip {
+    background-color: var(--card-bg-color);
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    margin-bottom: 20px;
+    box-shadow: var(--card-shadow);
+    animation: fadeIn 0.3s;
+}
+.bet-slip h4 {
+    margin-bottom: 10px;
+}
+.bet-slip .selected-bet-value {
+    font-weight: 700;
+    color: var(--primary-color);
+    text-transform: capitalize;
+}
+.bet-slip input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    text-align: center;
+    font-size: 1.1em;
+    border-radius: 5px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
+.bet-slip button {
+    width: 100%;
+    padding: 12px;
+    background-color: var(--success-color);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.1em;
+    cursor: pointer;
+}
+.bet-slip button:disabled {
+    background-color: #aaa;
+    cursor: not-allowed;
+}
+
+.game-history, .game-rules {
+    background-color: var(--card-bg-color);
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: var(--card-shadow);
+}
+.game-history h4, .game-rules h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 5px;
+}
+
+.history-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.history-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    min-width: 50px;
+    font-size: 0.9em;
+    color: var(--text-color-light);
+}
+.history-dot {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-weight: 700;
+}
+.red-dot { background-color: var(--red-color); }
+.green-dot { background-color: var(--green-color); }
+.violet-dot { background-color: var(--violet-color); }
+
+.game-rules ul { list-style: none; padding-left: 0; }
+.game-rules li { margin-bottom: 5px; display: flex; align-items: center; gap: 10px;}
+.game-rules li .red-dot, .game-rules li .green-dot, .game-rules li .violet-dot {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+}
+
+
+/* Result Modal */
+.result-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.85);
+    color: white;
+    padding: 40px;
+    border-radius: 15px;
+    z-index: 2000;
+    text-align: center;
+    min-width: 200px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+.modal-countdown {
+    font-size: 4em;
+    font-weight: 700;
+    color: var(--accent-color);
+}
+.modal-result .history-dot {
+    width: 60px;
+    height: 60px;
+    font-size: 1.5em;
+    margin: 10px auto 0;
+}
+
