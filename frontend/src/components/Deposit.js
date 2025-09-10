@@ -1,115 +1,120 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import './FormPages.css';
-import qrCodeImage from '../assets/Code.png'; // Assuming you have this image
+import qrCodeImage from '../assets/Code.png'; // Make sure you have this image in src/assets/
 
-function Deposit({ onBack }) {
-    const [activeTab, setActiveTab] = useState('upi');
-    const [upiAmount, setUpiAmount] = useState('');
-    const [upiUtr, setUpiUtr] = useState('');
-    const [cryptoAmount, setCryptoAmount] = useState('');
-    const [cryptoHash, setCryptoHash] = useState('');
+const API_BASE_URL = process.env.NODE_ENV === 'production' ? 'https://investmentpro-nu7s.onrender.com' : '';
 
-    const handleSubmit = (e) => {
+function Deposit({ token, onBack }) {
+    const [amount, setAmount] = useState(500);
+    const [utr, setUtr] = useState('');
+    const [method, setMethod] = useState('upi');
+    const [loading, setLoading] = useState(false);
+    const [showSuccess, setShowSuccess] = useState(false);
+
+    const handleSubmitRecharge = async (e) => {
         e.preventDefault();
-        // Here you would handle the form submission, e.g., send to backend
-        if (activeTab === 'upi') {
-            alert(`UPI Deposit Submitted:\nAmount: ₹${upiAmount}\nUTR: ${upiUtr}`);
-        } else {
-            alert(`Crypto Deposit Submitted:\nAmount: $${cryptoAmount}\nHash: ${cryptoHash}`);
+        if (!utr.trim()) {
+            alert('Please enter the UTR / Hash after payment to confirm your transaction.');
+            return;
         }
-        onBack(); // Go back after submission
+        setLoading(true);
+        try {
+            await axios.post(
+                `${API_BASE_URL}/api/recharge`,
+                { amount, utr: utr.trim() },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            setShowSuccess(true);
+            setTimeout(() => onBack(), 2500); // Go back after showing success message
+        } catch (error) {
+            alert(error.response?.data?.error || 'Failed to submit deposit request.');
+        } finally {
+            setLoading(false);
+        }
+    };
+    
+    const copyToClipboard = (text) => {
+        navigator.clipboard.writeText(text).then(() => {
+            alert('Copied to clipboard!');
+        }, (err) => {
+            alert('Failed to copy. Please copy it manually.');
+        });
     };
 
+    const paymentDetails = {
+        upi: { id: 'investmentplus@paytm', name: 'InvestmentPlus Corporation' },
+        crypto: { address: 'TXkjfhdskjahf234jhKJHFKJhsdfjhsdkfjhSDFDSF', network: 'USDT (TRC20)' }
+    };
+
+    if (showSuccess) {
+        return (
+             <div className="form-page">
+                 <div className="form-container">
+                    <div className="success-message">
+                        <div className="icon">✅</div>
+                        <h3>Request Submitted!</h3>
+                        <p>Your deposit is pending approval and will be reflected in your balance soon.</p>
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
     return (
-        <div className="form-page-container">
-            <div className="form-page-header">
-                <button onClick={onBack} className="back-button">←</button>
-                <h1>Deposit</h1>
-            </div>
-            
-            <div className="deposit-tabs">
-                <button 
-                    className={`tab-button ${activeTab === 'upi' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('upi')}
-                >
-                    UPI
-                </button>
-                <button 
-                    className={`tab-button ${activeTab === 'crypto' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('crypto')}
-                >
-                    Crypto (USDT)
-                </button>
-            </div>
+        <div className="form-page">
+            <button className="back-button" onClick={onBack}>← Back</button>
+            <div className="form-container">
+                <h2 className="form-title">Deposit Funds</h2>
+                
+                <div className="method-selector">
+                    <button className={method === 'upi' ? 'active' : ''} onClick={() => setMethod('upi')}>UPI</button>
+                    <button className={method === 'crypto' ? 'active' : ''} onClick={() => setMethod('crypto')}>Crypto</button>
+                </div>
 
-            <form onSubmit={handleSubmit} className="deposit-form">
-                {activeTab === 'upi' && (
-                    <div className="tab-content">
-                        <h3>Pay with UPI</h3>
-                        <div className="qr-code-container">
-                            <img src={qrCodeImage} alt="UPI QR Code" />
-                            <p>Scan the QR code to pay.</p>
-                        </div>
-                        <div className="form-input-group">
-                            <label htmlFor="upiAmount">Amount (INR)</label>
-                            <input 
-                                type="number" 
-                                id="upiAmount" 
-                                value={upiAmount}
-                                onChange={(e) => setUpiAmount(e.target.value)}
-                                placeholder="Enter amount" 
-                                required 
-                            />
-                        </div>
-                         <div className="form-input-group">
-                            <label htmlFor="upiUtr">UTR Number</label>
-                            <input 
-                                type="text" 
-                                id="upiUtr" 
-                                value={upiUtr}
-                                onChange={(e) => setUpiUtr(e.target.value)}
-                                placeholder="Enter 12-digit UTR" 
-                                required 
-                            />
-                        </div>
+                <div className="form-card">
+                    <h4>Step 1: Make Payment</h4>
+                    <p className="form-subtitle">Enter an amount and pay using the details below.</p>
+                    
+                     <div className="form-group">
+                        <label>Amount (₹)</label>
+                        <input type="number" value={amount} onChange={(e) => setAmount(Math.max(0, parseInt(e.target.value, 10)))} min="1" placeholder="Enter amount" />
                     </div>
-                )}
 
-                {activeTab === 'crypto' && (
-                     <div className="tab-content">
-                        <h3>Pay with USDT (TRC20)</h3>
-                         <div className="qr-code-container">
-                            <img src={qrCodeImage} alt="USDT TRC20 QR Code" />
-                            <p className="wallet-address">Your-TRC20-Wallet-Address-Here</p>
-                        </div>
-                         <div className="form-input-group">
-                            <label htmlFor="cryptoAmount">Amount (USD)</label>
-                            <input 
-                                type="number" 
-                                id="cryptoAmount" 
-                                value={cryptoAmount}
-                                onChange={(e) => setCryptoAmount(e.target.value)}
-                                placeholder="Enter USDT amount" 
-                                required 
-                            />
-                        </div>
-                         <div className="form-input-group">
-                            <label htmlFor="cryptoHash">Transaction Hash</label>
-                            <input 
-                                type="text" 
-                                id="cryptoHash"
-                                value={cryptoHash}
-                                onChange={(e) => setCryptoHash(e.target.value)} 
-                                placeholder="Enter transaction hash" 
-                                required 
-                            />
-                        </div>
+                    <div className="qr-code-container">
+                        <img src={qrCodeImage} alt="Payment QR Code" />
                     </div>
-                )}
-                <button type="submit" className="form-submit-button">Submit</button>
-            </form>
+
+                    {method === 'upi' && (
+                        <div className="payment-info">
+                            <p><strong>UPI ID:</strong> {paymentDetails.upi.id} <button onClick={() => copyToClipboard(paymentDetails.upi.id)} className="copy-btn">Copy</button></p>
+                            <p><strong>Name:</strong> {paymentDetails.upi.name}</p>
+                        </div>
+                    )}
+
+                    {method === 'crypto' && (
+                        <div className="payment-info">
+                             <p><strong>Network:</strong> {paymentDetails.crypto.network}</p>
+                            <p><strong>Address:</strong> <span className="crypto-address">{paymentDetails.crypto.address}</span> <button onClick={() => copyToClipboard(paymentDetails.crypto.address)} className="copy-btn">Copy</button></p>
+                        </div>
+                    )}
+                </div>
+
+                <form onSubmit={handleSubmitRecharge} className="form-card">
+                     <h4>Step 2: Confirm Deposit</h4>
+                     <p className="form-subtitle">After paying, enter the transaction number to confirm.</p>
+                    <div className="form-group">
+                        <label htmlFor="utr">{method === 'upi' ? 'UTR Number' : 'Transaction Hash'}</label>
+                        <input id="utr" type="text" value={utr} onChange={(e) => setUtr(e.target.value)} placeholder={method === 'upi' ? 'Enter 12-digit UTR' : 'Enter transaction hash'} required />
+                    </div>
+                    <button type="submit" className="form-button" disabled={loading}>
+                        {loading ? 'Submitting...' : 'Confirm Deposit'}
+                    </button>
+                </form>
+            </div>
         </div>
     );
 }
 
 export default Deposit;
+
