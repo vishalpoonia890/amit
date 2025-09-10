@@ -15,7 +15,6 @@ import Deposit from './components/Deposit';
 import Withdrawal from './components/Withdrawal';
 import BetHistory from './components/BetHistory';
 
-
 const API_BASE_URL = process.env.NODE_ENV === 'production' ? 'https://investmentpro-nu7s.onrender.com' : '';
 
 function App() {
@@ -29,7 +28,6 @@ function App() {
     const [registerFormData, setRegisterFormData] = useState({ username: '', mobile: '', password: '', confirmPassword: '', referralCode: '' });
     const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
     const [isContainerActive, setIsContainerActive] = useState(false);
-
 
     const toggleTheme = () => {
         const newTheme = theme === 'light' ? 'dark' : 'light';
@@ -56,7 +54,6 @@ function App() {
     const fetchAllUserData = useCallback(async (authToken) => {
         if (!authToken) return;
         try {
-            // Fetch user data and financial summary in parallel
             const [dataRes, summaryRes] = await Promise.all([
                 axios.get(`${API_BASE_URL}/api/data`, { headers: { Authorization: `Bearer ${authToken}` } }),
                 axios.get(`${API_BASE_URL}/api/financial-summary`, { headers: { Authorization: `Bearer ${authToken}` } })
@@ -65,8 +62,10 @@ function App() {
             setFinancialSummary(summaryRes.data);
         } catch (err) {
             console.error("Failed to fetch user data:", err);
-            showNotification('Session expired. Please log in again.', 'error');
-            handleLogout();
+            if (err.response?.status === 401 || err.response?.status === 403) {
+                 showNotification('Session expired. Please log in again.', 'error');
+                 handleLogout();
+            }
         }
     }, [handleLogout]);
 
@@ -83,6 +82,16 @@ function App() {
             setView('login');
         }
     }, [fetchAllUserData]);
+
+    // Auto-refresh user data every 5 seconds for live balance updates
+    useEffect(() => {
+        if (token) {
+            const interval = setInterval(() => {
+                fetchAllUserData(token);
+            }, 5000);
+            return () => clearInterval(interval);
+        }
+    }, [token, fetchAllUserData]);
 
     const handleLoginInputChange = (e) => setLoginFormData({ ...loginFormData, [e.target.name]: e.target.value });
     const handleRegisterInputChange = (e) => setRegisterFormData({ ...registerFormData, [e.target.name]: e.target.value });
@@ -132,59 +141,56 @@ function App() {
 
     const renderAuthForms = () => (
         <div className={`auth-container ${isContainerActive ? 'active' : ''}`}>
-            <div className="curved-shape"></div>
-            <div className="curved-shape2"></div>
-            
             <div className="form-box Login">
-                <h2 className="animation" style={{'--D':0, '--S':21}}>Login</h2>
+                <h2>Login</h2>
                 <form onSubmit={handleLogin}>
-                    <div className="input-box animation" style={{'--D':1, '--S':22}}>
+                    <div className="input-box">
                         <input type="tel" name="mobile" value={loginFormData.mobile} onChange={handleLoginInputChange} required autoComplete="tel"/>
                         <label>Mobile Number</label>
                     </div>
-                    <div className="input-box animation" style={{'--D':2, '--S':23}}>
+                    <div className="input-box">
                         <input type="password" name="password" value={loginFormData.password} onChange={handleLoginInputChange} required autoComplete="current-password"/>
                         <label>Password</label>
                     </div>
-                    <button className="btn animation" type="submit" disabled={loading} style={{'--D':3, '--S':24}}>{loading ? 'Logging in...' : 'Login'}</button>
-                    <div className="regi-link animation" style={{'--D':4, '--S':25}}>
+                    <button className="btn" type="submit" disabled={loading}>{loading ? 'Logging in...' : 'Login'}</button>
+                    <div className="regi-link">
                         <p>Don't have an account? <button type="button" onClick={() => setIsContainerActive(true)} className="SignUpLink">Sign Up</button></p>
                     </div>
                 </form>
             </div>
             <div className="info-content Login">
-                <h2 className="animation" style={{'--D':0, '--S':20}}>WELCOME BACK!</h2>
-                <p className="animation" style={{'--D':1, '--S':21}}>We are happy to have you with us again. Your next opportunity awaits.</p>
+                <h2>WELCOME BACK!</h2>
+                <p>We are happy to have you with us again. Your next opportunity awaits.</p>
             </div>
 
             <div className="form-box Register">
-                <h2 className="animation" style={{'--li':17, '--S':0}}>Register</h2>
+                <h2>Register</h2>
                 <form onSubmit={handleRegister}>
-                    <div className="input-box animation" style={{'--li':18, '--S':1}}>
+                    <div className="input-box">
                         <input type="text" name="username" value={registerFormData.username} onChange={handleRegisterInputChange} required autoComplete="username"/>
                         <label>Username</label>
                     </div>
-                    <div className="input-box animation" style={{'--li':19, '--S':2}}>
+                    <div className="input-box">
                         <input type="tel" name="mobile" value={registerFormData.mobile} onChange={handleRegisterInputChange} required autoComplete="tel"/>
                         <label>Mobile Number</label>
                     </div>
-                    <div className="input-box animation" style={{'--li':20, '--S':3}}>
+                    <div className="input-box">
                         <input type="password" name="password" value={registerFormData.password} onChange={handleRegisterInputChange} required autoComplete="new-password"/>
                         <label>Password</label>
                     </div>
-                     <div className="input-box animation" style={{'--li':21, '--S':4}}>
+                     <div className="input-box">
                         <input type="password" name="confirmPassword" value={registerFormData.confirmPassword} onChange={handleRegisterInputChange} required autoComplete="new-password"/>
                         <label>Confirm Password</label>
                     </div>
-                    <button className="btn animation" type="submit" disabled={loading} style={{'--li':22, '--S':5}}>{loading ? 'Registering...' : 'Register'}</button>
-                    <div className="regi-link animation" style={{'--li':23, '--S':6}}>
+                    <button className="btn" type="submit" disabled={loading}>{loading ? 'Registering...' : 'Register'}</button>
+                    <div className="regi-link">
                         <p>Already have an account? <button type="button" onClick={() => setIsContainerActive(false)} className="SignInLink">Sign In</button></p>
                     </div>
                 </form>
             </div>
              <div className="info-content Register">
-                <h2 className="animation" style={{'--li':17, '--S':0}}>JOIN US!</h2>
-                <p className="animation" style={{'--li':18, '--S':1}}>Create your account to start your journey towards financial growth.</p>
+                <h2>JOIN US!</h2>
+                <p>Create your account to start your journey towards financial growth.</p>
             </div>
         </div>
     );
@@ -199,7 +205,7 @@ function App() {
 
         switch (view) {
             case 'dashboard': return <UserDashboard onViewChange={setView} />;
-            case 'plans': return <ProductsAndPlans onPlanPurchase={() => { showNotification('Plan purchased!', 'success'); fetchAllUserData(token); setView('dashboard'); }} />;
+            case 'plans': return <ProductsAndPlans token={token} onPlanPurchase={() => { showNotification('Plan purchased!', 'success'); fetchAllUserData(token); setView('dashboard'); }} />;
             case 'game': return <GameView token={token} financialSummary={financialSummary} onViewChange={setView} onBetPlaced={() => fetchAllUserData(token)} />;
             case 'news': return <NewsView />;
             case 'account': return <AccountView userData={userData} financialSummary={financialSummary} onLogout={handleLogout} onViewChange={setView} token={token}/>;
