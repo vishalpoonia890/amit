@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import './App.css';
-import { API_BASE_URL } from './apiConfig';
+const API_BASE_URL = process.env.NODE_ENV === 'production' ? 'https://investmentpro-nu7s.onrender.com' : '';
 
 // --- COMPONENT IMPORTS ---
 import UserDashboard from './components/UserDashboard';
