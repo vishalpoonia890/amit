@@ -52,8 +52,8 @@ function AdminPanel({ token }) {
             'approve-withdrawal': `/api/admin/withdrawal/${id}/approve`,
             'reject-withdrawal': `/api/admin/withdrawal/${id}/reject`,
         };
-        try {
-            const res = await axios.post(urlMap[action], {}, { headers: { Authorization: `Bearer ${token}` } });
+       try {
+            const res = await axios.post(`${API_BASE_URL}${urlMap[action]}`, {}, { headers: { Authorization: `Bearer ${token}` } });
             alert(res.data.message || 'Action successful!');
             fetchData(false);
         } catch (err) {
