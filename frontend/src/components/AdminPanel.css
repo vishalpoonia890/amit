@@ -1,175 +1,181 @@
-/* src/components/AdminPanel.css */
 .admin-panel {
-    padding: 15px;
-    padding-bottom: 80px; /* Space for bottom nav if it were visible */
-    background-color: var(--bg-color);
+    padding: 20px;
+    padding-bottom: 80px;
+    max-width: 1200px;
+    margin: 0 auto;
     color: var(--text-color);
 }
 
-.admin-header {
+.admin-panel h1 {
+    text-align: center;
+    color: var(--primary-color);
+    margin-bottom: 30px;
+}
+
+.admin-section {
+    background-color: var(--card-bg-color);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 25px;
+    box-shadow: var(--card-shadow);
+    border: 1px solid var(--border-color);
+}
+
+.admin-section h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+    font-size: 1.3em;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid var(--border-color);
 }
 
-.admin-header h1 {
-    color: var(--text-color);
-    margin: 0;
-    font-size: 1.8em;
+/* Controls */
+.control-group {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 10px;
 }
-
-.admin-header button {
-    background-color: var(--error-color);
-    color: white;
-    padding: 8px 16px;
+.control-group label {
+    font-weight: 600;
+    margin-right: 15px;
+}
+.toggle-switch {
+    display: flex;
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    overflow: hidden;
+}
+.toggle-switch button {
+    background: none;
     border: none;
+    padding: 8px 20px;
+    cursor: pointer;
+    color: var(--text-color-light);
+    font-weight: 500;
+    transition: background-color 0.2s, color 0.2s;
+}
+.toggle-switch button.active {
+    background-color: var(--primary-color);
+    color: white;
+}
+.input-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.input-group input {
+    width: 180px;
+    padding: 8px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-color);
+    border-radius: 8px;
+    color: var(--text-color);
+}
+.input-group button {
+    background-color: var(--primary-color-light);
+    color: var(--primary-color);
+    font-weight: 600;
+    border: none;
+    padding: 9px 15px;
     border-radius: 8px;
     cursor: pointer;
-    font-weight: 600;
 }
 
-.admin-main-content {
-    display: grid;
-    gap: 20px;
-    grid-template-columns: 1fr; /* Default to single column */
+/* Whitelist */
+.whitelist-display {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid var(--border-color);
 }
-
-@media (min-width: 768px) {
-    .admin-main-content {
-        grid-template-columns: 1fr 1fr; /* Two columns for tablets and up */
-    }
+.whitelist-display strong { color: var(--text-color); }
+.whitelist-display p { color: var(--text-color-light); font-size: 0.9em; margin-top: 5px; }
+.whitelist-display ul {
+    list-style: none;
+    padding: 0;
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
 }
-
-.admin-card {
-    background-color: var(--card-bg-color);
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: var(--card-shadow);
+.whitelist-display li {
+    background-color: var(--bg-color);
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.9em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
-
-.admin-card h4 {
-    margin-top: 0;
-    margin-bottom: 15px;
-    color: var(--text-color);
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 10px;
-    font-size: 1.2em;
-}
-
-.control-btn {
-    width: 100%;
-    padding: 12px;
-    font-size: 1em;
-    font-weight: 600;
+.remove-btn {
+    background: var(--error-color);
+    color: white;
     border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    line-height: 1;
+}
+
+/* Live Bet Summary */
+.bet-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 10px;
+    margin-bottom: 15px;
+}
+.bet-summary-item {
+    background-color: var(--bg-color);
+    border: 1px solid var(--border-color);
     border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+}
+.bet-number { display: block; font-weight: bold; font-size: 1.2em; margin-bottom: 5px; }
+.bet-amount { font-size: 0.9em; color: var(--text-color-light); }
+.bet-summary-colors { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.bet-summary-item.color { flex-basis: 120px; }
+.bet-number.red { color: #f44336; }
+.bet-number.green { color: #4caf50; }
+.bet-number.violet { color: #9c27b0; }
+
+.refresh-btn {
+    background: none;
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
+    font-size: 0.7em;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.2s;
 }
-
-.control-btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-.settle-btn {
-    background-color: var(--accent-color);
-    color: white;
-}
-.settle-btn:hover:not(:disabled) {
-    background-color: #ff8c00; /* Darker orange */
-}
+.refresh-btn:hover { background-color: var(--primary-color-light); }
 
 
-.game-controls {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    margin-bottom: 15px;
-}
-
-.manual-winner-control {
-    display: flex;
-    gap: 10px;
-    margin-top: 15px;
-}
-
-.manual-winner-control input {
-    flex-grow: 1;
-    padding: 10px;
-    border: 1px solid var(--border-color);
-    border-radius: 5px;
-    background-color: var(--bg-color);
-    color: var(--text-color);
-    text-align: center;
-    font-weight: bold;
-}
-
-.manual-winner-control button {
-    background-color: var(--primary-color);
-    color: white;
-    padding: 0 15px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-.manual-winner-control button:hover:not(:disabled) {
-    background-color: var(--primary-hover-color);
-}
-
-.request-list {
-    max-height: 300px;
-    overflow-y: auto;
-    padding-right: 5px;
-}
-
-.request-item {
-    border: 1px solid var(--border-color);
-    padding: 10px;
-    border-radius: 8px;
-    margin-bottom: 10px;
-    font-size: 0.9em;
-}
-
-.request-item div {
-    margin-bottom: 5px;
-    color: var(--text-color-light);
-    word-break: break-all;
-}
-
-.actions {
-    margin-top: 10px;
-    display: flex;
-    gap: 10px;
-}
-
-.actions button {
-    padding: 6px 12px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: 500;
-}
-
-.actions .approve-btn {
-    background-color: var(--success-color);
-    color: white;
-}
-.actions .reject-btn {
-    background-color: var(--error-color);
-    color: white;
-}
-
-/* Toggle Switch CSS */
-.switch { position: relative; display: inline-block; width: 50px; height: 28px; }
-.switch input { opacity: 0; width: 0; height: 0; }
-.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; }
-.slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; }
-input:checked + .slider { background-color: var(--primary-color); }
-input:checked + .slider:before { transform: translateX(22px); }
-.slider.round { border-radius: 34px; }
-.slider.round:before { border-radius: 50%; }
+/* Table Styling */
+.table-container { overflow-x: auto; }
+.request-table { width: 100%; border-collapse: collapse; font-size: 0.9em; }
+.request-table th, .request-table td { padding: 12px 15px; text-align: left; border-bottom: 1px solid var(--border-color); }
+.request-table td { color: var(--text-color-light); }
+.request-table td:first-child { color: var(--text-color); font-weight: 500; }
+.request-table th { background-color: var(--bg-color); font-weight: 600; }
+.request-table tr:last-child td { border-bottom: none; }
+.request-table tr:hover td { background-color: var(--bg-color); }
+.request-table .actions { display: flex; gap: 10px; }
+.details-cell { max-width: 200px; word-break: break-all; font-size: 0.8em; }
+.approve-btn, .reject-btn { border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; color: white; font-weight: 500; transition: opacity 0.2s; }
+.approve-btn:hover, .reject-btn:hover { opacity: 0.8; }
+.approve-btn { background-color: var(--success-color); }
+.reject-btn { background-color: var(--error-color); }
 
