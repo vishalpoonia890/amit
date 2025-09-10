@@ -1,10 +1,10 @@
+
+import './UserDashboard.css';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './UserDashboard.css';
-
 const API_BASE_URL = process.env.NODE_ENV === 'production' ? 'https://investmentpro-nu7s.onrender.com' : '';
 
-// Helper for the scrolling withdrawal ticker
 const Marquee = ({ items }) => (
     <div className="marquee-container">
         <div className="marquee-content">
@@ -23,7 +23,6 @@ const Marquee = ({ items }) => (
     </div>
 );
 
-// Helper for the accordion updates
 const AccordionItem = ({ title, children }) => {
     const [isOpen, setIsOpen] = useState(false);
     return (
@@ -43,6 +42,7 @@ function UserDashboard({ onViewChange }) {
     useEffect(() => {
         const fetchWithdrawals = async () => {
             try {
+                // In a real app, you might fetch real recent withdrawals here
                 const { data } = await axios.get(`${API_BASE_URL}/api/fake-withdrawals`);
                 if (data.withdrawals && data.withdrawals.length > 0) {
                     setWithdrawals(data.withdrawals);
@@ -64,7 +64,7 @@ function UserDashboard({ onViewChange }) {
         { id: 'withdraw', label: 'Withdraw', icon: '💸' },
         { id: 'promotions', label: 'Promotions', icon: '🔥' },
     ];
-
+    
     return (
         <div className="user-dashboard">
             <div className="dashboard-card quick-access-menu">
@@ -81,11 +81,11 @@ function UserDashboard({ onViewChange }) {
             <div className="dashboard-card video-section">
                  <h4>How to Earn with InvestmentPlus</h4>
                  <div className="video-placeholder">
-                    <iframe
-                        src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1&loop=1&playlist=dQw4w9WgXcQ&controls=0"
+                    <iframe 
+                        src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1&loop=1&playlist=dQw4w9WgXcQ&controls=0" 
                         title="Promotional Video"
-                        frameBorder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        frameBorder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                         allowFullScreen>
                     </iframe>
                  </div>
