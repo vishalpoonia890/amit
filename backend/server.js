@@ -308,127 +308,128 @@ const getGameSettings = async () => {
     return data;
 };
 
-// Main Game Loop
-const runGameCycle = async () => {
-    clearInterval(gameState.timer); // Clear any existing timer
+// --- GAME LOGIC ---
+const GAME_DURATION_SECONDS = 180; // 3 minutes
+const BETTING_WINDOW_SECONDS = 150; // Bets allowed for first 2.5 minutes
 
-    const settings = await getGameSettings();
-    if (!settings.is_active) {
-        console.log("Game is not active. Stopping cycle.");
-        gameState.phase = 'maintenance';
-        return;
-    }
-
-    // --- BETTING PHASE ---
-    gameState.phase = 'betting';
-    const { data: latestRound } = await supabase.from('game_rounds').select('period_id').order('period_id', { ascending: false }).limit(1).single();
-    gameState.periodId = latestRound ? latestRound.period_id + 1 : new Date().getFullYear().toString() + "000001";
-    gameState.result = null;
-    gameState.countdown = 175; // 2 minutes 55 seconds for betting
-
-    await supabase.from('game_rounds').insert([{ period_id: gameState.periodId, status: 'betting' }]);
-
-    gameState.timer = setInterval(async () => {
-        gameState.countdown--;
-        if (gameState.countdown <= 0) {
-            clearInterval(gameState.timer);
-
-            // --- WAITING PHASE (5s) ---
-            gameState.phase = 'waiting';
-            gameState.countdown = 5;
-            await supabase.from('game_rounds').update({ status: 'waiting' }).eq('period_id', gameState.periodId);
-
-            gameState.timer = setInterval(async () => {
-                gameState.countdown--;
-                if (gameState.countdown <= 0) {
-                    clearInterval(gameState.timer);
-
-                    // --- RESULT PHASE ---
-                    gameState.phase = 'result';
-                    const currentSettings = await getGameSettings(); // Re-fetch settings for latest admin input
-
-                    let winningNumber;
-
-                    if (currentSettings.mode === 'admin' && currentSettings.next_winner !== null && currentSettings.next_winner >= 0 && currentSettings.next_winner <= 9) {
-                        winningNumber = currentSettings.next_winner;
-                        // Reset next_winner after using it
-                        await supabase.from('game_settings').update({ next_winner: null }).eq('id', currentSettings.id);
-                    } else {
-                        // Auto-mode algorithm
-                        const { data: bets, error } = await supabase.from('bets').select('*').eq('period_id', gameState.periodId);
-                        if (error) {
-                            console.error("Error fetching bets for result calculation:", error);
-                            winningNumber = Math.floor(Math.random() * 10); // Fallback
-                        } else {
-                            const outcomes = Array(10).fill(0); // Payout for each number 0-9
-                            bets.forEach(bet => {
-                                const betAmount = bet.amount;
-                                if (bet.bet_type === 'number' && parseInt(bet.bet_value) >= 0 && parseInt(bet.bet_value) <= 9) {
-                                    outcomes[parseInt(bet.bet_value)] += betAmount * 9.2;
-                                } else if (bet.bet_type === 'color') {
-                                    const colorMap = {
-                                        red: [1, 3, 7, 9],
-                                        green: [2, 4, 6, 8],
-                                        violet: [0, 5]
-                                    };
-                                    if (bet.bet_value === 'red') colorMap.red.forEach(n => outcomes[n] += betAmount * 1.98);
-                                    if (bet.bet_value === 'green') colorMap.green.forEach(n => outcomes[n] += betAmount * 1.98);
-                                    if (bet.bet_value === 'violet') colorMap.violet.forEach(n => outcomes[n] += betAmount * 4.5);
-                                }
-                            });
-                             winningNumber = outcomes.indexOf(Math.min(...outcomes));
-                        }
-                    }
-
-                    gameState.result = winningNumber;
-
-                    // Update round with result
-                    await supabase.from('game_rounds').update({ status: 'completed', result: winningNumber }).eq('period_id', gameState.periodId);
-
-                    // Process payouts
-                    const { data: winningBets } = await supabase.from('bets').select('*').eq('period_id', gameState.periodId);
-                    
-                    const getColorForResult = (num) => {
-                         if ([0, 5].includes(num)) return 'violet';
-                         if ([1, 3, 7, 9].includes(num)) return 'red';
-                         if ([2, 4, 6, 8].includes(num)) return 'green';
-                    };
-                    const winningColor = getColorForResult(winningNumber);
-
-                    for (const bet of winningBets) {
-                        let payout = 0;
-                        if (bet.bet_type === 'number' && parseInt(bet.bet_value) === winningNumber) {
-                            payout = bet.amount * 9.2;
-                        } else if (bet.bet_type === 'color') {
-                            if (bet.bet_value === winningColor) {
-                                payout = bet.amount * 1.98;
-                            }
-                            if (bet.bet_value === 'violet' && winningColor === 'violet') {
-                                payout = bet.amount * 4.5;
-                            }
-                        }
-                        
-                        if (payout > 0) {
-                             await supabase.rpc('increment_user_withdrawable_wallet', { p_user_id: bet.user_id, p_amount: payout });
-                             await supabase.from('bets').update({ status: 'won', payout: payout }).eq('id', bet.id);
-                        } else {
-                             await supabase.from('bets').update({ status: 'lost', payout: 0 }).eq('id', bet.id);
-                        }
-                    }
-                    
-                    // Start next cycle after a delay
-                    setTimeout(runGameCycle, 5000); // 5s for users to see result
-                }
-            }, 1000);
-        }
-    }, 1000);
+const getNumberProperties = (num) => {
+    const colors = [];
+    if ([1, 3, 7, 9].includes(num)) colors.push('Red');
+    if ([2, 4, 6, 8].includes(num)) colors.push('Green');
+    if ([0, 5].includes(num)) colors.push('Violet');
+    return colors;
 };
 
+async function runGameCycle() {
+    try {
+        const { data: gameState, error } = await supabase.from('game_state').select('*').single();
+        if (error || !gameState || !gameState.is_on) return;
 
-// Endpoint for client to get current game state
-app.get('/api/game-state', (req, res) => {
-    res.json(gameState);
+        const { data: bets, error: betsError } = await supabase.from('bets').select('*').eq('game_period', gameState.current_period);
+        if (betsError) {
+            console.error("Error fetching bets:", betsError);
+            return;
+        }
+
+        let winningNumber;
+
+        if (gameState.mode === 'admin' && gameState.next_result !== null) {
+            winningNumber = gameState.next_result;
+        } else {
+            // AUTO MODE ALGORITHM
+            const totalPayouts = Array(10).fill(0);
+            let totalBetAmount = 0;
+            bets.forEach(b => totalBetAmount += b.amount);
+
+            for (let i = 0; i < 10; i++) {
+                const potentialColors = getNumberProperties(i);
+                let payoutForI = 0;
+                bets.forEach(bet => {
+                    if (bet.bet_on == i) payoutForI += bet.amount * 9.2;
+                    if (potentialColors.includes(bet.bet_on)) {
+                        payoutForI += bet.amount * (bet.bet_on === 'Violet' ? 4.5 : 1.98);
+                    }
+                });
+                totalPayouts[i] = payoutForI;
+            }
+            
+            let minPayout = Infinity;
+            let potentialWinners = [];
+
+            for (let i = 0; i < 10; i++) {
+                // Ensure house profit of at least 10%
+                if (totalPayouts[i] <= totalBetAmount * 0.9) {
+                     if (totalPayouts[i] < minPayout) {
+                        minPayout = totalPayouts[i];
+                        potentialWinners = [i];
+                    } else if (totalPayouts[i] === minPayout) {
+                        potentialWinners.push(i);
+                    }
+                }
+            }
+
+            if(potentialWinners.length > 0) {
+                 winningNumber = potentialWinners[Math.floor(Math.random() * potentialWinners.length)];
+            } else {
+                // Fallback if no outcome guarantees profit (pick lowest loss)
+                minPayout = Math.min(...totalPayouts);
+                const lowestLossNumbers = totalPayouts.map((p, i) => p === minPayout ? i : -1).filter(i => i !== -1);
+                winningNumber = lowestLossNumbers[Math.floor(Math.random() * lowestLossNumbers.length)];
+            }
+        }
+
+        const winningColors = getNumberProperties(winningNumber);
+        await supabase.from('game_results').insert({ game_period: gameState.current_period, result_number: winningNumber });
+        
+        for (const bet of bets) {
+            let payout = 0;
+            let status = 'lost';
+            if (bet.bet_on == winningNumber || winningColors.includes(bet.bet_on)) {
+                status = 'won';
+                if (bet.bet_on == winningNumber) payout += bet.amount * 9.2;
+                if (winningColors.includes(bet.bet_on)) {
+                    payout += bet.amount * (bet.bet_on === 'Violet' ? 4.5 : 1.98);
+                }
+            }
+            if (payout > 0) {
+                await supabase.rpc('increment_user_withdrawable_wallet', { p_user_id: bet.user_id, p_amount: payout });
+            }
+            await supabase.from('bets').update({ status, payout }).eq('id', bet.id);
+        }
+
+        const nextPeriod = gameState.current_period + 1;
+        await supabase.from('game_state').update({
+            current_period: nextPeriod,
+            countdown_start_time: new Date().toISOString(),
+            next_result: null
+        }).eq('id', 1);
+
+    } catch (e) {
+        console.error("Game Cycle Error:", e);
+    }
+}
+
+setInterval(runGameCycle, GAME_DURATION_SECONDS * 1000);
+
+
+app.get('/api/game-state', authenticateToken, async (req, res) => {
+    const { data: gameState, error } = await supabase.from('game_state').select('*').single();
+    if (error) return res.status(500).json({ error: 'Failed to fetch game state' });
+
+    if (gameState.maintenance_mode && !gameState.whitelisted_users.includes(req.user.id)) {
+        return res.json({ maintenance: true });
+    }
+
+    const serverTime = new Date();
+    const startTime = new Date(gameState.countdown_start_time);
+    const time_left = GAME_DURATION_SECONDS - Math.floor((serverTime - startTime) / 1000);
+    const can_bet = time_left > (GAME_DURATION_SECONDS - BETTING_WINDOW_SECONDS);
+
+    const { data: results } = await supabase.from('game_results').select('*').order('created_at', { ascending: false }).limit(20);
+    
+    res.json({ ...gameState, time_left, can_bet, results });
 });
+
 
 // User places a bet
 app.post('/api/place-bet', authenticateToken, async (req, res) => {
@@ -477,42 +478,117 @@ app.post('/api/place-bet', authenticateToken, async (req, res) => {
     res.json({ message: "Bet placed successfully!" });
 });
 
-// Admin endpoint to get game status
+// --- ADMIN API ENDPOINTS ---
+
 app.get('/api/admin/game-status', authenticateAdmin, async (req, res) => {
-    const settings = await getGameSettings();
-    res.json(settings);
+    const { data, error } = await supabase.from('game_state').select('*').single();
+    if (error) return res.status(500).json({ error: 'Failed to fetch game status' });
+    res.json({ status: data });
 });
 
-// Admin endpoint to update game status
-app.post('/api/admin/update-game-status', authenticateAdmin, async (req, res) => {
-    const { is_active, mode, next_winner } = req.body;
+app.post('/api/admin/game-status', authenticateAdmin, async (req, res) => {
+    const { is_on, mode } = req.body;
+    const update = {};
+    if(typeof is_on === 'boolean') update.is_on = is_on;
+    if(mode) update.mode = mode;
+
+    const { data, error } = await supabase.from('game_state').update(update).eq('id', 1).select().single();
+    if(error) return res.status(500).json({error: 'Failed to update game status'});
+    res.json({message: 'Game status updated', status: data});
+});
+
+app.post('/api/admin/game-maintenance', authenticateAdmin, async (req, res) => {
+    const { maintenance_mode, whitelisted_users } = req.body;
+    const updateData = {};
+    if (typeof maintenance_mode === 'boolean') updateData.maintenance_mode = maintenance_mode;
+    if (Array.isArray(whitelisted_users)) {
+        updateData.whitelisted_users = whitelisted_users.map(id => parseInt(id, 10)).filter(id => !isNaN(id));
+    }
+    if (Object.keys(updateData).length === 0) return res.status(400).json({ error: 'No valid data provided.' });
+
+    const { data, error } = await supabase.from('game_state').update(updateData).eq('id', 1).select().single();
+    if (error) return res.status(500).json({ error: 'Failed to update maintenance settings.' });
+    res.json({ message: 'Maintenance settings updated.', status: data });
+});
+
+app.post('/api/admin/game-next-result', authenticateAdmin, async (req, res) => {
+    const { result } = req.body;
+    const { data, error } = await supabase.from('game_state').update({ next_result: result }).eq('id', 1);
+    if(error) return res.status(500).json({error: 'Failed to set next result'});
+    res.json({message: 'Next result set'});
+});
+
+app.get('/api/admin/current-bets', authenticateAdmin, async (req, res) => {
+    const { data: gameState } = await supabase.from('game_state').select('current_period').single();
+    const { data: bets } = await supabase.from('bets').select('bet_on, amount').eq('game_period', gameState.current_period);
     
-    // Fetch current settings to avoid overwriting unrelated fields
-    const currentSettings = await getGameSettings();
-    
-    const updatePayload = {
-        is_active: is_active !== undefined ? is_active : currentSettings.is_active,
-        mode: mode !== undefined ? mode : currentSettings.mode,
-        next_winner: next_winner !== undefined ? next_winner : currentSettings.next_winner,
+    const summary = {
+        'Red': 0, 'Green': 0, 'Violet': 0,
+        '0': 0, '1': 0, '2': 0, '3': 0, '4': 0, '5': 0, '6': 0, '7': 0, '8': 0, '9': 0
     };
 
-    const { data, error } = await supabase.from('game_settings')
-        .update(updatePayload)
-        .eq('id', currentSettings.id)
-        .select()
-        .single();
+    bets.forEach(bet => {
+        if (summary.hasOwnProperty(bet.bet_on)) {
+            summary[bet.bet_on] += bet.amount;
+        }
+    });
+    res.json({ summary });
+});
+// --- ADMIN API ENDPOINTS ---
 
-    if (error) {
-        console.error("Error updating game status:", error);
-        return res.status(500).json({ error: "Failed to update game status" });
+app.get('/api/admin/game-status', authenticateAdmin, async (req, res) => {
+    const { data, error } = await supabase.from('game_state').select('*').single();
+    if (error) return res.status(500).json({ error: 'Failed to fetch game status' });
+    res.json({ status: data });
+});
+
+app.post('/api/admin/game-status', authenticateAdmin, async (req, res) => {
+    const { is_on, mode } = req.body;
+    const update = {};
+    if(typeof is_on === 'boolean') update.is_on = is_on;
+    if(mode) update.mode = mode;
+
+    const { data, error } = await supabase.from('game_state').update(update).eq('id', 1).select().single();
+    if(error) return res.status(500).json({error: 'Failed to update game status'});
+    res.json({message: 'Game status updated', status: data});
+});
+
+app.post('/api/admin/game-maintenance', authenticateAdmin, async (req, res) => {
+    const { maintenance_mode, whitelisted_users } = req.body;
+    const updateData = {};
+    if (typeof maintenance_mode === 'boolean') updateData.maintenance_mode = maintenance_mode;
+    if (Array.isArray(whitelisted_users)) {
+        updateData.whitelisted_users = whitelisted_users.map(id => parseInt(id, 10)).filter(id => !isNaN(id));
     }
+    if (Object.keys(updateData).length === 0) return res.status(400).json({ error: 'No valid data provided.' });
 
-    // If game was just activated, start the loop
-    if (data.is_active && !currentSettings.is_active) {
-        runGameCycle();
-    }
+    const { data, error } = await supabase.from('game_state').update(updateData).eq('id', 1).select().single();
+    if (error) return res.status(500).json({ error: 'Failed to update maintenance settings.' });
+    res.json({ message: 'Maintenance settings updated.', status: data });
+});
 
-    res.json(data);
+app.post('/api/admin/game-next-result', authenticateAdmin, async (req, res) => {
+    const { result } = req.body;
+    const { data, error } = await supabase.from('game_state').update({ next_result: result }).eq('id', 1);
+    if(error) return res.status(500).json({error: 'Failed to set next result'});
+    res.json({message: 'Next result set'});
+});
+
+app.get('/api/admin/current-bets', authenticateAdmin, async (req, res) => {
+    const { data: gameState } = await supabase.from('game_state').select('current_period').single();
+    const { data: bets } = await supabase.from('bets').select('bet_on, amount').eq('game_period', gameState.current_period);
+    
+    const summary = {
+        'Red': 0, 'Green': 0, 'Violet': 0,
+        '0': 0, '1': 0, '2': 0, '3': 0, '4': 0, '5': 0, '6': 0, '7': 0, '8': 0, '9': 0
+    };
+
+    bets.forEach(bet => {
+        if (summary.hasOwnProperty(bet.bet_on)) {
+            summary[bet.bet_on] += bet.amount;
+        }
+    });
+    res.json({ summary });
 });
 
 
