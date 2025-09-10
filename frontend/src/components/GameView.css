@@ -1,204 +1,322 @@
 /* src/components/GameView.css */
 
-.maintenance-screen {
-    padding: 40px 20px;
-    text-align: center;
-    color: var(--text-color-light);
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-.maintenance-screen h2 {
-    color: var(--primary-color);
-    margin-bottom: 15px;
+/* Define color variables for easy management */
+:root {
+    --game-green: #4caf50;
+    --game-violet: #9c27b0;
+    --game-red: #f44336;
+    --game-blue: #007bff;
+    --game-light-grey: #f8f9fa;
 }
 
-.color-game-container {
-    padding: 15px;
-    animation: fadeIn 0.5s ease-in-out;
+.game-view {
+    padding: 10px;
+    padding-bottom: 80px;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: 'Poppins', sans-serif;
 }
 
+/* Header Section */
 .game-header {
+    background-color: var(--game-blue);
+    color: white;
+    padding: 15px;
+    border-radius: 10px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 15px;
-    background-color: var(--card-bg-color);
-    border-radius: 8px;
     margin-bottom: 15px;
-    box-shadow: var(--card-shadow);
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
 }
-
-.countdown-timer {
+.game-header p {
+    margin: 0;
+    font-size: 0.9em;
+    opacity: 0.9;
+}
+.game-header span {
     font-size: 1.5em;
     font-weight: 700;
-    color: var(--accent-color);
 }
-
-.betting-area {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
+.game-header div:last-child {
+    display: flex;
     gap: 10px;
-    margin-bottom: 15px;
 }
-
-.color-btn {
-    padding: 20px 10px;
+.game-btn-recharge, .game-btn-rule {
+    background-color: rgba(255, 255, 255, 0.9);
+    color: var(--game-blue);
     border: none;
-    border-radius: 8px;
-    color: white;
-    font-size: 1.1em;
+    padding: 8px 15px;
+    border-radius: 20px;
     font-weight: 600;
     cursor: pointer;
-    transition: transform 0.2s;
+    transition: background-color 0.2s;
 }
-.color-btn:hover {
-    transform: translateY(-2px);
-}
-.color-btn.red { background-color: var(--red-color); }
-.color-btn.green { background-color: var(--green-color); }
-.color-btn.violet { background-color: var(--violet-color); }
-
-.number-bets {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 10px;
-    margin-bottom: 20px;
-}
-.number-bets button {
-    padding: 15px 5px;
-    background-color: var(--card-bg-color);
-    border: 1px solid var(--border-color);
-    color: var(--text-color);
-    border-radius: 8px;
-    font-size: 1.2em;
-    cursor: pointer;
-    transition: background-color 0.2s, color 0.2s;
-}
-.number-bets button:hover {
-    background-color: var(--primary-color);
-    color: white;
+.game-btn-recharge:hover {
+    background-color: white;
 }
 
-.bet-slip {
-    background-color: var(--card-bg-color);
-    padding: 15px;
-    border-radius: 8px;
-    text-align: center;
-    margin-bottom: 20px;
-    box-shadow: var(--card-shadow);
-    animation: fadeIn 0.3s;
+/* Tabs Section */
+.game-tabs {
+    display: flex;
+    margin-bottom: 15px;
+    border-bottom: 2px solid var(--border-color);
 }
-.bet-slip h4 {
-    margin-bottom: 10px;
-}
-.bet-slip .selected-bet-value {
-    font-weight: 700;
-    color: var(--primary-color);
-    text-transform: capitalize;
-}
-.bet-slip input {
-    width: 100%;
-    padding: 10px;
-    margin: 10px 0;
-    text-align: center;
-    font-size: 1.1em;
-    border-radius: 5px;
-    border: 1px solid var(--border-color);
-    background-color: var(--bg-color);
-    color: var(--text-color);
-}
-.bet-slip button {
-    width: 100%;
-    padding: 12px;
-    background-color: var(--success-color);
-    color: white;
+.tab {
+    flex: 1;
+    padding: 12px 5px;
+    background: none;
     border: none;
-    border-radius: 5px;
-    font-size: 1.1em;
+    color: var(--text-color-light);
+    font-weight: 600;
     cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: color 0.2s, border-bottom-color 0.2s;
 }
-.bet-slip button:disabled {
-    background-color: #aaa;
-    cursor: not-allowed;
-}
-
-.game-history, .game-rules {
-    background-color: var(--card-bg-color);
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    box-shadow: var(--card-shadow);
-}
-.game-history h4, .game-rules h4 {
-    margin-top: 0;
-    margin-bottom: 10px;
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 5px;
+.tab.active {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
 }
 
-.history-grid {
+/* Game Info Section */
+.game-info {
     display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-}
-.history-item {
-    display: flex;
-    flex-direction: column;
+    justify-content: space-between;
     align-items: center;
-    gap: 5px;
-    min-width: 50px;
+    margin-bottom: 20px;
+}
+.game-info p {
+    margin: 0 0 5px 0;
     font-size: 0.9em;
     color: var(--text-color-light);
 }
-.history-dot {
-    width: 30px;
-    height: 30px;
+.game-info span {
+    font-size: 1.6em;
+    font-weight: 700;
+    color: var(--text-color);
+}
+.game-info .countdown-text {
+    color: var(--error-color);
+}
+
+/* Betting Area */
+.betting-area {
+    margin-bottom: 20px;
+}
+.bet-colors {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+.bet-btn {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-weight: bold;
+    font-size: 1em;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+.bet-btn:hover {
+    transform: translateY(-2px);
+}
+.bet-btn.green { background-color: var(--game-green); }
+.bet-btn.violet { background-color: var(--game-violet); }
+.bet-btn.red { background-color: var(--game-red); }
+
+.bet-numbers {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+}
+.bet-btn-num {
+    padding: 15px 0;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-size: 1.2em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.bet-btn-num:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* History Table */
+.history-table {
+    background-color: var(--card-bg-color);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--card-shadow);
+}
+.history-table h4 {
+    text-align: center;
+    margin: 0;
+    padding: 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+.history-header, .history-row {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr 1fr 0.8fr;
+    text-align: center;
+    padding: 12px 8px;
+    align-items: center;
+}
+.history-header {
+    color: var(--text-color-light);
+    font-weight: 600;
+    font-size: 0.9em;
+}
+.history-body {
+    max-height: 250px;
+    overflow-y: auto;
+}
+.history-row {
+    border-top: 1px solid var(--border-color);
+    font-size: 0.9em;
+}
+.result-num { font-weight: bold; }
+.result-num.red { color: var(--game-red); }
+.result-num.green { color: var(--game-green); }
+.result-num.violet { color: var(--game-violet); }
+
+.result-dot, .dot-half {
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
+    margin: auto;
+}
+.result-dot.red { background-color: var(--game-red); }
+.result-dot.green { background-color: var(--game-green); }
+.result-dot-split {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin: auto;
+    display: flex;
+}
+.dot-half.red { background-color: var(--game-red); flex: 1; }
+.dot-half.violet { background-color: var(--game-violet); flex: 1; }
+.dot-half.green { background-color: var(--game-green); flex: 1; }
+
+/* Bet Modal */
+.bet-modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(0,0,0,0.6);
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    z-index: 2000;
+}
+.bet-modal-content {
+    background-color: var(--card-bg-color);
+    padding: 20px;
+    border-radius: 20px 20px 0 0;
+    width: 100%;
+    max-width: 400px;
+    animation: slideUp 0.3s ease-out;
+}
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.bet-modal-title {
+    margin: 0;
+    padding: 12px;
+    color: white;
+    text-align: center;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 1.1em;
+}
+.bet-modal-title.red { background: var(--game-red); }
+.bet-modal-title.green { background: var(--game-green); }
+.bet-modal-title.violet { background: var(--game-violet); }
+
+.amount-controls {
+    display: flex;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+}
+.amount-controls button {
+    width: 50px;
+    font-size: 1.5em;
+    background-color: var(--bg-color);
+    border: none;
+    color: var(--text-color);
+}
+.amount-controls input {
+    flex-grow: 1;
+    text-align: center;
+    font-size: 1.2em;
+    font-weight: bold;
+    border: none;
+    border-left: 1px solid var(--border-color);
+    border-right: 1px solid var(--border-color);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
+
+.quick-amount-buttons {
+    display: flex;
+    gap: 10px;
+    margin: 15px 0;
+}
+.quick-amount-buttons button {
+    flex: 1;
+    background-color: var(--bg-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    padding: 8px;
+    border-radius: 5px;
+}
+
+.modal-actions {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+}
+.modal-actions button { flex: 1; padding: 12px; border-radius: 8px; border: none; font-weight: bold; }
+.modal-btn-cancel { background-color: var(--border-color); color: var(--text-color); }
+.modal-btn-confirm { background-color: var(--primary-color); color: white; }
+
+/* Countdown & Result Modals */
+.countdown-modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(0,0,0,0.7);
     display: flex;
     justify-content: center;
     align-items: center;
-    color: white;
-    font-weight: 700;
+    z-index: 3000;
 }
-.red-dot { background-color: var(--red-color); }
-.green-dot { background-color: var(--green-color); }
-.violet-dot { background-color: var(--violet-color); }
-
-.game-rules ul { list-style: none; padding-left: 0; }
-.game-rules li { margin-bottom: 5px; display: flex; align-items: center; gap: 10px;}
-.game-rules li .red-dot, .game-rules li .green-dot, .game-rules li .violet-dot {
-    width: 15px;
-    height: 15px;
-    flex-shrink: 0;
-}
-
-
-/* Result Modal */
-.result-modal {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: rgba(0, 0, 0, 0.85);
-    color: white;
-    padding: 40px;
+.countdown-modal-content {
+    background-color: var(--card-bg-color);
+    padding: 30px;
     border-radius: 15px;
-    z-index: 2000;
     text-align: center;
-    min-width: 200px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    box-shadow: 0 5px 25px rgba(0,0,0,0.3);
 }
-.modal-countdown {
-    font-size: 4em;
-    font-weight: 700;
-    color: var(--accent-color);
-}
-.modal-result .history-dot {
-    width: 60px;
-    height: 60px;
-    font-size: 1.5em;
-    margin: 10px auto 0;
-}
+.countdown-timer { font-size: 3em; font-weight: bold; color: var(--error-color); }
+.result-number-large { font-size: 4em; font-weight: bold; padding: 10px 20px; border-radius: 10px; color: white; margin-bottom: 10px; }
+.result-colors-large span { display: inline-block; padding: 5px 10px; margin: 0 5px; border-radius: 5px; color: white; font-weight: bold; }
+.result-colors-large .red { background-color: var(--game-red); }
+.result-colors-large .green { background-color: var(--game-green); }
+.result-colors-large .violet { background-color: var(--game-violet); }
+
+/* Maintenance message */
+.game-maintenance { text-align: center; padding: 50px 20px; }
+.game-maintenance h2 { color: var(--primary-color); margin-bottom: 15px; }
+
+/* Color utilities for number buttons and text */
+.red { background-color: var(--game-red); }
+.green { background-color: var(--game-green); }
+.violet { background-color: var(--game-violet); }
+.red.violet { background: linear-gradient(45deg, var(--game-red) 50%, var(--game-violet) 50%); }
+.green.violet { background: linear-gradient(45deg, var(--game-green) 50%, var(--game-violet) 50%); }
 
