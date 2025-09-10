@@ -4,7 +4,7 @@ import './App.css';
 
 // --- COMPONENT IMPORTS ---
 import UserDashboard from './components/UserDashboard';
-import { ProductsAndPlans, NewsView, Wallet, Team, Promotions, Rewards, Support } from './components/PlaceholderViews';
+import {  Wallet, Team, Promotions, Rewards, Support } from './components/PlaceholderViews';
 import AdminPanel from './components/AdminPanel';
 import ProductsAndPlans from './components/ProductsAndPlans'; // UPDATED
 import NewsView from './components/NewsView'; // UPDATED
