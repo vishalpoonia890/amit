@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import './App.css';
-import './components/FormPages.css';
 
 // --- COMPONENT IMPORTS ---
 import UserDashboard from './components/UserDashboard';
@@ -63,7 +62,6 @@ function App() {
     const fetchAllUserData = useCallback(async (authToken) => {
         if (!authToken) return;
         try {
-            // Fetch user data and financial summary in parallel
             const [dataRes, summaryRes] = await Promise.all([
                 axios.get(`${API_BASE_URL}/api/data`, { headers: { Authorization: `Bearer ${authToken}` } }),
                 axios.get(`${API_BASE_URL}/api/financial-summary`, { headers: { Authorization: `Bearer ${authToken}` } })
@@ -142,7 +140,6 @@ function App() {
             <div className="curved-shape"></div>
             <div className="curved-shape2"></div>
             
-            {/* Login Form */}
             <div className="form-box Login">
                 <h2 className="animation" style={{'--D':0, '--S':21}}>Login</h2>
                 <form onSubmit={handleLogin}>
@@ -165,7 +162,6 @@ function App() {
                 <p className="animation" style={{'--D':1, '--S':21}}>We are happy to have you with us again. Your next opportunity awaits.</p>
             </div>
 
-            {/* Register Form */}
             <div className="form-box Register">
                 <h2 className="animation" style={{'--li':17, '--S':0}}>Register</h2>
                 <form onSubmit={handleRegister}>
@@ -213,17 +209,14 @@ function App() {
             case 'news': return <NewsView />;
             case 'account': return <AccountView userData={userData} financialSummary={financialSummary} onLogout={handleLogout} onViewChange={setView} token={token}/>;
             
-            // Sub-views from Dashboard
             case 'rewards': return <Rewards onBack={goBackToDashboard} />;
-            case 'invite': return <Team onBack={goBackToDashboard} />; // Re-using Team for Invite
+            case 'invite': return <Team onBack={goBackToDashboard} />;
             case 'team': return <Team onBack={goBackToDashboard} />;
             case 'support': return <Support onBack={goBackToDashboard} />;
             case 'wallet': return <Wallet financialSummary={financialSummary} onBack={goBackToDashboard} />;
             case 'deposit': return <Deposit token={token} onBack={goBackToDashboard} />;
             case 'withdraw': return <Withdrawal token={token} financialSummary={financialSummary} onBack={goBackToDashboard} />;
             case 'promotions': return <Promotions onBack={goBackToDashboard} />;
-
-            // Sub-views from Account
             case 'bet-history': return <BetHistory token={token} onBack={goBackToAccount} />;
 
             default: return <UserDashboard onViewChange={setView} />;
