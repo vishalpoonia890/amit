@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import './App.css';
-import { API_BASE_URL } from './apiConfig';
 
 // --- COMPONENT IMPORTS ---
 import UserDashboard from './components/UserDashboard';
@@ -19,6 +18,7 @@ import Deposit from './components/Deposit';
 import Withdrawal from './components/Withdrawal';
 import BetHistory from './components/BetHistory';
 
+const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
 function App() {
     const [token, setToken] = useState(localStorage.getItem('token') || null);
     const [view, setView] = useState('landing');
