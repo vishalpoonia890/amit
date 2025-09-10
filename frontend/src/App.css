@@ -69,44 +69,67 @@ body {
 /* ========================================== */
 /* ========= Login/Register Forms =========== */
 /* ========================================== */
-.auth-container { position: relative; width: 750px; height: 450px; border: 2px solid var(--primary-color); box-shadow: 0 0 25px var(--primary-color); overflow: hidden; margin: auto; }
-.auth-container .form-box { position: absolute; top: 0; width: 50%; height: 100%; display: flex; justify-content: center; flex-direction: column; }
-.form-box.Login { left: 0; padding: 0 40px; }
-.form-box.Login .animation { transform: translateX(0%); transition: .7s; opacity: 1; transition-delay: calc(.1s * var(--S)); }
-.auth-container.active .form-box.Login .animation { transform: translateX(-120%); opacity: 0; transition-delay: calc(.1s * var(--D)); }
-.form-box.Register { right: 0; padding: 0 60px; }
-.form-box.Register .animation { transform: translateX(120%); transition: .7s ease; opacity: 0; filter: blur(10px); transition-delay: calc(.1s * var(--S)); }
-.auth-container.active .form-box.Register .animation { transform: translateX(0%); opacity: 1; filter: blur(0px); transition-delay: calc(.1s * var(--li)); }
-.form-box h2 { font-size: 32px; text-align: center; color: var(--text-color); }
-.form-box .input-box { position: relative; width: 100%; height: 50px; margin-top: 25px; }
+.auth-container { position: relative; width: 750px; height: 450px; border: 2px solid var(--primary-color); box-shadow: 0 0 25px var(--primary-color); overflow: hidden; margin: 10vh auto; }
+.auth-container .form-box { position: absolute; top: 0; width: 50%; height: 100%; display: flex; flex-direction: column; justify-content: center; padding: 0 40px; }
+.auth-container .info-content { position: absolute; top: 0; width: 50%; height: 100%; display: flex; flex-direction: column; justify-content: center; }
+.form-box.Login { left: 0; }
+.info-content.Login { right: 0; text-align: right; padding: 0 40px 60px 150px; }
+.form-box.Register { right: 0; }
+.info-content.Register { left: 0; text-align: left; padding: 0 150px 60px 40px; }
+.auth-container.active .form-box.Login { left: -100%; }
+.auth-container.active .info-content.Login { right: -100%; }
+.auth-container.active .form-box.Register { right: 0; }
+.auth-container.active .info-content.Register { left: 0; }
+.form-box h2 { font-size: 32px; text-align: center; color: var(--text-color); margin-bottom: 20px;}
+.input-box { position: relative; width: 100%; height: 50px; margin-top: 25px; }
 .input-box input { width: 100%; height: 100%; background: transparent; border: none; outline: none; font-size: 16px; color: var(--text-color); font-weight: 600; border-bottom: 2px solid var(--text-color-light); padding-right: 23px; transition: .5s; }
 .input-box input:focus, .input-box input:valid { border-bottom: 2px solid var(--primary-color); }
 .input-box label { position: absolute; top: 50%; left: 0; transform: translateY(-50%); font-size: 16px; color: var(--text-color-light); transition: .5s; pointer-events: none; }
 .input-box input:focus ~ label, .input-box input:valid ~ label { top: -5px; color: var(--primary-color); }
-.btn { position: relative; width: 100%; height: 45px; background: transparent; border-radius: 40px; cursor: pointer; font-size: 16px; font-weight: 600; border: 2px solid var(--primary-color); overflow: hidden; z-index: 1; color: var(--text-color); }
+.btn { position: relative; width: 100%; height: 45px; margin-top: 20px; background: transparent; border-radius: 40px; cursor: pointer; font-size: 16px; font-weight: 600; border: 2px solid var(--primary-color); overflow: hidden; z-index: 1; color: var(--text-color); }
 .btn::before { content: ""; position: absolute; height: 300%; width: 100%; background: linear-gradient(var(--bg-color), var(--primary-color), var(--bg-color), var(--primary-color)); top: -100%; left: 0; z-index: -1; transition: .5s; }
-.btn:hover:before { top: 0; }
+.btn:hover::before { top: 0; }
 .regi-link { font-size: 14px; text-align: center; margin: 20px 0 10px; }
 .regi-link p { color: var(--text-color); }
-.regi-link a, .regi-link .SignUpLink, .regi-link .SignInLink { text-decoration: none; color: var(--primary-color); font-weight: 600; background: none; border: none; cursor: pointer; font-size: inherit; font-family: inherit; }
-.regi-link a:hover, .regi-link .SignUpLink:hover, .regi-link .SignInLink:hover { text-decoration: underline; }
-.info-content { position: absolute; top: 0; height: 100%; width: 50%; display: flex; justify-content: center; flex-direction: column; }
-.info-content.Login { right: 0; text-align: right; padding: 0 40px 60px 150px; }
-.info-content.Login .animation { transform: translateX(0); transition: .7s ease; transition-delay: calc(.1s * var(--S)); opacity: 1; filter: blur(0px); }
-.auth-container.active .info-content.Login .animation { transform: translateX(120%); opacity: 0; filter: blur(10px); transition-delay: calc(.1s * var(--D)); }
-.info-content.Register { left: 0; text-align: left; padding: 0 150px 60px 38px; pointer-events: none; }
-.info-content.Register .animation { transform: translateX(-120%); transition: .7s ease; opacity: 0; filter: blur(10PX); transition-delay: calc(.1s * var(--S)); }
-.auth-container.active .info-content.Register .animation { transform: translateX(0%); opacity: 1; filter: blur(0); transition-delay: calc(.1s * var(--li)); }
+.regi-link button { text-decoration: none; color: var(--primary-color); font-weight: 600; background: none; border: none; cursor: pointer; font-size: inherit; }
+.regi-link button:hover { text-decoration: underline; }
 .info-content h2 { text-transform: uppercase; font-size: 36px; line-height: 1.3; color: var(--text-color); }
 .info-content p { font-size: 16px; color: var(--text-color); }
-.auth-container .curved-shape { position: absolute; right: 0; top: -5px; height: 600px; width: 850px; background: linear-gradient(45deg, var(--bg-color), var(--primary-color)); transform: rotate(10deg) skewY(40deg); transform-origin: bottom right; transition: 1.5s ease; transition-delay: 1.6s; }
-.auth-container.active .curved-shape { transform: rotate(0deg) skewY(0deg); transition-delay: .5s; }
-.auth-container .curved-shape2 { position: absolute; left: 250px; top: 100%; height: 700px; width: 850px; background: var(--bg-color); border-top: 3px solid var(--primary-color); transform: rotate(0deg) skewY(0deg); transform-origin: bottom left; transition: 1.5s ease; transition-delay: .5s; }
-.auth-container.active .curved-shape2 { transform: rotate(-11deg) skewY(-41deg); transition-delay: 1.2s; }
 
 @media (max-width: 768px) {
     .auth-container { width: 100%; max-width: 400px; height: auto; min-height: 500px; border: none; box-shadow: none; margin-top: 5vh; }
-    .info-content, .auth-container .curved-shape, .auth-container .curved-shape2 { display: none; }
+    .info-content { display: none; }
     .auth-container .form-box { width: 100%; padding: 0 20px; }
     .auth-container.active .form-box.Login { transform: translateX(-100%); }
 }
+
+/* ========================================== */
+/* ========= Deposit/Withdrawal Forms ======= */
+/* ========================================== */
+.form-page { padding: 15px; padding-top: 75px; padding-bottom: 80px; animation: fadeIn 0.3s ease-in-out; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.back-button { background: none; border: none; font-size: 1.5em; color: var(--text-color); cursor: pointer; margin-bottom: 15px; }
+.form-container { max-width: 500px; margin: 0 auto; }
+.form-title { text-align: center; color: var(--primary-color); margin-bottom: 25px; }
+.form-subtitle { margin-top: 0; margin-bottom: 15px; color: var(--text-color-light); font-size: 0.9em; text-align: center; }
+.form-card { background-color: var(--card-bg-color); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+.form-group { margin-bottom: 20px; }
+.form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-color-light); }
+.form-group input { box-sizing: border-box; width: 100%; padding: 12px; border: 1px solid var(--border-color); background-color: var(--bg-color); border-radius: 8px; color: var(--text-color); font-size: 1em; }
+.form-button { width: 100%; padding: 14px; border: none; background-color: var(--primary-color); color: white; font-size: 1.1em; font-weight: 600; border-radius: 8px; cursor: pointer; transition: background-color 0.2s; }
+.form-button:disabled { background-color: var(--primary-color-light); cursor: not-allowed; }
+.method-selector { display: flex; margin-bottom: 20px; background-color: var(--bg-color); border-radius: 8px; padding: 5px; border: 1px solid var(--border-color); }
+.method-selector button { flex: 1; padding: 10px; border: none; background: none; color: var(--text-color-light); font-weight: 600; cursor: pointer; border-radius: 6px; transition: background-color 0.2s, color 0.2s; }
+.method-selector button.active { background-color: var(--primary-color); color: white; }
+.qr-code-container { text-align: center; margin: 20px 0; }
+.qr-code-container img { max-width: 180px; border-radius: 8px; border: 1px solid var(--border-color); }
+.payment-info { font-size: 0.9em; word-break: break-all; }
+.payment-info p { margin: 10px 0; display: flex; justify-content: space-between; align-items: center; }
+.copy-btn { background-color: var(--primary-color-light); border: none; color: var(--primary-color); font-weight: 600; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.8em; }
+.balance-info { text-align: center; margin-bottom: 20px; font-size: 1em; }
+.balance-info strong { color: var(--primary-color); font-size: 1.2em; }
+.success-message { text-align: center; padding: 40px 20px; }
+.success-message .icon { font-size: 4em; }
+.success-message h3 { margin-top: 15px; margin-bottom: 10px; color: var(--success-color); }
+.success-message p { color: var(--text-color-light); }
+.conversion-note { text-align: center; font-size: 0.9em; color: var(--text-color-light); margin-bottom: 15px; }
