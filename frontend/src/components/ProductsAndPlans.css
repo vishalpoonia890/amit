@@ -1,229 +1,220 @@
-/* src/components/ProductsAndPlans.css */
-
 .plans-page {
-  padding: 20px;
-  background-color: var(--background-color-dark); /* Using CSS variables for theme */
-  color: var(--text-color);
-  min-height: 100vh;
-  font-family: Arial, sans-serif;
+    padding: 20px 15px 80px 15px;
+    animation: fadeIn 0.5s ease-in-out;
 }
 
 .plans-header {
-  text-align: center;
-  margin-bottom: 30px;
+    margin-bottom: 25px;
 }
 
 .plans-header h1 {
-  font-size: 2em;
-  color: var(--primary-color);
-  margin-bottom: 20px;
+    text-align: center;
+    font-size: 1.8em;
+    color: var(--text-color);
+    margin-bottom: 20px;
 }
 
 .category-tabs {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin-bottom: 20px;
-  background-color: var(--card-background);
-  padding: 8px;
-  border-radius: 8px;
-  box-shadow: var(--shadow-light);
+    display: flex;
+    justify-content: space-around;
+    background-color: var(--card-bg-color);
+    border-radius: 25px;
+    padding: 5px;
+    box-shadow: var(--card-shadow);
 }
 
 .category-tab {
-  background-color: transparent;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 1em;
-  font-weight: bold;
-  color: var(--text-color-secondary);
-  transition: all 0.3s ease;
-  flex-grow: 1; /* Allow tabs to grow and fill space */
-}
-
-.category-tab:hover:not(.active) {
-  background-color: var(--hover-color);
+    flex: 1;
+    padding: 10px 5px;
+    border: none;
+    background-color: transparent;
+    color: var(--text-color-light);
+    font-size: 0.9em;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 20px;
+    transition: all 0.3s ease;
 }
 
 .category-tab.active {
-  background-color: var(--primary-color);
-  color: #fff;
-  box-shadow: var(--shadow-medium);
-}
-
-.category-tab:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.error-message {
-  color: #ff4d4f;
-  text-align: center;
-  margin-bottom: 20px;
-  font-weight: bold;
+    background-color: var(--primary-color);
+    color: white;
+    box-shadow: 0 2px 10px rgba(41, 98, 255, 0.4);
 }
 
 .plans-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Responsive grid */
-  gap: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+}
+
+@media (min-width: 768px) {
+    .plans-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+@media (min-width: 1200px) {
+    .plans-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
 }
 
 .plan-card {
-  background-color: var(--card-background);
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: var(--shadow-dark);
-  transition: transform 0.2s ease-in-out;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  text-align: center; /* Center content within the card */
+    background-color: var(--card-bg-color);
+    border-radius: 15px;
+    box-shadow: var(--card-shadow);
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
 }
 
 .plan-card:hover {
-  transform: translateY(-5px);
+    transform: translateY(-5px);
+    box-shadow: var(--card-hover-shadow);
 }
 
-.product-image {
-  width: 100%;
-  height: 150px; /* Fixed height for product images */
-  object-fit: cover; /* Ensures image covers the area */
-  border-bottom: 1px solid var(--border-color);
+.plan-image-container {
+    position: relative;
+}
+
+.plan-image {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    display: block;
+}
+
+.presale-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background-color: var(--accent-color);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 0.8em;
+    font-weight: bold;
 }
 
 .plan-card-body {
-  padding: 15px;
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
 }
 
 .plan-card-body h3 {
-  font-size: 1.4em;
-  color: var(--primary-color);
-  margin-bottom: 10px;
+    font-size: 1.2em;
+    color: var(--text-color);
+    margin-bottom: 5px;
 }
 
-.plan-card-body .price {
-  font-size: 1.2em;
-  font-weight: bold;
-  color: var(--accent-color);
-  margin-bottom: 15px;
+.presale-info {
+    background-color: var(--bg-color);
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.presale-info p {
+    font-size: 0.8em;
+    color: var(--text-color-light);
+    margin-bottom: 5px;
+}
+
+.countdown-timer {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: var(--primary-color);
+    font-family: monospace;
+}
+.countdown-timer .timer-segment {
+    margin: 0 4px;
+}
+.countdown-timer .timer-label {
+    font-size: 0.6em;
+    margin-left: 2px;
+    color: var(--text-color-light);
+}
+.sale-live {
+    color: var(--success-color);
+    font-size: 1em;
+}
+
+
+.price {
+    color: var(--primary-color);
+    font-size: 1.1em;
+    font-weight: 600;
+    margin-bottom: 15px;
 }
 
 .plan-details {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 20px;
-  border-top: 1px solid var(--border-color);
-  padding-top: 15px;
+    margin-bottom: 15px;
+    flex-grow: 1;
 }
 
 .plan-details div {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.95em;
-  padding: 0 5px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9em;
+    color: var(--text-color-light);
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border-color);
 }
-
-.plan-details span {
-  color: var(--text-color-secondary);
+.plan-details div:last-child {
+    border-bottom: none;
 }
 
 .plan-details strong {
-  color: var(--text-color);
-}
-
-.purchase-button,
-.confirm-btn,
-.cancel-btn {
-  width: 100%;
-  padding: 12px 0;
-  border: none;
-  border-radius: 8px;
-  font-size: 1.1em;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  margin-top: auto; /* Push buttons to the bottom */
+    color: var(--text-color);
+    font-weight: 600;
 }
 
 .purchase-button {
-  background-color: var(--button-background);
-  color: white;
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(90deg, var(--primary-color), var(--primary-hover-color));
+    color: white;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.3s;
+}
+.purchase-button:hover {
+    transform: scale(1.03);
 }
 
-.purchase-button:hover:not(:disabled) {
-  background-color: var(--button-hover);
+.purchase-button.presale {
+    background: linear-gradient(90deg, var(--accent-color), #ffab00);
 }
 
 .confirmation-buttons {
-  display: flex;
-  gap: 10px;
-  margin-top: auto;
+    display: flex;
+    gap: 10px;
+}
+
+.confirm-btn, .cancel-btn {
+    flex: 1;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
 }
 
 .confirm-btn {
-  background-color: #28a745; /* Green for confirm */
-  color: white;
-}
-
-.confirm-btn:hover:not(:disabled) {
-  background-color: #218838;
+    background-color: var(--success-color);
+    color: white;
 }
 
 .cancel-btn {
-  background-color: #dc3545; /* Red for cancel */
-  color: white;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
 }
 
-.cancel-btn:hover:not(:disabled) {
-  background-color: #c82333;
-}
-
-.purchase-button:disabled,
-.confirm-btn:disabled,
-.cancel-btn:disabled {
-  background-color: #6c757d;
-  cursor: not-allowed;
-}
-
-/* Theme variables (add these to your App.css or a dedicated theme file) */
-.dark-theme {
-  --background-color-dark: #1a1a2e;
-  --card-background: #232946;
-  --primary-color: #e0ac2b; /* A golden/yellowish primary color */
-  --accent-color: #e0ac2b;
-  --text-color: #e0e0e0;
-  --text-color-secondary: #b0b0b0;
-  --button-background: #e0ac2b;
-  --button-hover: #c49622;
-  --border-color: rgba(255, 255, 255, 0.1);
-  --hover-color: #2a304e;
-  --shadow-light: rgba(0, 0, 0, 0.1);
-  --shadow-medium: rgba(0, 0, 0, 0.3);
-  --shadow-dark: rgba(0, 0, 0, 0.5);
-}
-
-.light-theme {
-  --background-color-dark: #f0f2f5;
-  --card-background: #ffffff;
-  --primary-color: #007bff;
-  --accent-color: #007bff;
-  --text-color: #333333;
-  --text-color-secondary: #666666;
-  --button-background: #007bff;
-  --button-hover: #0056b3;
-  --border-color: rgba(0, 0, 0, 0.1);
-  --hover-color: #e9ecef;
-  --shadow-light: rgba(0, 0, 0, 0.05);
-  --shadow-medium: rgba(0, 0, 0, 0.1);
-  --shadow-dark: rgba(0, 0, 0, 0.2);
-}
