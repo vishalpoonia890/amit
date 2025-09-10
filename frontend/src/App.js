@@ -6,6 +6,8 @@ import './App.css';
 import UserDashboard from './components/UserDashboard';
 import { ProductsAndPlans, NewsView, Wallet, Team, Promotions, Rewards, Support } from './components/PlaceholderViews';
 import AdminPanel from './components/AdminPanel';
+import ProductsAndPlans from './components/ProductsAndPlans'; // UPDATED
+import NewsView from './components/NewsView'; // UPDATED
 import BottomNav from './components/BottomNav';
 import Notification from './components/Notification';
 import TopNav from './components/TopNav';
