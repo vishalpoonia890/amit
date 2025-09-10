@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import './App.css';
-
+ 
 // --- COMPONENT IMPORTS ---
 import UserDashboard from './components/UserDashboard';
 import ProductsAndPlans from './components/ProductsAndPlans';
