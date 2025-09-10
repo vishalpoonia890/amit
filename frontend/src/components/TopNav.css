@@ -1,174 +1,69 @@
 /* src/components/TopNav.css */
-
 .top-nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 20px;
-    background-color: var(--top-nav-bg); /* Uses theme variable from App.css */
-    color: var(--top-nav-text-color);
-    box-shadow: 0 2px 4px var(--shadow);
-    position: fixed;
-    width: 100%;
-    max-width: 480px; /* Match app width */
-    top: 0;
-    left: 50%; /* Center the nav bar */
-    transform: translateX(-50%);
-    z-index: 1000;
-    height: 60px; /* Fixed height for desktop */
-    box-sizing: border-box;
-}
-
-.top-nav-left {
-    display: flex;
-    align-items: center;
-}
-
-.top-nav-logo-wrapper {
-    margin-right: 20px;
-}
-
-.logo-text {
-    font-size: 1.5em;
-    font-weight: bold;
-    color: var(--primary-color);
-}
-
-.logo-circle {
-    font-size: 1.2em;
-    font-weight: bold;
-    background-color: var(--primary-color);
-    color: #fff;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-transform: uppercase;
-}
-
-/* Balance Display and Hover Box */
-.top-nav-balance-wrapper {
-    position: relative;
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    padding: 5px 10px;
-    border-radius: 5px;
-    transition: background-color 0.3s ease;
-}
-
-.top-nav-balance-wrapper:hover {
-    background-color: var(--input-bg); /* Light background on hover */
-}
-
-.top-nav-balance-display {
-    display: flex;
-    align-items: baseline;
-    font-size: 1.1em;
-    font-weight: bold;
-    color: var(--text-color);
-}
-
-.balance-symbol {
-    margin-right: 2px;
-    color: var(--accent-color);
-    font-size: 0.9em;
-}
-
-.balance-details-box {
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    box-shadow: 0 4px 12px var(--shadow);
-    padding: 15px;
-    min-width: 250px;
-    z-index: 1001;
-    color: var(--text-color);
-    font-size: 0.9em;
-    margin-top: 10px;
-    white-space: nowrap;
-}
-
-.balance-details-box h4 {
-    margin-top: 0;
-    margin-bottom: 10px;
-    color: var(--primary-color);
-    font-size: 1.1em;
+    background-color: var(--header-footer-bg);
     border-bottom: 1px solid var(--border-color);
-    padding-bottom: 8px;
+    padding: 0 15px;
+    height: 60px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    display: flex;
+    justify-content: center; /* Center the content */
 }
 
-.balance-details-box p {
+.top-nav-content {
+    width: 100%;
+    max-width: 1200px; /* Set a max-width to match the app container */
     display: flex;
     justify-content: space-between;
-    margin-bottom: 5px;
+    align-items: center;
+}
+
+.logo {
+    font-size: 1.4em;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.nav-actions {
+    display: flex;
+    align-items: center;
     gap: 15px;
 }
 
-.balance-details-box p span {
-    opacity: 0.8;
+.total-balance {
+    background-color: var(--card-bg-color);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+    color: var(--text-color);
+    box-shadow: var(--card-shadow);
+    font-size: 0.9em;
 }
 
-.balance-details-box p strong {
-    font-weight: bold;
-}
-
-.top-nav-right {
+.theme-toggle,
+.logout-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.4em;
+    padding: 5px;
     display: flex;
     align-items: center;
-    gap: 10px;
+    justify-content: center;
 }
 
-.admin-panel-btn,
-.theme-toggle,
-.logout-btn {
-    background-color: transparent;
-    color: var(--text-color);
-    border: none;
-    padding: 8px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1.2em; /* Larger icons/buttons */
-    transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-.admin-panel-btn {
-    font-size: 0.9em; /* Text button smaller than icon buttons */
+.logout-button {
+    font-size: 0.9em;
+    background-color: var(--primary-color-light);
+    color: var(--primary-color);
+    border-radius: 8px;
     padding: 8px 12px;
-    background-color: var(--primary-color);
-    color: white;
+    font-weight: 600;
+    transition: background-color 0.2s;
 }
-
-.admin-panel-btn:hover,
-.theme-toggle:hover,
-.logout-btn:hover {
-    background-color: var(--input-bg);
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .top-nav {
-        padding: 0 15px; /* Adjust padding for mobile */
-        height: 50px; /* Smaller height for mobile */
-    }
-
-    .logo-circle {
-        width: 35px;
-        height: 35px;
-        font-size: 1em;
-    }
-
-    .top-nav-balance-display {
-        font-size: 1em;
-    }
-
-    .theme-toggle, .logout-btn {
-        font-size: 1.1em;
-    }
+.logout-button:hover {
+    background-color: var(--border-color);
 }
