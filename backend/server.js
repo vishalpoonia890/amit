@@ -290,6 +290,236 @@ app.get('/api/data', authenticateToken, async (req, res) => {
   }
 });
 
+// --- GAME LOGIC & ROUTES ---
+
+const GAME_DURATION_SECONDS = 60; // 1 minute per round
+let gameTimeout;
+
+const getNumberColor = (num) => {
+    if (num === 0 || num === 5) return 'violet';
+    if ([1, 3, 7, 9].includes(num)) return 'red';
+    if ([2, 4, 6, 8].includes(num)) return 'green';
+    return null;
+};
+
+const calculatePayouts = (bets, winningNumber) => {
+    const winningColor = getNumberColor(winningNumber);
+    const payouts = {};
+
+    bets.forEach(bet => {
+        let multiplier = 0;
+        const betOnNum = parseInt(bet.bet_on, 10);
+
+        if (!isNaN(betOnNum) && betOnNum === winningNumber) {
+            multiplier = 9.2; // Number bet
+        } else if (['red', 'green'].includes(bet.bet_on) && bet.bet_on === winningColor) {
+            multiplier = 1.98; // Red/Green bet
+        } else if (bet.bet_on === 'violet' && winningColor === 'violet') {
+            multiplier = 4.5; // Violet bet
+        }
+        
+        if (winningColor === 'violet') {
+            if(bet.bet_on === 'red' || bet.bet_on === 'green') multiplier = 1.49; // 50% refund on violet
+        }
+
+
+        if (multiplier > 0) {
+            const winnings = parseFloat(bet.bet_amount) * multiplier;
+            if (!payouts[bet.user_id]) payouts[bet.user_id] = 0;
+            payouts[bet.user_id] += winnings;
+        }
+    });
+
+    return payouts;
+};
+
+const runGameCycle = async () => {
+    try {
+        // 1. Get current running game
+        let { data: currentGame } = await supabase
+            .from('color_prediction_games')
+            .select('*')
+            .eq('status', 'running')
+            .single();
+
+        if (!currentGame) {
+             const { data: lastGame } = await supabase.from('color_prediction_games').select('period_number').order('period_number', { ascending: false }).limit(1).single();
+             const newPeriodNumber = (lastGame?.period_number || 0) + 1;
+             const startTime = new Date();
+             const endTime = new Date(startTime.getTime() + GAME_DURATION_SECONDS * 1000);
+
+            const { data: newGame, error } = await supabase.from('color_prediction_games').insert({
+                period_number: newPeriodNumber,
+                start_time: startTime.toISOString(),
+                end_time: endTime.toISOString(),
+                status: 'running'
+            }).select().single();
+            if(error) throw error;
+            currentGame = newGame;
+        }
+
+        // 2. Conclude the game
+        const { data: settings } = await supabase.from('game_settings').select('*').eq('game_name', 'color_prediction').single();
+        const { data: bets } = await supabase.from('color_prediction_bets').select('*').eq('game_id', currentGame.id);
+        
+        let winningNumber;
+
+        if (settings.mode === 'admin' && settings.next_result !== null) {
+            winningNumber = settings.next_result;
+            // Reset admin pick
+            await supabase.from('game_settings').update({ next_result: null }).eq('id', settings.id);
+        } else {
+            // Auto mode: find the outcome with the minimum payout
+            let potentialPayouts = {};
+            for (let i = 0; i < 10; i++) {
+                const payouts = calculatePayouts(bets, i);
+                potentialPayouts[i] = Object.values(payouts).reduce((a, b) => a + b, 0);
+            }
+            winningNumber = Object.keys(potentialPayouts).reduce((a, b) => potentialPayouts[a] < potentialPayouts[b] ? a : b);
+            winningNumber = parseInt(winningNumber, 10);
+        }
+
+        // 3. Update game record and process payouts
+        const winningColor = getNumberColor(winningNumber);
+        await supabase.from('color_prediction_games')
+            .update({ status: 'completed', winning_number: winningNumber, winning_color: winningColor })
+            .eq('id', currentGame.id);
+
+        const finalPayouts = calculatePayouts(bets, winningNumber);
+
+        for (const bet of bets) {
+            const isWin = finalPayouts[bet.user_id] && finalPayouts[bet.user_id] > 0;
+            const winnings = isWin ? finalPayouts[bet.user_id] : 0;
+            
+            await supabase.from('color_prediction_bets')
+                .update({ status: isWin ? 'win' : 'lose', winnings: winnings })
+                .eq('id', bet.id);
+            
+            if (isWin) {
+                await supabase.rpc('increment_user_withdrawable_wallet', { p_user_id: bet.user_id, p_amount: winnings });
+            }
+        }
+
+    } catch (error) {
+        console.error('Game cycle error:', error);
+    } finally {
+        // Start next cycle
+        gameTimeout = setTimeout(runGameCycle, GAME_DURATION_SECONDS * 1000);
+    }
+};
+
+// Start the game loop
+runGameCycle();
+
+
+app.get('/api/game/color-prediction/state', authenticateToken, async (req, res) => {
+    try {
+        const { data: settings } = await supabase.from('game_settings').select('*').eq('game_name', 'color_prediction').single();
+        if (!settings.is_active) {
+            return res.json({ maintenance: true });
+        }
+
+        const { data: currentGame } = await supabase.from('color_prediction_games').select('*').eq('status', 'running').single();
+        const { data: last20Games } = await supabase.from('color_prediction_games').select('*').eq('status', 'completed').order('period_number', { ascending: false }).limit(20);
+
+        res.json({
+            currentGame,
+            history: last20Games,
+            maintenance: false,
+        });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to get game state' });
+    }
+});
+
+
+app.post('/api/game/color-prediction/bet', authenticateToken, async (req, res) => {
+    try {
+        const { amount, on } = req.body;
+        const userId = req.user.id;
+        const betAmount = parseFloat(amount);
+
+        if (isNaN(betAmount) || betAmount <= 0) return res.status(400).json({ error: 'Invalid bet amount' });
+
+        const { data: currentGame, error: gameError } = await supabase.from('color_prediction_games').select('*').eq('status', 'running').single();
+        if (gameError || !currentGame) return res.status(400).json({ error: 'No active game round' });
+        
+        // Prevent betting in last few seconds
+        const timeLeft = new Date(currentGame.end_time).getTime() - new Date().getTime();
+        if(timeLeft < 5000) return res.status(400).json({ error: 'Betting is closed for this round' });
+
+        const { data: deductionSuccess, error: deductionError } = await supabase.rpc('handle_bet_deduction', { p_user_id: userId, p_amount: betAmount });
+        if (deductionError || !deductionSuccess) return res.status(400).json({ error: 'Insufficient balance' });
+
+        await supabase.from('color_prediction_bets').insert({
+            user_id: userId,
+            game_id: currentGame.id,
+            period_number: currentGame.period_number,
+            bet_on: on,
+            bet_amount: betAmount
+        });
+        
+        // Fetch updated balances
+        const { data: updatedUser } = await supabase.from('users').select('balance, withdrawable_wallet').eq('id', userId).single();
+
+        res.json({ message: 'Bet placed successfully', balances: updatedUser });
+    } catch (error) {
+        console.error("Bet placement error:", error);
+        res.status(500).json({ error: 'Failed to place bet' });
+    }
+});
+
+app.get('/api/user/bet-history', authenticateToken, async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('color_prediction_bets')
+            .select('*')
+            .eq('user_id', req.user.id)
+            .order('created_at', { ascending: false })
+            .limit(100);
+        if(error) throw error;
+        res.json(data);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch bet history' });
+    }
+});
+
+
+// --- ADMIN GAME CONTROLS ---
+
+app.get('/api/admin/game-settings', authenticateAdmin, async(req, res) => {
+    try {
+        const { data, error } = await supabase.from('game_settings').select('*').eq('game_name', 'color_prediction').single();
+        if(error) throw error;
+        res.json(data);
+    } catch (error) {
+         res.status(500).json({ error: 'Failed to fetch game settings' });
+    }
+});
+
+app.post('/api/admin/game-settings', authenticateAdmin, async (req, res) => {
+    try {
+        const { is_active, mode, next_result } = req.body;
+        const updateData = {};
+        if (is_active !== undefined) updateData.is_active = is_active;
+        if (mode) updateData.mode = mode;
+        if (next_result !== undefined) updateData.next_result = next_result;
+
+        const { data, error } = await supabase
+            .from('game_settings')
+            .update(updateData)
+            .eq('game_name', 'color_prediction')
+            .select()
+            .single();
+
+        if (error) throw error;
+        res.json({ message: 'Settings updated', settings: data });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to update game settings' });
+    }
+});
+
+
 // Get product plans
 app.get('/api/product-plans', authenticateToken, async (req, res) => {
   try {
