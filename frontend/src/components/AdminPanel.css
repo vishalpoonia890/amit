@@ -1,89 +1,134 @@
-/* src/components/AdminPanel.css */
 .admin-panel {
     padding: 20px;
-    max-width: 1200px;
-    margin: 0 auto;
+    background-color: var(--bg-color);
     color: var(--text-color);
+    min-height: 100vh;
 }
 
 .admin-header {
-    text-align: center;
-    margin-bottom: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid var(--border-color);
 }
 
 .admin-header h1 {
-    color: var(--primary-color);
-    margin-bottom: 20px;
     font-size: 2em;
+    color: var(--primary-color);
 }
 
-.admin-nav {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap; /* Allow wrapping on small screens */
-    gap: 15px;
-    margin-bottom: 30px;
-}
-
-.admin-nav button {
-    background-color: var(--button-bg-color); /* Define in global CSS */
-    color: var(--button-text-color); /* Define in global CSS */
+.admin-logout-btn {
+    background-color: var(--error-color);
+    color: white;
     border: none;
     padding: 10px 20px;
     border-radius: 8px;
-    font-size: 1em;
     cursor: pointer;
-    transition: background-color 0.2s ease, color 0.2s ease;
-    flex-grow: 1; /* Allow buttons to grow */
-    max-width: 150px; /* Limit max width for better appearance */
+    font-weight: 600;
 }
 
-.admin-nav button:hover {
-    background-color: var(--button-bg-hover); /* Define in global CSS */
+.admin-error {
+    color: var(--error-color);
+    background-color: rgba(213, 0, 0, 0.1);
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 20px;
 }
 
-.admin-nav button.active {
-    background-color: var(--primary-color);
+.master-controls {
+    text-align: center;
+    margin-bottom: 25px;
+}
+.settle-income-btn {
+    background: linear-gradient(45deg, var(--accent-color), #ffc107);
     color: white;
-    box-shadow: var(--button-active-shadow); /* Define in global CSS */
+    border: none;
+    padding: 15px 30px;
+    font-size: 1.1em;
+    font-weight: bold;
+    border-radius: 12px;
+    cursor: pointer;
+    width: 100%;
+    max-width: 400px;
 }
 
-.admin-content {
+.admin-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+}
+
+@media (min-width: 992px) {
+    .admin-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.admin-card {
     background-color: var(--card-bg-color);
-    border-radius: 10px;
     padding: 20px;
+    border-radius: 15px;
     box-shadow: var(--card-shadow);
 }
 
-/* --- Mobile Responsiveness --- */
-@media (max-width: 768px) {
-    .admin-header h1 {
-        font-size: 1.7em;
-    }
-
-    .admin-nav {
-        flex-direction: column; /* Stack buttons vertically */
-        align-items: center; /* Center stacked buttons */
-        gap: 10px;
-    }
-
-    .admin-nav button {
-        width: 80%; /* Make buttons take more width */
-        max-width: 250px; /* Adjust max width for stacked buttons */
-        font-size: 0.9em;
-    }
-
-    .admin-content {
-        padding: 15px;
-    }
+.admin-card h2 {
+    font-size: 1.5em;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
 }
 
-@media (max-width: 480px) {
-    .admin-header h1 {
-        font-size: 1.5em;
-    }
-    .admin-nav button {
-        width: 90%;
-        max-width: none; /* Remove max-width for very small screens */
-    }
+.request-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.request-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--bg-color);
+    padding: 15px;
+    border-radius: 10px;
+}
+
+.item-details {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    font-size: 0.9em;
+}
+
+.item-details span {
+    color: var(--text-color-light);
+}
+
+.item-details strong {
+    color: var(--text-color);
+}
+
+.item-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.item-actions button {
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.approve-btn {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.reject-btn {
+    background-color: var(--error-color);
+    color: white;
 }
