@@ -1,0 +1,129 @@
+.team-page {
+    padding: 15px;
+    padding-top: 75px; /* Space for top nav */
+    padding-bottom: 80px; /* Space for bottom nav */
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.page-title {
+    text-align: center;
+    color: var(--primary-color);
+    margin-bottom: 25px;
+    font-size: 1.5em;
+    font-weight: 600;
+}
+
+.team-card {
+    background-color: var(--card-bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: var(--card-shadow);
+}
+
+.team-card h4 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: var(--text-color);
+    font-size: 1.1em;
+}
+
+.referral-link-box {
+    margin-bottom: 15px;
+}
+
+.referral-link-box input {
+    width: 100%;
+    padding: 12px;
+    box-sizing: border-box;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-color);
+    color: var(--text-color-light);
+    border-radius: 8px;
+    font-size: 0.9em;
+}
+
+.action-button {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    background-color: var(--primary-color);
+    color: white;
+    font-size: 1em;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.action-button:hover {
+    transform: translateY(-2px);
+    background-color: var(--primary-hover-color);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.stat-card {
+    background-color: var(--card-bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 20px 15px;
+    text-align: center;
+    box-shadow: var(--card-shadow);
+}
+
+.stat-value {
+    display: block;
+    font-size: 1.5em;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    font-size: 0.8em;
+    color: var(--text-color-light);
+}
+
+.referred-users-table .table-container {
+    overflow-x: auto;
+}
+
+.referred-users-table table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.referred-users-table th, .referred-users-table td {
+    padding: 12px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.referred-users-table th {
+    font-size: 0.9em;
+    color: var(--text-color-light);
+}
+
+.referred-users-table td {
+    font-size: 0.95em;
+    color: var(--text-color);
+}
+
+.referred-users-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.referred-users-table tbody tr:hover {
+    background-color: var(--bg-color);
+}
