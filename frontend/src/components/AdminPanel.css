@@ -1,134 +1,175 @@
+/* src/components/AdminPanel.css */
 .admin-panel {
-    padding: 20px;
+    padding: 15px;
+    padding-bottom: 80px; /* Space for bottom nav if it were visible */
     background-color: var(--bg-color);
     color: var(--text-color);
-    min-height: 100vh;
 }
 
 .admin-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 25px;
+    margin-bottom: 20px;
     padding-bottom: 15px;
-    border-bottom: 2px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .admin-header h1 {
-    font-size: 2em;
-    color: var(--primary-color);
+    color: var(--text-color);
+    margin: 0;
+    font-size: 1.8em;
 }
 
-.admin-logout-btn {
+.admin-header button {
     background-color: var(--error-color);
     color: white;
+    padding: 8px 16px;
     border: none;
-    padding: 10px 20px;
     border-radius: 8px;
     cursor: pointer;
     font-weight: 600;
 }
 
-.admin-error {
-    color: var(--error-color);
-    background-color: rgba(213, 0, 0, 0.1);
-    padding: 10px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-}
-
-.master-controls {
-    text-align: center;
-    margin-bottom: 25px;
-}
-.settle-income-btn {
-    background: linear-gradient(45deg, var(--accent-color), #ffc107);
-    color: white;
-    border: none;
-    padding: 15px 30px;
-    font-size: 1.1em;
-    font-weight: bold;
-    border-radius: 12px;
-    cursor: pointer;
-    width: 100%;
-    max-width: 400px;
-}
-
-.admin-grid {
+.admin-main-content {
     display: grid;
-    grid-template-columns: 1fr;
     gap: 20px;
+    grid-template-columns: 1fr; /* Default to single column */
 }
 
-@media (min-width: 992px) {
-    .admin-grid {
-        grid-template-columns: 1fr 1fr;
+@media (min-width: 768px) {
+    .admin-main-content {
+        grid-template-columns: 1fr 1fr; /* Two columns for tablets and up */
     }
 }
 
 .admin-card {
     background-color: var(--card-bg-color);
     padding: 20px;
-    border-radius: 15px;
+    border-radius: 12px;
     box-shadow: var(--card-shadow);
 }
 
-.admin-card h2 {
-    font-size: 1.5em;
-    margin-bottom: 20px;
+.admin-card h4 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: var(--text-color);
     border-bottom: 1px solid var(--border-color);
     padding-bottom: 10px;
+    font-size: 1.2em;
+}
+
+.control-btn {
+    width: 100%;
+    padding: 12px;
+    font-size: 1em;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.control-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.settle-btn {
+    background-color: var(--accent-color);
+    color: white;
+}
+.settle-btn:hover:not(:disabled) {
+    background-color: #ff8c00; /* Darker orange */
+}
+
+
+.game-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.manual-winner-control {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.manual-winner-control input {
+    flex-grow: 1;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    text-align: center;
+    font-weight: bold;
+}
+
+.manual-winner-control button {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 0 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.manual-winner-control button:hover:not(:disabled) {
+    background-color: var(--primary-hover-color);
 }
 
 .request-list {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+    max-height: 300px;
+    overflow-y: auto;
+    padding-right: 5px;
 }
 
 .request-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: var(--bg-color);
-    padding: 15px;
-    border-radius: 10px;
-}
-
-.item-details {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
+    border: 1px solid var(--border-color);
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 10px;
     font-size: 0.9em;
 }
 
-.item-details span {
+.request-item div {
+    margin-bottom: 5px;
     color: var(--text-color-light);
+    word-break: break-all;
 }
 
-.item-details strong {
-    color: var(--text-color);
-}
-
-.item-actions {
+.actions {
+    margin-top: 10px;
     display: flex;
     gap: 10px;
 }
 
-.item-actions button {
+.actions button {
+    padding: 6px 12px;
     border: none;
-    padding: 8px 12px;
-    border-radius: 6px;
+    border-radius: 5px;
     cursor: pointer;
-    font-weight: 600;
+    font-weight: 500;
 }
 
-.approve-btn {
+.actions .approve-btn {
     background-color: var(--success-color);
     color: white;
 }
-
-.reject-btn {
+.actions .reject-btn {
     background-color: var(--error-color);
     color: white;
 }
+
+/* Toggle Switch CSS */
+.switch { position: relative; display: inline-block; width: 50px; height: 28px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; }
+.slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; }
+input:checked + .slider { background-color: var(--primary-color); }
+input:checked + .slider:before { transform: translateX(22px); }
+.slider.round { border-radius: 34px; }
+.slider.round:before { border-radius: 50%; }
+
