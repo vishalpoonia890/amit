@@ -21,6 +21,7 @@ function GameView({ token, financialSummary, onViewChange, onBetPlaced }) {
     const [betDetails, setBetDetails] = useState({ type: '', value: '' });
     const [betAmount, setBetAmount] = useState(10);
     const [showResultModal, setShowResultModal] = useState(false);
+    const [lastShownPeriod, setLastShownPeriod] = useState(null);
 
     const fetchGameState = useCallback(async () => {
         try {
@@ -31,8 +32,9 @@ function GameView({ token, financialSummary, onViewChange, onBetPlaced }) {
                 setGameState(null);
             } else {
                 // Check if a new result has arrived to trigger the result modal
-                if (gameState && gameState.current_period !== data.current_period) {
+                if (gameState && data.results && data.results.length > 0 && data.results[0].game_period !== lastShownPeriod && gameState.current_period !== data.current_period) {
                     setShowResultModal(true);
+                    setLastShownPeriod(data.results[0].game_period);
                 }
                 setIsUnderMaintenance(false);
                 setGameState(data);
@@ -43,15 +45,19 @@ function GameView({ token, financialSummary, onViewChange, onBetPlaced }) {
         } finally {
             setLoading(false);
         }
-    }, [token, gameState]);
+    }, [token, gameState, lastShownPeriod]);
 
     useEffect(() => {
         fetchGameState();
-        const interval = setInterval(fetchGameState, 2000);
+        const interval = setInterval(fetchGameState, 2000); // Poll for updates every 2 seconds
         return () => clearInterval(interval);
     }, [fetchGameState]);
 
     const handleOpenBetModal = (type, value) => {
+        if (!gameState.can_bet) {
+            alert("Betting has closed for the current round. Please wait for the next one.");
+            return;
+        }
         setBetDetails({ type, value });
         setShowBetModal(true);
     };
@@ -68,7 +74,7 @@ function GameView({ token, financialSummary, onViewChange, onBetPlaced }) {
             );
             alert('Bet placed successfully!');
             setShowBetModal(false);
-            onBetPlaced(); // This should trigger a refresh of financial data in App.js
+            onBetPlaced(); // This will trigger a refresh of financial data in App.js
         } catch (err) {
             alert(err.response?.data?.error || "Failed to place bet.");
         }
@@ -96,7 +102,7 @@ function GameView({ token, financialSummary, onViewChange, onBetPlaced }) {
         <div className="game-view">
             <div className="game-balance-card">
                 <p>Available balance</p>
-                <h3>₹{totalBalance.toLocaleString()}</h3>
+                <h3>₹{totalBalance.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
                 <div className="balance-actions">
                     <button onClick={() => onViewChange('deposit')}>Recharge</button>
                     <button className="rules-btn">Read Rules</button>
@@ -157,7 +163,7 @@ function GameView({ token, financialSummary, onViewChange, onBetPlaced }) {
             {showBetModal && (
                  <div className="modal-overlay">
                     <div className="bet-modal">
-                        <h3 className={`bet-title ${betDetails.type === 'color' ? getNumberColorClass(betDetails.value === 'Red' ? 1 : betDetails.value === 'Green' ? 2 : 0) : ''}`}>
+                        <h3 className={`bet-title ${betDetails.type === 'color' ? betDetails.value.toLowerCase() : ''}`}>
                             Bet on {betDetails.value}
                         </h3>
                         <div className="modal-content">
