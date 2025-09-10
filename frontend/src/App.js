@@ -63,6 +63,7 @@ function App() {
     const fetchAllUserData = useCallback(async (authToken) => {
         if (!authToken) return;
         try {
+            // Fetch user data and financial summary in parallel
             const [dataRes, summaryRes] = await Promise.all([
                 axios.get(`${API_BASE_URL}/api/data`, { headers: { Authorization: `Bearer ${authToken}` } }),
                 axios.get(`${API_BASE_URL}/api/financial-summary`, { headers: { Authorization: `Bearer ${authToken}` } })
