@@ -4,158 +4,222 @@ import './GameView.css';
 
 const API_BASE_URL = process.env.NODE_ENV === 'production' ? 'https://investmentpro-nu7s.onrender.com' : '';
 
-function GameView({ token, userData, onBalanceUpdate }) {
-    const [gameState, setGameState] = useState(null);
-    const [betAmount, setBetAmount] = useState(10);
-    const [selectedBet, setSelectedBet] = useState(null);
+// Helper map to determine colors for each number
+const numberToColorMap = {
+    0: ['red', 'violet'],
+    1: ['green'],
+    2: ['red'],
+    3: ['green'],
+    4: ['red'],
+    5: ['green', 'violet'],
+    6: ['red'],
+    7: ['green'],
+    8: ['red'],
+    9: ['green']
+};
+
+
+function GameView({ token, userData, onBetPlaced }) {
+    const [gameState, setGameState] = useState({ periodId: '...', countdown: '...', phase: 'loading', result: null });
+    const [history, setHistory] = useState([]);
+    const [showModal, setShowModal] = useState(false);
+    const [betDetails, setBetDetails] = useState({ amount: 10, type: '', value: '' });
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
-    const [showResultModal, setShowResultModal] = useState(false);
-    const [countdown, setCountdown] = useState(0);
 
     const fetchGameState = useCallback(async () => {
         try {
-            const res = await axios.get(`${API_BASE_URL}/api/game/color-prediction/state`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const res = await axios.get(`${API_BASE_URL}/api/game-state`);
             setGameState(res.data);
-
-            if (res.data.currentGame) {
-                const endTime = new Date(res.data.currentGame.end_time).getTime();
-                const now = new Date().getTime();
-                const diff = Math.floor((endTime - now) / 1000);
-                setCountdown(diff > 0 ? diff : 0);
-            }
-        } catch (err) {
-            console.error("Failed to fetch game state", err);
-            setError('Could not connect to the game server.');
+        } catch (error) {
+            console.error("Error fetching game state:", error);
         }
-    }, [token]);
+    }, []);
+
+    const fetchHistory = useCallback(async () => {
+        try {
+            const res = await axios.get(`${API_BASE_URL}/api/game/history`);
+            setHistory(res.data);
+        } catch (error) {
+            console.error("Error fetching game history:", error);
+        }
+    }, []);
 
     useEffect(() => {
         fetchGameState();
-        const interval = setInterval(fetchGameState, 10000); // Poll for state every 10 seconds
+        fetchHistory();
+        const interval = setInterval(fetchGameState, 1000); // Poll for real-time updates
         return () => clearInterval(interval);
-    }, [fetchGameState]);
+    }, [fetchGameState, fetchHistory]);
     
+    // When the game result is announced, wait a moment then refresh the history
     useEffect(() => {
-        let timer;
-        if (countdown > 0) {
-            timer = setTimeout(() => setCountdown(countdown - 1), 1000);
-            if (countdown <= 5 && !showResultModal) {
-                 setShowResultModal(true);
-            }
-            if(countdown === 1){
-                 setTimeout(() => {
-                    setShowResultModal(false);
-                    fetchGameState();
-                    onBalanceUpdate(); // Refresh user balance after round ends
-                 }, 2000); // Show result for 2 seconds
-            }
+        if(gameState.phase === 'result') {
+            const timer = setTimeout(fetchHistory, 1500); 
+            return () => clearTimeout(timer);
         }
-        return () => clearTimeout(timer);
-    }, [countdown, showResultModal, fetchGameState, onBalanceUpdate]);
+    }, [gameState.phase, fetchHistory]);
 
-    const handleBet = async () => {
-        if (!selectedBet || betAmount <= 0) {
-            alert('Please select a bet and enter a valid amount.');
-            return;
-        }
+    const handleBetClick = (type, value) => {
+        setBetDetails({ amount: 10, type, value });
+        setShowModal(true);
+    };
+
+    const handlePlaceBet = async () => {
         setLoading(true);
         try {
-            await axios.post(`${API_BASE_URL}/api/game/color-prediction/bet`, 
-                { amount: betAmount, on: selectedBet },
+            const res = await axios.post(`${API_BASE_URL}/api/place-bet`, 
+                { amount: betDetails.amount, betType: betDetails.type, betValue: betDetails.value },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
-            alert('Bet placed successfully!');
-            onBalanceUpdate(); // Immediately update balance
-            setSelectedBet(null);
-        } catch (err) {
-            alert(err.response?.data?.error || 'Failed to place bet.');
+            alert(res.data.message);
+            setShowModal(false);
+            onBetPlaced(); // This triggers a refresh of user balance in App.js
+        } catch (error) {
+            alert(error.response?.data?.error || 'Failed to place bet.');
         } finally {
             setLoading(false);
         }
     };
     
-    if (gameState?.maintenance) {
-        return <div className="maintenance-screen">
-            <h2>Game Under Maintenance</h2>
-            <p>More exciting games are on the way. Stay tuned and get ready to earn more!</p>
-        </div>;
-    }
+    const renderResultDot = (number) => {
+        if (number === null || number < 0 || number > 9) return <div className="result-dot"></div>;
+        const colors = numberToColorMap[number];
+        if (colors.length > 1) {
+            return <div className="result-dot-split"><div className={`dot-half ${colors[0]}`}></div><div className={`dot-half ${colors[1]}`}></div></div>;
+        }
+        return <div className={`result-dot ${colors[0]}`}></div>;
+    };
     
-    const renderHistoryDot = (num) => {
-        let colorClass = '';
-        if ([1,3,7,9].includes(num)) colorClass = 'red-dot';
-        if ([2,4,6,8].includes(num)) colorClass = 'green-dot';
-        if ([0,5].includes(num)) colorClass = 'violet-dot';
-        return <div className={`history-dot ${colorClass}`}>{num}</div>
+    const formatTime = (seconds) => {
+        const minutes = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    };
+
+    if (gameState.phase === 'maintenance') {
+        return <div className="game-maintenance">
+            <h2>Game Under Maintenance</h2>
+            <p>More games are on the way, so stay tuned and ready to earn much more money!</p>
+        </div>;
     }
 
     return (
-        <div className="color-game-container">
-            {showResultModal && (
-                <div className="result-modal">
-                    {countdown > 1 ? (
-                        <>
-                            <h2>Result in...</h2>
-                            <div className="modal-countdown">{countdown}</div>
-                        </>
-                    ) : (
-                         <>
-                            <h2>Result is</h2>
-                            <div className="modal-result">{renderHistoryDot(gameState?.history[0]?.winning_number)}</div>
-                        </>
-                    )}
-                </div>
-            )}
-
+        <div className="game-view">
             <div className="game-header">
-                <h3>Period: {gameState?.currentGame?.period_number}</h3>
-                <div className="countdown-timer">{`00:${countdown < 10 ? '0' : ''}${countdown}`}</div>
+                <div>
+                    <p>Available Balance</p>
+                    <span>₹{(userData?.balance + userData?.withdrawable_wallet || 0).toFixed(2)}</span>
+                </div>
+                <div>
+                    <button className="game-btn-recharge">Recharge</button>
+                    <button className="game-btn-rule">Read Rule</button>
+                </div>
+            </div>
+            
+            <div className="game-tabs">
+                <button className="tab active">Parity</button>
+                <button className="tab">Sapre</button>
+                <button className="tab">Bcone</button>
+                <button className="tab">Emerd</button>
+            </div>
+
+            <div className="game-info">
+                <div>
+                    <p>Period</p>
+                    <span>{gameState.periodId}</span>
+                </div>
+                 <div>
+                    <p>Count Down</p>
+                    <span className="countdown-text">{formatTime(gameState.countdown)}</span>
+                </div>
             </div>
 
             <div className="betting-area">
-                 <button className="color-btn red" onClick={() => setSelectedBet('red')}>Join Red</button>
-                 <button className="color-btn green" onClick={() => setSelectedBet('green')}>Join Green</button>
-                 <button className="color-btn violet" onClick={() => setSelectedBet('violet')}>Join Violet</button>
-            </div>
-            
-            <div className="number-bets">
-                {[...Array(10).keys()].map(num => (
-                    <button key={num} onClick={() => setSelectedBet(num.toString())}>{num}</button>
-                ))}
-            </div>
-
-            {selectedBet && (
-                <div className="bet-slip">
-                    <h4>Placing Bet on: <span className="selected-bet-value">{selectedBet}</span></h4>
-                    <input type="number" value={betAmount} onChange={e => setBetAmount(e.target.value)} min="10" />
-                    <button onClick={handleBet} disabled={loading || countdown < 6}>{loading ? 'Placing...' : 'Confirm Bet'}</button>
+                 <div className="bet-colors">
+                    <button className="bet-btn green" onClick={() => handleBetClick('color', 'green')}>Join Green</button>
+                    <button className="bet-btn violet" onClick={() => handleBetClick('color', 'violet')}>Join Violet</button>
+                    <button className="bet-btn red" onClick={() => handleBetClick('color', 'red')}>Join Red</button>
                 </div>
-            )}
-
-            <div className="game-history">
-                <h4>History</h4>
-                <div className="history-grid">
-                    {gameState?.history?.map(game => (
-                       <div key={game.id} className="history-item">
-                           <span>{game.period_number}</span>
-                           {renderHistoryDot(game.winning_number)}
-                       </div>
+                <div className="bet-numbers">
+                    {[...Array(10).keys()].map(num => (
+                        <button key={num} className={`bet-btn-num ${numberToColorMap[num].join(' ')}`} onClick={() => handleBetClick('number', num.toString())}>
+                           {num}
+                        </button>
                     ))}
                 </div>
             </div>
-             <div className="game-rules">
-                <h4>How to Play</h4>
-                <p>Join a color or number. Win rewards based on the result!</p>
-                <ul>
-                    <li><span className="red-dot"></span><span className="green-dot"></span> Red/Green Win: <strong>1.98x</strong></li>
-                    <li><span className="violet-dot"></span> Violet Win: <strong>4.5x</strong></li>
-                    <li><strong>#</strong> Number Win: <strong>9.2x</strong></li>
-                    <li>If Violet (0 or 5) is the result, 50% of your bet on Red/Green is returned.</li>
-                </ul>
+
+            <div className="history-table">
+                <h4><i className="fas fa-history"></i> Parity Record</h4>
+                <div className="history-header">
+                    <div>Period</div>
+                    <div>Price</div>
+                    <div>Number</div>
+                    <div>Result</div>
+                </div>
+                <div className="history-body">
+                    {history.map(item => (
+                        <div key={item.period_id} className="history-row">
+                             <div>{item.period_id}</div>
+                             <div>{Math.floor(35000 + Math.random() * 5000)}</div>
+                             <div className={`result-num ${numberToColorMap[item.result]?.join(' ')}`}>{item.result}</div>
+                             <div>{renderResultDot(item.result)}</div>
+                        </div>
+                    ))}
+                </div>
             </div>
+
+            {/* Final Countdown Modal */}
+            {gameState.phase === 'waiting' && (
+                <div className="countdown-modal-overlay">
+                    <div className="countdown-modal-content">
+                        <h2>Revealing Result</h2>
+                        <div className="countdown-timer">{gameState.countdown}</div>
+                    </div>
+                </div>
+            )}
+            
+             {/* Result Modal */}
+            {gameState.phase === 'result' && gameState.result !== null && (
+                <div className="countdown-modal-overlay">
+                    <div className="countdown-modal-content result-modal">
+                        <h2>Result is</h2>
+                        <div className={`result-number-large ${numberToColorMap[gameState.result].join(' ')}`}>{gameState.result}</div>
+                        <div className="result-colors-large">
+                             {numberToColorMap[gameState.result].map(c => <span key={c} className={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</span>)}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {showModal && (
+                <div className="bet-modal-overlay" onClick={() => setShowModal(false)}>
+                    <div className="bet-modal-content" onClick={(e) => e.stopPropagation()}>
+                        <h4 className={`bet-modal-title ${betDetails.type === 'color' ? betDetails.value : numberToColorMap[betDetails.value].join(' ')}`}>
+                            Bet on {betDetails.type === 'color' ? betDetails.value.toUpperCase() : `Number ${betDetails.value}`}
+                        </h4>
+                         <div className="modal-input-group">
+                            <label>Amount</label>
+                            <div className="amount-controls">
+                                <button onClick={() => setBetDetails(prev => ({...prev, amount: Math.max(10, prev.amount - 10)}))}>-</button>
+                                <input type="number" value={betDetails.amount} onChange={e => setBetDetails(prev => ({...prev, amount: parseInt(e.target.value, 10) || 10}))} />
+                                <button onClick={() => setBetDetails(prev => ({...prev, amount: prev.amount + 10}))}>+</button>
+                            </div>
+                        </div>
+                        <div className="quick-amount-buttons">
+                            <button onClick={() => setBetDetails(prev => ({...prev, amount: 100}))}>100</button>
+                            <button onClick={() => setBetDetails(prev => ({...prev, amount: 1000}))}>1000</button>
+                            <button onClick={() => setBetDetails(prev => ({...prev, amount: 10000}))}>10000</button>
+                        </div>
+                        <div className="modal-actions">
+                             <button className="modal-btn-cancel" onClick={() => setShowModal(false)} disabled={loading}>Cancel</button>
+                             <button className="modal-btn-confirm" onClick={handlePlaceBet} disabled={loading}>
+                                {loading ? 'Placing...' : 'Confirm'}
+                             </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
