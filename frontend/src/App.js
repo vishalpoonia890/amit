@@ -148,59 +148,59 @@ function App() {
         <div className="auth-wrapper">
             <div className={`auth-container ${isContainerActive ? 'active' : ''}`}>
                 <div className="form-box Login">
-                    <h2>Login</h2>
+                    <h2 className="animation" style={{'--D':0, '--S':21}}>Login</h2>
                     <form onSubmit={handleLogin}>
-                        <div className="input-box">
+                        <div className="input-box animation" style={{'--D':1, '--S':22}}>
                             <input type="tel" name="mobile" value={loginFormData.mobile} onChange={handleLoginInputChange} required autoComplete="tel"/>
                             <label>Mobile Number</label>
                         </div>
-                        <div className="input-box">
+                        <div className="input-box animation" style={{'--D':2, '--S':23}}>
                             <input type="password" name="password" value={loginFormData.password} onChange={handleLoginInputChange} required autoComplete="current-password"/>
                             <label>Password</label>
                         </div>
-                        <button className="btn" type="submit" disabled={loading}>{loading ? 'Logging in...' : 'Login'}</button>
-                        <div className="regi-link">
+                        <button className="btn animation" type="submit" disabled={loading} style={{'--D':3, '--S':24}}>{loading ? 'Logging in...' : 'Login'}</button>
+                        <div className="regi-link animation" style={{'--D':4, '--S':25}}>
                             <p>Don't have an account? <button type="button" onClick={() => setIsContainerActive(true)}>Sign Up</button></p>
                         </div>
                     </form>
                 </div>
                 <div className="info-content Login">
-                    <h2>WELCOME BACK!</h2>
-                    <p>We are happy to have you with us again. Your next opportunity awaits.</p>
+                    <h2 className="animation" style={{'--D':0, '--S':20}}>WELCOME BACK!</h2>
+                    <p className="animation" style={{'--D':1, '--S':21}}>We are happy to have you with us again. Your next opportunity awaits.</p>
                 </div>
 
                 <div className="form-box Register">
-                    <h2>Register</h2>
+                    <h2 className="animation" style={{'--li':17, '--S':0}}>Register</h2>
                     <form onSubmit={handleRegister}>
-                        <div className="input-box">
+                        <div className="input-box animation" style={{'--li':18, '--S':1}}>
                             <input type="text" name="username" value={registerFormData.username} onChange={handleRegisterInputChange} required autoComplete="username"/>
                             <label>Username</label>
                         </div>
-                        <div className="input-box">
+                        <div className="input-box animation" style={{'--li':19, '--S':2}}>
                             <input type="tel" name="mobile" value={registerFormData.mobile} onChange={handleRegisterInputChange} required autoComplete="tel"/>
                             <label>Mobile Number</label>
                         </div>
-                        <div className="input-box">
+                        <div className="input-box animation" style={{'--li':20, '--S':3}}>
                             <input type="password" name="password" value={registerFormData.password} onChange={handleRegisterInputChange} required autoComplete="new-password"/>
                             <label>Password</label>
                         </div>
-                         <div className="input-box">
+                         <div className="input-box animation" style={{'--li':21, '--S':4}}>
                             <input type="password" name="confirmPassword" value={registerFormData.confirmPassword} onChange={handleRegisterInputChange} required autoComplete="new-password"/>
                             <label>Confirm Password</label>
                         </div>
-                        <div className="input-box">
+                        <div className="input-box animation" style={{'--li':22, '--S':5}}>
                             <input type="text" name="referralCode" value={registerFormData.referralCode} onChange={handleRegisterInputChange} autoComplete="off"/>
                             <label>Referral Code (Optional)</label>
                         </div>
-                        <button className="btn" type="submit" disabled={loading}>{loading ? 'Registering...' : 'Register'}</button>
-                        <div className="regi-link">
+                        <button className="btn animation" type="submit" disabled={loading} style={{'--li':23, '--S':6}}>{loading ? 'Registering...' : 'Register'}</button>
+                        <div className="regi-link animation" style={{'--li':24, '--S':7}}>
                             <p>Already have an account? <button type="button" onClick={() => setIsContainerActive(false)}>Sign In</button></p>
                         </div>
                     </form>
                 </div>
                  <div className="info-content Register">
-                    <h2>JOIN US!</h2>
-                    <p>Create your account to start your journey towards financial growth.</p>
+                    <h2 className="animation" style={{'--li':17, '--S':0}}>JOIN US!</h2>
+                    <p className="animation" style={{'--li':18, '--S':1}}>Create your account to start your journey towards financial growth.</p>
                 </div>
             </div>
         </div>
