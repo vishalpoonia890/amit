@@ -60,76 +60,54 @@ body {
   transition: background-color 0.3s, color 0.3s;
 }
 
-.App { min-height: 100vh; }
-.app-container { padding-top: 60px; padding-bottom: 60px; }
-.main-content { max-width: 1200px; margin: 0 auto; }
-.loading-app, .loading-spinner { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; color: var(--text-color-light); }
-.error-message { text-align: center; padding: 20px; color: var(--error-color); }
-
-/* ========================================== */
-/* ========= Login/Register Forms =========== */
-/* ========================================== */
-.auth-container { position: relative; width: 750px; height: 450px; border: 2px solid var(--primary-color); box-shadow: 0 0 25px var(--primary-color); overflow: hidden; margin: 10vh auto; }
-.auth-container .form-box { position: absolute; top: 0; width: 50%; height: 100%; display: flex; flex-direction: column; justify-content: center; padding: 0 40px; }
-.auth-container .info-content { position: absolute; top: 0; width: 50%; height: 100%; display: flex; flex-direction: column; justify-content: center; }
-.form-box.Login { left: 0; }
-.info-content.Login { right: 0; text-align: right; padding: 0 40px 60px 150px; }
-.form-box.Register { right: 0; }
-.info-content.Register { left: 0; text-align: left; padding: 0 150px 60px 40px; }
-.auth-container.active .form-box.Login { left: -100%; }
-.auth-container.active .info-content.Login { right: -100%; }
-.auth-container.active .form-box.Register { right: 0; }
-.auth-container.active .info-content.Register { left: 0; }
-.form-box h2 { font-size: 32px; text-align: center; color: var(--text-color); margin-bottom: 20px;}
-.input-box { position: relative; width: 100%; height: 50px; margin-top: 25px; }
-.input-box input { width: 100%; height: 100%; background: transparent; border: none; outline: none; font-size: 16px; color: var(--text-color); font-weight: 600; border-bottom: 2px solid var(--text-color-light); padding-right: 23px; transition: .5s; }
-.input-box input:focus, .input-box input:valid { border-bottom: 2px solid var(--primary-color); }
-.input-box label { position: absolute; top: 50%; left: 0; transform: translateY(-50%); font-size: 16px; color: var(--text-color-light); transition: .5s; pointer-events: none; }
-.input-box input:focus ~ label, .input-box input:valid ~ label { top: -5px; color: var(--primary-color); }
-.btn { position: relative; width: 100%; height: 45px; margin-top: 20px; background: transparent; border-radius: 40px; cursor: pointer; font-size: 16px; font-weight: 600; border: 2px solid var(--primary-color); overflow: hidden; z-index: 1; color: var(--text-color); }
-.btn::before { content: ""; position: absolute; height: 300%; width: 100%; background: linear-gradient(var(--bg-color), var(--primary-color), var(--bg-color), var(--primary-color)); top: -100%; left: 0; z-index: -1; transition: .5s; }
-.btn:hover::before { top: 0; }
-.regi-link { font-size: 14px; text-align: center; margin: 20px 0 10px; }
-.regi-link p { color: var(--text-color); }
-.regi-link button { text-decoration: none; color: var(--primary-color); font-weight: 600; background: none; border: none; cursor: pointer; font-size: inherit; }
-.regi-link button:hover { text-decoration: underline; }
-.info-content h2 { text-transform: uppercase; font-size: 36px; line-height: 1.3; color: var(--text-color); }
-.info-content p { font-size: 16px; color: var(--text-color); }
-
-@media (max-width: 768px) {
-    .auth-container { width: 100%; max-width: 400px; height: auto; min-height: 500px; border: none; box-shadow: none; margin-top: 5vh; }
-    .info-content { display: none; }
-    .auth-container .form-box { width: 100%; padding: 0 20px; }
-    .auth-container.active .form-box.Login { transform: translateX(-100%); }
+.App {
+  min-height: 100vh;
 }
 
-/* ========================================== */
-/* ========= Deposit/Withdrawal Forms ======= */
-/* ========================================== */
-.form-page { padding: 15px; padding-top: 75px; padding-bottom: 80px; animation: fadeIn 0.3s ease-in-out; }
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-.back-button { background: none; border: none; font-size: 1.5em; color: var(--text-color); cursor: pointer; margin-bottom: 15px; }
-.form-container { max-width: 500px; margin: 0 auto; }
-.form-title { text-align: center; color: var(--primary-color); margin-bottom: 25px; }
-.form-subtitle { margin-top: 0; margin-bottom: 15px; color: var(--text-color-light); font-size: 0.9em; text-align: center; }
-.form-card { background-color: var(--card-bg-color); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
-.form-group { margin-bottom: 20px; }
-.form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-color-light); }
-.form-group input { box-sizing: border-box; width: 100%; padding: 12px; border: 1px solid var(--border-color); background-color: var(--bg-color); border-radius: 8px; color: var(--text-color); font-size: 1em; }
-.form-button { width: 100%; padding: 14px; border: none; background-color: var(--primary-color); color: white; font-size: 1.1em; font-weight: 600; border-radius: 8px; cursor: pointer; transition: background-color 0.2s; }
-.form-button:disabled { background-color: var(--primary-color-light); cursor: not-allowed; }
-.method-selector { display: flex; margin-bottom: 20px; background-color: var(--bg-color); border-radius: 8px; padding: 5px; border: 1px solid var(--border-color); }
-.method-selector button { flex: 1; padding: 10px; border: none; background: none; color: var(--text-color-light); font-weight: 600; cursor: pointer; border-radius: 6px; transition: background-color 0.2s, color 0.2s; }
-.method-selector button.active { background-color: var(--primary-color); color: white; }
-.qr-code-container { text-align: center; margin: 20px 0; }
-.qr-code-container img { max-width: 180px; border-radius: 8px; border: 1px solid var(--border-color); }
-.payment-info { font-size: 0.9em; word-break: break-all; }
-.payment-info p { margin: 10px 0; display: flex; justify-content: space-between; align-items: center; }
-.copy-btn { background-color: var(--primary-color-light); border: none; color: var(--primary-color); font-weight: 600; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.8em; }
-.balance-info { text-align: center; margin-bottom: 20px; font-size: 1em; }
-.balance-info strong { color: var(--primary-color); font-size: 1.2em; }
-.success-message { text-align: center; padding: 40px 20px; }
-.success-message .icon { font-size: 4em; }
-.success-message h3 { margin-top: 15px; margin-bottom: 10px; color: var(--success-color); }
-.success-message p { color: var(--text-color-light); }
-.conversion-note { text-align: center; font-size: 0.9em; color: var(--text-color-light); margin-bottom: 15px; }
+.app-container {
+  padding-top: 60px; /* Space for TopNav */
+  padding-bottom: 60px; /* Space for BottomNav */
+}
+
+.main-content {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.loading-app, .loading-spinner {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  color: var(--text-color-light);
+}
+
+.error-message {
+    text-align: center;
+    padding: 20px;
+    color: var(--error-color);
+}
+
+/* --- Notification Styles (Used directly in App.js) --- */
+.notification {
+    position: fixed;
+    top: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 12px 25px;
+    border-radius: 8px;
+    color: white;
+    z-index: 2000;
+    opacity: 0;
+    transition: opacity 0.3s ease, top 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+.notification.show {
+    opacity: 1;
+    top: 30px;
+}
+.notification.success { background-color: var(--success-color); }
+.notification.error { background-color: var(--error-color); }
+.notification.info { background-color: #2196F3; }
+
