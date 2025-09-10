@@ -1,12 +1,17 @@
-/* Styles for the new Login/Register Forms */
-
+/* src/components/FormPages.css */
 .auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: var(--bg-color);
     position: relative;
     width: 750px;
     height: 450px;
-    border: 2px solid #e46033;
-    box-shadow: 0 0 25px #e46033;
+    border: 2px solid var(--primary-color);
+    box-shadow: 0 0 25px var(--primary-color);
     overflow: hidden;
+    margin: auto; /* Center the container itself if the parent is larger */
 }
 
 .auth-container .form-box {
@@ -26,8 +31,8 @@
 
 .form-box.Login .animation {
     transform: translateX(0%);
-    transition: .7s;
     opacity: 1;
+    transition: .7s;
     transition-delay: calc(.1s * var(--S));
 }
 
@@ -44,8 +49,8 @@
 
 .form-box.Register .animation {
     transform: translateX(120%);
-    transition: .7s ease;
     opacity: 0;
+    transition: .7s ease;
     filter: blur(10px);
     transition-delay: calc(.1s * var(--S));
 }
@@ -79,14 +84,14 @@
     font-size: 16px;
     color: var(--text-color);
     font-weight: 600;
-    border-bottom: 2px solid var(--text-color);
+    border-bottom: 2px solid var(--text-color-light);
     padding-right: 23px;
     transition: .5s;
 }
 
 .input-box input:focus,
 .input-box input:valid {
-    border-bottom: 2px solid #e46033;
+    border-bottom-color: var(--primary-color);
 }
 
 .input-box label {
@@ -95,29 +100,29 @@
     left: 0;
     transform: translateY(-50%);
     font-size: 16px;
-    color: var(--text-color);
-    transition: .5s;
+    color: var(--text-color-light);
     pointer-events: none;
+    transition: .5s;
 }
 
 .input-box input:focus ~ label,
 .input-box input:valid ~ label {
     top: -5px;
-    color: #e46033;
+    color: var(--primary-color);
 }
 
-.input-box i {
+.input-box .form-icon {
     position: absolute;
     top: 50%;
     right: 0;
     font-size: 18px;
     transform: translateY(-50%);
-    color: var(--text-color);
+    color: var(--text-color-light);
 }
 
-.input-box input:focus ~ i,
-.input-box input:valid ~ i {
-    color: #e46033;
+.input-box input:focus ~ .form-icon,
+.input-box input:valid ~ .form-icon {
+    color: var(--primary-color);
 }
 
 .btn {
@@ -130,10 +135,13 @@
     font-size: 16px;
     color: var(--text-color);
     font-weight: 600;
-    border: 2px solid #e46033;
+    border: 2px solid var(--primary-color);
     overflow: hidden;
-    z-index: 1;    
-    margin-top: 10px;
+    z-index: 1;
+}
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .btn::before {
@@ -141,14 +149,14 @@
     position: absolute;
     height: 300%;
     width: 100%;
-    background: linear-gradient(var(--bg-color), #e46033, var(--bg-color), #e46033);
+    background: linear-gradient(var(--bg-color), var(--primary-color), var(--bg-color), var(--primary-color));
     top: -100%;
     left: 0;
     z-index: -1;
     transition: .5s;
 }
 
-.btn:hover::before {
+.btn:hover:before {
     top: 0;
 }
 
@@ -159,13 +167,17 @@
     color: var(--text-color);
 }
 
-.regi-link a {
+.regi-link button {
+    background: none;
+    border: none;
     text-decoration: none;
-    color: #e46033;
+    color: var(--primary-color);
     font-weight: 600;
+    cursor: pointer;
+    font-size: inherit;
 }
 
-.regi-link a:hover {
+.regi-link button:hover {
     text-decoration: underline;
 }
 
@@ -187,10 +199,10 @@
 
 .info-content.Login .animation {
     transform: translateX(0);
-    transition: .7s ease;
-    transition-delay: calc(.1s * var(--S));
     opacity: 1;
     filter: blur(0px);
+    transition: .7s ease;
+    transition-delay: calc(.1s * var(--S));
 }
 
 .auth-container.active .info-content.Login .animation {
@@ -209,9 +221,9 @@
 
 .info-content.Register .animation {
     transform: translateX(-120%);
-    transition: .7s ease;
     opacity: 0;
     filter: blur(10PX);
+    transition: .7s ease;
     transition-delay: calc(.1s * var(--S));
 }
 
@@ -240,7 +252,7 @@
     top: -5px;
     height: 600px;
     width: 850px;
-    background: linear-gradient(45deg, #25252b, #e46033);
+    background: linear-gradient(45deg, var(--bg-color), var(--primary-color));
     transform: rotate(10deg) skewY(40deg);
     transform-origin: bottom right;
     transition: 1.5s ease;
@@ -255,46 +267,18 @@
 .auth-container .curved-shape2 {
     position: absolute;
     left: 0;
-    top: -5px;
-    height: 600px;
+    top: 100%;
+    height: 700px;
     width: 850px;
-    background: #25252b;
-    border-right: 3px solid #e46033;
-    transform: rotate(-10deg) skewY(-40deg);
+    background: var(--bg-color);
+    border-top: 3px solid var(--primary-color);
+    transform: rotate(0deg) skewY(0deg);
     transform-origin: bottom left;
     transition: 1.5s ease;
-    transition-delay: .5s;
 }
 
 .auth-container.active .curved-shape2 {
-    transform: rotate(0deg) skewY(0deg);
-    transition-delay: .6s;
-}
-
-@media (max-width: 768px) {
-    .auth-container {
-        width: 100%;
-        height: 100vh;
-        border: none;
-        box-shadow: none;
-    }
-    .info-content {
-        display: none;
-    }
-    .auth-container .form-box {
-        width: 100%;
-    }
-    .auth-container.active .form-box.Login {
-        left: -100%;
-    }
-    .form-box.Register {
-        right: -100%;
-    }
-    .auth-container.active .form-box.Register {
-        right: 0;
-    }
-    .curved-shape, .curved-shape2 {
-        display: none;
-    }
+    transform: rotate(-11deg) skewY(-41deg);
+    transition-delay: .5s;
 }
 
