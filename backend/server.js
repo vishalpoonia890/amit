@@ -488,28 +488,48 @@ app.get('/api/admin/game-status', authenticateAdmin, async (req, res) => {
 
 app.post('/api/admin/game-status', authenticateAdmin, async (req, res) => {
     const { is_on, mode } = req.body;
-    const update = {};
-    if(typeof is_on === 'boolean') update.is_on = is_on;
-    if(mode) update.mode = mode;
-
-    const { data, error } = await supabase.from('game_state').update(update).eq('id', 1).select().single();
-    if(error) return res.status(500).json({error: 'Failed to update game status'});
-    res.json({message: 'Game status updated', status: data});
+    const updateData = {};
+    if (typeof is_on === 'boolean') {
+        updateData.is_on = is_on;
+    }
+    if (mode === 'auto' || mode === 'admin') {
+        updateData.mode = mode;
+    }
+    if (Object.keys(updateData).length === 0) {
+        return res.status(400).json({ error: 'No valid update data provided.' });
+    }
+    try {
+        const { data, error } = await supabase.from('game_state').update(updateData).eq('id', 1).select().single();
+        if (error) throw error;
+        res.json({ message: 'Game status updated successfully.', status: data });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to update game status.' });
+    }
 });
+
 
 app.post('/api/admin/game-maintenance', authenticateAdmin, async (req, res) => {
     const { maintenance_mode, whitelisted_users } = req.body;
     const updateData = {};
-    if (typeof maintenance_mode === 'boolean') updateData.maintenance_mode = maintenance_mode;
+    if (typeof maintenance_mode === 'boolean') {
+        updateData.maintenance_mode = maintenance_mode;
+    }
     if (Array.isArray(whitelisted_users)) {
         updateData.whitelisted_users = whitelisted_users.map(id => parseInt(id, 10)).filter(id => !isNaN(id));
     }
-    if (Object.keys(updateData).length === 0) return res.status(400).json({ error: 'No valid data provided.' });
 
-    const { data, error } = await supabase.from('game_state').update(updateData).eq('id', 1).select().single();
-    if (error) return res.status(500).json({ error: 'Failed to update maintenance settings.' });
-    res.json({ message: 'Maintenance settings updated.', status: data });
+    if (Object.keys(updateData).length === 0) {
+        return res.status(400).json({ error: 'No valid update data provided.' });
+    }
+    try {
+        const { data, error } = await supabase.from('game_state').update(updateData).eq('id', 1).select().single();
+        if (error) throw error;
+        res.json({ message: 'Maintenance settings updated.', status: data });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to update maintenance settings.' });
+    }
 });
+
 
 app.post('/api/admin/game-next-result', authenticateAdmin, async (req, res) => {
     const { result } = req.body;
