@@ -1,10 +1,10 @@
+
+import './AccountView.css';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import './AccountView.css';
 
 const API_BASE_URL = process.env.NODE_ENV === 'production' ? 'https://investmentpro-nu7s.onrender.com' : '';
 
-// Helper to format currency
 const formatCurrency = (amount) => {
     return new Intl.NumberFormat("en-IN", {
         style: "currency",
@@ -16,7 +16,7 @@ const formatCurrency = (amount) => {
 
 function AccountView({ userData, financialSummary, onLogout, onViewChange, token }) {
     const [userInvestments, setUserInvestments] = useState([]);
-
+    
     useEffect(() => {
         const fetchInvestments = async () => {
             if (!token) return;
@@ -32,24 +32,23 @@ function AccountView({ userData, financialSummary, onLogout, onViewChange, token
         fetchInvestments();
     }, [token]);
 
-    const user = userData || { name: 'User', mobile: 'N/A' };
+    const user = userData || { name: 'User', mobile: 'N/A', ip_username: 'N/A' };
     const financials = financialSummary ? {
         todays_earnings: financialSummary.todaysIncome || 0,
         withdrawable: financialSummary.withdrawable_wallet || 0,
         recharge: financialSummary.balance || 0,
-        today: financialSummary.todaysIncome || 0,
-        total_yid: financialSummary.totalIncome || 0,
-        team_commission: financialSummary.teamIncome || 0,
         total_balance: (financialSummary.balance || 0) + (financialSummary.withdrawable_wallet || 0)
-    } : { /* default empty values */ };
+    } : {};
+
+    const avatarUrl = user.avatar_url || `https://placehold.co/150x150/007bff/FFFFFF?text=${user.name?.[0]?.toUpperCase() || 'U'}`;
 
     return (
         <div className="account-view">
             <div className="profile-header-card">
-                <img src={user.avatar_url || 'https://via.placeholder.com/150'} alt="User Avatar" className="avatar" />
+                <img src={avatarUrl} alt="User Avatar" className="avatar" />
                 <div className="profile-info">
                     <h3 className="username">{user.name}</h3>
-                    <p className="user-details">{user.mobile} • Singapore</p>
+                    <p className="user-details">ID: {user.ip_username}</p>
                 </div>
             </div>
 
@@ -62,29 +61,13 @@ function AccountView({ userData, financialSummary, onLogout, onViewChange, token
             </div>
 
             <div className="financial-grid-card">
-                <div className="grid-item">
-                    <span className="label">Withdraw</span>
-                    <span className="value">{formatCurrency(financials.withdrawable)}</span>
-                </div>
-                <div className="grid-item">
-                    <span className="label">Recharge</span>
-                    <span className="value">{formatCurrency(financials.recharge)}</span>
-                </div>
-                <div className="grid-item">
-                    <span className="label">Today</span>
-                    <span className="value">{formatCurrency(financials.today)}</span>
-                </div>
-                <div className="grid-item">
-                    <span className="label">Total YID</span>
-                    <span className="value">{formatCurrency(financials.total_yid)}</span>
-                </div>
                  <div className="grid-item">
-                    <span className="label">Team</span>
-                    <span className="value">{formatCurrency(financials.team_commission)}</span>
-                </div>
-                 <div className="grid-item">
-                    <span className="label">Total</span>
+                    <span className="label">Total Balance</span>
                     <span className="value">{formatCurrency(financials.total_balance)}</span>
+                </div>
+                 <div className="grid-item">
+                    <span className="label">Withdrawable</span>
+                    <span className="value">{formatCurrency(financials.withdrawable)}</span>
                 </div>
             </div>
             
