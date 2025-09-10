@@ -1,24 +1,18 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import './App.css';
- 
+
 // --- COMPONENT IMPORTS ---
 import UserDashboard from './components/UserDashboard';
-import ProductsAndPlans from './components/ProductsAndPlans';
+import { ProductsAndPlans, NewsView, Wallet, Team, Promotions, Rewards, Support } from './components/PlaceholderViews';
 import AdminPanel from './components/AdminPanel';
 import BottomNav from './components/BottomNav';
 import Notification from './components/Notification';
 import TopNav from './components/TopNav';
 import AccountView from './components/AccountView';
-import NewsView from './components/NewsView';
 import GameView from './components/GameView';
 import Deposit from './components/Deposit';
 import Withdrawal from './components/Withdrawal';
-import Wallet from './components/Wallet';
-import Team from './components/Team';
-import Promotions from './components/Promotions';
-import Rewards from './components/Rewards';
-import Support from './components/Support';
 import BetHistory from './components/BetHistory';
 
 
@@ -62,6 +56,7 @@ function App() {
     const fetchAllUserData = useCallback(async (authToken) => {
         if (!authToken) return;
         try {
+            // Fetch user data and financial summary in parallel
             const [dataRes, summaryRes] = await Promise.all([
                 axios.get(`${API_BASE_URL}/api/data`, { headers: { Authorization: `Bearer ${authToken}` } }),
                 axios.get(`${API_BASE_URL}/api/financial-summary`, { headers: { Authorization: `Bearer ${authToken}` } })
@@ -204,7 +199,7 @@ function App() {
 
         switch (view) {
             case 'dashboard': return <UserDashboard onViewChange={setView} />;
-            case 'plans': return <ProductsAndPlans token={token} onPlanPurchase={() => { showNotification('Plan purchased!', 'success'); fetchAllUserData(token); setView('dashboard'); }} />;
+            case 'plans': return <ProductsAndPlans onPlanPurchase={() => { showNotification('Plan purchased!', 'success'); fetchAllUserData(token); setView('dashboard'); }} />;
             case 'game': return <GameView token={token} financialSummary={financialSummary} onViewChange={setView} onBetPlaced={() => fetchAllUserData(token)} />;
             case 'news': return <NewsView />;
             case 'account': return <AccountView userData={userData} financialSummary={financialSummary} onLogout={handleLogout} onViewChange={setView} token={token}/>;
