@@ -1131,10 +1131,10 @@ app.post('/api/recharge', authenticateToken, async (req, res) => {
     const { amount } = req.body; // UPI Transaction Reference is not required for initial request
     const userId = req.user.id;
 
-    // Validate amount
-    if (!amount || amount <= 0) {
-      return res.status(400).json({ error: 'Invalid recharge amount' });
-    }
+    // Validate amount and UTR
+    if (!amount || amount <= 0 || !utr || utr.trim() === '') {
+      return res.status(400).json({ error: 'Valid amount and UTR/Hash are required' });
+    }
 
     // Record the recharge request
     const { error: rechargeError } = await supabase
@@ -1305,19 +1305,19 @@ app.get('/api/marketing-stats', (req, res) => {
   }
 });
 
-// Get fake withdrawal for popup
-app.get('/api/fake-withdrawal', (req, res) => {
-  try {
-    const fakeWithdrawal = generateFakeWithdrawal();
-    res.json({
-      message: 'Fake withdrawal generated',
-      withdrawal: fakeWithdrawal
-    });
-  } catch (error) {
-    console.error('Fake withdrawal generation error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
+// Get multiple fake withdrawals for the ticker
+app.get('/api/fake-withdrawals', (req, res) => {
+    try {
+        const withdrawals = [];
+        for (let i = 0; i < 10; i++) {
+            withdrawals.push(generateFakeWithdrawal());
+        }
+        res.json({ withdrawals });
+    } catch (error) {
+        res.status(500).json({ error: 'Internal server error' });
+    }
 });
+
 
 // Copy UPI ID endpoint
 app.get('/api/upi-id', (req, res) => {
