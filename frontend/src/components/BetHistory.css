@@ -1,0 +1,73 @@
+/* src/components/BetHistory.css */
+.bet-history-container {
+    padding: 15px;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.bet-item {
+    background-color: var(--card-bg-color);
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: var(--card-shadow);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    align-items: center;
+    border-left: 4px solid var(--primary-color);
+}
+
+.bet-item-win {
+    border-left-color: var(--success-color);
+}
+
+.bet-item-lose {
+    border-left-color: var(--error-color);
+}
+
+.bet-info {
+    font-size: 0.9em;
+}
+
+.bet-info span {
+    color: var(--text-color-light);
+}
+
+.bet-info strong {
+    color: var(--text-color);
+}
+
+.bet-on-value {
+    text-transform: capitalize;
+}
+
+.bet-outcome {
+    text-align: right;
+    font-weight: 700;
+    font-size: 1.1em;
+}
+
+.outcome-win {
+    color: var(--success-color);
+}
+
+.outcome-lose {
+    color: var(--error-color);
+}
+
+.outcome-pending {
+    color: var(--text-color-light);
+    font-size: 1em;
+}
+
+.no-history {
+    text-align: center;
+    padding: 30px;
+    color: var(--text-color-light);
+}
+
