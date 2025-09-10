@@ -1,91 +1,209 @@
-import React from 'react';
-import './AccountView.css';
+/* src/components/AccountView.css */
 
-// Helper to format currency
-const formatCurrency = (amount) => new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-}).format(amount || 0);
-
-function AccountView({ userData, financialSummary, onViewChange, onLogout }) {
-
-    const handleClaimEarnings = () => {
-        // This would call an API to move today's earnings to the main wallet
-        alert("Today's earnings claimed!");
-    };
-
-    return (
-        <div className="account-view-container">
-            {/* --- User Profile Section --- */}
-            <section className="profile-header-section">
-                <img 
-                    src={userData?.avatar_url || `https://i.pravatar.cc/150?u=${userData?.id}`} 
-                    alt="User Avatar" 
-                    className="profile-avatar"
-                />
-                <div className="profile-info">
-                    <h2 className="profile-name">{userData?.name || 'User'}</h2>
-                    <p className="profile-details">
-                        <span>📞 {userData?.mobile || 'N/A'}</span>
-                        <span>📍 Singapore</span>
-                    </p>
-                </div>
-            </section>
-
-            {/* --- Today's Earnings Section --- */}
-            <section className="earnings-section">
-                <div className="earnings-info">
-                    <span className="earnings-label">Today's Earnings</span>
-                    <span className="earnings-amount">{formatCurrency(134.00)}</span> {/* Placeholder */}
-                </div>
-                <button className="claim-button" onClick={handleClaimEarnings}>Claim</button>
-            </section>
-
-            {/* --- Financial Info Grid --- */}
-            <section className="financial-grid">
-                <div className="grid-card">
-                    <span className="card-label">Withdrawal</span>
-                    <span className="card-value">{formatCurrency(financialSummary?.withdrawable_wallet)}</span>
-                </div>
-                <div className="grid-card">
-                    <span className="card-label">Recharge</span>
-                    <span className="card-value">{formatCurrency(financialSummary?.balance)}</span>
-                </div>
-                <div className="grid-card">
-                    <span className="card-label">Today</span>
-                    <span className="card-value">{formatCurrency(134.00)}</span> {/* Placeholder */}
-                </div>
-                 <div className="grid-card">
-                    <span className="card-label">Total YID</span>
-                    <span className="card-value">{formatCurrency(1970.00)}</span> {/* Placeholder */}
-                </div>
-                 <div className="grid-card">
-                    <span className="card-label">Team</span>
-                    <span className="card-value">{formatCurrency(0.00)}</span> {/* Placeholder */}
-                </div>
-                 <div className="grid-card">
-                    <span className="card-label">Total</span>
-                    <span className="card-value">{formatCurrency(financialSummary?.balance + financialSummary?.withdrawable_wallet)}</span>
-                </div>
-            </section>
-
-            {/* --- Action Buttons --- */}
-            <section className="account-actions">
-                <button className="action-button recharge" onClick={() => onViewChange('deposit')}>Recharge</button>
-                <button className="action-button withdraw" onClick={() => onViewChange('withdraw')}>Withdraw</button>
-            </section>
-
-            {/* --- Menu List --- */}
-            <section className="account-menu">
-                <button className="menu-list-item" onClick={() => onViewChange('my-products')}>My Products</button>
-                <button className="menu-list-item" onClick={() => onViewChange('transactions')}>Transaction History</button>
-                <button className="menu-list-item" onClick={() => onViewChange('wallet')}>Wallet Details</button>
-                <button className="menu-list-item" onClick={() => onViewChange('team')}>My Team</button>
-                <button className="menu-list-item" onClick={() => onViewChange('support')}>Customer Support</button>
-                <button className="menu-list-item logout" onClick={onLogout}>Logout</button>
-            </section>
-        </div>
-    );
+.account-view-container {
+    padding: 15px;
+    animation: fadeIn 0.5s ease-in-out;
 }
 
-export default AccountView;
+.profile-header {
+    display: flex;
+    align-items: center;
+    background-color: var(--card-bg-color);
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-shadow: var(--card-shadow);
+}
+
+.avatar-container {
+    position: relative;
+    margin-right: 15px;
+}
+
+.avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--primary-color);
+}
+
+.avatar-upload-btn {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.profile-info h2 {
+    font-size: 1.4em;
+    font-weight: 600;
+    color: var(--text-color);
+    margin: 0;
+}
+
+.profile-info p {
+    font-size: 0.9em;
+    color: var(--text-color-light);
+    margin: 4px 0 0;
+}
+
+.earnings-card {
+    background-color: var(--card-bg-color);
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-shadow: var(--card-shadow);
+    text-align: center;
+}
+
+.earnings-card p {
+    color: var(--text-color-light);
+    margin: 0 0 10px;
+}
+
+.earnings-card .amount {
+    font-size: 2em;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 15px;
+}
+
+.claim-button {
+    background-color: var(--accent-color);
+    color: #fff;
+    border: none;
+    padding: 10px 30px;
+    border-radius: 25px;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.claim-button:hover {
+    background-color: #ff8f00;
+}
+
+.balance-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.balance-item {
+    background-color: var(--card-bg-color);
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: var(--card-shadow);
+}
+
+.balance-item .title {
+    font-size: 0.9em;
+    color: var(--text-color-light);
+    margin-bottom: 5px;
+}
+
+.balance-item .value {
+    font-size: 1.2em;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.action-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.action-btn {
+    padding: 15px;
+    font-size: 1em;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.action-btn:hover {
+    transform: translateY(-2px);
+}
+
+.recharge-btn {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.withdraw-btn {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.account-menu {
+    background-color: var(--card-bg-color);
+    border-radius: 12px;
+    box-shadow: var(--card-shadow);
+    overflow: hidden;
+}
+
+.menu-item-link {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    text-decoration: none;
+    color: var(--text-color);
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.2s;
+}
+
+.menu-item-link:last-child {
+    border-bottom: none;
+}
+
+.menu-item-link:hover {
+    background-color: var(--nav-active-bg);
+}
+
+.menu-icon {
+    font-size: 1.2em;
+    margin-right: 15px;
+    width: 24px;
+    text-align: center;
+    color: var(--primary-color);
+}
+
+.menu-item-link span {
+    flex-grow: 1;
+}
+
+.menu-arrow {
+    font-size: 1.2em;
+    color: var(--text-color-light);
+}
+
+.logout-button {
+    width: 100%;
+    margin-top: 20px;
+    padding: 15px;
+    background-color: var(--error-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+}
+
