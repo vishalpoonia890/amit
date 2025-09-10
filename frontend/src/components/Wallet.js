@@ -1,32 +1,50 @@
-// src/components/Wallet.js
 import React from 'react';
+import './FormPages.css';
 
-function Wallet({ onViewChange }) {
-  return (
-    <div className="wallet-page">
-      <div className="wallet-header">
-        <h1>My Wallet</h1>
-        <p>Manage your funds and referrals in one place.</p>
-      </div>
-      <div className="wallet-actions">
-        <button className="wallet-action-btn deposit" onClick={() => onViewChange('recharge')}>
-          <span className="icon">➕</span>
-          <span>Deposit Money</span>
-          <span className="description">Add funds to your account.</span>
-        </button>
-        <button className="wallet-action-btn withdraw" onClick={() => onViewChange('withdraw')}>
-          <span className="icon">➖</span>
-          <span>Withdraw Money</span>
-          <span className="description">Transfer earnings to your bank.</span>
-        </button>
-        <button className="wallet-action-btn refer" onClick={() => onViewChange('refer')}>
-          <span className="icon">🔗</span>
-          <span>Refer a Friend</span>
-          <span className="description">Earn commissions from referrals.</span>
-        </button>
-      </div>
-    </div>
-  );
+const formatCurrency = (amount) => new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+}).format(amount || 0);
+
+function Wallet({ onBack, financialSummary }) {
+    // Mocking some data that would come from an API
+    const mockData = {
+        referralIncome: 1250.75,
+        dailyIncome: 350.50,
+        allTimeTotal: (financialSummary?.balance || 0) + (financialSummary?.withdrawable_wallet || 0) + 1250.75,
+    };
+
+    return (
+        <div className="form-page-container wallet-page">
+            <div className="form-page-header">
+                <button onClick={onBack} className="back-button">←</button>
+                <h1>My Wallet</h1>
+            </div>
+            
+            <div className="wallet-grid">
+                <div className="wallet-card primary">
+                    <span className="wallet-title">Total Income (All Time)</span>
+                    <span className="wallet-value">{formatCurrency(mockData.allTimeTotal)}</span>
+                </div>
+                <div className="wallet-card">
+                    <span className="wallet-title">Deposit Balance</span>
+                    <span className="wallet-value">{formatCurrency(financialSummary?.balance)}</span>
+                </div>
+                 <div className="wallet-card">
+                    <span className="wallet-title">Withdrawable Balance</span>
+                    <span className="wallet-value">{formatCurrency(financialSummary?.withdrawable_wallet)}</span>
+                </div>
+                <div className="wallet-card">
+                    <span className="wallet-title">Today's Income</span>
+                    <span className="wallet-value">{formatCurrency(mockData.dailyIncome)}</span>
+                </div>
+                <div className="wallet-card">
+                    <span className="wallet-title">Referral Income</span>
+                    <span className="wallet-value">{formatCurrency(mockData.referralIncome)}</span>
+                </div>
+            </div>
+        </div>
+    );
 }
 
 export default Wallet;
