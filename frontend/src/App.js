@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, 'useState', 'useEffect', 'useCallback' from 'react';
 import axios from 'axios';
 import './App.css';
 
@@ -12,12 +12,21 @@ import TopNav from './components/TopNav';
 import AccountView from './components/AccountView';
 import NewsView from './components/NewsView';
 
+// --- NEW COMPONENT IMPORTS ---
+import Deposit from './components/Deposit';
+import Withdrawal from './components/Withdrawal';
+import Wallet from './components/Wallet';
+import Team from './components/Team';
+import Promotions from './components/Promotions';
+import Rewards from './components/Rewards';
+import Support from './components/Support';
+
+
 // ++ STUBBED COMPONENTS
 const GameView = () => <div style={{ padding: '20px' }}>Game View Coming Soon!</div>;
 const MyProductsView = ({ onBack }) => <div style={{ padding: '20px' }}><button onClick={onBack}>← Back</button><h2>My Products</h2></div>;
 const TransactionsView = ({ onBack }) => <div style={{ padding: '20px' }}><button onClick={onBack}>← Back</button><h2>Transactions</h2></div>;
-const WithdrawalForm = ({ onBack }) => <div style={{ padding: '20px' }}><button onClick={onBack}>← Back</button><h2>Request Withdrawal</h2></div>;
-const RechargeForm = ({ onBack }) => <div style={{ padding: '20px' }}><button onClick={onBack}>← Back</button><h2>Recharge Account</h2></div>;
+
 
 // --- API CONFIGURATION ---
 const getApiBaseUrl = () => {
@@ -39,6 +48,8 @@ function App() {
     const [loginFormData, setLoginFormData] = useState({ mobile: '', password: '' });
     const [registerFormData, setRegisterFormData] = useState({ username: '', mobile: '', password: '', confirmPassword: '', referralCode: '' });
     const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
+    const [isSupportVisible, setSupportVisible] = useState(false);
+
 
     const toggleTheme = () => {
         const newTheme = theme === 'light' ? 'dark' : 'light';
@@ -47,7 +58,6 @@ function App() {
     };
 
     useEffect(() => {
-        // We apply a specific class for the auth page vs the main app
         if (!token) {
             document.body.className = 'auth-body';
         } else {
@@ -55,7 +65,6 @@ function App() {
         }
     }, [token, theme]);
 
-    // Effect to load the boxicons script for the new login form
     useEffect(() => {
         const script = document.createElement('script');
         script.src = 'https://unpkg.com/boxicons@2.1.4/dist/boxicons.js';
@@ -78,6 +87,25 @@ function App() {
         setFinancialSummary(null);
         setView('login');
     }, []);
+
+    const handleViewChange = (newView) => {
+        if (newView === 'support') {
+            setSupportVisible(true);
+        } else if (newView === 'invite') {
+            // Handle the invite link copy logic directly
+             const referralLink = `https://your-domain.com/register?ref=${userData?.id || ''}`;
+             navigator.clipboard.writeText(referralLink).then(() => {
+                showNotification('Referral link copied to clipboard!', 'success');
+             }, (err) => {
+                showNotification('Failed to copy link.', 'error');
+                console.error('Could not copy text: ', err);
+             });
+        }
+        else {
+            setView(newView);
+        }
+    };
+
 
     const fetchAllUserData = useCallback(async (authToken) => {
         if (!authToken) return;
@@ -155,13 +183,11 @@ function App() {
         }
     };
 
-    // --- NEW: Render function for the stylish auth page ---
     const renderAuthPage = () => (
         <div className={view === 'register' ? 'container active' : 'container'}>
             <div className="curved-shape"></div>
             <div className="curved-shape2"></div>
             
-            {/* Login Form */}
             <div className="form-box Login">
                 <h2 className="animation" style={{'--D':0, '--S':21}}>Login</h2>
                 <form onSubmit={handleLogin}>
@@ -188,7 +214,6 @@ function App() {
                 <p className="animation" style={{'--D':1, '--S':21}}>We are happy to have you with us again. If you need anything, we are here to help.</p>
             </div>
 
-            {/* Register Form */}
             <div className="form-box Register">
                 <h2 className="animation" style={{'--li':17, '--S':0}}>Register</h2>
                 <form onSubmit={handleRegister}>
@@ -232,7 +257,6 @@ function App() {
         </div>
     );
     
-    // --- Main View Renderer ---
     const renderMainView = () => {
         if (loading && !userData) return <div className="loading-app"><h1>InvestmentPlus</h1><p>Loading...</p></div>;
         if (userData?.is_admin) {
@@ -240,22 +264,32 @@ function App() {
         }
 
         switch (view) {
-            case 'dashboard': return <UserDashboard onViewChange={setView} financialSummary={financialSummary} />;
+            case 'dashboard': return <UserDashboard onViewChange={handleViewChange} />;
             case 'plans': return <ProductsAndPlans token={token} onPlanPurchase={() => { showNotification('Plan purchased!', 'success'); fetchAllUserData(token); setView('dashboard'); }} />;
             case 'game': return <GameView />;
             case 'news': return <NewsView />;
-            case 'account': return <AccountView userData={userData} financialSummary={financialSummary} onViewChange={setView} onLogout={handleLogout} />;
+            case 'account': return <AccountView userData={userData} financialSummary={financialSummary} onViewChange={handleViewChange} onLogout={handleLogout} />;
+            // New Views
+            case 'deposit': return <Deposit onBack={() => setView('dashboard')} />;
+            case 'withdraw': return <Withdrawal onBack={() => setView('dashboard')} />;
+            case 'wallet': return <Wallet onBack={() => setView('dashboard')} financialSummary={financialSummary} />;
+            case 'team': return <Team onBack={() => setView('dashboard')} token={token} />;
+            case 'promotions': return <Promotions onBack={() => setView('dashboard')} />;
+            case 'rewards': return <Rewards onBack={() => setView('dashboard')} />;
+
+            // Stubbed Views
             case 'my-products': return <MyProductsView onBack={() => setView('account')} />;
             case 'transactions': return <TransactionsView onBack={() => setView('account')} />;
-            case 'recharge': return <RechargeForm onBack={() => setView('account')} />;
-            case 'withdraw': return <WithdrawalForm onBack={() => setView('account')} />;
-            default: return <UserDashboard onViewChange={setView} financialSummary={financialSummary} />;
+            
+            default: return <UserDashboard onViewChange={handleViewChange} />;
         }
     };
 
     return (
         <div className="App">
             <Notification message={notification.message} type={notification.type} show={notification.show} onClose={() => setNotification({ ...notification, show: false })} />
+            {isSupportVisible && <Support onClose={() => setSupportVisible(false)} />}
+            
             {!token ? (
                 renderAuthPage()
             ) : (
@@ -265,11 +299,11 @@ function App() {
                         toggleTheme={toggleTheme}
                         onLogout={handleLogout}
                         isAdmin={userData?.is_admin}
-                        onViewChange={setView}
+                        onViewChange={handleViewChange}
                         financialSummary={financialSummary}
                     />
                     <main className="main-content">{renderMainView()}</main>
-                    {!userData?.is_admin && <BottomNav activeView={view} onViewChange={setView} />}
+                    {!userData?.is_admin && <BottomNav activeView={view} onViewChange={handleViewChange} />}
                 </div>
             )}
         </div>
