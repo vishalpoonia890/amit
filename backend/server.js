@@ -51,6 +51,25 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
+const authenticateAdmin = async (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    if (!token) {
+        return res.status(401).json({ error: 'Access token required' });
+    }
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const { data: user, error } = await supabase.from('users').select('is_admin').eq('id', decoded.id).single();
+        if (error || !user || !user.is_admin) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        req.user = decoded; // Attach user info to the request
+        next();
+    } catch (err) {
+        return res.status(403).json({ error: 'Invalid or expired token' });
+    }
+};
+
 // Helper function to generate random data for marketing stats
 const generateMarketingStats = () => {
   // Generate realistic-looking stats
@@ -452,6 +471,7 @@ app.post('/api/place-bet', authenticateToken, async (req, res) => {
         await supabase.rpc('decrement_user_balance', { p_user_id: userId, p_amount: amount });
     } else if (user.balance + user.withdrawable_wallet >= amount) {
         // Use remaining balance and take rest from withdrawable
+        
         const fromWithdrawable = amount - user.balance;
         await supabase.rpc('decrement_user_balance', { p_user_id: userId, p_amount: user.balance });
         await supabase.rpc('decrement_user_withdrawable_wallet', { p_user_id: userId, p_amount: fromWithdrawable });
