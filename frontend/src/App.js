@@ -5,14 +5,14 @@ import './App.css';
 // --- COMPONENT IMPORTS ---
 import UserDashboard from './components/UserDashboard';
 import ProductsAndPlans from './components/ProductsAndPlans';
-import AdminPanel from './components/AdminPanel'; // Assuming AdminPanel component exists
-import BottomNav from './components/BottomNav'; // Assuming BottomNav component exists
-import Notification from './components/Notification'; // Assuming Notification component exists
+import AdminPanel from './components/AdminPanel';
+import BottomNav from './components/BottomNav';
+import Notification from './components/Notification';
 import TopNav from './components/TopNav';
-import AccountView from './components/AccountView'; // Assuming AccountView component exists
-import NewsView from './components/NewsView'; // Assuming NewsView component exists
+import AccountView from './components/AccountView';
+import NewsView from './components/NewsView';
 
-// ++ STUBBED COMPONENTS to prevent errors until they are built
+// ++ STUBBED COMPONENTS
 const GameView = () => <div style={{ padding: '20px' }}>Game View Coming Soon!</div>;
 const MyProductsView = ({ onBack }) => <div style={{ padding: '20px' }}><button onClick={onBack}>← Back</button><h2>My Products</h2></div>;
 const TransactionsView = ({ onBack }) => <div style={{ padding: '20px' }}><button onClick={onBack}>← Back</button><h2>Transactions</h2></div>;
@@ -22,16 +22,16 @@ const RechargeForm = ({ onBack }) => <div style={{ padding: '20px' }}><button on
 // --- API CONFIGURATION ---
 const getApiBaseUrl = () => {
     if (process.env.NODE_ENV === 'production') {
-        return 'https://investmentpro-nu7s.onrender.com'; // Use your production URL here
+        return 'https://investmentpro-nu7s.onrender.com';
     }
-    return ''; // Assumes proxy for development (http://localhost:10000)
+    return '';
 };
 const API_BASE_URL = getApiBaseUrl();
 
 // --- THE MAIN APP COMPONENT ---
 function App() {
     const [token, setToken] = useState(localStorage.getItem('token') || null);
-    const [view, setView] = useState('landing');
+    const [view, setView] = useState('login'); // Start with login view
     const [userData, setUserData] = useState(null);
     const [financialSummary, setFinancialSummary] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -47,8 +47,25 @@ function App() {
     };
 
     useEffect(() => {
-        document.body.className = `${theme}-theme`;
-    }, [theme]);
+        // We apply a specific class for the auth page vs the main app
+        if (!token) {
+            document.body.className = 'auth-body';
+        } else {
+            document.body.className = `${theme}-theme`;
+        }
+    }, [token, theme]);
+
+    // Effect to load the boxicons script for the new login form
+    useEffect(() => {
+        const script = document.createElement('script');
+        script.src = 'https://unpkg.com/boxicons@2.1.4/dist/boxicons.js';
+        script.async = true;
+        document.body.appendChild(script);
+        return () => {
+            document.body.removeChild(script);
+        };
+    }, []);
+
 
     const showNotification = (message, type = 'info') => {
         setNotification({ show: true, message, type });
@@ -66,7 +83,6 @@ function App() {
         if (!authToken) return;
         setLoading(true);
         try {
-            // Fetch user data and financial summary in parallel
             const [dataRes, summaryRes] = await Promise.all([
                 axios.get(`${API_BASE_URL}/api/data`, { headers: { Authorization: `Bearer ${authToken}` } }),
                 axios.get(`${API_BASE_URL}/api/financial-summary`, { headers: { Authorization: `Bearer ${authToken}` } })
@@ -139,87 +155,109 @@ function App() {
         }
     };
 
-    const handleViewChange = (newView) => setView(newView);
-
-    // --- Render Functions for Auth Forms ---
-    const renderLoginForm = () => (
-        <div className="auth-page-wrapper">
-            <div className="auth-form-container">
-                <div className="auth-header"><div className="auth-logo">InvestmentPlus</div><h1>Welcome Back</h1><p>Sign in to your account.</p></div>
-                <form onSubmit={handleLogin} className="auth-form">
-                    {/* FIXED: Added autocomplete attributes */}
-                    <div className="form-group"><input type="tel" name="mobile" placeholder="Mobile Number" value={loginFormData.mobile} onChange={handleLoginInputChange} required autoComplete="tel" /></div>
-                    <div className="form-group"><input type="password" name="password" placeholder="Password" value={loginFormData.password} onChange={handleLoginInputChange} required autoComplete="current-password" /></div>
-                    <button type="submit" className="auth-button" disabled={loading}>{loading ? 'Logging in...' : 'Login'}</button>
+    // --- NEW: Render function for the stylish auth page ---
+    const renderAuthPage = () => (
+        <div className={view === 'register' ? 'container active' : 'container'}>
+            <div className="curved-shape"></div>
+            <div className="curved-shape2"></div>
+            
+            {/* Login Form */}
+            <div className="form-box Login">
+                <h2 className="animation" style={{'--D':0, '--S':21}}>Login</h2>
+                <form onSubmit={handleLogin}>
+                    <div className="input-box animation" style={{'--D':1, '--S':22}}>
+                        <input type="tel" name="mobile" required value={loginFormData.mobile} onChange={handleLoginInputChange} />
+                        <label>Mobile Number</label>
+                        <box-icon type='solid' name='user' color="gray"></box-icon>
+                    </div>
+                    <div className="input-box animation" style={{'--D':2, '--S':23}}>
+                        <input type="password" name="password" required value={loginFormData.password} onChange={handleLoginInputChange} />
+                        <label>Password</label>
+                        <box-icon name='lock-alt' type='solid' color="gray"></box-icon>
+                    </div>
+                    <div className="input-box animation" style={{'--D':3, '--S':24}}>
+                        <button className="btn" type="submit" disabled={loading}>{loading ? 'Logging in...' : 'Login'}</button>
+                    </div>
+                    <div className="regi-link animation" style={{'--D':4, '--S':25}}>
+                        <p>Don't have an account? <br /> <button type="button" className="SignUpLink" onClick={() => setView('register')}>Sign Up</button></p>
+                    </div>
                 </form>
-                <div className="auth-footer"><p>Don’t have an account? <button onClick={() => setView('register')}>Sign up</button></p></div>
+            </div>
+            <div className="info-content Login">
+                <h2 className="animation" style={{'--D':0, '--S':20}}>WELCOME BACK!</h2>
+                <p className="animation" style={{'--D':1, '--S':21}}>We are happy to have you with us again. If you need anything, we are here to help.</p>
+            </div>
+
+            {/* Register Form */}
+            <div className="form-box Register">
+                <h2 className="animation" style={{'--li':17, '--S':0}}>Register</h2>
+                <form onSubmit={handleRegister}>
+                    <div className="input-box animation" style={{'--li':18, '--S':1}}>
+                        <input type="text" name="username" required value={registerFormData.username} onChange={handleRegisterInputChange} />
+                        <label>Username</label>
+                         <box-icon type='solid' name='user' color="gray"></box-icon>
+                    </div>
+                    <div className="input-box animation" style={{'--li':19, '--S':2}}>
+                        <input type="tel" name="mobile" required value={registerFormData.mobile} onChange={handleRegisterInputChange} />
+                        <label>Mobile Number</label>
+                        <box-icon name='phone' type='solid' color="gray"></box-icon>
+                    </div>
+                    <div className="input-box animation" style={{'--li':20, '--S':3}}>
+                        <input type="password" name="password" required value={registerFormData.password} onChange={handleRegisterInputChange} />
+                        <label>Password</label>
+                        <box-icon name='lock-alt' type='solid' color="gray"></box-icon>
+                    </div>
+                    <div className="input-box animation" style={{'--li':21, '--S':4}}>
+                        <input type="password" name="confirmPassword" required value={registerFormData.confirmPassword} onChange={handleRegisterInputChange} />
+                        <label>Confirm Password</label>
+                        <box-icon name='lock-alt' type='solid' color="gray"></box-icon>
+                    </div>
+                    <div className="input-box animation" style={{'--li':22, '--S':5}}>
+                        <input type="text" name="referralCode" value={registerFormData.referralCode} onChange={handleRegisterInputChange} />
+                        <label>Referral Code (Optional)</label>
+                        <box-icon name='user-plus' type='solid' color="gray"></box-icon>
+                    </div>
+                    <div className="input-box animation" style={{'--li':23, '--S':6}}>
+                         <button className="btn" type="submit" disabled={loading}>{loading ? 'Registering...' : 'Register'}</button>
+                    </div>
+                    <div className="regi-link animation" style={{'--li':24, '--S':7}}>
+                        <p>Already have an account? <br /> <button type="button" className="SignInLink" onClick={() => setView('login')}>Sign In</button></p>
+                    </div>
+                </form>
+            </div>
+            <div className="info-content Register">
+                <h2 className="animation" style={{'--li':17, '--S':0}}>WELCOME!</h2>
+                <p className="animation" style={{'--li':18, '--S':1}}>We’re delighted to have you here. If you need any assistance, feel free to reach out.</p>
             </div>
         </div>
     );
-
-    const renderRegisterForm = () => (
-        <div className="auth-page-wrapper">
-            <div className="auth-form-container">
-                <div className="auth-header"><div className="auth-logo">InvestmentPlus</div><h1>Create Account</h1><p>Start your investment journey.</p></div>
-                <form onSubmit={handleRegister} className="auth-form">
-                    {/* FIXED: Added autocomplete attributes */}
-                    <div className="form-group"><input type="text" name="username" placeholder="Username" value={registerFormData.username} onChange={handleRegisterInputChange} required autoComplete="username" /></div>
-                    <div className="form-group"><input type="tel" name="mobile" placeholder="Mobile Number (10 digits)" value={registerFormData.mobile} onChange={handleRegisterInputChange} required pattern="\d{10}" autoComplete="tel" /></div>
-                    <div className="form-group"><input type="password" name="password" placeholder="Password" value={registerFormData.password} onChange={handleRegisterInputChange} required autoComplete="new-password" /></div>
-                    <div className="form-group"><input type="password" name="confirmPassword" placeholder="Confirm Password" value={registerFormData.confirmPassword} onChange={handleRegisterInputChange} required autoComplete="new-password" /></div>
-                    <div className="form-group"><input type="text" name="referralCode" placeholder="Referral Code (Optional)" value={registerFormData.referralCode} onChange={handleRegisterInputChange} autoComplete="off" /></div>
-                    <button type="submit" className="auth-button" disabled={loading}>{loading ? 'Registering...' : 'Register'}</button>
-                </form>
-                <div className="auth-footer"><p>Already have an account? <button onClick={() => setView('login')}>Login</button></p></div>
-            </div>
-        </div>
-    );
-
+    
     // --- Main View Renderer ---
     const renderMainView = () => {
+        if (loading && !userData) return <div className="loading-app"><h1>InvestmentPlus</h1><p>Loading...</p></div>;
         if (userData?.is_admin) {
             return <AdminPanel token={token} onLogout={handleLogout} />;
         }
 
         switch (view) {
-            case 'dashboard':
-                return <UserDashboard onViewChange={handleViewChange} financialSummary={financialSummary} />;
-            case 'plans':
-                return <ProductsAndPlans token={token} onPlanPurchase={() => {
-                    showNotification('Plan purchased successfully!', 'success');
-                    fetchAllUserData(token); // Refresh data after purchase
-                    setView('dashboard');
-                }} />;
-            case 'game':
-                return <GameView />;
-            case 'news':
-                return <NewsView />;
-            case 'account':
-                return <AccountView userData={userData} financialSummary={financialSummary} onViewChange={handleViewChange} onLogout={handleLogout} />;
-            case 'my-products':
-                return <MyProductsView onBack={() => setView('account')} />;
-            case 'transactions':
-                return <TransactionsView onBack={() => setView('account')} />;
-            case 'recharge':
-                return <RechargeForm onBack={() => setView('account')} />;
-            case 'withdraw':
-                return <WithdrawalForm onBack={() => setView('account')} />;
-            default:
-                return <UserDashboard onViewChange={handleViewChange} financialSummary={financialSummary} />;
+            case 'dashboard': return <UserDashboard onViewChange={setView} financialSummary={financialSummary} />;
+            case 'plans': return <ProductsAndPlans token={token} onPlanPurchase={() => { showNotification('Plan purchased!', 'success'); fetchAllUserData(token); setView('dashboard'); }} />;
+            case 'game': return <GameView />;
+            case 'news': return <NewsView />;
+            case 'account': return <AccountView userData={userData} financialSummary={financialSummary} onViewChange={setView} onLogout={handleLogout} />;
+            case 'my-products': return <MyProductsView onBack={() => setView('account')} />;
+            case 'transactions': return <TransactionsView onBack={() => setView('account')} />;
+            case 'recharge': return <RechargeForm onBack={() => setView('account')} />;
+            case 'withdraw': return <WithdrawalForm onBack={() => setView('account')} />;
+            default: return <UserDashboard onViewChange={setView} financialSummary={financialSummary} />;
         }
     };
-
-    if (loading && view === 'landing') return <div className="loading-app"><h1>InvestmentPlus</h1><p>Loading...</p></div>;
 
     return (
         <div className="App">
             <Notification message={notification.message} type={notification.type} show={notification.show} onClose={() => setNotification({ ...notification, show: false })} />
             {!token ? (
-                <>
-                    {view === 'login' && renderLoginForm()}
-                    {view === 'register' && renderRegisterForm()}
-                    {view === 'landing' && renderLoginForm()} {/* Fallback */}
-                </>
+                renderAuthPage()
             ) : (
                 <div className="app-container">
                     <TopNav
@@ -227,12 +265,11 @@ function App() {
                         toggleTheme={toggleTheme}
                         onLogout={handleLogout}
                         isAdmin={userData?.is_admin}
-                        onViewChange={handleViewChange}
-                        financialSummary={financialSummary} // Pass the complete summary object
+                        onViewChange={setView}
+                        financialSummary={financialSummary}
                     />
                     <main className="main-content">{renderMainView()}</main>
-                    {/* Render BottomNav only if not admin */}
-                    {!userData?.is_admin && <BottomNav activeView={view} onViewChange={handleViewChange} />}
+                    {!userData?.is_admin && <BottomNav activeView={view} onViewChange={setView} />}
                 </div>
             )}
         </div>
@@ -240,3 +277,4 @@ function App() {
 }
 
 export default App;
+
