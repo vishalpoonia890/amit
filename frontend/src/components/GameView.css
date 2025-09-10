@@ -10,9 +10,6 @@
     color: var(--text-color-light);
 }
 .maintenance-mode h3 { color: var(--primary-color); }
-.maintenance-mode p {
-    line-height: 1.6;
-}
 
 /* Balance Card */
 .game-balance-card {
@@ -91,12 +88,11 @@
     color: white;
     font-weight: 700;
     cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: transform 0.2s;
     flex-grow: 1;
 }
 .bet-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 .bet-btn.green { background-color: #4caf50; }
 .bet-btn.violet { background-color: #9c27b0; }
@@ -169,40 +165,24 @@
     width: 90%;
     max-width: 350px;
 }
-.bet-title { text-align: center; margin: 0 0 15px 0; color: white; padding: 5px; border-radius: 5px;}
-.bet-title.red { background-color: #f44336;}
-.bet-title.green { background-color: #4caf50;}
-.bet-title.violet { background-color: #9c27b0;}
-
-.modal-content p {
-    text-align: center;
-    color: var(--text-color-light);
-    margin-bottom: 10px;
-}
+.bet-title { text-align: center; margin: 0 0 15px 0; }
+.bet-title.red { color: #f44336; }
+.bet-title.green { color: #4caf50; }
+.bet-title.violet { color: #9c27b0; }
 .amount-controls { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 15px; }
-.amount-controls input { width: 80px; text-align: center; font-size: 1.2em; padding: 8px; border: 1px solid var(--border-color); background-color: var(--bg-color); border-radius: 5px; color: var(--text-color);}
-.amount-controls button { font-size: 1.5em; width: 40px; height: 40px; border-radius: 50%; border: none; background-color: var(--primary-color-light); color: var(--primary-color); }
+.amount-controls input { width: 80px; text-align: center; font-size: 1.2em; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background-color: var(--bg-color); color: var(--text-color);}
+.amount-controls button { font-size: 1.5em; width: 40px; height: 40px; border-radius: 50%; border: none; background-color: var(--primary-color-light); color: var(--primary-color); cursor: pointer; }
 .quick-amounts { display: flex; justify-content: space-around; margin-bottom: 20px; }
-.quick-amounts button { background-color: var(--bg-color); border: 1px solid var(--border-color); padding: 5px 10px; border-radius: 5px; color: var(--text-color); }
+.quick-amounts button { background-color: var(--bg-color); border: 1px solid var(--border-color); padding: 8px 12px; border-radius: 20px; color: var(--text-color); cursor: pointer; }
 .modal-actions { display: flex; gap: 10px; }
-.modal-actions button { flex-grow: 1; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer;}
+.modal-actions button { flex-grow: 1; padding: 12px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; }
 .cancel-btn { background-color: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-color); }
-.confirm-btn { background-color: var(--primary-color); color: white; border: none; }
+.confirm-btn { background-color: var(--primary-color); color: white; }
 
 .result-modal { text-align: center; }
-.result-modal h3 { margin-bottom: 20px; }
-.result-number-display { font-size: 4em; font-weight: bold; margin: 20px 0; padding: 20px; border-radius: 50%; display: inline-block; color: white; width: 100px; height: 100px; line-height: 60px;}
-.result-number-display.red { background: #f44336;}
-.result-number-display.green { background: #4caf50;}
-.result-number-display.violet { background: #9c27b0;}
-.result-modal button {
-    width: 100%;
-    margin-top: 10px;
-    padding: 12px;
-    border-radius: 8px;
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
-    font-weight: 600;
-}
+.result-number-display { font-size: 4em; font-weight: bold; margin: 20px auto; padding: 20px; border-radius: 50%; width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; color: white; }
+.result-number-display.red { background: linear-gradient(135deg, #f44336, #d32f2f); }
+.result-number-display.green { background: linear-gradient(135deg, #4caf50, #388e3c); }
+.result-number-display.violet { background: linear-gradient(135deg, #9c27b0, #7b1fa2); }
+.result-modal button { width: 100%; padding: 12px; border: none; background-color: var(--primary-color); color: white; font-size: 1em; border-radius: 8px; margin-top: 10px; cursor: pointer; }
 
