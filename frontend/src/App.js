@@ -209,7 +209,13 @@ function App() {
 
         switch (view) {
             case 'dashboard': return <UserDashboard onViewChange={setView} />;
-            case 'plans': return <ProductsAndPlans token={token} onPlanPurchase={() => { showNotification('Plan purchased!', 'success'); fetchAllUserData(token); setView('dashboard'); }} />;
+            case 'plans': return <ProductsAndPlans 
+                                    token={token} 
+                                    onPlanPurchase={() => { 
+                                        showNotification('Plan purchased successfully!', 'success'); 
+                                        fetchAllUserData(token); // Refresh balance
+                                    }} 
+                                />;            
             case 'game': return <GameView token={token} financialSummary={financialSummary} onViewChange={setView} onBetPlaced={() => fetchAllUserData(token)} />;
             case 'news': return <NewsView />;
             case 'account': return <AccountView userData={userData} financialSummary={financialSummary} onLogout={handleLogout} onViewChange={setView} token={token}/>;
