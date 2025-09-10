@@ -1,111 +1,128 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import './UserDashboard.css';
 
-// Mock data for product display placeholders. Replace with API data as needed.
-const mockProductData = {
-    "Best Sellers": [
-        { id: 101, name: 'Dolphin 20T Plan', brand: 'Primary Tier', imageUrl: 'https://placehold.co/250x150/FF9800/FFFFFF?text=Plan+A', price: 1500, dailyIncome: 80.50 },
-        { id: 102, name: 'Elephant T40 Plan', brand: 'Primary Tier', imageUrl: 'https://placehold.co/250x150/4CAF50/FFFFFF?text=Plan+B', price: 2500, dailyIncome: 125.00 },
-        { id: 103, name: 'Lion T60 Plan', brand: 'Primary Tier', imageUrl: 'https://placehold.co/250x150/f44336/FFFFFF?text=Plan+C', price: 5000, dailyIncome: 275.00 },
-    ],
-    "VIP Investments": [
-        { id: 201, name: 'VIP Gold Plan', brand: 'Exclusive Tier', imageUrl: 'https://placehold.co/250x150/2196F3/FFFFFF?text=VIP+Gold', price: 50000, dailyIncome: 3000.00 },
-        { id: 202, name: 'VIP Platinum Plan', brand: 'Exclusive Tier', imageUrl: 'https://placehold.co/250x150/9C27B0/FFFFFF?text=VIP+Platinum', price: 100000, dailyIncome: 6500.00 },
-    ],
+const API_BASE_URL = process.env.NODE_ENV === 'production' ? 'https://investmentpro-nu7s.onrender.com' : '';
+
+// Helper for the scrolling withdrawal ticker
+const Marquee = ({ items }) => (
+    <div className="marquee-container">
+        <div className="marquee-content">
+            {items.map((item, index) => (
+                <span key={index} className="marquee-item">
+                    🎉 Congrats to <strong>{item.name}</strong> on their withdrawal of ₹{item.amount.toLocaleString()}!
+                </span>
+            ))}
+            {/* Duplicate for seamless loop */}
+            {items.map((item, index) => (
+                <span key={`dup-${index}`} className="marquee-item">
+                    🎉 Congrats to <strong>{item.name}</strong> on their withdrawal of ₹{item.amount.toLocaleString()}!
+                </span>
+            ))}
+        </div>
+    </div>
+);
+
+// Helper for the accordion updates
+const AccordionItem = ({ title, children }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    return (
+        <div className="accordion-item">
+            <button className="accordion-header" onClick={() => setIsOpen(!isOpen)}>
+                <span>{title}</span>
+                <span className="accordion-icon">{isOpen ? '−' : '+'}</span>
+            </button>
+            {isOpen && <div className="accordion-content">{children}</div>}
+        </div>
+    );
 };
 
-// Helper to format currency
-const formatCurrency = (amount) => new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 2,
-    minimumFractionDigits: 2
-}).format(amount || 0);
+function UserDashboard({ onViewChange }) {
+    const [withdrawals, setWithdrawals] = useState([]);
 
-// --- Main Dashboard Component ---
-function UserDashboard({ onViewChange, financialSummary }) {
-    // Calculate total balance from the summary
-    const totalBalance = (financialSummary?.balance || 0) + (financialSummary?.withdrawable_wallet || 0);
+    useEffect(() => {
+        const fetchWithdrawals = async () => {
+            try {
+                const { data } = await axios.get(`${API_BASE_URL}/api/fake-withdrawals`);
+                if (data.withdrawals && data.withdrawals.length > 0) {
+                    setWithdrawals(data.withdrawals);
+                }
+            } catch (error) {
+                console.error("Could not fetch withdrawals for ticker:", error);
+            }
+        };
+        fetchWithdrawals();
+    }, []);
+
+    const menuItems = [
+        { id: 'rewards', label: 'Rewards', icon: '🎁' },
+        { id: 'invite', label: 'Invite', icon: '🤝' },
+        { id: 'team', label: 'Team', icon: '👥' },
+        { id: 'support', label: 'Support', icon: '💬' },
+        { id: 'wallet', label: 'Wallet', icon: '💼' },
+        { id: 'deposit', label: 'Deposit', icon: '💰' },
+        { id: 'withdraw', label: 'Withdraw', icon: '💸' },
+        { id: 'promotions', label: 'Promotions', icon: '🔥' },
+    ];
 
     return (
-        <div className="dashboard-container">
-            {/* --- Main Balance Display --- */}
-            <section className="main-balance-section">
-                <div className="balance-card">
-                    <span className="balance-title">Total Balance</span>
-                    <span className="balance-value">{formatCurrency(totalBalance)}</span>
-                    <div className="balance-actions">
-                        <button className="action-btn deposit" onClick={() => onViewChange('recharge')}>Deposit</button>
-                        <button className="action-btn withdraw" onClick={() => onViewChange('withdraw')}>Withdraw</button>
-                    </div>
+        <div className="user-dashboard">
+            <div className="dashboard-card quick-access-menu">
+                <div className="menu-grid">
+                    {menuItems.map(item => (
+                        <button key={item.id} className="menu-item" onClick={() => onViewChange(item.id)}>
+                            <div className="menu-icon">{item.icon}</div>
+                            <span className="menu-label">{item.label}</span>
+                        </button>
+                    ))}
                 </div>
-            </section>
+            </div>
 
-            {/* --- Quick Access Menu --- */}
-            <section className="quick-access-menu">
-                <button className="menu-item" onClick={() => onViewChange('team')}>
-                    <div className="menu-icon-wrapper team"><span>👨‍👩‍👧‍👦</span></div>
-                    <span className="menu-label">Team</span>
-                </button>
-                <button className="menu-item" onClick={() => alert('Online service coming soon!')}>
-                    <div className="menu-icon-wrapper service"><span>💬</span></div>
-                    <span className="menu-label">Service</span>
-                </button>
-                <button className="menu-item" onClick={() => onViewChange('game')}>
-                    <div className="menu-icon-wrapper games"><span>🎲</span></div>
-                    <span className="menu-label">Games</span>
-                </button>
-                 <button className="menu-item" onClick={() => alert('App download coming soon!')}>
-                    <div className="menu-icon-wrapper app"><span>📱</span></div>
-                    <span className="menu-label">App</span>
-                </button>
-            </section>
+            <div className="dashboard-card video-section">
+                 <h4>How to Earn with InvestmentPlus</h4>
+                 <div className="video-placeholder">
+                    <iframe
+                        src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1&loop=1&playlist=dQw4w9WgXcQ&controls=0"
+                        title="Promotional Video"
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen>
+                    </iframe>
+                 </div>
+            </div>
 
-            {/* --- Sample Video Section --- */}
-            <section className="video-section">
-                 <video controls poster="https://placehold.co/600x300/1a1a2e/ffffff?text=Video+Preview">
-                    {/* Provide a real video source here */}
-                    <source src="background-video.mp4" type="video/mp4" /> 
-                    Your browser does not support the video tag.
-                </video>
-            </section>
+            <Marquee items={withdrawals} />
 
-             {/* --- Latest Updates Section --- */}
-            <section className="latest-updates-section">
-                <div className="update-icon">📢</div>
-                <marquee behavior="scroll" direction="left">
-                    Welcome to InvestmentPlus! All withdrawals are processed within 24 hours. | New VIP plans have been added with higher returns! Check them out now. | Our official Telegram channel is now live. Join for exclusive updates!
-                </marquee>
-            </section>
-            
-            {/* --- Product category sections (using mock data) --- */}
-            {Object.entries(mockProductData).map(([category, products]) => (
-                <section key={category} className="product-category-section">
-                    <h2>{category}</h2>
-                    <div className="product-grid">
-                        {products.map(product => (
-                            <div key={product.id} className="product-card-dashboard" onClick={() => onViewChange('plans')}>
-                                <img src={product.imageUrl} alt={product.name} className="product-image" />
-                                <div className="product-info-dashboard">
-                                    <h4 className="product-name">{product.name}</h4>
-                                    <div className="product-details-dashboard">
-                                        <div><span>Price:</span> <strong>{formatCurrency(product.price)}</strong></div>
-                                        <div><span>Daily Income:</span> <strong className="roi-highlight">{formatCurrency(product.dailyIncome)}</strong></div>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </section>
-            ))}
-
-            <div className="browse-all-container">
-                <button className="browse-all-btn" onClick={() => onViewChange('plans')}>
-                    Browse All Products
-                </button>
+            <div className="dashboard-card updates-section">
+                <h4>Latest Updates & Guides</h4>
+                <AccordionItem title="🚀 How to Earn on InvestmentPlus">
+                    <p>Earning with us is designed to be simple and rewarding. Here’s your path to success:</p>
+                    <ul>
+                        <li><strong>Step 1: Register & Bonus:</strong> Sign up in seconds and instantly receive a welcome bonus to kickstart your journey.</li>
+                        <li><strong>Step 2: Secure Deposit:</strong> Add funds to your account using our trusted UPI or Crypto (USDT TRC20) payment methods.</li>
+                        <li><strong>Step 3: Choose a Plan:</strong> Browse our diverse range of investment products, each with clear daily returns and durations.</li>
+                        <li><strong>Step 4: Earn Daily:</strong> Purchase a product and relax! Your daily income will be automatically credited to your account.</li>
+                    </ul>
+                </AccordionItem>
+                 <AccordionItem title="🏆 Our Winning Strategy">
+                    <p>Our core strategy revolves around smart diversification and proactive market analysis. We don't just follow trends; we create opportunities. By investing in a carefully curated portfolio of high-growth digital and financial assets, we effectively minimize risk while maximizing potential returns for our entire user community. Your financial growth is the ultimate measure of our success.</p>
+                </AccordionItem>
+                <AccordionItem title="💸 Maximize Your Winnings with Referrals">
+                    <p>Want to unlock a powerful new income stream? Use the "Invite" feature! Share your unique referral link with friends, family, and your network. You will earn a generous commission on every single investment they make, creating a sustainable source of passive income. The more active members in your team, the higher your earnings potential becomes. It's a true win-win!</p>
+                </AccordionItem>
+                <AccordionItem title="📈 The InvestmentPlus Working Model">
+                    <p>We are built on principles of transparency, security, and shared success. Our model is straightforward:</p>
+                    <ul>
+                       <li><strong>Community Pooling:</strong> We pool the investment funds from our users to gain access to exclusive, large-scale financial opportunities that are typically unavailable to individual investors.</li>
+                       <li><strong>Expert Management:</strong> Our dedicated team of financial experts and analysts manages this diversified portfolio 24/7 to ensure consistent profit generation.</li>
+                       <li><strong>Profit Distribution:</strong> A significant portion of the generated profits is systematically distributed back to you, our users, in the form of reliable daily income.</li>
+                       <li><strong>Sustainable Growth:</strong> This creates a robust and sustainable ecosystem where every member benefits from the collective strength of the community.</li>
+                    </ul>
+                </AccordionItem>
             </div>
         </div>
     );
 }
 
 export default UserDashboard;
+
