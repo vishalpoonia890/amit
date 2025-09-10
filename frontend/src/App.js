@@ -4,10 +4,11 @@ import './App.css';
 
 // --- COMPONENT IMPORTS ---
 import UserDashboard from './components/UserDashboard';
-import {  Wallet, Team, Promotions, Rewards, Support } from './components/PlaceholderViews';
+import ProductsAndPlans from './components/ProductsAndPlans';
+import NewsView from './components/NewsView';
+import Team from './components/Team';
+import { Wallet, Promotions, Rewards, Support } from './components/PlaceholderViews';
 import AdminPanel from './components/AdminPanel';
-import ProductsAndPlans from './components/ProductsAndPlans'; // UPDATED
-import NewsView from './components/NewsView'; // UPDATED
 import BottomNav from './components/BottomNav';
 import Notification from './components/Notification';
 import TopNav from './components/TopNav';
@@ -51,6 +52,7 @@ function App() {
         setUserData(null);
         setFinancialSummary(null);
         setView('login');
+        setIsContainerActive(false);
     }, []);
 
     const fetchAllUserData = useCallback(async (authToken) => {
@@ -63,34 +65,35 @@ function App() {
             setUserData(dataRes.data.user);
             setFinancialSummary(summaryRes.data);
         } catch (err) {
-            console.error("Failed to fetch user data:", err);
-            if (err.response?.status === 401 || err.response?.status === 403) {
-                 showNotification('Session expired. Please log in again.', 'error');
-                 handleLogout();
+            console.error("Failed to fetch user data, likely an invalid session:", err);
+            if (err.response?.status === 401 || err.response?.status === 403 || err.response?.status === 404) {
+                showNotification('Your session is invalid. Please log in again.', 'error');
+                handleLogout();
             }
         }
     }, [handleLogout]);
 
     useEffect(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const refCode = urlParams.get('ref');
+        if (refCode) {
+            setRegisterFormData(prev => ({ ...prev, referralCode: refCode }));
+            setIsContainerActive(true);
+        }
+
         const storedToken = localStorage.getItem('token');
         if (storedToken) {
             setToken(storedToken);
-            fetchAllUserData(storedToken).then(() => {
-                setView('dashboard');
-                setLoading(false);
-            });
+            fetchAllUserData(storedToken).then(() => setLoading(false));
         } else {
             setLoading(false);
             setView('login');
         }
     }, [fetchAllUserData]);
-
-    // Auto-refresh user data every 5 seconds for live balance updates
+    
     useEffect(() => {
         if (token) {
-            const interval = setInterval(() => {
-                fetchAllUserData(token);
-            }, 5000);
+            const interval = setInterval(() => fetchAllUserData(token), 5000);
             return () => clearInterval(interval);
         }
     }, [token, fetchAllUserData]);
@@ -142,57 +145,63 @@ function App() {
     };
 
     const renderAuthForms = () => (
-        <div className={`auth-container ${isContainerActive ? 'active' : ''}`}>
-            <div className="form-box Login">
-                <h2>Login</h2>
-                <form onSubmit={handleLogin}>
-                    <div className="input-box">
-                        <input type="tel" name="mobile" value={loginFormData.mobile} onChange={handleLoginInputChange} required autoComplete="tel"/>
-                        <label>Mobile Number</label>
-                    </div>
-                    <div className="input-box">
-                        <input type="password" name="password" value={loginFormData.password} onChange={handleLoginInputChange} required autoComplete="current-password"/>
-                        <label>Password</label>
-                    </div>
-                    <button className="btn" type="submit" disabled={loading}>{loading ? 'Logging in...' : 'Login'}</button>
-                    <div className="regi-link">
-                        <p>Don't have an account? <button type="button" onClick={() => setIsContainerActive(true)} className="SignUpLink">Sign Up</button></p>
-                    </div>
-                </form>
-            </div>
-            <div className="info-content Login">
-                <h2>WELCOME BACK!</h2>
-                <p>We are happy to have you with us again. Your next opportunity awaits.</p>
-            </div>
+        <div className="auth-wrapper">
+            <div className={`auth-container ${isContainerActive ? 'active' : ''}`}>
+                <div className="form-box Login">
+                    <h2>Login</h2>
+                    <form onSubmit={handleLogin}>
+                        <div className="input-box">
+                            <input type="tel" name="mobile" value={loginFormData.mobile} onChange={handleLoginInputChange} required autoComplete="tel"/>
+                            <label>Mobile Number</label>
+                        </div>
+                        <div className="input-box">
+                            <input type="password" name="password" value={loginFormData.password} onChange={handleLoginInputChange} required autoComplete="current-password"/>
+                            <label>Password</label>
+                        </div>
+                        <button className="btn" type="submit" disabled={loading}>{loading ? 'Logging in...' : 'Login'}</button>
+                        <div className="regi-link">
+                            <p>Don't have an account? <button type="button" onClick={() => setIsContainerActive(true)}>Sign Up</button></p>
+                        </div>
+                    </form>
+                </div>
+                <div className="info-content Login">
+                    <h2>WELCOME BACK!</h2>
+                    <p>We are happy to have you with us again. Your next opportunity awaits.</p>
+                </div>
 
-            <div className="form-box Register">
-                <h2>Register</h2>
-                <form onSubmit={handleRegister}>
-                    <div className="input-box">
-                        <input type="text" name="username" value={registerFormData.username} onChange={handleRegisterInputChange} required autoComplete="username"/>
-                        <label>Username</label>
-                    </div>
-                    <div className="input-box">
-                        <input type="tel" name="mobile" value={registerFormData.mobile} onChange={handleRegisterInputChange} required autoComplete="tel"/>
-                        <label>Mobile Number</label>
-                    </div>
-                    <div className="input-box">
-                        <input type="password" name="password" value={registerFormData.password} onChange={handleRegisterInputChange} required autoComplete="new-password"/>
-                        <label>Password</label>
-                    </div>
-                     <div className="input-box">
-                        <input type="password" name="confirmPassword" value={registerFormData.confirmPassword} onChange={handleRegisterInputChange} required autoComplete="new-password"/>
-                        <label>Confirm Password</label>
-                    </div>
-                    <button className="btn" type="submit" disabled={loading}>{loading ? 'Registering...' : 'Register'}</button>
-                    <div className="regi-link">
-                        <p>Already have an account? <button type="button" onClick={() => setIsContainerActive(false)} className="SignInLink">Sign In</button></p>
-                    </div>
-                </form>
-            </div>
-             <div className="info-content Register">
-                <h2>JOIN US!</h2>
-                <p>Create your account to start your journey towards financial growth.</p>
+                <div className="form-box Register">
+                    <h2>Register</h2>
+                    <form onSubmit={handleRegister}>
+                        <div className="input-box">
+                            <input type="text" name="username" value={registerFormData.username} onChange={handleRegisterInputChange} required autoComplete="username"/>
+                            <label>Username</label>
+                        </div>
+                        <div className="input-box">
+                            <input type="tel" name="mobile" value={registerFormData.mobile} onChange={handleRegisterInputChange} required autoComplete="tel"/>
+                            <label>Mobile Number</label>
+                        </div>
+                        <div className="input-box">
+                            <input type="password" name="password" value={registerFormData.password} onChange={handleRegisterInputChange} required autoComplete="new-password"/>
+                            <label>Password</label>
+                        </div>
+                         <div className="input-box">
+                            <input type="password" name="confirmPassword" value={registerFormData.confirmPassword} onChange={handleRegisterInputChange} required autoComplete="new-password"/>
+                            <label>Confirm Password</label>
+                        </div>
+                        <div className="input-box">
+                            <input type="text" name="referralCode" value={registerFormData.referralCode} onChange={handleRegisterInputChange} autoComplete="off"/>
+                            <label>Referral Code (Optional)</label>
+                        </div>
+                        <button className="btn" type="submit" disabled={loading}>{loading ? 'Registering...' : 'Register'}</button>
+                        <div className="regi-link">
+                            <p>Already have an account? <button type="button" onClick={() => setIsContainerActive(false)}>Sign In</button></p>
+                        </div>
+                    </form>
+                </div>
+                 <div className="info-content Register">
+                    <h2>JOIN US!</h2>
+                    <p>Create your account to start your journey towards financial growth.</p>
+                </div>
             </div>
         </div>
     );
@@ -211,17 +220,15 @@ function App() {
             case 'game': return <GameView token={token} financialSummary={financialSummary} onViewChange={setView} onBetPlaced={() => fetchAllUserData(token)} />;
             case 'news': return <NewsView />;
             case 'account': return <AccountView userData={userData} financialSummary={financialSummary} onLogout={handleLogout} onViewChange={setView} token={token}/>;
-            
             case 'rewards': return <Rewards onBack={goBackToDashboard} />;
-            case 'invite': return <Team onBack={goBackToDashboard} />;
-            case 'team': return <Team onBack={goBackToDashboard} />;
+            case 'invite': return <Team token={token} onBack={goBackToDashboard} />;
+            case 'team': return <Team token={token} onBack={goBackToDashboard} />;
             case 'support': return <Support onBack={goBackToDashboard} />;
             case 'wallet': return <Wallet financialSummary={financialSummary} onBack={goBackToDashboard} />;
             case 'deposit': return <Deposit token={token} onBack={goBackToDashboard} />;
             case 'withdraw': return <Withdrawal token={token} financialSummary={financialSummary} onBack={goBackToDashboard} />;
             case 'promotions': return <Promotions onBack={goBackToDashboard} />;
             case 'bet-history': return <BetHistory token={token} onBack={goBackToAccount} />;
-
             default: return <UserDashboard onViewChange={setView} />;
         }
     };
