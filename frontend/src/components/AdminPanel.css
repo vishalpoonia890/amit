@@ -203,7 +203,6 @@
     resize: vertical;
 }
 
-
 /* Table Styling */
 .table-container { overflow-x: auto; }
 .request-table { width: 100%; border-collapse: collapse; font-size: 0.9em; }
