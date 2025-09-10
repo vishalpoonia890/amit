@@ -1,91 +1,121 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import './AccountView.css';
 
+const API_BASE_URL = process.env.NODE_ENV === 'production' ? 'https://investmentpro-nu7s.onrender.com' : '';
+
 // Helper to format currency
-const formatCurrency = (amount) => new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-}).format(amount || 0);
+const formatCurrency = (amount) => {
+    return new Intl.NumberFormat("en-IN", {
+        style: "currency",
+        currency: "INR",
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    }).format(amount || 0);
+};
 
-function AccountView({ userData, financialSummary, onViewChange, onLogout }) {
+function AccountView({ userData, financialSummary, onLogout, onViewChange, token }) {
+    const [userInvestments, setUserInvestments] = useState([]);
 
-    const handleClaimEarnings = () => {
-        // This would call an API to move today's earnings to the main wallet
-        alert("Today's earnings claimed!");
-    };
+    useEffect(() => {
+        const fetchInvestments = async () => {
+            if (!token) return;
+            try {
+                const response = await axios.get(`${API_BASE_URL}/api/investments`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                setUserInvestments(response.data.investments || []);
+            } catch (error) {
+                console.error("Failed to fetch user investments:", error);
+            }
+        };
+        fetchInvestments();
+    }, [token]);
+
+    const user = userData || { name: 'User', mobile: 'N/A' };
+    const financials = financialSummary ? {
+        todays_earnings: financialSummary.todaysIncome || 0,
+        withdrawable: financialSummary.withdrawable_wallet || 0,
+        recharge: financialSummary.balance || 0,
+        today: financialSummary.todaysIncome || 0,
+        total_yid: financialSummary.totalIncome || 0,
+        team_commission: financialSummary.teamIncome || 0,
+        total_balance: (financialSummary.balance || 0) + (financialSummary.withdrawable_wallet || 0)
+    } : { /* default empty values */ };
 
     return (
-        <div className="account-view-container">
-            {/* --- User Profile Section --- */}
-            <section className="profile-header-section">
-                <img 
-                    src={userData?.avatar_url || `https://i.pravatar.cc/150?u=${userData?.id}`} 
-                    alt="User Avatar" 
-                    className="profile-avatar"
-                />
+        <div className="account-view">
+            <div className="profile-header-card">
+                <img src={user.avatar_url || 'https://via.placeholder.com/150'} alt="User Avatar" className="avatar" />
                 <div className="profile-info">
-                    <h2 className="profile-name">{userData?.name || 'User'}</h2>
-                    <p className="profile-details">
-                        <span>📞 {userData?.mobile || 'N/A'}</span>
-                        <span>📍 Singapore</span>
-                    </p>
+                    <h3 className="username">{user.name}</h3>
+                    <p className="user-details">{user.mobile} • Singapore</p>
                 </div>
-            </section>
+            </div>
 
-            {/* --- Today's Earnings Section --- */}
-            <section className="earnings-section">
+            <div className="earnings-card">
                 <div className="earnings-info">
-                    <span className="earnings-label">Today's Earnings</span>
-                    <span className="earnings-amount">{formatCurrency(134.00)}</span> {/* Placeholder */}
+                    <p>Today's Earnings</p>
+                    <span className="earnings-amount">{formatCurrency(financials.todays_earnings)}</span>
                 </div>
-                <button className="claim-button" onClick={handleClaimEarnings}>Claim</button>
-            </section>
+                <button className="claim-button">Claim</button>
+            </div>
 
-            {/* --- Financial Info Grid --- */}
-            <section className="financial-grid">
-                <div className="grid-card">
-                    <span className="card-label">Withdrawal</span>
-                    <span className="card-value">{formatCurrency(financialSummary?.withdrawable_wallet)}</span>
+            <div className="financial-grid-card">
+                <div className="grid-item">
+                    <span className="label">Withdraw</span>
+                    <span className="value">{formatCurrency(financials.withdrawable)}</span>
                 </div>
-                <div className="grid-card">
-                    <span className="card-label">Recharge</span>
-                    <span className="card-value">{formatCurrency(financialSummary?.balance)}</span>
+                <div className="grid-item">
+                    <span className="label">Recharge</span>
+                    <span className="value">{formatCurrency(financials.recharge)}</span>
                 </div>
-                <div className="grid-card">
-                    <span className="card-label">Today</span>
-                    <span className="card-value">{formatCurrency(134.00)}</span> {/* Placeholder */}
+                <div className="grid-item">
+                    <span className="label">Today</span>
+                    <span className="value">{formatCurrency(financials.today)}</span>
                 </div>
-                 <div className="grid-card">
-                    <span className="card-label">Total YID</span>
-                    <span className="card-value">{formatCurrency(1970.00)}</span> {/* Placeholder */}
+                <div className="grid-item">
+                    <span className="label">Total YID</span>
+                    <span className="value">{formatCurrency(financials.total_yid)}</span>
                 </div>
-                 <div className="grid-card">
-                    <span className="card-label">Team</span>
-                    <span className="card-value">{formatCurrency(0.00)}</span> {/* Placeholder */}
+                 <div className="grid-item">
+                    <span className="label">Team</span>
+                    <span className="value">{formatCurrency(financials.team_commission)}</span>
                 </div>
-                 <div className="grid-card">
-                    <span className="card-label">Total</span>
-                    <span className="card-value">{formatCurrency(financialSummary?.balance + financialSummary?.withdrawable_wallet)}</span>
+                 <div className="grid-item">
+                    <span className="label">Total</span>
+                    <span className="value">{formatCurrency(financials.total_balance)}</span>
                 </div>
-            </section>
+            </div>
+            
+            <div className="action-buttons">
+                <button className="recharge-btn" onClick={() => onViewChange('deposit')}>Recharge</button>
+                <button className="withdraw-btn" onClick={() => onViewChange('withdraw')}>Withdraw</button>
+            </div>
 
-            {/* --- Action Buttons --- */}
-            <section className="account-actions">
-                <button className="action-button recharge" onClick={() => onViewChange('deposit')}>Recharge</button>
-                <button className="action-button withdraw" onClick={() => onViewChange('withdraw')}>Withdraw</button>
-            </section>
+            <div className="my-products-card">
+                <h4>My Products</h4>
+                <ul>
+                    {userInvestments.length > 0 ? (
+                        userInvestments.map(product => (
+                            <li key={product.id}>
+                               <span>{product.plan_name}</span>
+                               <span className="arrow-icon">&gt;</span>
+                            </li>
+                        ))
+                    ) : (
+                        <li className="no-products">You have no active products.</li>
+                    )}
+                </ul>
+            </div>
 
-            {/* --- Menu List --- */}
-            <section className="account-menu">
-                <button className="menu-list-item" onClick={() => onViewChange('my-products')}>My Products</button>
-                <button className="menu-list-item" onClick={() => onViewChange('transactions')}>Transaction History</button>
-                <button className="menu-list-item" onClick={() => onViewChange('wallet')}>Wallet Details</button>
-                <button className="menu-list-item" onClick={() => onViewChange('team')}>My Team</button>
-                <button className="menu-list-item" onClick={() => onViewChange('support')}>Customer Support</button>
-                <button className="menu-list-item logout" onClick={onLogout}>Logout</button>
-            </section>
+             <div className="account-options-card">
+                 <button className="option-item" onClick={() => onViewChange('bet-history')}>Bet History</button>
+                 <button className="option-item" onClick={onLogout}>Sign Out</button>
+            </div>
         </div>
     );
 }
 
 export default AccountView;
+
