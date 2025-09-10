@@ -148,7 +148,6 @@
 .bet-number.red { color: #f44336; }
 .bet-number.green { color: #4caf50; }
 .bet-number.violet { color: #9c27b0; }
-
 .refresh-btn {
     background: none;
     border: 1px solid var(--primary-color);
@@ -161,6 +160,48 @@
     transition: background-color 0.2s;
 }
 .refresh-btn:hover { background-color: var(--primary-color-light); }
+
+/* Server Actions */
+.server-actions .action-group {
+    padding: 15px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+.server-actions .action-group:last-child {
+    border-bottom: none;
+}
+.server-actions p {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: var(--text-color-light);
+    font-size: 0.9em;
+}
+.action-btn {
+    background-color: var(--primary-color-light);
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+}
+.bonus-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.bonus-controls input, .bonus-controls textarea {
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
+.bonus-controls textarea {
+    min-height: 60px;
+    resize: vertical;
+}
 
 
 /* Table Styling */
