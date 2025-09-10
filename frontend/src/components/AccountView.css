@@ -1,25 +1,24 @@
-/* src/components/AccountView.css */
-
-.account-view-container {
+.account-view {
     padding: 15px;
-    animation: fadeIn 0.5s ease-in-out;
+    padding-bottom: 80px; /* Space for bottom nav */
 }
 
-.profile-header {
-    display: flex;
-    align-items: center;
+/* Base Card Style */
+.account-view > div {
     background-color: var(--card-bg-color);
-    padding: 20px;
     border-radius: 12px;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
+    padding: 20px;
+    border: 1px solid var(--border-color);
     box-shadow: var(--card-shadow);
 }
 
-.avatar-container {
-    position: relative;
-    margin-right: 15px;
+/* Profile Header */
+.profile-header-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
 }
-
 .avatar {
     width: 60px;
     height: 60px;
@@ -27,183 +26,161 @@
     object-fit: cover;
     border: 2px solid var(--primary-color);
 }
+.profile-info .username {
+    margin: 0 0 5px 0;
+    font-size: 1.2em;
+    color: var(--text-color);
+}
+.profile-info .user-details {
+    margin: 0;
+    font-size: 0.9em;
+    color: var(--text-color-light);
+}
 
-.avatar-upload-btn {
-    position: absolute;
-    bottom: 0;
-    right: 0;
+/* Earnings Card */
+.earnings-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--bg-color); /* Slightly different background */
+}
+.earnings-info p {
+    margin: 0 0 5px 0;
+    color: var(--text-color-light);
+    font-size: 0.9em;
+}
+.earnings-info .earnings-amount {
+    font-size: 1.5em;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+.claim-button {
     background-color: var(--primary-color);
     color: white;
     border: none;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-size: 14px;
-}
-
-.profile-info h2 {
-    font-size: 1.4em;
-    font-weight: 600;
-    color: var(--text-color);
-    margin: 0;
-}
-
-.profile-info p {
-    font-size: 0.9em;
-    color: var(--text-color-light);
-    margin: 4px 0 0;
-}
-
-.earnings-card {
-    background-color: var(--card-bg-color);
-    padding: 20px;
-    border-radius: 12px;
-    margin-bottom: 20px;
-    box-shadow: var(--card-shadow);
-    text-align: center;
-}
-
-.earnings-card p {
-    color: var(--text-color-light);
-    margin: 0 0 10px;
-}
-
-.earnings-card .amount {
-    font-size: 2em;
-    font-weight: 700;
-    color: var(--primary-color);
-    margin-bottom: 15px;
-}
-
-.claim-button {
-    background-color: var(--accent-color);
-    color: #fff;
-    border: none;
-    padding: 10px 30px;
-    border-radius: 25px;
-    font-size: 1em;
+    border-radius: 20px;
+    padding: 10px 25px;
     font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: background-color 0.2s;
 }
-
 .claim-button:hover {
-    background-color: #ff8f00;
+    background-color: var(--primary-hover-color);
 }
 
-.balance-grid {
+/* Financial Grid */
+.financial-grid-card {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    margin-bottom: 20px;
+    gap: 20px;
 }
-
-.balance-item {
-    background-color: var(--card-bg-color);
-    padding: 15px;
-    border-radius: 12px;
-    box-shadow: var(--card-shadow);
+.grid-item {
+    text-align: left;
 }
-
-.balance-item .title {
-    font-size: 0.9em;
+.grid-item .label {
+    display: block;
+    font-size: 0.85em;
     color: var(--text-color-light);
     margin-bottom: 5px;
 }
-
-.balance-item .value {
-    font-size: 1.2em;
+.grid-item .value {
+    font-size: 1.1em;
     font-weight: 600;
     color: var(--text-color);
 }
 
+/* Action Buttons */
 .action-buttons {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 15px;
-    margin-bottom: 20px;
+    padding: 0;
+    background: none;
+    border: none;
+    box-shadow: none;
 }
-
-.action-btn {
+.action-buttons button {
     padding: 15px;
-    font-size: 1em;
-    font-weight: 600;
     border: none;
     border-radius: 8px;
+    font-size: 1em;
+    font-weight: 600;
     cursor: pointer;
     transition: transform 0.2s;
 }
-
-.action-btn:hover {
+.action-buttons button:hover {
     transform: translateY(-2px);
 }
-
 .recharge-btn {
-    background-color: var(--primary-color);
-    color: white;
-}
-
-.withdraw-btn {
-    background-color: var(--success-color);
-    color: white;
-}
-
-.account-menu {
-    background-color: var(--card-bg-color);
-    border-radius: 12px;
-    box-shadow: var(--card-shadow);
-    overflow: hidden;
-}
-
-.menu-item-link {
-    display: flex;
-    align-items: center;
-    padding: 15px 20px;
-    text-decoration: none;
-    color: var(--text-color);
-    border-bottom: 1px solid var(--border-color);
-    transition: background-color 0.2s;
-}
-
-.menu-item-link:last-child {
-    border-bottom: none;
-}
-
-.menu-item-link:hover {
-    background-color: var(--nav-active-bg);
-}
-
-.menu-icon {
-    font-size: 1.2em;
-    margin-right: 15px;
-    width: 24px;
-    text-align: center;
+    background-color: var(--primary-color-light);
     color: var(--primary-color);
 }
-
-.menu-item-link span {
-    flex-grow: 1;
+.withdraw-btn {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
 }
 
-.menu-arrow {
-    font-size: 1.2em;
-    color: var(--text-color-light);
-}
-
-.logout-button {
-    width: 100%;
-    margin-top: 20px;
-    padding: 15px;
-    background-color: var(--error-color);
-    color: white;
-    border: none;
-    border-radius: 8px;
+/* My Products */
+.my-products-card h4 {
+    margin: -20px -20px 15px -20px;
+    padding: 15px 20px;
+    background-color: var(--primary-color-light);
+    color: var(--primary-color);
+    border-radius: 12px 12px 0 0;
     font-size: 1em;
-    font-weight: 600;
+}
+.my-products-card ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.my-products-card li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-color);
     cursor: pointer;
+}
+.my-products-card li:last-child {
+    border-bottom: none;
+}
+.arrow-icon {
+    color: var(--text-color-light);
+    font-weight: bold;
+}
+.my-products-card .no-products {
+    color: var(--text-color-light);
+    font-style: italic;
+    padding: 15px 0;
+    text-align: center;
+    border-bottom: none;
+    cursor: default;
+}
+
+
+/* Account Options */
+.account-options-card {
+    padding: 10px;
+}
+.option-item {
+    width: 100%;
+    text-align: left;
+    padding: 15px;
+    background: none;
+    border: none;
+    color: var(--text-color);
+    font-size: 1em;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border-color);
+}
+.option-item:last-child {
+    border-bottom: none;
+    color: var(--error-color); /* Make sign out red */
+}
+.option-item:hover {
+    background-color: var(--bg-color);
 }
 
