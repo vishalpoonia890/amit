@@ -1,16 +1,24 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import './FormPages.css';
-import qrCodeImage from '../assets/Code.png'; // Make sure you have this image in src/assets/
+import upiQrCode from '../assets/ptys.jpg';
+import cryptoQrCode from '../assets/usdt.jpg';
+const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
 
-const API_BASE_URL = process.env.NODE_ENV === 'production' ? 'https://investmentpro-nu7s.onrender.com' : '';
+const USDT_TO_INR_RATE = 92;
 
 function Deposit({ token, onBack }) {
-    const [amount, setAmount] = useState(500);
+    const [inputAmount, setInputAmount] = useState(500);
     const [utr, setUtr] = useState('');
     const [method, setMethod] = useState('upi');
     const [loading, setLoading] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
+
+    const handleAmountChange = (e) => {
+        setInputAmount(Math.max(0, parseFloat(e.target.value) || 0));
+    };
+
+    const finalInrAmount = method === 'crypto' ? inputAmount * USDT_TO_INR_RATE : inputAmount;
 
     const handleSubmitRecharge = async (e) => {
         e.preventDefault();
@@ -22,11 +30,11 @@ function Deposit({ token, onBack }) {
         try {
             await axios.post(
                 `${API_BASE_URL}/api/recharge`,
-                { amount, utr: utr.trim() },
+                { amount: finalInrAmount, utr: utr.trim() },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
             setShowSuccess(true);
-            setTimeout(() => onBack(), 2500); // Go back after showing success message
+            setTimeout(() => onBack(), 2500);
         } catch (error) {
             alert(error.response?.data?.error || 'Failed to submit deposit request.');
         } finally {
@@ -35,11 +43,18 @@ function Deposit({ token, onBack }) {
     };
     
     const copyToClipboard = (text) => {
-        navigator.clipboard.writeText(text).then(() => {
+        try {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
             alert('Copied to clipboard!');
-        }, (err) => {
+        } catch (err) {
             alert('Failed to copy. Please copy it manually.');
-        });
+        }
     };
 
     const paymentDetails = {
@@ -66,23 +81,32 @@ function Deposit({ token, onBack }) {
             <button className="back-button" onClick={onBack}>← Back</button>
             <div className="form-container">
                 <h2 className="form-title">Deposit Funds</h2>
-                
                 <div className="method-selector">
                     <button className={method === 'upi' ? 'active' : ''} onClick={() => setMethod('upi')}>UPI</button>
                     <button className={method === 'crypto' ? 'active' : ''} onClick={() => setMethod('crypto')}>Crypto</button>
                 </div>
-
                 <div className="form-card">
                     <h4>Step 1: Make Payment</h4>
                     <p className="form-subtitle">Enter an amount and pay using the details below.</p>
-                    
                      <div className="form-group">
-                        <label>Amount (₹)</label>
-                        <input type="number" value={amount} onChange={(e) => setAmount(Math.max(0, parseInt(e.target.value, 10)))} min="1" placeholder="Enter amount" />
+                        <label>Amount ({method === 'upi' ? '₹' : 'USDT'})</label>
+                        <input type="number" value={inputAmount} onChange={handleAmountChange} min="1" />
                     </div>
+                    
+                    {method === 'upi' && (
+                        <p className="bonus-note">
+                            Current Offer: <strong>Get 10% Extra Bonus on USDT deposits!</strong>
+                        </p>
+                    )}
+
+                    {method === 'crypto' && (
+                        <p className="conversion-note">
+                            You are depositing <strong>{inputAmount} USDT</strong> which is equal to <strong>₹{finalInrAmount.toLocaleString('en-IN')}</strong>.
+                        </p>
+                    )}
 
                     <div className="qr-code-container">
-                        <img src={qrCodeImage} alt="Payment QR Code" />
+                        <img src={method === 'upi' ? upiQrCode : cryptoQrCode} alt={`${method.toUpperCase()} QR Code`} />
                     </div>
 
                     {method === 'upi' && (
@@ -99,7 +123,6 @@ function Deposit({ token, onBack }) {
                         </div>
                     )}
                 </div>
-
                 <form onSubmit={handleSubmitRecharge} className="form-card">
                      <h4>Step 2: Confirm Deposit</h4>
                      <p className="form-subtitle">After paying, enter the transaction number to confirm.</p>
@@ -108,7 +131,7 @@ function Deposit({ token, onBack }) {
                         <input id="utr" type="text" value={utr} onChange={(e) => setUtr(e.target.value)} placeholder={method === 'upi' ? 'Enter 12-digit UTR' : 'Enter transaction hash'} required />
                     </div>
                     <button type="submit" className="form-button" disabled={loading}>
-                        {loading ? 'Submitting...' : 'Confirm Deposit'}
+                        {loading ? 'Submitting...' : `Confirm Deposit of ₹${finalInrAmount.toLocaleString()}`}
                     </button>
                 </form>
             </div>
