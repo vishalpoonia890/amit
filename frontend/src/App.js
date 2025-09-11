@@ -19,6 +19,7 @@ import Withdrawal from './components/Withdrawal';
 import BetHistory from './components/BetHistory';
 import NotificationsDialog from './components/NotificationsDialog';
 
+
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
 
 function App() {
@@ -247,7 +248,10 @@ function App() {
             case 'withdraw': return <Withdrawal token={token} financialSummary={financialSummary} onBack={goBackToDashboard} onWithdrawalRequest={handleWithdrawalRequest} />;
             case 'promotions': return <Promotions onBack={goBackToDashboard} />;
             case 'bet-history': return <BetHistory token={token} onBack={goBackToAccount} />;
+         case 'transactions': return <TransactionHistory onBack={goBackToAccount} />;
             default: return <UserDashboard onViewChange={setView} />;
+        }
+            
         }
     };
 
