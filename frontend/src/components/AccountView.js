@@ -31,12 +31,13 @@ function AccountView({ userData, financialSummary, onLogout, onViewChange, token
         fetchInvestments();
     }, [token]);
 
-    const user = userData || { name: 'User', mobile: 'N/A', ip_username: 'N/A' };
+    const user = userData || { name: 'User', ip_username: 'N/A' };
     const financials = financialSummary ? {
         todays_earnings: financialSummary.todaysIncome || 0,
         withdrawable: financialSummary.withdrawable_wallet || 0,
+        recharge: financialSummary.balance || 0,
         total_balance: (financialSummary.balance || 0) + (financialSummary.withdrawable_wallet || 0)
-    } : {};
+    } : { todays_earnings: 0, withdrawable: 0, total_balance: 0 };
 
     const avatarUrl = user.avatar_url || `https://placehold.co/150x150/007bff/FFFFFF?text=${user.name?.[0]?.toUpperCase() || 'U'}`;
 
@@ -59,11 +60,11 @@ function AccountView({ userData, financialSummary, onLogout, onViewChange, token
             </div>
 
             <div className="financial-grid-card">
-                <div className="grid-item">
+                 <div className="grid-item">
                     <span className="label">Total Balance</span>
                     <span className="value">{formatCurrency(financials.total_balance)}</span>
                 </div>
-                <div className="grid-item">
+                 <div className="grid-item">
                     <span className="label">Withdrawable</span>
                     <span className="value">{formatCurrency(financials.withdrawable)}</span>
                 </div>
@@ -74,40 +75,43 @@ function AccountView({ userData, financialSummary, onLogout, onViewChange, token
                 <button className="withdraw-btn" onClick={() => onViewChange('withdraw')}>Withdraw</button>
             </div>
 
-            <div className="my-products-card">
-                <h4>My Products</h4>
-                <ul>
-                    {userInvestments.length > 0 ? (
-                        userInvestments.map(product => (
-                            <li key={product.id}>
-                                <span>{product.plan_name} ({formatCurrency(product.amount)})</span>
-                                <span className="product-status">{product.status}</span>
-                            </li>
-                        ))
-                    ) : (
-                        <li className="no-products">You have no active products.</li>
-                    )}
-                </ul>
-            </div>
-
-             <div className="account-options">
-                {/* ✨ --- NEW TRANSACTION HISTORY BUTTON --- */}
-                <button className="account-option-item" onClick={() => onViewChange('transactions')}>
-                    <span className="icon">📄</span>
+            <div className="account-options-card">
+                 <button className="account-option-item" onClick={() => onViewChange('transactions')}>
+                    <span className="icon">📜</span>
                     <span className="label">Transaction History</span>
                     <span className="arrow-icon">&gt;</span>
                 </button>
-                
-                 {/* ✨ --- REDESIGNED LOGOUT BUTTON --- */}
-                <button className="account-option-item logout-btn" onClick={onLogout}>
-                     <span className="icon">
-                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                            <polyline points="16 17 21 12 16 7"></polyline>
-                            <line x1="21" y1="12" x2="9" y2="12"></line>
-                        </svg>
-                     </span>
-                     <span className="label">Logout</span>
+                <button className="account-option-item" onClick={() => onViewChange('bet-history')}>
+                    <span className="icon">🎲</span>
+                    <span className="label">Bet History</span>
+                    <span className="arrow-icon">&gt;</span>
+                </button>
+            </div>
+
+             <div className="my-products-card">
+                 <h4>My Products</h4>
+                 <ul>
+                     {userInvestments.length > 0 ? (
+                         userInvestments.map(product => (
+                             <li key={product.id}>
+                                <span>{product.plan_name} ({product.status})</span>
+                                <span className="product-details">Ends in {product.days_left} days</span>
+                             </li>
+                         ))
+                     ) : (
+                         <li className="no-products">You have no active products.</li>
+                     )}
+                 </ul>
+             </div>
+
+             <div className="logout-section">
+                <button className="logout-btn-styled" onClick={onLogout}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                    <span>Logout</span>
                 </button>
             </div>
         </div>
@@ -115,3 +119,4 @@ function AccountView({ userData, financialSummary, onLogout, onViewChange, token
 }
 
 export default AccountView;
+
