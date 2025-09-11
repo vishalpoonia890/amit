@@ -55,10 +55,10 @@ function Team({ token, onBack }) {
     return (
         <div className="team-page">
             <button className="back-button" onClick={onBack}>← Back</button>
-            <h2 className="page-title">🦊 Fox Team Network</h2>
+            <h2 className="page-title">IP Team Network</h2>
 
             <div className="team-card">
-                <h4>➕ Grow Your Fox Team</h4>
+                <h4>➕ Grow Your IP Team</h4>
                 <div className="referral-link-box">
                     <input type="text" value={teamData.referralLink} readOnly />
                 </div>
