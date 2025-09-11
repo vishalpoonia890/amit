@@ -1,9 +1,8 @@
-
 import './AccountView.css';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
-const API_BASE_URL = process.env.NODE_ENV === 'production' ? 'https://investmentpro-nu7s.onrender.com' : '';
+const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
 
 const formatCurrency = (amount) => {
     return new Intl.NumberFormat("en-IN", {
@@ -36,7 +35,6 @@ function AccountView({ userData, financialSummary, onLogout, onViewChange, token
     const financials = financialSummary ? {
         todays_earnings: financialSummary.todaysIncome || 0,
         withdrawable: financialSummary.withdrawable_wallet || 0,
-        recharge: financialSummary.balance || 0,
         total_balance: (financialSummary.balance || 0) + (financialSummary.withdrawable_wallet || 0)
     } : {};
 
@@ -61,11 +59,11 @@ function AccountView({ userData, financialSummary, onLogout, onViewChange, token
             </div>
 
             <div className="financial-grid-card">
-                 <div className="grid-item">
+                <div className="grid-item">
                     <span className="label">Total Balance</span>
                     <span className="value">{formatCurrency(financials.total_balance)}</span>
                 </div>
-                 <div className="grid-item">
+                <div className="grid-item">
                     <span className="label">Withdrawable</span>
                     <span className="value">{formatCurrency(financials.withdrawable)}</span>
                 </div>
@@ -82,8 +80,8 @@ function AccountView({ userData, financialSummary, onLogout, onViewChange, token
                     {userInvestments.length > 0 ? (
                         userInvestments.map(product => (
                             <li key={product.id}>
-                               <span>{product.plan_name}</span>
-                               <span className="arrow-icon">&gt;</span>
+                                <span>{product.plan_name} ({formatCurrency(product.amount)})</span>
+                                <span className="product-status">{product.status}</span>
                             </li>
                         ))
                     ) : (
@@ -93,16 +91,23 @@ function AccountView({ userData, financialSummary, onLogout, onViewChange, token
             </div>
 
              <div className="account-options">
-                {/* ... other options */}
+                {/* ✨ --- NEW TRANSACTION HISTORY BUTTON --- */}
+                <button className="account-option-item" onClick={() => onViewChange('transactions')}>
+                    <span className="icon">📄</span>
+                    <span className="label">Transaction History</span>
+                    <span className="arrow-icon">&gt;</span>
+                </button>
+                
+                 {/* ✨ --- REDESIGNED LOGOUT BUTTON --- */}
                 <button className="account-option-item logout-btn" onClick={onLogout}>
-                    <span className="icon">
-                        {/* Power Icon SVG - can be reused from TopNav if you centralize SVGs */}
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
-                            <line x1="12" y1="2" x2="12" y2="12"></line>
+                     <span className="icon">
+                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                            <polyline points="16 17 21 12 16 7"></polyline>
+                            <line x1="21" y1="12" x2="9" y2="12"></line>
                         </svg>
-                    </span>
-                    <span className="label">Logout</span>
+                     </span>
+                     <span className="label">Logout</span>
                 </button>
             </div>
         </div>
@@ -110,4 +115,3 @@ function AccountView({ userData, financialSummary, onLogout, onViewChange, token
 }
 
 export default AccountView;
-
