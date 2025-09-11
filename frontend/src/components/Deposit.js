@@ -33,7 +33,7 @@ function Deposit({ token, onBack,onDepositRequest }) {
                 { amount: finalInrAmount, utr: utr.trim() },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
-            onDepositRequest(depositAmount);
+            onDepositRequest(finalInrAmount);
             setShowSuccess(true);
             setTimeout(() => onBack(), 2500);
         } catch (error) {
