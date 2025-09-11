@@ -224,12 +224,17 @@ function App() {
 
         switch (view) {
             case 'dashboard': return <UserDashboard onViewChange={setView} />;
-            case 'plans': return <ProductsAndPlans
-                                    token={token}
-                                    userBalance={financialSummary?.balance}
-                                    // ✅ --- PASS THE DATA REFRESH FUNCTION ---
-                                    onPurchaseComplete={() => fetchAllUserData(token)}
-                                 />;
+            case 'plans': 
+                // ✅ --- THIS LOGIC IS UPDATED --- ✅
+                // Calculate the total balance from both wallets
+                const totalBalance = financialSummary 
+                    ? parseFloat(financialSummary.balance) + parseFloat(financialSummary.withdrawable_wallet) 
+                    : 0;
+                return <ProductsAndPlans
+                    token={token}
+                    userBalance={totalBalance} // Pass the combined total balance
+                    onPurchaseComplete={() => fetchAllUserData(token)}
+                 />;
             case 'game': return <GameView token={token} financialSummary={financialSummary} onViewChange={setView} onBetPlaced={() => fetchAllUserData(token)} />;
             case 'news': return <NewsView />;
             case 'account': return <AccountView userData={userData} financialSummary={financialSummary} onLogout={handleLogout} onViewChange={setView} token={token}/>;
