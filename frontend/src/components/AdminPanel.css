@@ -219,3 +219,68 @@
 .approve-btn { background-color: var(--success-color); }
 .reject-btn { background-color: var(--error-color); }
 
+/* --- NEW STYLES FOR GAME STATISTICS --- */
+.game-statistics {
+    background: linear-gradient(135deg, var(--primary-color-light), var(--card-bg-color));
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 15px;
+}
+
+.stat-card {
+    background-color: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 15px 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.stat-card h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 1.1em;
+    color: var(--primary-color);
+    text-align: center;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+}
+
+.stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.95em;
+    padding: 6px 0;
+}
+
+.stat-row.profit {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-color);
+    font-weight: bold;
+}
+
+.stat-label {
+    color: var(--text-color-light);
+}
+
+.stat-value {
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.stat-value.positive {
+    color: var(--success-color);
+}
+
+.stat-value.positive::before {
+    content: '+ ';
+}
+
+.stat-value.negative {
+    color: var(--error-color);
+}
+
