@@ -65,13 +65,14 @@ function App() {
         try {
             const [dataRes, summaryRes, notificationsRes] = await Promise.all([
                 axios.get(`${API_BASE_URL}/api/data`, { headers: { Authorization: `Bearer ${authToken}` } }),
-                axios.get(`${API_BASE_URL}/api/financial-summary`, { headers: { Authorization: `Bearer ${authToken}` } })
+                axios.get(`${API_BASE_URL}/api/financial-summary`, { headers: { Authorization: `Bearer ${authToken}` } }), // <--- ADDED COMMA HERE
                 axios.get(`${API_BASE_URL}/api/notifications`, { headers: { Authorization: `Bearer ${authToken}` } }) // Fetch notifications
             ]);
             setUserData(dataRes.data.user);
             setFinancialSummary(summaryRes.data);
-            setUserNotifications(notificationsRes.data.notifications.map(n => ({ ...n, read: false }))); // Initialize as unread
-        } catch (err) {
+            setUserNotifications(notificationsRes.data.notifications.map(n => ({ ...n, read: false }))); // Initialize as unread        
+            } catch (err) {
+            
             console.error("Failed to fetch user data, likely an invalid session:", err);
             if (err.response?.status === 401 || err.response?.status === 403 || err.response?.status === 404) {
                 showSnackbarNotification('Your session is invalid. Please log in again.', 'error');
