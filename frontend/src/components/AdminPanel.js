@@ -23,6 +23,7 @@ function AdminPanel({ token }) {
     const [pendingWithdrawals, setPendingWithdrawals] = useState([]);
     const [gameStatus, setGameStatus] = useState({ is_on: false, mode: 'auto', payout_priority: 'admin' });
     const [gameStats, setGameStats] = useState({ total: {}, today: {}, currentPeriod: {} });
+    const [currentBets, setCurrentBets] = useState({}); // ✅ ADDED BACK
     const [nextResult, setNextResult] = useState('');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -32,16 +33,19 @@ function AdminPanel({ token }) {
         if (isInitialLoad) setLoading(true);
         setError(''); // Clear previous errors on each refresh
         try {
-            const [depositsRes, withdrawalsRes, gameStatusRes, statsRes] = await Promise.all([
+            // ✅ ADDED BACK the call to /api/admin/current-bets
+            const [depositsRes, withdrawalsRes, gameStatusRes, statsRes, betsRes] = await Promise.all([
                 axios.get(`${API_BASE_URL}/api/admin/recharges/pending`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/withdrawals/pending`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/game-status`, { headers: { Authorization: `Bearer ${token}` } }),
-                axios.get(`${API_BASE_URL}/api/admin/game-statistics`, { headers: { Authorization: `Bearer ${token}` } })
+                axios.get(`${API_BASE_URL}/api/admin/game-statistics`, { headers: { Authorization: `Bearer ${token}` } }),
+                axios.get(`${API_BASE_URL}/api/admin/current-bets`, { headers: { Authorization: `Bearer ${token}` } })
             ]);
             setPendingDeposits(depositsRes.data.recharges || []);
             setPendingWithdrawals(withdrawalsRes.data.withdrawals || []);
             setGameStatus(gameStatusRes.data.status || { is_on: false, mode: 'auto', payout_priority: 'admin' });
             setGameStats(statsRes.data || { total: {}, today: {}, currentPeriod: {} });
+            setCurrentBets(betsRes.data.summary || {}); // ✅ ADDED BACK
 
         } catch (err) {
             if (isInitialLoad) setError('Failed to fetch admin data. Auto-refresh paused.');
@@ -137,6 +141,34 @@ function AdminPanel({ token }) {
                     </div>
                 </div>
             </div>
+
+            {/* ✅ ADDED BACK: Live Bet Summary Section */}
+            <div className="admin-section live-bets">
+                <h2>Current Round Bet Summary <button className="refresh-btn" onClick={() => fetchData(false)}>Refresh</button></h2>
+                <div className="bet-summary-grid">
+                    {Object.entries(currentBets).filter(([key]) => !isNaN(key)).map(([num, amount]) => (
+                        <div key={num} className="bet-summary-item">
+                            <span className="bet-number">{num}</span>
+                            <span className="bet-amount">{formatCurrency(amount)}</span>
+                        </div>
+                    ))}
+                </div>
+                <div className="bet-summary-colors">
+                    <div className="bet-summary-item color">
+                        <span className="bet-number red">Red</span>
+                        <span className="bet-amount">{formatCurrency(currentBets['Red'] || 0)}</span>
+                    </div>
+                    <div className="bet-summary-item color">
+                        <span className="bet-number green">Green</span>
+                        <span className="bet-amount">{formatCurrency(currentBets['Green'] || 0)}</span>
+                    </div>
+                    <div className="bet-summary-item color">
+                        <span className="bet-number violet">Violet</span>
+                        <span className="bet-amount">{formatCurrency(currentBets['Violet'] || 0)}</span>
+                    </div>
+                </div>
+            </div>
+
 
             <div className="admin-section game-controls">
                 <h2>Game Management</h2>
