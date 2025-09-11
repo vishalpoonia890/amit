@@ -215,7 +215,18 @@ function App() {
                                         showNotification('Plan purchased successfully!', 'success'); 
                                         fetchAllUserData(token); // Refresh balance
                                     }} 
-                                />;            
+                                />;    
+             case 'plans': return <ProductsAndPlans
+                                    token={token}
+                                    onPlanPurchase={(errorMessage) => {
+                                        if (errorMessage) {
+                                            showNotification(errorMessage, 'error');
+                                        } else {
+                                            showNotification('Plan purchased successfully!', 'success');
+                                            fetchAllUserData(token); // Refresh balance only on success
+                                        }
+                                    }}
+                                />;
             case 'game': return <GameView token={token} financialSummary={financialSummary} onViewChange={setView} onBetPlaced={() => fetchAllUserData(token)} />;
             case 'news': return <NewsView />;
             case 'account': return <AccountView userData={userData} financialSummary={financialSummary} onLogout={handleLogout} onViewChange={setView} token={token}/>;
