@@ -58,8 +58,8 @@ function Deposit({ token, onBack }) {
     };
 
     const paymentDetails = {
-        upi: { id: 'investmentplus@paytm', name: 'InvestmentPlus Corporation' },
-        crypto: { address: 'TXkjfhdskjahf234jhKJHFKJhsdfjhsdkfjhSDFDSF', network: 'USDT (TRC20)' }
+        upi: { id: 'paytmqr5ie20t@ptys', name: 'Vishal' },
+        crypto: { address: 'TWQRgSUEkcS7q94BSovj2s9JSneHh7fRnp', network: 'USDT (TRC20)' }
     };
 
     if (showSuccess) {
@@ -81,6 +81,14 @@ function Deposit({ token, onBack }) {
             <button className="back-button" onClick={onBack}>← Back</button>
             <div className="form-container">
                 <h2 className="form-title">Deposit Funds</h2>
+                
+                {/* MOVED: Bonus message is now here */}
+                {method === 'upi' && (
+                    <div className="promo-banner">
+                        🎉 Current Offer: <strong>Get 10% Extra Bonus</strong> on UPI deposits! 🎉
+                    </div>
+                )}
+
                 <div className="method-selector">
                     <button className={method === 'upi' ? 'active' : ''} onClick={() => setMethod('upi')}>UPI</button>
                     <button className={method === 'crypto' ? 'active' : ''} onClick={() => setMethod('crypto')}>Crypto</button>
@@ -92,12 +100,6 @@ function Deposit({ token, onBack }) {
                         <label>Amount ({method === 'upi' ? '₹' : 'USDT'})</label>
                         <input type="number" value={inputAmount} onChange={handleAmountChange} min="1" />
                     </div>
-                    
-                    {method === 'upi' && (
-                        <p className="bonus-note">
-                            Current Offer: <strong>Get 10% Extra Bonus on USDT deposits!</strong>
-                        </p>
-                    )}
 
                     {method === 'crypto' && (
                         <p className="conversion-note">
