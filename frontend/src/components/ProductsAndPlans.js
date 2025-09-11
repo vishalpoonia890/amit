@@ -6,10 +6,10 @@ import productImage from '../assets/Code.png'; // Make sure you have this image 
 // NOTE: Sale start times are set in the future relative to the request time.
 const mockPlans = {
     'New': [
-        { id: 101, name: 'Fresh Start 1', price: 480, dailyIncome: 75, durationDays: 10, totalReturn: 750, saleStartTime: '2025-09-10T20:00:00' },
-        { id: 102, name: 'Fresh Start 2', price: 650, dailyIncome: 90, durationDays: 12, totalReturn: 1080, saleStartTime: '2025-09-11T10:00:00' },
-        { id: 103, name: 'Quick Boost', price: 800, dailyIncome: 110, durationDays: 15, totalReturn: 1650, saleStartTime: '2025-09-12T15:30:00' },
-        { id: 104, name: 'Introductory Yield', price: 1000, dailyIncome: 130, durationDays: 15, totalReturn: 1950, saleStartTime: '2025-09-10T14:00:00' }, // This one is already live
+        { id: 101, name: 'Fresh Start 1', price: 480, dailyIncome: 75, durationDays: 10, totalReturn: 750, saleStartTime: '2025-09-14T20:00:00' },
+        { id: 102, name: 'Fresh Start 2', price: 650, dailyIncome: 90, durationDays: 12, totalReturn: 1080, saleStartTime: '2025-09-13T10:00:00' },
+        { id: 103, name: 'Quick Boost', price: 800, dailyIncome: 110, durationDays: 15, totalReturn: 1650, saleStartTime: '2025-09-19T15:30:00' },
+        { id: 104, name: 'Introductory Yield', price: 1000, dailyIncome: 130, durationDays: 15, totalReturn: 1950, saleStartTime: '2025-09-18T14:00:00' }, // This one is already live
         { id: 105, name: 'Beginner Loop', price: 1200, dailyIncome: 150, durationDays: 18, totalReturn: 2700, saleStartTime: '2025-09-15T09:00:00' },
     ],
     'Primary': [
