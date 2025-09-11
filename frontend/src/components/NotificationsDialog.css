@@ -1,0 +1,155 @@
+.notifications-dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Align to top to appear below the nav */
+    padding-top: 60px; /* Adjust based on your TopNav height */
+    z-index: 1000;
+}
+
+.notifications-dialog-content {
+    background-color: var(--card-bg);
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    width: 90%;
+    max-width: 380px;
+    max-height: 80vh; /* Limit height */
+    overflow-y: auto; /* Make scrollable */
+    display: flex;
+    flex-direction: column;
+    color: var(--text-color);
+}
+
+.notifications-dialog-content .dialog-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid var(--border-color);
+    position: sticky; /* Keep header visible on scroll */
+    top: 0;
+    background-color: var(--card-bg);
+    z-index: 1;
+}
+
+.notifications-dialog-content h3 {
+    margin: 0;
+    font-size: 1.2em;
+}
+
+.notifications-dialog-content .close-btn {
+    background: none;
+    border: none;
+    font-size: 1.5em;
+    cursor: pointer;
+    color: var(--text-color);
+    padding: 0 5px;
+}
+
+.notifications-list {
+    flex-grow: 1;
+    padding: 0px 15px; /* Adjust padding for list items */
+}
+
+.notification-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+.notification-item.unread {
+    background-color: var(--unread-notification-bg); /* Define this in your App.css or theme file */
+}
+
+.notification-item:hover {
+    background-color: var(--hover-bg); /* Define this in your App.css or theme file */
+}
+
+.notification-icon {
+    font-size: 1.2em;
+    margin-right: 10px;
+    flex-shrink: 0;
+    padding-top: 2px;
+}
+
+.notification-details {
+    flex-grow: 1;
+}
+
+.notification-message {
+    margin: 0;
+    font-size: 0.95em;
+    line-height: 1.4;
+}
+
+.notification-timestamp {
+    font-size: 0.75em;
+    color: var(--text-color-secondary);
+    margin-top: 4px;
+    display: block;
+}
+
+.no-notifications {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-color-secondary);
+}
+
+.dialog-footer {
+    padding: 15px;
+    border-top: 1px solid var(--border-color);
+    text-align: center;
+    position: sticky; /* Keep footer visible on scroll */
+    bottom: 0;
+    background-color: var(--card-bg);
+    z-index: 1;
+}
+
+.read-all-btn {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color 0.2s ease;
+}
+
+.read-all-btn:hover {
+    background-color: var(--primary-color-dark);
+}
+
+/* Notification badge on bell icon */
+.notification-btn {
+    position: relative;
+}
+
+.notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: var(--accent-color); /* Red or similar for alerts */
+    color: white;
+    border-radius: 50%;
+    font-size: 0.7em;
+    padding: 2px 6px;
+    min-width: 20px; /* Ensure circular shape for single digits */
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: translate(50%, -50%); /* Adjust position slightly */
+}
