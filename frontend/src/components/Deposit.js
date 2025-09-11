@@ -85,7 +85,7 @@ function Deposit({ token, onBack }) {
                 {/* MOVED: Bonus message is now here */}
                 {method === 'upi' && (
                     <div className="promo-banner">
-                        🎉 Current Offer: <strong>Get 10% Extra Bonus</strong> on UPI deposits! 🎉
+                        🎉 Current Offer: <strong>Get 10% Extra Bonus</strong> on <strong>USDT</strong> deposits! 🎉
                     </div>
                 )}
 
