@@ -24,17 +24,14 @@ const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
 function App() {
     const [token, setToken] = useState(localStorage.getItem('token') || null);
     const [view, setView] = useState('landing');
-    const [authView, setAuthView] = useState('login'); // 'login' or 'register'
+    const [authView, setAuthView] = useState('login');
     const [userData, setUserData] = useState(null);
     const [financialSummary, setFinancialSummary] = useState(null);
     const [loading, setLoading] = useState(true);
-    // FIXED: Only one declaration for snackbarNotification
     const [snackbarNotification, setSnackbarNotification] = useState({ show: false, message: '', type: 'info' });
     const [loginFormData, setLoginFormData] = useState({ mobile: '', password: '' });
     const [registerFormData, setRegisterFormData] = useState({ username: '', mobile: '', password: '', confirmPassword: '', referralCode: '' });
     const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
-
-    // State for user-specific notifications
     const [userNotifications, setUserNotifications] = useState([]);
     const [showNotificationsDialog, setShowNotificationsDialog] = useState(false);
 
@@ -75,13 +72,12 @@ function App() {
             setUserNotifications(notificationsRes.data.notifications.map(n => ({ ...n, read: false })));
         } catch (err) {
             console.error("Failed to fetch user data, likely an invalid session:", err);
-            if (err.response?.status === 401 || err.response?.status === 403 || err.response?.status === 404) {
+            if ([401, 403, 404].includes(err.response?.status)) {
                 showSnackbar('Your session is invalid. Please log in again.', 'error');
                 handleLogout();
             }
         }
     }, [handleLogout]);
-
 
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
@@ -108,34 +104,13 @@ function App() {
         }
     }, [token, fetchAllUserData]);
 
-    const addNotification = useCallback((message, type = 'info') => {
-        const newNotification = {
-            id: Date.now(),
-            message: message,
-            type: type,
-            timestamp: new Date().toISOString(),
-            read: false,
-        };
-        setUserNotifications(prev => [newNotification, ...prev]);
+    const handleDepositRequest = useCallback((amount) => {
+        showSnackbar(`₹${amount.toLocaleString()} deposit requested. Awaiting admin approval.`, 'info');
     }, []);
 
-    const handlePlanPurchase = useCallback((errorMessage) => {
-        if (errorMessage) {
-            showSnackbar(errorMessage, 'error');
-        } else {
-            showSnackbar('Plan purchased successfully!', 'success');
-            addNotification('Product purchased successfully!', 'purchase');
-            fetchAllUserData(token);
-        }
-    }, [addNotification, fetchAllUserData, token]);
-
-    const handleDepositRequest = useCallback((amount) => {
-        addNotification(`₹${amount.toLocaleString()} deposit requested. Awaiting admin approval.`, 'deposit');
-    }, [addNotification]);
-
     const handleWithdrawalRequest = useCallback((amount) => {
-        addNotification(`₹${amount.toLocaleString()} withdrawal requested.`, 'withdrawal');
-    }, [addNotification]);
+        showSnackbar(`₹${amount.toLocaleString()} withdrawal requested.`, 'info');
+    }, []);
 
     const handleLoginInputChange = (e) => setLoginFormData({ ...loginFormData, [e.target.name]: e.target.value });
     const handleRegisterInputChange = (e) => setRegisterFormData({ ...registerFormData, [e.target.name]: e.target.value });
@@ -152,8 +127,7 @@ function App() {
             setView('dashboard');
             showSnackbar('Login successful!', 'success');
         } catch (err) {
-            const errorMessage = err.response?.data?.error || "Login failed.";
-            showSnackbar(errorMessage, 'error');
+            showSnackbar(err.response?.data?.error || "Login failed.", 'error');
         } finally {
             setLoading(false);
         }
@@ -176,8 +150,7 @@ function App() {
             setView('dashboard');
             showSnackbar('Registration successful!', 'success');
         } catch (err) {
-            const errorMessage = err.response?.data?.error || "Registration failed.";
-            showSnackbar(errorMessage, 'error');
+            showSnackbar(err.response?.data?.error || "Registration failed.", 'error');
         } finally {
             setLoading(false);
         }
@@ -190,6 +163,7 @@ function App() {
                     <div className="form-box-simple">
                         <h2>Login</h2>
                         <form onSubmit={handleLogin}>
+                           {/* Login Form Inputs */}
                             <div className="input-box">
                                 <input type="tel" name="mobile" value={loginFormData.mobile} onChange={handleLoginInputChange} required autoComplete="tel"/>
                                 <label>Mobile Number</label>
@@ -208,7 +182,8 @@ function App() {
                     <div className="form-box-simple">
                         <h2>Register</h2>
                         <form onSubmit={handleRegister}>
-                            <div className="input-box">
+                            {/* Register Form Inputs */}
+                             <div className="input-box">
                                 <input type="text" name="username" value={registerFormData.username} onChange={handleRegisterInputChange} required autoComplete="username"/>
                                 <label>Username</label>
                             </div>
@@ -243,7 +218,7 @@ function App() {
         if (userData?.is_admin) {
             return <AdminPanel token={token} />;
         }
-        
+
         const goBackToDashboard = () => setView('dashboard');
         const goBackToAccount = () => setView('account');
 
@@ -252,8 +227,8 @@ function App() {
             case 'plans': return <ProductsAndPlans
                                     token={token}
                                     userBalance={financialSummary?.balance}
-                                    // FIXED: Corrected function call to `handlePlanPurchase`
-                                    onPlanPurchase={handlePlanPurchase}
+                                    // ✅ --- PASS THE DATA REFRESH FUNCTION ---
+                                    onPurchaseComplete={() => fetchAllUserData(token)}
                                  />;
             case 'game': return <GameView token={token} financialSummary={financialSummary} onViewChange={setView} onBetPlaced={() => fetchAllUserData(token)} />;
             case 'news': return <NewsView />;
@@ -263,7 +238,7 @@ function App() {
             case 'team': return <Team token={token} onBack={goBackToDashboard} />;
             case 'support': return <Support onBack={goBackToDashboard} />;
             case 'wallet': return <Wallet financialSummary={financialSummary} onBack={goBackToDashboard} />;
-           case 'deposit': return <Deposit token={token} onBack={goBackToDashboard} onDepositRequest={handleDepositRequest} />;
+            case 'deposit': return <Deposit token={token} onBack={goBackToDashboard} onDepositRequest={handleDepositRequest} />;
             case 'withdraw': return <Withdrawal token={token} financialSummary={financialSummary} onBack={goBackToDashboard} onWithdrawalRequest={handleWithdrawalRequest} />;
             case 'promotions': return <Promotions onBack={goBackToDashboard} />;
             case 'bet-history': return <BetHistory token={token} onBack={goBackToAccount} />;
