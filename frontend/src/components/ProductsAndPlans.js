@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import './ProductsAndPlans.css';
 import axios from 'axios';
+import './ProductsAndPlans.css';
 
 // --- Import ALL individual product images ---
-// Make sure these paths are correct and all images exist in src/assets
 import product_101_Image from '../assets/101.png';
 import product_102_Image from '../assets/102.png';
 import product_103_Image from '../assets/103.png';
@@ -34,9 +33,8 @@ import product_503_Image from '../assets/503.png';
 import product_504_Image from '../assets/504.png';
 import product_505_Image from '../assets/505.png';
 
-const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com'; // Define API_BASE_URL
+const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
 
-// Category descriptions
 const categoryDescriptions = {
     'New': {
         title: "Explore Our Latest Investment Opportunities!",
@@ -56,7 +54,7 @@ const categoryDescriptions = {
             "Returns are then redistributed among all investors, powering both your portfolio and the planet."
         ]
     },
-    'Wind Mill': {
+     'Wind Mill': {
         title: "Harness the Power of Wind for Your Portfolio!",
         points: [
             "You invest in our wind energy plans, contributing to sustainable power generation.",
@@ -85,8 +83,6 @@ const categoryDescriptions = {
     }
 };
 
-// --- MOCK DATA FOR PRODUCTS WITH PRE-SALE ---
-// Each product now includes its specific imageUrl
 const mockPlans = {
     'New': [
         { id: 101, name: 'Iphone 17', price: 480, dailyIncome: 75, durationDays: 10, totalReturn: 750, saleStartTime: '2025-09-14T20:00:00', imageUrl: product_101_Image },
@@ -125,7 +121,6 @@ const mockPlans = {
     ]
 };
 
-// --- Countdown Timer Component ---
 const CountdownTimer = ({ targetDate }) => {
     const calculateTimeLeft = () => {
         const difference = +new Date(targetDate) - +new Date();
@@ -169,10 +164,8 @@ const CountdownTimer = ({ targetDate }) => {
     );
 };
 
-// ✅ --- NEW COMPONENT FOR THE RESULT POP-UP ---
 const ResultModal = ({ result, onClose }) => {
     if (!result.show) return null;
-
     const isSuccess = result.success;
     const title = isSuccess ? "Congratulations!" : "Purchase Failed";
     const icon = isSuccess ? "✅" : "❌";
@@ -191,38 +184,27 @@ const ResultModal = ({ result, onClose }) => {
     );
 };
 
-
-function ProductsAndPlans({ token, onPlanPurchase,userBalance }) {
+// ✅ --- THIS LINE IS THE FIX ---
+// Added onPurchaseComplete to the props list and removed onPlanPurchase
+function ProductsAndPlans({ token, userBalance, onPurchaseComplete }) {
     const [activeCategory, setActiveCategory] = useState('New');
     const [loading, setLoading] = useState(false);
     const [confirmingPlanId, setConfirmingPlanId] = useState(null);
-// ✅ --- NEW STATE FOR THE RESULT POP-UP ---
     const [resultModal, setResultModal] = useState({ show: false, success: false, message: '' });
-
 
     const handlePurchase = async (plan) => {
         setLoading(true);
         try {
-            const response = await axios.post(`${API_BASE_URL}/api/purchase-plan`, {
-                planId: plan.id,
-                name: plan.name,
-                price: plan.price,
-                dailyIncome: plan.dailyIncome,
-                durationDays: plan.durationDays,
-                totalReturn: plan.totalReturn
-            }, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
-            // ✅ --- Show SUCCESS pop-up ---
+            await axios.post(`${API_BASE_URL}/api/purchase-plan`,
+                { ...plan },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
             setResultModal({
                 show: true,
                 success: true,
                 message: `You have successfully invested in ${plan.name}.`
             });
         } catch (error) {
-            // ✅ --- Show ERROR pop-up ---
             const errorMessage = error.response?.data?.error || 'An unknown error occurred.';
             setResultModal({
                 show: true,
@@ -234,16 +216,17 @@ function ProductsAndPlans({ token, onPlanPurchase,userBalance }) {
             setConfirmingPlanId(null);
         }
     };
-// ✅ --- NEW FUNCTION TO CLOSE THE POP-UP AND REFRESH DATA ---
+    
     const closeResultModalAndRefresh = () => {
         setResultModal({ show: false, success: false, message: '' });
-        onPurchaseComplete(); // This function is passed from App.js to refresh all user data
+        onPurchaseComplete();
     };
-    
+
     const formatCurrency = (amount) => new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR" }).format(amount);
 
     return (
         <div className="plans-page">
+            <ResultModal result={resultModal} onClose={closeResultModalAndRefresh} />
             <div className="plans-header">
                 <h1>Investment Products</h1>
                 <div className="category-tabs">
@@ -258,7 +241,6 @@ function ProductsAndPlans({ token, onPlanPurchase,userBalance }) {
                     ))}
                 </div>
             </div>
-
             <div className="category-description-section">
                 <h2>{categoryDescriptions[activeCategory].title}</h2>
                 <ul>
@@ -267,15 +249,13 @@ function ProductsAndPlans({ token, onPlanPurchase,userBalance }) {
                     ))}
                 </ul>
             </div>
-
             <div className="plans-grid">
                 {mockPlans[activeCategory].map((plan) => {
                     const isPreSale = plan.saleStartTime && new Date(plan.saleStartTime) > new Date();
-                     const canAfford = userBalance !== undefined && userBalance >= plan.price;
+                    const canAfford = userBalance !== undefined && userBalance >= plan.price;
                     return (
                         <div key={plan.id} className="plan-card">
                             <div className="plan-image-container">
-                                {/* Use plan.imageUrl directly from the product object */}
                                 <img src={plan.imageUrl} alt={plan.name} className="plan-image" />
                                 {isPreSale && <div className="presale-badge">Pre-Sale</div>}
                             </div>
@@ -295,25 +275,25 @@ function ProductsAndPlans({ token, onPlanPurchase,userBalance }) {
                                 </div>
                                 {confirmingPlanId !== plan.id ? (
                                     <button
-                                        className={`purchase-button ${isPreSale ? 'presale' : ''}`}
+                                        className={`purchase-button ${isPreSale ? 'presale' : ''} ${!canAfford ? 'disabled' : ''}`}
                                         onClick={() => setConfirmingPlanId(plan.id)}
-                                        disabled={loading || !canAfford || isPreSale} // <--- Update disabled condition
+                                        disabled={loading || !canAfford || isPreSale}
                                     >
-                                        {isPreSale ? 'Pre-Order Now' : 'Invest Now'}
+                                        {isPreSale ? 'Coming Soon' : 'Invest Now'}
                                     </button>
                                 ) : (
                                     <div className="confirmation-buttons">
-                                        <button 
-                                            className="confirm-btn" 
-                                            onClick={() => handlePurchase(plan)} 
-                                            disabled={loading || !canAfford} // <--- Update disabled condition
+                                        <button
+                                            className="confirm-btn"
+                                            onClick={() => handlePurchase(plan)}
+                                            disabled={loading}
                                         >
-                                            Confirm
+                                            {loading ? 'Processing...' : 'Confirm'}
                                         </button>
                                         <button className="cancel-btn" onClick={() => setConfirmingPlanId(null)} disabled={loading}>Cancel</button>
                                     </div>
                                 )}
-                                {!canAfford && <p className="insufficient-balance-message">Insufficient balance</p>} {/* Optional: Add a message */}
+                                {!canAfford && !isPreSale && <p className="insufficient-balance-message">Insufficient Recharge Balance</p>}
                             </div>
                         </div>
                     );
@@ -322,4 +302,5 @@ function ProductsAndPlans({ token, onPlanPurchase,userBalance }) {
         </div>
     );
 }
+
 export default ProductsAndPlans;
