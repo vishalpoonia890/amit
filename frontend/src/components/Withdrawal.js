@@ -45,7 +45,7 @@ function Withdrawal({ token, financialSummary, onBack,onWithdrawalRequest }) {
                 { amount, method, details: withdrawalDetails },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
-            onWithdrawalRequest(withdrawalAmount);
+            onWithdrawalRequest(amount);
             setShowSuccess(true);
             setTimeout(() => onBack(), 2500);
         } catch (error) {
