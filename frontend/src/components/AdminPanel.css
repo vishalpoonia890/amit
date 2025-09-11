@@ -32,12 +32,13 @@
     align-items: center;
 }
 
-/* Game Statistics Section */
-.stats-grid {
+/* Stats Section Styles */
+.stats-section .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 20px;
 }
+
 .stat-card {
     background-color: var(--bg-color);
     border: 1px solid var(--border-color);
@@ -45,89 +46,41 @@
     padding: 15px;
     text-align: center;
 }
+
 .stat-card h4 {
-    margin-top: 0;
-    margin-bottom: 15px;
+    margin: 0 0 10px;
     font-size: 1em;
     color: var(--text-color-light);
 }
-.stat-card p {
-    margin: 4px 0;
-}
-.stat-label {
-    font-size: 0.8em;
-    color: var(--text-color-light);
-    text-transform: uppercase;
-}
-.stat-value {
-    font-size: 1.4em;
-    font-weight: 600;
-}
-.stat-value.pl {
+
+.stat-card .stat-value {
+    font-size: 1.8em;
     font-weight: 700;
-    margin-top: 10px;
+    margin: 0 0 10px;
 }
-.pl.profit {
+
+.stat-card .stat-value.positive {
     color: var(--success-color);
 }
-.pl.loss {
+
+.stat-card .stat-value.negative {
     color: var(--error-color);
 }
 
-/* Win Chance Slider Control */
-.win-chance-control {
-    flex-direction: column;
-    align-items: flex-start;
-    padding-top: 15px;
-    margin-top: 15px;
-    border-top: 1px solid var(--border-color);
-}
-.win-chance-control label {
-    margin-bottom: 10px;
-}
-.slider-group {
+.stat-card .stat-details {
+    font-size: 0.85em;
+    color: var(--text-color-light);
     display: flex;
-    width: 100%;
-    align-items: center;
-    gap: 15px;
-}
-.win-chance-slider {
-    flex-grow: 1;
-    -webkit-appearance: none;
-    appearance: none;
-    width: 100%;
-    height: 8px;
-    background: var(--border-color);
-    outline: none;
-    border-radius: 5px;
-}
-.win-chance-slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 20px;
-    height: 20px;
-    background: var(--primary-color);
-    cursor: pointer;
-    border-radius: 50%;
-}
-.win-chance-slider::-moz-range-thumb {
-    width: 20px;
-    height: 20px;
-    background: var(--primary-color);
-    cursor: pointer;
-    border-radius: 50%;
-}
-.slider-group button {
-    background-color: var(--primary-color);
-    color: white;
-    font-weight: 600;
-    border: none;
-    padding: 9px 15px;
-    border-radius: 8px;
-    cursor: pointer;
+    justify-content: space-between;
 }
 
-/* General Controls */
+.stat-card .stat-details span {
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+
+/* Controls */
 .control-group {
     display: flex;
     align-items: center;
@@ -182,122 +135,6 @@
     cursor: pointer;
 }
 
-/* Whitelist */
-.whitelist-display {
-    margin-top: 15px;
-    padding-top: 15px;
-    border-top: 1px solid var(--border-color);
-}
-.whitelist-display strong { color: var(--text-color); }
-.whitelist-display p { color: var(--text-color-light); font-size: 0.9em; margin-top: 5px; }
-.whitelist-display ul {
-    list-style: none;
-    padding: 0;
-    margin-top: 10px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-.whitelist-display li {
-    background-color: var(--bg-color);
-    padding: 5px 12px;
-    border-radius: 20px;
-    font-size: 0.9em;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-.remove-btn {
-    background: var(--error-color);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    line-height: 1;
-}
-
-/* Live Bet Summary */
-.bet-summary-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-    gap: 10px;
-    margin-bottom: 15px;
-}
-.bet-summary-item {
-    background-color: var(--bg-color);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 10px;
-    text-align: center;
-}
-.bet-number { display: block; font-weight: bold; font-size: 1.2em; margin-bottom: 5px; }
-.bet-amount { font-size: 0.9em; color: var(--text-color-light); }
-.bet-summary-colors { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
-.bet-summary-item.color { flex-basis: 120px; }
-.bet-number.red { color: #f44336; }
-.bet-number.green { color: #4caf50; }
-.bet-number.violet { color: #9c27b0; }
-.refresh-btn {
-    background: none;
-    border: 1px solid var(--primary-color);
-    color: var(--primary-color);
-    font-size: 0.7em;
-    font-weight: 600;
-    padding: 4px 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-.refresh-btn:hover { background-color: var(--primary-color-light); }
-
-/* Server Actions */
-.server-actions .action-group {
-    padding: 15px 0;
-    border-bottom: 1px solid var(--border-color);
-}
-.server-actions .action-group:last-child {
-    border-bottom: none;
-}
-.server-actions p {
-    margin-top: 0;
-    margin-bottom: 15px;
-    color: var(--text-color-light);
-    font-size: 0.9em;
-}
-.action-btn {
-    background-color: var(--primary-color-light);
-    color: var(--primary-color);
-    border: 1px solid var(--primary-color);
-    padding: 10px 15px;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-}
-.bonus-controls {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-.bonus-controls input, .bonus-controls textarea {
-    width: 100%;
-    padding: 10px;
-    box-sizing: border-box;
-    border-radius: 8px;
-    border: 1px solid var(--border-color);
-    background-color: var(--bg-color);
-    color: var(--text-color);
-}
-.bonus-controls textarea {
-    min-height: 60px;
-    resize: vertical;
-}
-
 /* Table Styling */
 .table-container { overflow-x: auto; }
 .request-table { width: 100%; border-collapse: collapse; font-size: 0.9em; }
@@ -313,4 +150,21 @@
 .approve-btn:hover, .reject-btn:hover { opacity: 0.8; }
 .approve-btn { background-color: var(--success-color); }
 .reject-btn { background-color: var(--error-color); }
+
+/* Loading and Error States */
+.loading-spinner {
+    text-align: center;
+    padding: 40px;
+    font-size: 1.2em;
+    color: var(--text-color-light);
+}
+.error-message {
+    text-align: center;
+    padding: 40px;
+    font-size: 1.2em;
+    color: var(--error-color);
+    background-color: rgba(220, 53, 69, 0.1);
+    border: 1px solid var(--error-color);
+    border-radius: 12px;
+}
 
