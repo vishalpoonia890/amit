@@ -35,7 +35,9 @@ function App() {
     // New: State for user-specific notifications
     const [userNotifications, setUserNotifications] = useState([]);
     const [showNotificationsDialog, setShowNotificationsDialog] = useState(false);
+const [snackbarNotification, setSnackbarNotification] = useState({ show: false, message: '', type: 'info' }); // Renamed to avoid conflict
 
+    
     const toggleTheme = () => {
         const newTheme = theme === 'light' ? 'dark' : 'light';
         setTheme(newTheme);
@@ -320,7 +322,13 @@ const markNotificationAsRead = (id) => {
 
     return (
         <div className="App">
-            <Notification message={notification.message} type={notification.type} show={notification.show} onClose={() => setNotification({ ...notification, show: false })} />
+           <div className="App">
+            <Notification
+                message={snackbarNotification.message}
+                type={snackbarNotification.type}
+                show={snackbarNotification.show}
+                onClose={() => setSnackbarNotification({ ...snackbarNotification, show: false })}
+            />
             {!token ? (
                 renderAuthForms()
             ) : (
