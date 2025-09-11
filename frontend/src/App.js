@@ -33,7 +33,7 @@ function App() {
     const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
 
     // New: State for user-specific notifications
-    const [userNotifications, setUserNotifications] = useState([]);
+    
     const [showNotificationsDialog, setShowNotificationsDialog] = useState(false);
 const [snackbarNotification, setSnackbarNotification] = useState({ show: false, message: '', type: 'info' }); // Renamed to avoid conflict
 
