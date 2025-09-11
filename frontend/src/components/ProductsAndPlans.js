@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import './ProductsAndPlans.css';
 import productImage from '../assets/Code.png'; // Make sure you have this image in src/assets
+import axios from 'axios'; // Import axios
+const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com'; // Define API_BASE_URL
+
 
 // --- MOCK DATA FOR PRODUCTS WITH PRE-SALE ---
 // NOTE: Sale start times are set in the future relative to the request time.
@@ -87,13 +90,31 @@ function ProductsAndPlans({ token, onPlanPurchase }) {
 
     const handlePurchase = async (plan) => {
         setLoading(true);
-        console.log(`Purchasing plan ${plan.name} for ${plan.price}`);
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        onPlanPurchase();
-        setLoading(false);
-        setConfirmingPlanId(null);
+        try {
+            const response = await axios.post(`${API_BASE_URL}/api/purchase-plan`, {
+                planId: plan.id,
+                name: plan.name,
+                price: plan.price,
+                dailyIncome: plan.dailyIncome,
+                durationDays: plan.durationDays,
+                totalReturn: plan.totalReturn
+            }, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            console.log('Purchase successful:', response.data);
+            onPlanPurchase(); // Call the callback from App.js to show notification and refresh data
+        } catch (error) {
+            console.error('Error purchasing plan:', error.response?.data?.error || error.message);
+            // You might want to pass an error message back to App.js or show it here
+            onPlanPurchase(error.response?.data?.error || 'Failed to purchase plan.'); // Pass error message
+        } finally {
+            setLoading(false);
+            setConfirmingPlanId(null);
+        }
     };
-    
+
     const formatCurrency = (amount) => new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR" }).format(amount);
 
     return (
@@ -112,7 +133,7 @@ function ProductsAndPlans({ token, onPlanPurchase }) {
                     ))}
                 </div>
             </div>
-            
+
             <div className="plans-grid">
                 {mockPlans[activeCategory].map((plan) => {
                     const isPreSale = plan.saleStartTime && new Date(plan.saleStartTime) > new Date();
@@ -137,9 +158,9 @@ function ProductsAndPlans({ token, onPlanPurchase }) {
                                     <div><span>Total Return:</span><strong>{formatCurrency(plan.totalReturn)}</strong></div>
                                 </div>
                                 {confirmingPlanId !== plan.id ? (
-                                    <button 
-                                        className={`purchase-button ${isPreSale ? 'presale' : ''}`} 
-                                        onClick={() => setConfirmingPlanId(plan.id)} 
+                                    <button
+                                        className={`purchase-button ${isPreSale ? 'presale' : ''}`}
+                                        onClick={() => setConfirmingPlanId(plan.id)}
                                         disabled={loading}
                                     >
                                         {isPreSale ? 'Pre-Order Now' : 'Invest Now'}
@@ -158,6 +179,5 @@ function ProductsAndPlans({ token, onPlanPurchase }) {
         </div>
     );
 }
-
 export default ProductsAndPlans;
 
