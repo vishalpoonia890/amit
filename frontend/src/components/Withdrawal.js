@@ -4,7 +4,7 @@ import './FormPages.css';
 
 const API_BASE_URL = process.env.NODE_ENV === 'production' ? 'https://investmentpro-nu7s.onrender.com' : '';
 
-function Withdrawal({ token, financialSummary, onBack }) {
+function Withdrawal({ token, financialSummary, onBack,onWithdrawalRequest }) {
     const [amount, setAmount] = useState(100);
     const [method, setMethod] = useState('upi'); // upi, bank, crypto
     const [details, setDetails] = useState({ upiId: '', bankAccount: '', bankIfsc: '', cryptoAddress: '' });
@@ -45,6 +45,7 @@ function Withdrawal({ token, financialSummary, onBack }) {
                 { amount, method, details: withdrawalDetails },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
+            onWithdrawalRequest(withdrawalAmount);
             setShowSuccess(true);
             setTimeout(() => onBack(), 2500);
         } catch (error) {
