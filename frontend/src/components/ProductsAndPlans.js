@@ -170,7 +170,7 @@ const CountdownTimer = ({ targetDate }) => {
 };
 
 
-function ProductsAndPlans({ token, onPlanPurchase }) {
+function ProductsAndPlans({ token, onPlanPurchase,userBalance }) {
     const [activeCategory, setActiveCategory] = useState('New');
     const [loading, setLoading] = useState(false);
     const [confirmingPlanId, setConfirmingPlanId] = useState(null);
@@ -232,6 +232,7 @@ function ProductsAndPlans({ token, onPlanPurchase }) {
             <div className="plans-grid">
                 {mockPlans[activeCategory].map((plan) => {
                     const isPreSale = plan.saleStartTime && new Date(plan.saleStartTime) > new Date();
+                     const canAfford = userBalance !== undefined && userBalance >= plan.price;
                     return (
                         <div key={plan.id} className="plan-card">
                             <div className="plan-image-container">
@@ -257,16 +258,23 @@ function ProductsAndPlans({ token, onPlanPurchase }) {
                                     <button
                                         className={`purchase-button ${isPreSale ? 'presale' : ''}`}
                                         onClick={() => setConfirmingPlanId(plan.id)}
-                                        disabled={loading}
+                                        disabled={loading || !canAfford || isPreSale} // <--- Update disabled condition
                                     >
                                         {isPreSale ? 'Pre-Order Now' : 'Invest Now'}
                                     </button>
                                 ) : (
                                     <div className="confirmation-buttons">
-                                        <button className="confirm-btn" onClick={() => handlePurchase(plan)} disabled={loading}>Confirm</button>
+                                        <button 
+                                            className="confirm-btn" 
+                                            onClick={() => handlePurchase(plan)} 
+                                            disabled={loading || !canAfford} // <--- Update disabled condition
+                                        >
+                                            Confirm
+                                        </button>
                                         <button className="cancel-btn" onClick={() => setConfirmingPlanId(null)} disabled={loading}>Cancel</button>
                                     </div>
                                 )}
+                                {!canAfford && <p className="insufficient-balance-message">Insufficient balance</p>} {/* Optional: Add a message */}
                             </div>
                         </div>
                     );
