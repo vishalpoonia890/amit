@@ -4,10 +4,19 @@ import './AdminPanel.css';
 
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
 
+const formatCurrency = (amount) => {
+    return new Intl.NumberFormat("en-IN", {
+        style: "currency",
+        currency: "INR",
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    }).format(amount || 0);
+};
+
 function AdminPanel({ token }) {
     const [pendingDeposits, setPendingDeposits] = useState([]);
     const [pendingWithdrawals, setPendingWithdrawals] = useState([]);
-    const [gameStatus, setGameStatus] = useState({ is_on: false, mode: 'auto', maintenance_mode: false, whitelisted_users: [] });
+    const [gameStatus, setGameStatus] = useState({ is_on: false, mode: 'auto', maintenance_mode: false, whitelisted_users: [], user_win_chance_percent: 45 });
     const [currentBets, setCurrentBets] = useState({});
     const [nextResult, setNextResult] = useState('');
     const [whitelistInput, setWhitelistInput] = useState('');
@@ -16,21 +25,30 @@ function AdminPanel({ token }) {
     const [bonusUserIds, setBonusUserIds] = useState('');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    
+    // --- NEW STATES FOR NEW FEATURES ---
+    const [gameStats, setGameStats] = useState(null);
+    const [winChance, setWinChance] = useState(45);
+
 
     const fetchData = useCallback(async (isInitialLoad = false) => {
         if (isInitialLoad) setLoading(true);
         if(!isInitialLoad) setError('');
         try {
-            const [depositsRes, withdrawalsRes, gameStatusRes, betsRes] = await Promise.all([
+            const [depositsRes, withdrawalsRes, gameStatusRes, betsRes, statsRes] = await Promise.all([
                 axios.get(`${API_BASE_URL}/api/admin/recharges/pending`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/withdrawals/pending`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/game-status`, { headers: { Authorization: `Bearer ${token}` } }),
-                axios.get(`${API_BASE_URL}/api/admin/current-bets`, { headers: { Authorization: `Bearer ${token}` } })
+                axios.get(`${API_BASE_URL}/api/admin/current-bets`, { headers: { Authorization: `Bearer ${token}` } }),
+                axios.get(`${API_BASE_URL}/api/admin/game-statistics`, { headers: { Authorization: `Bearer ${token}` } }) // Fetch new stats
             ]);
             setPendingDeposits(depositsRes.data.recharges || []);
             setPendingWithdrawals(withdrawalsRes.data.withdrawals || []);
-            setGameStatus(gameStatusRes.data.status || { is_on: false, mode: 'auto', maintenance_mode: false, whitelisted_users: [] });
+            const fetchedGameStatus = gameStatusRes.data.status || { is_on: false, mode: 'auto', maintenance_mode: false, whitelisted_users: [], user_win_chance_percent: 45 };
+            setGameStatus(fetchedGameStatus);
+            setWinChance(fetchedGameStatus.user_win_chance_percent); // Sync win chance input
             setCurrentBets(betsRes.data.summary || {});
+            setGameStats(statsRes.data); // Set the new game stats
         } catch (err) {
             if(isInitialLoad) setError('Failed to fetch admin data. Auto-refresh paused.');
             console.error(err);
@@ -41,7 +59,7 @@ function AdminPanel({ token }) {
 
     useEffect(() => {
         fetchData(true);
-        const interval = setInterval(() => fetchData(false), 5000); // Refresh every 5 seconds
+        const interval = setInterval(() => fetchData(false), 5000);
         return () => clearInterval(interval);
     }, [fetchData]);
     
@@ -136,12 +154,57 @@ function AdminPanel({ token }) {
         }
     };
 
+    // --- NEW FUNCTION TO SET WIN CHANCE ---
+    const handleSetWinChance = async () => {
+        const chance = parseInt(winChance, 10);
+        if (isNaN(chance) || chance < 0 || chance > 100) {
+            alert('Please enter a valid percentage between 0 and 100.');
+            return;
+        }
+        try {
+            const res = await axios.post(`${API_BASE_URL}/api/admin/set-win-chance`, { winChance: chance }, { headers: { Authorization: `Bearer ${token}` } });
+            alert(res.data.message);
+            fetchData(false);
+        } catch (err) {
+            alert(err.response?.data?.error || 'Failed to set win chance.');
+        }
+    };
+
     if (loading) return <div className="loading-spinner">Loading Admin Panel...</div>;
     if (error) return <div className="error-message">{error}</div>;
+
+    const StatCard = ({ title, stats }) => (
+        <div className="stat-card">
+            <h3>{title}</h3>
+            <div className="stat-row">
+                <span className="stat-label">Total Bet Amount:</span>
+                <span className="stat-value">{formatCurrency(stats?.totalIn)}</span>
+            </div>
+            <div className="stat-row">
+                <span className="stat-label">Total Payouts:</span>
+                <span className="stat-value">{formatCurrency(stats?.totalOut)}</span>
+            </div>
+            <div className="stat-row profit">
+                <span className="stat-label">Profit / Loss:</span>
+                <span className={`stat-value ${stats?.pl >= 0 ? 'positive' : 'negative'}`}>{formatCurrency(stats?.pl)}</span>
+            </div>
+        </div>
+    );
 
     return (
         <div className="admin-panel">
             <h1>Admin Control Panel</h1>
+
+            {/* --- NEW GAME STATISTICS SECTION --- */}
+            <div className="admin-section game-statistics">
+                <h2>Game Statistics</h2>
+                <div className="stats-grid">
+                    <StatCard title="Current Round" stats={gameStats?.currentPeriod} />
+                    <StatCard title="Today" stats={gameStats?.today} />
+                    <StatCard title="All Time" stats={gameStats?.total} />
+                </div>
+            </div>
+
             <div className="admin-section game-controls">
                 <h2>Game Management</h2>
                 <div className="control-group">
@@ -158,6 +221,21 @@ function AdminPanel({ token }) {
                         <button onClick={() => handleGameStatusUpdate({ mode: 'admin' })} className={gameStatus.mode === 'admin' ? 'active' : ''}>Admin</button>
                     </div>
                 </div>
+                 {/* --- NEW WIN CHANCE CONTROL --- */}
+                 <div className="control-group">
+                    <label>User Win Chance (%)</label>
+                    <div className="input-group">
+                        <input
+                            type="number"
+                            value={winChance}
+                            onChange={(e) => setWinChance(e.target.value)}
+                            min="0"
+                            max="100"
+                            placeholder="e.g., 45"
+                        />
+                        <button onClick={handleSetWinChance}>Set Chance</button>
+                    </div>
+                </div>
                 {gameStatus.mode === 'admin' && gameStatus.is_on && (
                      <div className="control-group manual-control">
                         <label>Set Next Winning Number (0-9)</label>
@@ -168,6 +246,7 @@ function AdminPanel({ token }) {
                     </div>
                 )}
             </div>
+            
             <div className="admin-section maintenance-controls">
                 <h2>Maintenance Mode</h2>
                 <div className="control-group">
