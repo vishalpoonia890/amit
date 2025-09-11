@@ -92,9 +92,18 @@ function AccountView({ userData, financialSummary, onLogout, onViewChange, token
                 </ul>
             </div>
 
-             <div className="account-options-card">
-                 <button className="option-item" onClick={() => onViewChange('bet-history')}>Bet History</button>
-                 <button className="option-item" onClick={onLogout}>Sign Out</button>
+             <div className="account-options">
+                {/* ... other options */}
+                <button className="account-option-item logout-btn" onClick={onLogout}>
+                    <span className="icon">
+                        {/* Power Icon SVG - can be reused from TopNav if you centralize SVGs */}
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
+                            <line x1="12" y1="2" x2="12" y2="12"></line>
+                        </svg>
+                    </span>
+                    <span className="label">Logout</span>
+                </button>
             </div>
         </div>
     );
