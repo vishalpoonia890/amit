@@ -154,21 +154,20 @@ function AdminPanel({ token }) {
         }
     };
 
-    // --- NEW FUNCTION TO SET WIN CHANCE ---
+     // ✅ --- NEW FUNCTION TO HANDLE SETTING WIN CHANCE ---
     const handleSetWinChance = async () => {
-        const chance = parseInt(winChance, 10);
-        if (isNaN(chance) || chance < 0 || chance > 100) {
-            alert('Please enter a valid percentage between 0 and 100.');
-            return;
-        }
         try {
-            const res = await axios.post(`${API_BASE_URL}/api/admin/set-win-chance`, { winChance: chance }, { headers: { Authorization: `Bearer ${token}` } });
-            alert(res.data.message);
-            fetchData(false);
+            const res = await axios.post(`${API_BASE_URL}/api/admin/set-win-chance`, 
+                { winChance: winChance }, 
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            alert(res.data.message || 'Win chance updated successfully!');
+            fetchData(false); // Refresh data to confirm change
         } catch (err) {
-            alert(err.response?.data?.error || 'Failed to set win chance.');
+            alert(err.response?.data?.error || 'Failed to update win chance.');
         }
     };
+
 
     if (loading) return <div className="loading-spinner">Loading Admin Panel...</div>;
     if (error) return <div className="error-message">{error}</div>;
@@ -195,15 +194,42 @@ function AdminPanel({ token }) {
         <div className="admin-panel">
             <h1>Admin Control Panel</h1>
 
-            {/* --- NEW GAME STATISTICS SECTION --- */}
+             {/* ✅ --- NEW GAME STATISTICS SECTION --- */}
             <div className="admin-section game-statistics">
-                <h2>Game Statistics</h2>
-                <div className="stats-grid">
-                    <StatCard title="Current Round" stats={gameStats?.currentPeriod} />
-                    <StatCard title="Today" stats={gameStats?.today} />
-                    <StatCard title="All Time" stats={gameStats?.total} />
-                </div>
+                <h2>Game P/L Statistics</h2>
+                {gameStats ? (
+                    <div className="stats-grid">
+                        <div className="stat-card">
+                            <h4>Current Period</h4>
+                            <p className="stat-value total-in">{formatCurrency(gameStats.currentPeriod.totalIn)}</p>
+                            <p className="stat-label">Total In</p>
+                            <p className="stat-value total-out">{formatCurrency(gameStats.currentPeriod.totalOut)}</p>
+                            <p className="stat-label">Total Out</p>
+                            <p className={`stat-value pl ${gameStats.currentPeriod.pl >= 0 ? 'profit' : 'loss'}`}>{formatCurrency(gameStats.currentPeriod.pl)}</p>
+                            <p className="stat-label">Profit/Loss</p>
+                        </div>
+                        <div className="stat-card">
+                            <h4>Today</h4>
+                            <p className="stat-value total-in">{formatCurrency(gameStats.today.totalIn)}</p>
+                            <p className="stat-label">Total In</p>
+                            <p className="stat-value total-out">{formatCurrency(gameStats.today.totalOut)}</p>
+                            <p className="stat-label">Total Out</p>
+                            <p className={`stat-value pl ${gameStats.today.pl >= 0 ? 'profit' : 'loss'}`}>{formatCurrency(gameStats.today.pl)}</p>
+                            <p className="stat-label">Profit/Loss</p>
+                        </div>
+                        <div className="stat-card">
+                            <h4>All Time</h4>
+                            <p className="stat-value total-in">{formatCurrency(gameStats.total.totalIn)}</p>
+                            <p className="stat-label">Total In</p>
+                            <p className="stat-value total-out">{formatCurrency(gameStats.total.totalOut)}</p>
+                            <p className="stat-label">Total Out</p>
+                            <p className={`stat-value pl ${gameStats.total.pl >= 0 ? 'profit' : 'loss'}`}>{formatCurrency(gameStats.total.pl)}</p>
+                            <p className="stat-label">Profit/Loss</p>
+                        </div>
+                    </div>
+                ) : <p>Loading statistics...</p>}
             </div>
+
 
             <div className="admin-section game-controls">
                 <h2>Game Management</h2>
@@ -221,30 +247,21 @@ function AdminPanel({ token }) {
                         <button onClick={() => handleGameStatusUpdate({ mode: 'admin' })} className={gameStatus.mode === 'admin' ? 'active' : ''}>Admin</button>
                     </div>
                 </div>
-                 {/* --- NEW WIN CHANCE CONTROL --- */}
-                 <div className="control-group">
-                    <label>User Win Chance (%)</label>
-                    <div className="input-group">
-                        <input
-                            type="number"
-                            value={winChance}
-                            onChange={(e) => setWinChance(e.target.value)}
-                            min="0"
-                            max="100"
-                            placeholder="e.g., 45"
-                        />
-                        <button onClick={handleSetWinChance}>Set Chance</button>
-                    </div>
-                </div>
-                {gameStatus.mode === 'admin' && gameStatus.is_on && (
-                     <div className="control-group manual-control">
-                        <label>Set Next Winning Number (0-9)</label>
-                        <div className="input-group">
-                            <input type="number" value={nextResult} onChange={(e) => setNextResult(e.target.value)} min="0" max="9" placeholder="e.g., 5" />
-                            <button onClick={handleSetNextResult}>Set Result</button>
-                        </div>
-                    </div>
-                )}
+                 {/* ✅ --- NEW WIN CHANCE CONTROL --- */}
+                <div className="control-group win-chance-control">
+                   <label>User Win Chance: <strong>{winChance}%</strong></label>
+                   <div className="slider-group">
+                       <input 
+                           type="range" 
+                           min="0" 
+                           max="100" 
+                           value={winChance} 
+                           onChange={(e) => setWinChance(Number(e.target.value))}
+                           className="win-chance-slider"
+                       />
+                       <button onClick={handleSetWinChance}>Set Chance</button>
+                   </div>
+               </div>
             </div>
             
             <div className="admin-section maintenance-controls">
