@@ -17,8 +17,7 @@ import GameView from './components/GameView';
 import Deposit from './components/Deposit';
 import Withdrawal from './components/Withdrawal';
 import BetHistory from './components/BetHistory';
-import NotificationsDialog from './components/NotificationsDialog';
-
+import TransactionHistory from './components/TransactionHistory'; // Make sure this component is imported
 
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
 
@@ -34,7 +33,6 @@ function App() {
     const [registerFormData, setRegisterFormData] = useState({ username: '', mobile: '', password: '', confirmPassword: '', referralCode: '' });
     const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
     const [userNotifications, setUserNotifications] = useState([]);
-    const [showNotificationsDialog, setShowNotificationsDialog] = useState(false);
 
     const toggleTheme = () => {
         const newTheme = theme === 'light' ? 'dark' : 'light';
@@ -55,7 +53,7 @@ function App() {
         setToken(null);
         setUserData(null);
         setFinancialSummary(null);
-        showSnackbar('Your session is invalid. Please log in again.', 'error');
+        showSnackbar('Logged out successfully.', 'info');
         setView('login');
         setAuthView('login');
     }, []);
@@ -70,7 +68,7 @@ function App() {
             ]);
             setUserData(dataRes.data.user);
             setFinancialSummary(summaryRes.data);
-            setUserNotifications(notificationsRes.data.notifications.map(n => ({ ...n, read: false })));
+            setUserNotifications(prev => [...prev, ...notificationsRes.data.notifications.map(n => ({ ...n, read: false }))]);
         } catch (err) {
             console.error("Failed to fetch user data, likely an invalid session:", err);
             if ([401, 403, 404].includes(err.response?.status)) {
@@ -87,7 +85,6 @@ function App() {
             setRegisterFormData(prev => ({ ...prev, referralCode: refCode }));
             setAuthView('register');
         }
-
         const storedToken = localStorage.getItem('token');
         if (storedToken) {
             setToken(storedToken);
@@ -100,13 +97,13 @@ function App() {
 
     useEffect(() => {
         if (token) {
-            const interval = setInterval(() => fetchAllUserData(token), 5000);
+            const interval = setInterval(() => fetchAllUserData(token), 30000); // Fetch data periodically
             return () => clearInterval(interval);
         }
     }, [token, fetchAllUserData]);
 
     const handleDepositRequest = useCallback((amount) => {
-        showSnackbar(`₹${amount.toLocaleString()} deposit requested. Awaiting admin approval.`, 'info');
+        showSnackbar(`₹${amount.toLocaleString()} deposit requested.`, 'info');
     }, []);
 
     const handleWithdrawalRequest = useCallback((amount) => {
@@ -159,13 +156,12 @@ function App() {
 
     const renderAuthForms = () => (
         <div className="auth-wrapper">
-            <div className="auth-container-simple">
-                {authView === 'login' ? (
+             <div className="auth-container-simple">
+                 {authView === 'login' ? (
                     <div className="form-box-simple">
                         <h2>Login</h2>
                         <form onSubmit={handleLogin}>
-                           {/* Login Form Inputs */}
-                            <div className="input-box">
+                           <div className="input-box">
                                 <input type="tel" name="mobile" value={loginFormData.mobile} onChange={handleLoginInputChange} required autoComplete="tel"/>
                                 <label>Mobile Number</label>
                             </div>
@@ -183,7 +179,6 @@ function App() {
                     <div className="form-box-simple">
                         <h2>Register</h2>
                         <form onSubmit={handleRegister}>
-                            {/* Register Form Inputs */}
                              <div className="input-box">
                                 <input type="text" name="username" value={registerFormData.username} onChange={handleRegisterInputChange} required autoComplete="username"/>
                                 <label>Username</label>
@@ -226,14 +221,12 @@ function App() {
         switch (view) {
             case 'dashboard': return <UserDashboard onViewChange={setView} />;
             case 'plans': 
-                // ✅ --- THIS LOGIC IS UPDATED --- ✅
-                // Calculate the total balance from both wallets
                 const totalBalance = financialSummary 
                     ? parseFloat(financialSummary.balance) + parseFloat(financialSummary.withdrawable_wallet) 
                     : 0;
                 return <ProductsAndPlans
                     token={token}
-                    userBalance={totalBalance} // Pass the combined total balance
+                    userBalance={totalBalance}
                     onPurchaseComplete={() => fetchAllUserData(token)}
                  />;
             case 'game': return <GameView token={token} financialSummary={financialSummary} onViewChange={setView} onBetPlaced={() => fetchAllUserData(token)} />;
@@ -248,10 +241,8 @@ function App() {
             case 'withdraw': return <Withdrawal token={token} financialSummary={financialSummary} onBack={goBackToDashboard} onWithdrawalRequest={handleWithdrawalRequest} />;
             case 'promotions': return <Promotions onBack={goBackToDashboard} />;
             case 'bet-history': return <BetHistory token={token} onBack={goBackToAccount} />;
-         case 'transactions': return <TransactionHistory onBack={goBackToAccount} />;
+            case 'transactions': return <TransactionHistory onBack={goBackToAccount} />;
             default: return <UserDashboard onViewChange={setView} />;
-        }
-            
         }
     };
 
@@ -284,3 +275,4 @@ function App() {
 }
 
 export default App;
+
