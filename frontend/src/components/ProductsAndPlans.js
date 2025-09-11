@@ -169,11 +169,36 @@ const CountdownTimer = ({ targetDate }) => {
     );
 };
 
+// ✅ --- NEW COMPONENT FOR THE RESULT POP-UP ---
+const ResultModal = ({ result, onClose }) => {
+    if (!result.show) return null;
+
+    const isSuccess = result.success;
+    const title = isSuccess ? "Congratulations!" : "Purchase Failed";
+    const icon = isSuccess ? "✅" : "❌";
+
+    return (
+        <div className="purchase-result-modal-overlay">
+            <div className={`purchase-result-modal ${isSuccess ? 'success' : 'error'}`}>
+                <div className="modal-icon">{icon}</div>
+                <h2>{title}</h2>
+                <p>{result.message}</p>
+                <button className="modal-close-btn" onClick={onClose}>
+                    OK
+                </button>
+            </div>
+        </div>
+    );
+};
+
 
 function ProductsAndPlans({ token, onPlanPurchase,userBalance }) {
     const [activeCategory, setActiveCategory] = useState('New');
     const [loading, setLoading] = useState(false);
     const [confirmingPlanId, setConfirmingPlanId] = useState(null);
+// ✅ --- NEW STATE FOR THE RESULT POP-UP ---
+    const [resultModal, setResultModal] = useState({ show: false, success: false, message: '' });
+
 
     const handlePurchase = async (plan) => {
         setLoading(true);
@@ -190,17 +215,31 @@ function ProductsAndPlans({ token, onPlanPurchase,userBalance }) {
                     Authorization: `Bearer ${token}`
                 }
             });
-            console.log('Purchase successful:', response.data);
-            onPlanPurchase(); // Call the callback from App.js to show notification and refresh data
+            // ✅ --- Show SUCCESS pop-up ---
+            setResultModal({
+                show: true,
+                success: true,
+                message: `You have successfully invested in ${plan.name}.`
+            });
         } catch (error) {
-            console.error('Error purchasing plan:', error.response?.data?.error || error.message);
-            onPlanPurchase(error.response?.data?.error || 'Failed to purchase plan.'); // Pass error message
+            // ✅ --- Show ERROR pop-up ---
+            const errorMessage = error.response?.data?.error || 'An unknown error occurred.';
+            setResultModal({
+                show: true,
+                success: false,
+                message: errorMessage
+            });
         } finally {
             setLoading(false);
             setConfirmingPlanId(null);
         }
     };
-
+// ✅ --- NEW FUNCTION TO CLOSE THE POP-UP AND REFRESH DATA ---
+    const closeResultModalAndRefresh = () => {
+        setResultModal({ show: false, success: false, message: '' });
+        onPurchaseComplete(); // This function is passed from App.js to refresh all user data
+    };
+    
     const formatCurrency = (amount) => new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR" }).format(amount);
 
     return (
