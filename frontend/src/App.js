@@ -46,8 +46,8 @@ function App() {
         document.body.className = `${theme}-theme`;
     }, [theme]);
 
-    const showNotification = (message, type = 'info') => {
-        setNotification({ show: true, message, type });
+        const showSnackbarNotification = (message, type = 'info') => { // Renamed to match state
+        setSnackbarNotification({ show: true, message, type });
     };
 
     const handleLogout = useCallback(() => {
@@ -55,7 +55,7 @@ function App() {
         setToken(null);
         setUserData(null);
         setFinancialSummary(null);
-        setUserNotifications([]); // Clear notifications on logout
+        showSnackbarNotification('Your session is invalid. Please log in again.', 'error');
         setView('login');
         setAuthView('login');
     }, []);
@@ -299,17 +299,7 @@ const markNotificationAsRead = (id) => {
                             }
                         }}
                     />; 
-             case 'plans': return <ProductsAndPlans
-                                    token={token}
-                                    onPlanPurchase={(errorMessage) => {
-                                        if (errorMessage) {
-                                            showNotification(errorMessage, 'error');
-                                        } else {
-                                            showNotification('Plan purchased successfully!', 'success');
-                                            fetchAllUserData(token); // Refresh balance only on success
-                                        }
-                                    }}
-                                />;
+           
             case 'game': return <GameView token={token} financialSummary={financialSummary} onViewChange={setView} onBetPlaced={() => fetchAllUserData(token)} />;
             case 'news': return <NewsView />;
             case 'account': return <AccountView userData={userData} financialSummary={financialSummary} onLogout={handleLogout} onViewChange={setView} token={token}/>; // Pass onLogout
