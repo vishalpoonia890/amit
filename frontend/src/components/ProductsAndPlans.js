@@ -1,20 +1,47 @@
-
 import React, { useState, useEffect } from 'react';
 import './ProductsAndPlans.css';
-// Import all specific images
+import axios from 'axios';
 
-import axios from 'axios'; // Import axios
+// --- Import ALL individual product images ---
+// Make sure these paths are correct and all images exist in src/assets
+import product_101_Image from '../assets/101.png';
+import product_102_Image from '../assets/102.png';
+import product_103_Image from '../assets/103.png';
+import product_104_Image from '../assets/104.png';
+import product_105_Image from '../assets/105.png';
+
+import product_201_Image from '../assets/201.png';
+import product_202_Image from '../assets/202.png';
+import product_203_Image from '../assets/203.png';
+import product_204_Image from '../assets/204.png';
+import product_205_Image from '../assets/205.png';
+
+import product_301_Image from '../assets/301.png';
+import product_302_Image from '../assets/302.png';
+import product_303_Image from '../assets/303.png';
+import product_304_Image from '../assets/304.png';
+import product_305_Image from '../assets/305.png';
+
+import product_401_Image from '../assets/401.png';
+import product_402_Image from '../assets/402.png';
+import product_403_Image from '../assets/403.png';
+import product_404_Image from '../assets/404.png';
+import product_405_Image from '../assets/405.png';
+
+import product_501_Image from '../assets/501.png';
+import product_502_Image from '../assets/502.png';
+import product_503_Image from '../assets/503.png';
+import product_504_Image from '../assets/504.png';
+import product_505_Image from '../assets/505.png';
+
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com'; // Define API_BASE_URL
-
-
-
 
 // Category descriptions
 const categoryDescriptions = {
     'New': {
         title: "Explore Our Latest Investment Opportunities!",
         points: [
-            "You acquire a share in our newly launched, high-potential ventures.",
+            "You acquire a share in our newly launched, high-potential products.",
             "Your funds are invested in diverse, cutting-edge projects with rapid growth potential.",
             "Profits from these successful early-stage ventures are distributed among investors.",
             "Witness the power of innovation as your investment grows with emerging markets."
@@ -59,42 +86,42 @@ const categoryDescriptions = {
 };
 
 // --- MOCK DATA FOR PRODUCTS WITH PRE-SALE ---
-// NOTE: Sale start times are set in the future relative to the request time.
+// Each product now includes its specific imageUrl
 const mockPlans = {
     'New': [
-        { id: 101, name: 'Quantum Leap Fund', price: 480, dailyIncome: 75, durationDays: 10, totalReturn: 750, saleStartTime: '2025-09-14T20:00:00',image: '../assets/Code.png' },
-        { id: 102, name: 'Pioneer\'s Pack', price: 650, dailyIncome: 90, durationDays: 12, totalReturn: 1080, saleStartTime: '2025-09-13T10:00:00' ,image: '../assets/Code.png},
-        { id: 103, name: 'Venture Catalyst', price: 800, dailyIncome: 110, durationDays: 15, totalReturn: 1650, saleStartTime: '2025-09-19T15:30:00',image: '../assets/Code.png },
-        { id: 104, name: 'Growth Spark', price: 1000, dailyIncome: 130, durationDays: 15, totalReturn: 1950, saleStartTime: '2025-09-18T14:00:00',image: '../assets/Code.png },
-        { id: 105, name: 'Innovation Drive', price: 1200, dailyIncome: 150, durationDays: 18, totalReturn: 2700, saleStartTime: '2025-09-15T09:00:00',image: '../assets/Code.png },
+        { id: 101, name: 'Iphone 17', price: 480, dailyIncome: 75, durationDays: 10, totalReturn: 750, saleStartTime: '2025-09-14T20:00:00', imageUrl: product_101_Image },
+        { id: 102, name: 'Iphone 17 Air', price: 650, dailyIncome: 90, durationDays: 12, totalReturn: 1080, saleStartTime: '2025-09-13T10:00:00', imageUrl: product_102_Image },
+        { id: 103, name: 'Iphone 17 pro', price: 800, dailyIncome: 110, durationDays: 15, totalReturn: 1650, saleStartTime: '2025-09-19T15:30:00', imageUrl: product_103_Image },
+        { id: 104, name: 'Iphone 17 pro max', price: 2500, dailyIncome: 330, durationDays: 15, totalReturn: 4950, saleStartTime: '2025-09-18T14:00:00', imageUrl: product_104_Image },
+        { id: 105, name: 'All Iphone Models Combo', price: 5000, dailyIncome: 550, durationDays: 18, totalReturn: 9900, saleStartTime: '2025-09-15T09:00:00', imageUrl: product_105_Image },
     ],
     'Solar Energy': [
-        { id: 201, name: 'Sun Harvest 100', price: 1500, dailyIncome: 180, durationDays: 20, totalReturn: 3600 ,image: '../assets/Code.png},
-        { id: 202, name: 'EcoGrid Builder', price: 2500, dailyIncome: 280, durationDays: 25, totalReturn: 7000 ,image: '../assets/Code.png},
-        { id: 203, name: 'Radiant Returns', price: 3500, dailyIncome: 380, durationDays: 30, totalReturn: 11400 ,image: '../assets/Code.png},
-        { id: 204, name: 'Photovoltaic Fund', price: 5000, dailyIncome: 520, durationDays: 35, totalReturn: 18200 ,image: '../assets/Code.png},
-        { id: 205, name: 'Green Power Max', price: 7500, dailyIncome: 780, durationDays: 40, totalReturn: 31200 ,image: '../assets/Code.png},
+        { id: 201, name: 'Sun Harvest 100', price: 1500, dailyIncome: 180, durationDays: 20, totalReturn: 3600, imageUrl: product_201_Image },
+        { id: 202, name: 'EcoGrid Builder', price: 2500, dailyIncome: 280, durationDays: 25, totalReturn: 7000, imageUrl: product_202_Image },
+        { id: 203, name: 'Radiant Returns', price: 3500, dailyIncome: 380, durationDays: 30, totalReturn: 11400, imageUrl: product_203_Image },
+        { id: 204, name: 'Photovoltaic Fund', price: 5000, dailyIncome: 520, durationDays: 35, totalReturn: 18200, imageUrl: product_204_Image },
+        { id: 205, name: 'Green Power Max', price: 7500, dailyIncome: 780, durationDays: 40, totalReturn: 31200, imageUrl: product_205_Image },
     ],
     'Wind Mill': [
-        { id: 301, name: 'AeroBlade Advantage', price: 10000, dailyIncome: 1100, durationDays: 45, totalReturn: 49500 ,image: '../assets/Code.png},
-        { id: 302, name: 'Zephyr Yield', price: 15000, dailyIncome: 1600, durationDays: 45, totalReturn: 72000,image: '../assets/Code.png },
-        { id: 303, name: 'Windfarm Wealth', price: 25000, dailyIncome: 2700, durationDays: 50, totalReturn: 135000 ,image: '../assets/Code.png},
-        { id: 304, name: 'Turbine Trust', price: 35000, dailyIncome: 3800, durationDays: 50, totalReturn: 190000 ,image: '../assets/Code.png},
-        { id: 305, name: 'Gale Force Fund', price: 45000, dailyIncome: 4900, durationDays: 55, totalReturn: 269500,image: '../assets/Code.png },
+        { id: 301, name: 'AeroBlade Advantage', price: 10000, dailyIncome: 1100, durationDays: 45, totalReturn: 49500, imageUrl: product_301_Image },
+        { id: 302, name: 'Zephyr Yield', price: 15000, dailyIncome: 1600, durationDays: 45, totalReturn: 72000, imageUrl: product_302_Image },
+        { id: 303, name: 'Windfarm Wealth', price: 25000, dailyIncome: 2700, durationDays: 50, totalReturn: 135000, imageUrl: product_303_Image },
+        { id: 304, name: 'Turbine Trust', price: 35000, dailyIncome: 3800, durationDays: 50, totalReturn: 190000, imageUrl: product_304_Image },
+        { id: 305, name: 'Gale Force Fund', price: 45000, dailyIncome: 4900, durationDays: 55, totalReturn: 269500, imageUrl: product_305_Image },
     ],
     'Crypto Mining': [
-        { id: 401, name: 'Hash Rate Pro', price: 50000, dailyIncome: 5500, durationDays: 60, totalReturn: 330000 ,image: '../assets/Code.png},
-        { id: 402, name: 'Block Reward Boost', price: 75000, dailyIncome: 8000, durationDays: 60, totalReturn: 480000 ,image: '../assets/Code.png},
-        { id: 403, name: 'Digital Fortune Miner', price: 100000, dailyIncome: 11000, durationDays: 60, totalReturn: 660000 ,image: '../assets/Code.png},
-        { id: 404, name: 'Blockchain Baron', price: 150000, dailyIncome: 17000, durationDays: 65, totalReturn: 1105000 ,image: '../assets/Code.png},
-        { id: 405, name: 'Satoshi\'s Secret', price: 200000, dailyIncome: 23000, durationDays: 70, totalReturn: 1610000 ,image: '../assets/Code.png},
+        { id: 401, name: 'Hash Rate Pro', price: 50000, dailyIncome: 5500, durationDays: 60, totalReturn: 330000, imageUrl: product_401_Image },
+        { id: 402, name: 'Block Reward Boost', price: 75000, dailyIncome: 8000, durationDays: 60, totalReturn: 480000, imageUrl: product_402_Image },
+        { id: 403, name: 'Digital Fortune Miner', price: 100000, dailyIncome: 11000, durationDays: 60, totalReturn: 660000, imageUrl: product_403_Image },
+        { id: 404, name: 'Blockchain Baron', price: 150000, dailyIncome: 17000, durationDays: 65, totalReturn: 1105000, imageUrl: product_404_Image },
+        { id: 405, name: 'Satoshi\'s Secret', price: 200000, dailyIncome: 23000, durationDays: 70, totalReturn: 1610000, imageUrl: product_405_Image },
     ],
-    'Seaport': [ // New Seaport category
-        { id: 501, name: 'Cargo Clearance Basic', price: 800, dailyIncome: 100, durationDays: 10, totalReturn: 1000, saleStartTime: '2025-10-01T09:00:00',image: '../assets/Code.png },
-        { id: 502, name: 'Logistics Link Pro', price: 1500, dailyIncome: 180, durationDays: 15, totalReturn: 2700 ,image: '../assets/Code.png},
-        { id: 503, name: 'Customs Navigator', price: 2500, dailyIncome: 280, durationDays: 20, totalReturn: 5600 ,image: '../assets/Code.png},
-        { id: 504, name: 'Global Trade Accelerator', price: 4000, dailyIncome: 450, durationDays: 25, totalReturn: 11250 ,image: '../assets/Code.png},
-        { id: 505, name: 'Port Authority Platinum', price: 6000, dailyIncome: 650, durationDays: 30, totalReturn: 19500 ,image: '../assets/Code.png},
+    'Seaport': [
+        { id: 501, name: 'Cargo Clearance Basic', price: 800, dailyIncome: 100, durationDays: 10, totalReturn: 1000, saleStartTime: '2025-10-01T09:00:00', imageUrl: product_501_Image },
+        { id: 502, name: 'Logistics Link Pro', price: 1500, dailyIncome: 180, durationDays: 15, totalReturn: 2700, imageUrl: product_502_Image },
+        { id: 503, name: 'Customs Navigator', price: 2500, dailyIncome: 280, durationDays: 20, totalReturn: 5600, imageUrl: product_503_Image },
+        { id: 504, name: 'Global Trade Accelerator', price: 4000, dailyIncome: 450, durationDays: 25, totalReturn: 11250, imageUrl: product_504_Image },
+        { id: 505, name: 'Port Authority Platinum', price: 6000, dailyIncome: 650, durationDays: 30, totalReturn: 19500, imageUrl: product_505_Image },
     ]
 };
 
@@ -167,7 +194,6 @@ function ProductsAndPlans({ token, onPlanPurchase }) {
             onPlanPurchase(); // Call the callback from App.js to show notification and refresh data
         } catch (error) {
             console.error('Error purchasing plan:', error.response?.data?.error || error.message);
-            // You might want to pass an error message back to App.js or show it here
             onPlanPurchase(error.response?.data?.error || 'Failed to purchase plan.'); // Pass error message
         } finally {
             setLoading(false);
@@ -209,7 +235,8 @@ function ProductsAndPlans({ token, onPlanPurchase }) {
                     return (
                         <div key={plan.id} className="plan-card">
                             <div className="plan-image-container">
-                                <img src={categoryImages[activeCategory]} alt={plan.name} className="plan-image" />
+                                {/* Use plan.imageUrl directly from the product object */}
+                                <img src={plan.imageUrl} alt={plan.name} className="plan-image" />
                                 {isPreSale && <div className="presale-badge">Pre-Sale</div>}
                             </div>
                             <div className="plan-card-body">
