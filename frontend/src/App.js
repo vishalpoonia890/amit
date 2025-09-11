@@ -17,6 +17,7 @@ import GameView from './components/GameView';
 import Deposit from './components/Deposit';
 import Withdrawal from './components/Withdrawal';
 import BetHistory from './components/BetHistory';
+import NotificationsDialog from './components/NotificationsDialog'; // New: Notifications Dialog component
 
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
 function App() {
@@ -26,10 +27,14 @@ function App() {
     const [userData, setUserData] = useState(null);
     const [financialSummary, setFinancialSummary] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [notification, setNotification] = useState({ show: false, message: '', type: 'info' });
+   const [snackbarNotification, setSnackbarNotification] = useState({ show: false, message: '', type: 'info' }); // Renamed to avoid conflict
     const [loginFormData, setLoginFormData] = useState({ mobile: '', password: '' });
     const [registerFormData, setRegisterFormData] = useState({ username: '', mobile: '', password: '', confirmPassword: '', referralCode: '' });
     const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
+
+    // New: State for user-specific notifications
+    const [userNotifications, setUserNotifications] = useState([]);
+    const [showNotificationsDialog, setShowNotificationsDialog] = useState(false);
 
     const toggleTheme = () => {
         const newTheme = theme === 'light' ? 'dark' : 'light';
@@ -50,6 +55,7 @@ function App() {
         setToken(null);
         setUserData(null);
         setFinancialSummary(null);
+        setUserNotifications([]); // Clear notifications on logout
         setView('login');
         setAuthView('login');
     }, []);
@@ -57,16 +63,18 @@ function App() {
     const fetchAllUserData = useCallback(async (authToken) => {
         if (!authToken) return;
         try {
-            const [dataRes, summaryRes] = await Promise.all([
+            const [dataRes, summaryRes, notificationsRes] = await Promise.all([
                 axios.get(`${API_BASE_URL}/api/data`, { headers: { Authorization: `Bearer ${authToken}` } }),
                 axios.get(`${API_BASE_URL}/api/financial-summary`, { headers: { Authorization: `Bearer ${authToken}` } })
+                axios.get(`${API_BASE_URL}/api/notifications`, { headers: { Authorization: `Bearer ${authToken}` } }) // Fetch notifications
             ]);
             setUserData(dataRes.data.user);
             setFinancialSummary(summaryRes.data);
+            setUserNotifications(notificationsRes.data.notifications.map(n => ({ ...n, read: false }))); // Initialize as unread
         } catch (err) {
             console.error("Failed to fetch user data, likely an invalid session:", err);
             if (err.response?.status === 401 || err.response?.status === 403 || err.response?.status === 404) {
-                showNotification('Your session is invalid. Please log in again.', 'error');
+                showSnackbarNotification('Your session is invalid. Please log in again.', 'error');
                 handleLogout();
             }
         }
@@ -96,7 +104,57 @@ function App() {
             return () => clearInterval(interval);
         }
     }, [token, fetchAllUserData]);
+    
+// New: Function to add a notification
+    const addNotification = useCallback((message, type = 'info') => {
+        const newNotification = {
+            id: Date.now(), // Simple unique ID
+            message: message,
+            type: type, // 'deposit', 'withdrawal', 'purchase', 'bonus'
+            timestamp: new Date().toISOString(),
+            read: false,
+        };
+        setUserNotifications(prev => [newNotification, ...prev]);
+    }, []);
 
+    // New: Handle plan purchase notification
+    const handlePlanPurchase = useCallback((errorMessage) => {
+        if (errorMessage) {
+            showSnackbarNotification(errorMessage, 'error');
+        } else {
+            showSnackbarNotification('Plan purchased successfully!', 'success');
+            addNotification('Product purchased successfully!', 'purchase'); // Add specific notification
+            fetchAllUserData(token); // Refresh balance only on success
+        }
+    }, [addNotification, fetchAllUserData, showSnackbarNotification, token]);
+
+    // New: Handle deposit/withdrawal request/approval notifications
+    const handleDepositRequest = useCallback((amount) => {
+        addNotification(`₹${amount.toLocaleString()} deposit requested. Awaiting admin approval.`, 'deposit');
+    }, [addNotification]);
+
+    const handleWithdrawalRequest = useCallback((amount) => {
+        addNotification(`₹${amount.toLocaleString()} withdrawal requested.`, 'withdrawal');
+    }, [addNotification]);
+
+ // Placeholder for admin actions (you'd call these from your admin panel or backend webhook)
+    const handleAdminDepositApproved = useCallback((amount) => {
+        addNotification(`₹${amount.toLocaleString()} has been deposited.`, 'deposit_approved');
+    }, [addNotification]);
+
+    const handleAdminWithdrawalApproved = useCallback((amount) => {
+        addNotification(`₹${amount.toLocaleString()} has been withdrawn.`, 'withdrawal_approved');
+    }, [addNotification]);
+
+    const handleAdminBonusSent = useCallback((amount) => {
+        addNotification(`Special bonus of ₹${amount.toLocaleString()} received!`, 'bonus');
+    }, [addNotification]);
+
+    const handleAdminDailyIncome = useCallback((amount) => {
+        addNotification(`Admin sent ₹${amount.toLocaleString()} daily income.`, 'income');
+    }, [addNotification]);
+
+    
     const handleLoginInputChange = (e) => setLoginFormData({ ...loginFormData, [e.target.name]: e.target.value });
     const handleRegisterInputChange = (e) => setRegisterFormData({ ...registerFormData, [e.target.name]: e.target.value });
 
@@ -110,10 +168,10 @@ function App() {
             setToken(newToken);
             await fetchAllUserData(newToken);
             setView('dashboard');
-            showNotification('Login successful!', 'success');
+            showSnackbarNotification('Login successful!', 'success');
         } catch (err) {
             const errorMessage = err.response?.data?.error || "Login failed.";
-            showNotification(errorMessage, 'error');
+            showSnackbarNotification(errorMessage, 'error');
         } finally {
             setLoading(false);
         }
@@ -123,7 +181,7 @@ function App() {
         e.preventDefault();
         setLoading(true);
         if (registerFormData.password !== registerFormData.confirmPassword) {
-            showNotification("Passwords do not match.", 'error');
+            showSnackbarNotification("Passwords do not match.", 'error');
             setLoading(false);
             return;
         }
@@ -134,14 +192,34 @@ function App() {
             setToken(newToken);
             await fetchAllUserData(newToken);
             setView('dashboard');
-            showNotification('Registration successful!', 'success');
+            showSnackbarNotification('Registration successful!', 'success');
         } catch (err) {
             const errorMessage = err.response?.data?.error || "Registration failed.";
-            showNotification(errorMessage, 'error');
+            showSnackbarNotification(errorMessage, 'error');
         } finally {
             setLoading(false);
         }
     };
+const markNotificationAsRead = (id) => {
+        setUserNotifications(prev => 
+            prev.map(notification => 
+                notification.id === id ? { ...notification, read: true } : notification
+            )
+        );
+        // In a real app, you'd send an API call to mark as read on the backend
+    };
+
+    const markAllNotificationsAsRead = () => {
+        setUserNotifications(prev => prev.map(notification => ({ ...notification, read: true })));
+        // In a real app, you'd send an API call to mark all as read on the backend
+    };
+
+    const deleteReadNotifications = () => {
+        setUserNotifications(prev => prev.filter(notification => !notification.read));
+    };
+
+    const unreadNotificationCount = userNotifications.filter(n => !n.read).length;
+
 
     const renderAuthForms = () => (
         <div className="auth-wrapper">
@@ -234,15 +312,14 @@ function App() {
                                 />;
             case 'game': return <GameView token={token} financialSummary={financialSummary} onViewChange={setView} onBetPlaced={() => fetchAllUserData(token)} />;
             case 'news': return <NewsView />;
-            case 'account': return <AccountView userData={userData} financialSummary={financialSummary} onLogout={handleLogout} onViewChange={setView} token={token}/>;
+            case 'account': return <AccountView userData={userData} financialSummary={financialSummary} onLogout={handleLogout} onViewChange={setView} token={token}/>; // Pass onLogout
             case 'rewards': return <Rewards onBack={goBackToDashboard} />;
             case 'invite': return <Team token={token} onBack={goBackToDashboard} />;
             case 'team': return <Team token={token} onBack={goBackToDashboard} />;
             case 'support': return <Support onBack={goBackToDashboard} />;
             case 'wallet': return <Wallet financialSummary={financialSummary} onBack={goBackToDashboard} />;
-            case 'deposit': return <Deposit token={token} onBack={goBackToDashboard} />;
-            case 'withdraw': return <Withdrawal token={token} financialSummary={financialSummary} onBack={goBackToDashboard} />;
-            case 'promotions': return <Promotions onBack={goBackToDashboard} />;
+           case 'deposit': return <Deposit token={token} onBack={goBackToDashboard} onDepositRequest={handleDepositRequest} />; // Pass deposit notification handler
+            case 'withdraw': return <Withdrawal token={token} financialSummary={financialSummary} onBack={goBackToDashboard} onWithdrawalRequest={handleWithdrawalRequest} />; // Pass withdrawal notification handler            case 'promotions': return <Promotions onBack={goBackToDashboard} />;
             case 'bet-history': return <BetHistory token={token} onBack={goBackToAccount} />;
             default: return <UserDashboard onViewChange={setView} />;
         }
