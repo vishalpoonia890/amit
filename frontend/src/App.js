@@ -209,13 +209,18 @@ function App() {
 
         switch (view) {
             case 'dashboard': return <UserDashboard onViewChange={setView} />;
-            case 'plans': return <ProductsAndPlans 
-                                    token={token} 
-                                    onPlanPurchase={() => { 
-                                        showNotification('Plan purchased successfully!', 'success'); 
-                                        fetchAllUserData(token); // Refresh balance
-                                    }} 
-                                />;    
+            case 'plans': return <ProductsAndPlans
+                        token={token}
+                        userBalance={financialSummary?.balance} // Pass the user's balance here
+                        onPlanPurchase={(errorMessage) => {
+                            if (errorMessage) {
+                                showNotification(errorMessage, 'error');
+                            } else {
+                                showNotification('Plan purchased successfully!', 'success');
+                                fetchAllUserData(token); // Refresh balance only on success
+                            }
+                        }}
+                    />; 
              case 'plans': return <ProductsAndPlans
                                     token={token}
                                     onPlanPurchase={(errorMessage) => {
