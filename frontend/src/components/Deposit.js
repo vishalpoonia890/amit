@@ -7,7 +7,7 @@ const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
 
 const USDT_TO_INR_RATE = 92;
 
-function Deposit({ token, onBack }) {
+function Deposit({ token, onBack,onDepositRequest }) {
     const [inputAmount, setInputAmount] = useState(500);
     const [utr, setUtr] = useState('');
     const [method, setMethod] = useState('upi');
@@ -33,6 +33,7 @@ function Deposit({ token, onBack }) {
                 { amount: finalInrAmount, utr: utr.trim() },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
+            onDepositRequest(depositAmount);
             setShowSuccess(true);
             setTimeout(() => onBack(), 2500);
         } catch (error) {
