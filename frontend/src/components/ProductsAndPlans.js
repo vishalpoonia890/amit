@@ -195,10 +195,21 @@ function ProductsAndPlans({ token, userBalance, onPurchaseComplete }) {
     const handlePurchase = async (plan) => {
         setLoading(true);
         try {
-            await axios.post(`${API_BASE_URL}/api/purchase-plan`,
-                { ...plan },
+            // We now send a clean, explicit object to the server.
+            // This ensures the backend receives exactly what it needs.
+            const purchasePayload = {
+                id: plan.id,
+                price: plan.price,
+                name: plan.name,
+                durationDays: plan.durationDays
+            };
+            
+            await axios.post(
+                `${API_BASE_URL}/api/purchase-plan`,
+                purchasePayload, // Send the explicit payload
                 { headers: { Authorization: `Bearer ${token}` } }
             );
+
             setResultModal({
                 show: true,
                 success: true,
