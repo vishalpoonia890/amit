@@ -1,14 +1,6 @@
 import React, { useState } from 'react';
 import './NotificationsDialog.css';
 
-// --- Helper: Icon Component (can be shared across components) ---
-const Icon = ({ path, className = "w-6 h-6" }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
-        <path strokeLinecap="round" strokeLinejoin="round" d={path} />
-    </svg>
-);
-
-
 function NotificationsDialog({ userNotifications, promotions, onClose, onMarkAsRead, onDeleteRead }) {
     const [activeTab, setActiveTab] = useState('notifications');
 
@@ -16,6 +8,17 @@ function NotificationsDialog({ userNotifications, promotions, onClose, onMarkAsR
         const unreadIds = userNotifications.filter(n => !n.is_read).map(n => n.id);
         if (unreadIds.length > 0) {
             onMarkAsRead(unreadIds);
+        }
+    };
+
+    const getIconForType = (type) => {
+        switch (type) {
+            case 'deposit': return '💰';
+            case 'withdrawal': return '💸';
+            case 'bonus': return '🎁';
+            case 'status_change': return '⚠️';
+            case 'welcome': return '👋';
+            default: return '🔔';
         }
     };
 
@@ -49,11 +52,7 @@ function NotificationsDialog({ userNotifications, promotions, onClose, onMarkAsR
                                 userNotifications.map(notif => (
                                     <div key={notif.id} className={`notification-item ${!notif.is_read ? 'unread' : ''}`}>
                                         <div className="notification-icon">
-                                            {notif.type === 'deposit' && '💰'}
-                                            {notif.type === 'withdrawal' && '💸'}
-                                            {notif.type === 'bonus' && '🎁'}
-                                            {notif.type === 'status_change' && '⚠️'}
-                                            {notif.type !== 'deposit' && notif.type !== 'withdrawal' && notif.type !== 'bonus' && notif.type !== 'status_change' && '🔔'}
+                                            {getIconForType(notif.type)}
                                         </div>
                                         <div className="notification-text">
                                             <p>{notif.message}</p>
