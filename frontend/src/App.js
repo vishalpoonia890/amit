@@ -18,6 +18,7 @@ import Deposit from './components/Deposit';
 import Withdrawal from './components/Withdrawal';
 import BetHistory from './components/BetHistory';
 import TransactionHistory from './components/TransactionHistory';
+import NotificationsDialog from './components/NotificationsDialog'; // Import the new component
 
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
 
@@ -33,6 +34,10 @@ function App() {
     const [registerFormData, setRegisterFormData] = useState({ username: '', mobile: '', password: '', confirmPassword: '', referralCode: '' });
     const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
     const [allPlans, setAllPlans] = useState([]);
+// --- New State for Notifications ---
+    const [userNotifications, setUserNotifications] = useState([]);
+    const [promotions, setPromotions] = useState([]);
+    const [showNotificationsDialog, setShowNotificationsDialog] = useState(false);
 
     const toggleTheme = () => {
         const newTheme = theme === 'light' ? 'dark' : 'light';
@@ -48,6 +53,26 @@ function App() {
     const showSnackbar = (message, type = 'info') => {
         setSnackbarNotification({ show: true, message, type });
     };
+// --- Notification Handlers ---
+    const handleMarkAsRead = async (ids) => {
+        try {
+            await axios.post(`${API_BASE_URL}/api/notifications/read`, { ids }, { headers: { Authorization: `Bearer ${token}` } });
+            setUserNotifications(prev => prev.map(n => ids.includes(n.id) ? { ...n, is_read: true } : n));
+        } catch (error) {
+            console.error("Failed to mark notifications as read:", error);
+        }
+    };
+
+    const handleDeleteRead = async () => {
+        try {
+            await axios.post(`${API_BASE_URL}/api/notifications/delete-read`, {}, { headers: { Authorization: `Bearer ${token}` } });
+            setUserNotifications(prev => prev.filter(n => !n.is_read));
+        } catch (error) {
+            console.error("Failed to delete read notifications:", error);
+        }
+    };
+
+    const unreadCount = userNotifications.filter(n => !n.is_read).length;
 
     const handleLogout = useCallback(() => {
         localStorage.removeItem('token');
