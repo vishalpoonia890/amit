@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './NotificationsDia.css'
+import './NotificationsDialog.css'
 
 function NotificationsDialog({ userNotifications, promotions, onClose, onMarkAsRead, onDeleteRead }) {
     const [activeTab, setActiveTab] = useState('notifications');
