@@ -1,50 +1,59 @@
-/* --- GLOBAL STYLES & NEW THEME --- */
+/* Pinkish-Orangish Theme
+  To apply this theme, import this file into your `src/index.js` file:
+  import './index.css';
+*/
+
+:root {
+  /* --- Primary Colors --- */
+  --primary-color: #FF6B6B; /* A vibrant coral pink/red */
+  --primary-color-dark: #F06161;
+  --primary-color-light: #FFD1D1; /* A very light, soft pink */
+  
+  /* --- Secondary / Accent Colors --- */
+  --secondary-color: #FFA07A; /* Light Salmon / Orangish */
+  --secondary-color-light: #FFDAB9; /* Peach Puff */
+
+  /* --- Text Colors --- */
+  --text-color: #333333; /* Dark gray for main text */
+  --text-color-light: #6c757d; /* Lighter gray for subtitles */
+
+  /* --- Background Colors --- */
+  --bg-color: #FFF8F7; /* A very light, warm off-white */
+  --card-bg-color: #FFFFFF;
+  
+  /* --- Status Colors --- */
+  --success-color: #28a745;
+  --error-color: #dc3545;
+  --warning-color: #ffc107;
+  
+  /* --- Borders and Shadows --- */
+  --border-color: #FFE4E1; /* Misty Rose */
+  --card-shadow: 0 4px 15px rgba(255, 107, 107, 0.1);
+}
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-:root {
-  /* Define the core color palette */
-  --primary-color: #FF6B6B; /* Vibrant Coral/Salmon */
-  --primary-color-dark: #E95B5B;
-  --primary-color-light: rgba(255, 107, 107, 0.15);
-
-  --secondary-color: #FFD166; /* Warm Yellow/Gold */
-  --secondary-color-light: rgba(255, 209, 102, 0.15);
-  
-  --success-color: #4CAF50; /* Green for success messages */
-  --error-color: #F44336; /* Red for errors */
-  
-  --card-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-}
-
-/* Light Theme Variables */
-.light-theme {
-  --bg-color: #FFF9F0; /* Very light peach */
-  --card-bg-color: #FFFFFF;
-  --text-color: #3D3D3D;
-  --text-color-light: #6E6E6E;
-  --border-color: #F0E5D1;
-}
-
-/* Dark Theme Variables */
-.dark-theme {
-  --bg-color: #2A2A2A; /* Dark warm grey */
-  --card-bg-color: #3D3D3D;
-  --text-color: #F5F5F5;
-  --text-color-light: #B0B0B0;
-  --border-color: #505050;
-}
-
-/* Apply the theme to the body */
-body {
   background-color: var(--bg-color);
   color: var(--text-color);
 }
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* --- Global Link Style --- */
+a {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
