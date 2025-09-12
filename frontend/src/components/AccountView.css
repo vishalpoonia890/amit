@@ -56,7 +56,7 @@
     border-radius: 20px;
     font-weight: 600;
     font-size: 0.8em;
-    text-transform: uppercase;
+    text-transform: capitalize;
 }
 
 .status-badge.status-active {
@@ -71,7 +71,6 @@
     background-color: rgba(244, 67, 54, 0.2);
     color: #F44336;
 }
-
 
 .earnings-card {
     background: linear-gradient(45deg, var(--primary-color), var(--primary-color-dark));
@@ -115,7 +114,6 @@
     transform: none;
 }
 
-
 .financial-grid-card {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -143,7 +141,6 @@
     font-weight: 600;
     color: var(--text-color);
 }
-
 
 .action-buttons {
     display: grid;
@@ -195,9 +192,34 @@
 .my-products-card li:last-child {
     border-bottom: none;
 }
-.my-products-card .product-details {
+.product-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.product-info span {
+    text-transform: capitalize;
+}
+.product-details {
     font-size: 0.8em;
     color: var(--text-color-light);
+}
+.product-income {
+    text-align: right;
+}
+.product-income span {
+    font-size: 0.8em;
+    color: var(--text-color-light);
+    display: block;
+}
+.product-income strong {
+    font-size: 1.1em;
+    color: var(--success-color);
+}
+.no-products {
+    text-align: center;
+    color: var(--text-color-light);
+    font-style: italic;
 }
 
 .account-option-item {
@@ -228,7 +250,6 @@
     font-size: 1.2em;
     color: var(--text-color-light);
 }
-
 
 .logout-section {
     margin-top: 30px;
