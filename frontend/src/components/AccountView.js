@@ -39,7 +39,7 @@ function AccountView({ userData, financialSummary, onLogout, onViewChange, token
                 headers: { Authorization: `Bearer ${token}` }
             });
             alert(response.data.message);
-            // The main App component will auto-refresh the balance shortly
+            // NOTE: The balance will auto-refresh from the main App component's interval fetch
         } catch (error) {
             alert(error.response?.data?.error || 'Failed to claim income.');
         } finally {
@@ -47,19 +47,16 @@ function AccountView({ userData, financialSummary, onLogout, onViewChange, token
         }
     };
 
-    const user = userData || { name: 'User', ip_username: 'N/A', status: 'Active' };
+    const user = userData || { name: 'User', ip_username: 'N/A', status: 'active' };
     const financials = financialSummary ? {
         todays_earnings: financialSummary.todaysIncome || 0,
         withdrawable: financialSummary.withdrawable_wallet || 0,
         total_balance: (financialSummary.balance || 0) + (financialSummary.withdrawable_wallet || 0)
     } : { todays_earnings: 0, withdrawable: 0, total_balance: 0 };
 
-    const avatarUrl = user.avatar_url || `https://placehold.co/150x150/FF6B6B/FFFFFF?text=${user.name?.[0]?.toUpperCase() || 'U'}`;
+    const avatarUrl = user.avatar_url || `https://placehold.co/150x150/007bff/FFFFFF?text=${user.name?.[0]?.toUpperCase() || 'U'}`;
     const canClaim = financials.todays_earnings > 0;
-
-    const statusText = user.status ? user.status.replace('-', ' ') : 'Active';
-    const statusClass = `status-badge status-${user.status ? user.status.toLowerCase().replace(' ', '-') : 'active'}`;
-
+    const status = user.status || 'active'; // Fallback for safety
 
     return (
         <div className="account-view">
@@ -70,8 +67,8 @@ function AccountView({ userData, financialSummary, onLogout, onViewChange, token
                     <p className="user-details">ID: {user.ip_username}</p>
                     <div className="user-status-wrapper">
                         Account Status: 
-                        <span className={statusClass}>
-                            {statusText}
+                        <span className={`status-badge status-${status.replace(' ', '-').toLowerCase()}`}>
+                            {status.charAt(0).toUpperCase() + status.slice(1)}
                         </span>
                     </div>
                 </div>
@@ -108,7 +105,7 @@ function AccountView({ userData, financialSummary, onLogout, onViewChange, token
             </div>
 
             <div className="account-options-card">
-                <button className="account-option-item" onClick={() => onViewChange('transactions')}>
+                 <button className="account-option-item" onClick={() => onViewChange('transactions')}>
                     <span className="icon">📜</span>
                     <span className="label">Transaction History</span>
                     <span className="arrow-icon">&gt;</span>
@@ -121,20 +118,26 @@ function AccountView({ userData, financialSummary, onLogout, onViewChange, token
             </div>
 
              <div className="my-products-card">
-                <h4>My Products</h4>
-                <ul>
+                 <h4>My Products</h4>
+                 <ul>
                      {userInvestments.length > 0 ? (
                          userInvestments.map(product => (
                              <li key={product.id}>
-                                 <span>{product.plan_name} ({product.status})</span>
-                                 <span className="product-details">Ends in {product.days_left} days</span>
+                                 <div className="product-info">
+                                     <span>{product.plan_name} ({product.status})</span>
+                                     <span className="product-details">Ends in {product.days_left} days</span>
+                                 </div>
+                                 <div className="product-income">
+                                     <span>Daily Income</span>
+                                     <strong>{formatCurrency(product.daily_income)}</strong>
+                                 </div>
                              </li>
                          ))
                      ) : (
                          <li className="no-products">You have no active products.</li>
                      )}
-                </ul>
-            </div>
+                 </ul>
+             </div>
 
              <div className="logout-section">
                 <button className="logout-btn-styled" onClick={onLogout}>
