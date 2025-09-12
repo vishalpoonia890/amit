@@ -1,157 +1,303 @@
-import './AccountView.css';
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
+import './AdminPanel.css';
 
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
 
+// --- Helper Components ---
+
 const formatCurrency = (amount) => {
+    if (typeof amount !== 'number') amount = 0;
     return new Intl.NumberFormat("en-IN", {
         style: "currency",
         currency: "INR",
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-    }).format(amount || 0);
+        maximumFractionDigits: 2
+    }).format(amount);
 };
 
-function AccountView({ userData, financialSummary, onLogout, onViewChange, token }) {
-    const [userInvestments, setUserInvestments] = useState([]);
-    const [isClaiming, setIsClaiming] = useState(false);
-    
+const CooldownTimer = ({ targetDate }) => {
+    const calculateTimeLeft = useCallback(() => {
+        if (!targetDate) return 'Loading...';
+        const difference = +new Date(targetDate) - +new Date();
+        if (difference <= 0) return 'Ready Now';
+
+        const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
+        const minutes = Math.floor((difference / 1000 / 60) % 60);
+        const seconds = Math.floor((difference / 1000) % 60);
+
+        return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    }, [targetDate]);
+
+    const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
+
     useEffect(() => {
-        const fetchInvestments = async () => {
-            if (!token) return;
-            try {
-                const response = await axios.get(`${API_BASE_URL}/api/investments`, {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
-                setUserInvestments(response.data.investments || []);
-            } catch (error) {
-                console.error("Failed to fetch user investments:", error);
-            }
-        };
-        fetchInvestments();
+        const timer = setInterval(() => setTimeLeft(calculateTimeLeft()), 1000);
+        return () => clearInterval(timer);
+    }, [calculateTimeLeft]);
+
+    return <span>{timeLeft}</span>;
+};
+
+// --- Main Admin Panel Component ---
+
+function AdminPanel({ token }) {
+    // --- State Management ---
+    const [pendingDeposits, setPendingDeposits] = useState([]);
+    const [pendingWithdrawals, setPendingWithdrawals] = useState([]);
+    const [gameStatus, setGameStatus] = useState({ is_on: false, mode: 'auto', payout_priority: 'admin' });
+    const [gameStats, setGameStats] = useState({ total: {}, today: {}, currentPeriod: {} });
+    const [currentBets, setCurrentBets] = useState({});
+    const [outcomeAnalysis, setOutcomeAnalysis] = useState({ mostProfitable: [], leastProfitable: [] });
+    const [nextResult, setNextResult] = useState('');
+    const [incomeStatus, setIncomeStatus] = useState({ canDistribute: false, nextDistributionTime: null });
+    const [customUserId, setCustomUserId] = useState('');
+    const [userStatusId, setUserStatusId] = useState('');
+    const [newStatus, setNewStatus] = useState('active');
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+
+    // --- Data Fetching ---
+    const fetchData = useCallback(async (isInitialLoad = false) => {
+        if (isInitialLoad) setLoading(true);
+        setError('');
+        try {
+            const [depositsRes, withdrawalsRes, gameStatusRes, statsRes, betsRes, analysisRes, incomeRes] = await Promise.all([
+                axios.get(`${API_BASE_URL}/api/admin/recharges/pending`, { headers: { Authorization: `Bearer ${token}` } }),
+                axios.get(`${API_BASE_URL}/api/admin/withdrawals/pending`, { headers: { Authorization: `Bearer ${token}` } }),
+                axios.get(`${API_BASE_URL}/api/admin/game-status`, { headers: { Authorization: `Bearer ${token}` } }),
+                axios.get(`${API_BASE_URL}/api/admin/game-statistics`, { headers: { Authorization: `Bearer ${token}` } }),
+                axios.get(`${API_BASE_URL}/api/admin/current-bets`, { headers: { Authorization: `Bearer ${token}` } }),
+                axios.get(`${API_BASE_URL}/api/admin/game-outcome-analysis`, { headers: { Authorization: `Bearer ${token}` } }),
+                axios.get(`${API_BASE_URL}/api/admin/income-status`, { headers: { Authorization: `Bearer ${token}` } })
+            ]);
+            setPendingDeposits(depositsRes.data.recharges || []);
+            setPendingWithdrawals(withdrawalsRes.data.withdrawals || []);
+            setGameStatus(gameStatusRes.data.status || { is_on: false, mode: 'auto', payout_priority: 'admin' });
+            setGameStats(statsRes.data || { total: {}, today: {}, currentPeriod: {} });
+            setCurrentBets(betsRes.data.summary || {});
+            setOutcomeAnalysis(analysisRes.data || { mostProfitable: [], leastProfitable: [] });
+            setIncomeStatus(incomeRes.data);
+        } catch (err) {
+            if (isInitialLoad) setError('Failed to fetch admin data. Auto-refresh paused.');
+            console.error(err);
+        } finally {
+            if (isInitialLoad) setLoading(false);
+        }
     }, [token]);
 
-    const handleClaimIncome = async () => {
-        setIsClaiming(true);
-        try {
-            const response = await axios.post(`${API_BASE_URL}/api/claim-income`, {}, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            alert(response.data.message);
-            // The main App component will handle refreshing the financial summary automatically.
-        } catch (error) {
-            alert(error.response?.data?.error || 'Failed to claim income.');
-        } finally {
-            setIsClaiming(false);
+    useEffect(() => {
+        fetchData(true);
+        const interval = setInterval(() => fetchData(false), 5000);
+        return () => clearInterval(interval);
+    }, [fetchData]);
+
+    // --- Action Handlers ---
+    const handleAction = async (action, id) => {
+        const urlMap = {
+            'approve-deposit': `/api/admin/recharge/${id}/approve`, 'reject-deposit': `/api/admin/recharge/${id}/reject`,
+            'approve-withdrawal': `/api/admin/withdrawal/${id}/approve`, 'reject-withdrawal': `/api/admin/withdrawal/${id}/reject`,
+        };
+       try {
+            const res = await axios.post(`${API_BASE_URL}${urlMap[action]}`, {}, { headers: { Authorization: `Bearer ${token}` } });
+            alert(res.data.message || 'Action successful!');
+            fetchData(false);
+        } catch (err) {
+            alert(err.response?.data?.error || 'Action failed.');
         }
     };
 
-    const user = userData || { name: 'User', ip_username: 'N/A', status: 'active' };
-    const financials = financialSummary ? {
-        todays_earnings: financialSummary.todaysIncome || 0,
-        withdrawable: financialSummary.withdrawable_wallet || 0,
-        total_balance: (financialSummary.balance || 0) + (financialSummary.withdrawable_wallet || 0)
-    } : { todays_earnings: 0, withdrawable: 0, total_balance: 0 };
+    const handleGameStatusUpdate = async (update) => {
+        try {
+            const res = await axios.post(`${API_BASE_URL}/api/admin/game-status`, update, { headers: { Authorization: `Bearer ${token}` } });
+            alert(res.data.message || 'Game status updated!');
+            fetchData(false);
+        } catch (err) {
+             alert(err.response?.data?.error || 'Failed to update game status.');
+        }
+    };
+    
+    const handleSetNextResult = async () => {
+        if (!nextResult || isNaN(parseInt(nextResult)) || nextResult < 0 || nextResult > 9) {
+            alert('Please enter a valid number between 0 and 9.');
+            return;
+        }
+        try {
+            await axios.post(`${API_BASE_URL}/api/admin/game-next-result`, { result: parseInt(nextResult) }, { headers: { Authorization: `Bearer ${token}` } });
+            alert(`Next result set to ${nextResult}!`);
+            setNextResult('');
+        } catch (err) {
+            alert(err.response?.data?.error || 'Failed to set next result.');
+        }
+    };
 
-    const avatarUrl = user.avatar_url || `https://placehold.co/150x150/7F56D9/FFFFFF?text=${user.name?.[0]?.toUpperCase() || 'U'}`;
-    const canClaim = financials.todays_earnings > 0;
-    const status = (user.status || 'active').replace(/\s+/g, '-').toLowerCase(); // Sanitize status for CSS class
+    const handleDistributeIncome = async (userId = null) => {
+        const isCustom = !!userId;
+        if (isCustom && !customUserId) {
+            alert("Please enter a User ID.");
+            return;
+        }
+        const confirmMessage = isCustom
+            ? `Are you sure you want to distribute income to User ID: ${userId}?`
+            : "Are you sure you want to distribute daily income to ALL active users? This can only be done once every 24 hours.";
+        if (!window.confirm(confirmMessage)) return;
+        try {
+            const payload = userId ? { userId } : {};
+            const res = await axios.post(`${API_BASE_URL}/api/admin/distribute-income`, payload, { headers: { Authorization: `Bearer ${token}` } });
+            alert(res.data.message);
+            if (isCustom) setCustomUserId('');
+            fetchData();
+        } catch (err) {
+            alert(err.response?.data?.error || 'Failed to distribute income.');
+        }
+    };
+
+    const handleSetUserStatus = async (e) => {
+        e.preventDefault();
+        if (!userStatusId) {
+            alert('Please enter a User ID.');
+            return;
+        }
+        try {
+            const res = await axios.post(`${API_BASE_URL}/api/admin/set-user-status`, 
+                { userId: userStatusId, status: newStatus }, 
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            alert(res.data.message);
+            setUserStatusId('');
+        } catch (err) {
+            alert(err.response?.data?.error || 'Failed to set user status.');
+        }
+    };
+
+    // --- Render Logic ---
+    if (loading) return <div className="loading-spinner">Loading Admin Panel...</div>;
+    if (error) return <div className="error-message">{error}</div>;
 
     return (
-        <div className="account-view">
-            <div className="profile-header-card">
-                <img src={avatarUrl} alt="User Avatar" className="avatar" />
-                <div className="profile-info">
-                    <h3 className="username">{user.name}</h3>
-                    <p className="user-details">ID: {user.ip_username}</p>
-                     <div className="user-status-wrapper">
-                        Account Status: 
-                        <span className={`status-badge status-${status}`}>
-                            {user.status || 'Active'}
-                        </span>
+        <div className="admin-panel">
+            <h1>Admin Control Panel</h1>
+            
+            <div className="admin-section stats-section">
+                <h2>Game P/L Statistics</h2>
+                <div className="stats-grid">
+                    <div className="stat-card">
+                        <h4>Current Period</h4>
+                        <p className={`stat-value ${gameStats.currentPeriod.pl >= 0 ? 'positive' : 'negative'}`}>{formatCurrency(gameStats.currentPeriod.pl)}</p>
+                        <div className="stat-details"><span>In:</span> {formatCurrency(gameStats.currentPeriod.totalIn)}</div>
+                        <div className="stat-details"><span>Out:</span> {formatCurrency(gameStats.currentPeriod.totalOut)}</div>
+                    </div>
+                    <div className="stat-card">
+                        <h4>Today</h4>
+                        <p className={`stat-value ${gameStats.today.pl >= 0 ? 'positive' : 'negative'}`}>{formatCurrency(gameStats.today.pl)}</p>
+                        <div className="stat-details"><span>In:</span> {formatCurrency(gameStats.today.totalIn)}</div>
+                        <div className="stat-details"><span>Out:</span> {formatCurrency(gameStats.today.totalOut)}</div>
+                    </div>
+                    <div className="stat-card">
+                        <h4>Overall</h4>
+                        <p className={`stat-value ${gameStats.total.pl >= 0 ? 'positive' : 'negative'}`}>{formatCurrency(gameStats.total.pl)}</p>
+                        <div className="stat-details"><span>In:</span> {formatCurrency(gameStats.total.totalIn)}</div>
+                        <div className="stat-details"><span>Out:</span> {formatCurrency(gameStats.total.totalOut)}</div>
                     </div>
                 </div>
             </div>
 
-            <div className="earnings-card">
-                <div className="earnings-info">
-                    <p>Today's Unclaimed Earnings</p>
-                    <span className="earnings-amount">{formatCurrency(financials.todays_earnings)}</span>
+            <div className="admin-grid">
+                <div className="grid-column">
+                    <div className="admin-section live-bets">
+                        <h2>Current Round Bet Summary</h2>
+                        <div className="bet-summary-grid">
+                            {Object.entries(currentBets).filter(([key]) => !isNaN(key)).map(([num, amount]) => (
+                                <div key={num} className="bet-summary-item"><span className="bet-number">{num}</span><span className="bet-amount">{formatCurrency(amount)}</span></div>
+                            ))}
+                        </div>
+                        <div className="bet-summary-colors">
+                            <div className="bet-summary-item color"><span className="bet-number red">Red</span><span className="bet-amount">{formatCurrency(currentBets['Red'] || 0)}</span></div>
+                            <div className="bet-summary-item color"><span className="bet-number green">Green</span><span className="bet-amount">{formatCurrency(currentBets['Green'] || 0)}</span></div>
+                            <div className="bet-summary-item color"><span className="bet-number violet">Violet</span><span className="bet-amount">{formatCurrency(currentBets['Violet'] || 0)}</span></div>
+                        </div>
+                    </div>
                 </div>
-                <button 
-                    className="claim-button" 
-                    onClick={handleClaimIncome}
-                    disabled={!canClaim || isClaiming}
-                >
-                    {isClaiming ? 'Claiming...' : 'Claim'}
-                </button>
+                <div className="grid-column">
+                    <div className="admin-section outcome-analysis">
+                        <h2>Admin's Choice (Current Round)</h2>
+                        <div className="analysis-table">
+                            <div className="analysis-header"><div>Outcome</div><div>Admin P/L</div></div>
+                            {outcomeAnalysis.mostProfitable.map(outcome => (
+                                <div className="analysis-row positive" key={`most-${outcome.number}`}>
+                                    <div className="outcome-number">{outcome.number}</div>
+                                    <div className="outcome-pl">{formatCurrency(outcome.pl)}</div>
+                                </div>
+                            ))}
+                            {outcomeAnalysis.leastProfitable.length > 0 && <div className="analysis-divider"></div>}
+                            {outcomeAnalysis.leastProfitable.map(outcome => (
+                                <div className="analysis-row negative" key={`least-${outcome.number}`}>
+                                    <div className="outcome-number">{outcome.number}</div>
+                                    <div className="outcome-pl">{formatCurrency(outcome.pl)}</div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div className="financial-grid-card">
-                 <div className="grid-item">
-                    <span className="label">Total Balance</span>
-                    <span className="value">{formatCurrency(financials.total_balance)}</span>
-                </div>
-                 <div className="grid-item">
-                    <span className="label">Withdrawable</span>
-                    <span className="value">{formatCurrency(financials.withdrawable)}</span>
-                </div>
+            <div className="admin-section game-controls">
+                <h2>Game Management</h2>
+                <div className="control-group"><label>Game Status</label><div className="toggle-switch"><button onClick={() => handleGameStatusUpdate({ is_on: true })} className={gameStatus.is_on ? 'active' : ''}>ON</button><button onClick={() => handleGameStatusUpdate({ is_on: false })} className={!gameStatus.is_on ? 'active' : ''}>OFF</button></div></div>
+                <div className="control-group"><label>Game Mode</label><div className="toggle-switch"><button onClick={() => handleGameStatusUpdate({ mode: 'auto' })} className={gameStatus.mode === 'auto' ? 'active' : ''}>Auto</button><button onClick={() => handleGameStatusUpdate({ mode: 'admin' })} className={gameStatus.mode === 'admin' ? 'active' : ''}>Admin</button></div></div>
+                <div className="control-group"><label>Payout Priority</label><div className="toggle-switch"><button onClick={() => handleGameStatusUpdate({ payout_priority: 'admin' })} className={gameStatus.payout_priority === 'admin' ? 'active' : ''}>Admin</button><button onClick={() => handleGameStatusUpdate({ payout_priority: 'users' })} className={gameStatus.payout_priority === 'users' ? 'active' : ''}>Users</button></div></div>
+                {gameStatus.mode === 'admin' && gameStatus.is_on && (<div className="control-group manual-control"><label>Set Next Winning Number (0-9)</label><div className="input-group"><input type="number" value={nextResult} onChange={(e) => setNextResult(e.target.value)} min="0" max="9" placeholder="e.g., 5" /><button onClick={handleSetNextResult}>Set Result</button></div></div>)}
             </div>
             
-            <div className="action-buttons">
-                <button className="recharge-btn" onClick={() => onViewChange('deposit')}>Recharge</button>
-                <button className="withdraw-btn" onClick={() => onViewChange('withdraw')}>Withdraw</button>
+            <div className="admin-section server-actions">
+                <h2>Server & User Actions</h2>
+                <div className="action-group">
+                    <h4>Global Income Distribution</h4>
+                    <p>Distribute daily income to all active users. This can only be done once per 24 hours.</p>
+                    <button onClick={() => handleDistributeIncome()} className="action-btn" disabled={!incomeStatus.canDistribute}>Distribute to All</button>
+                    {!incomeStatus.canDistribute && <div className="cooldown-timer"><CountdownTimer targetDate={incomeStatus.nextDistributionTime} /></div>}
+                </div>
+                <div className="action-group">
+                    <h4>Custom Income Distribution</h4>
+                    <p>Manually distribute income for a single user at any time.</p>
+                    <div className="input-group"><input type="number" value={customUserId} onChange={e => setCustomUserId(e.target.value)} placeholder="Enter User ID" /><button onClick={() => handleDistributeIncome(customUserId)} className="action-btn">Distribute to User</button></div>
+                </div>
+                <div className="action-group">
+                    <h4>Set User Account Status</h4>
+                    <p>Change a user's status to Active, Non-Active, or Flagged.</p>
+                    <form onSubmit={handleSetUserStatus} className="input-group">
+                        <input type="number" value={userStatusId} onChange={e => setUserStatusId(e.target.value)} placeholder="Enter User ID" required />
+                        <select value={newStatus} onChange={e => setNewStatus(e.target.value)}><option value="active">Active</option><option value="non-active">Non-Active</option><option value="flagged">Flagged</option></select>
+                        <button type="submit" className="action-btn">Set Status</button>
+                    </form>
+                </div>
             </div>
 
-            <div className="account-options-card">
-                 <button className="account-option-item" onClick={() => onViewChange('transactions')}>
-                    <span className="icon">📜</span>
-                    <span className="label">Transaction History</span>
-                    <span className="arrow-icon">&gt;</span>
-                </button>
-                <button className="account-option-item" onClick={() => onViewChange('bet-history')}>
-                    <span className="icon">🎲</span>
-                    <span className="label">Bet History</span>
-                    <span className="arrow-icon">&gt;</span>
-                </button>
+            <div className="admin-section">
+                <h2>Pending Deposits ({pendingDeposits.length})</h2>
+                <div className="table-container">
+                    <table className="request-table">
+                        <thead><tr><th>User ID</th><th>Amount</th><th>UTR/Hash</th><th>Date</th><th>Actions</th></tr></thead>
+                        <tbody>
+                            {pendingDeposits.length > 0 ? pendingDeposits.map(d => ( <tr key={d.id}><td>{d.user_id}</td><td>{formatCurrency(d.amount)}</td><td>{d.utr}</td><td>{new Date(d.request_date).toLocaleString()}</td><td className="actions"><button className="approve-btn" onClick={() => handleAction('approve-deposit', d.id)}>Approve</button><button className="reject-btn" onClick={() => handleAction('reject-deposit', d.id)}>Reject</button></td></tr> )) : <tr><td colSpan="5">No pending deposits.</td></tr>}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
-             <div className="my-products-card">
-                 <h4>My Products</h4>
-                 <ul>
-                     {userInvestments.length > 0 ? (
-                         userInvestments.map(product => (
-                             <li key={product.id}>
-                                 <div className="product-info">
-                                     <span>{product.plan_name} ({product.status})</span>
-                                     <span className="product-details">Ends in {product.days_left} days</span>
-                                 </div>
-                                 <div className="product-income">
-                                     <span>Daily Income</span>
-                                     <strong>{formatCurrency(product.daily_income)}</strong>
-                                 </div>
-                             </li>
-                         ))
-                     ) : (
-                         <li className="no-products">You have no active products.</li>
-                     )}
-                 </ul>
-             </div>
-
-             <div className="logout-section">
-                <button className="logout-btn-styled" onClick={onLogout}>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                        <polyline points="16 17 21 12 16 7"></polyline>
-                        <line x1="21" y1="12" x2="9" y2="12"></line>
-                    </svg>
-                    <span>Logout</span>
-                </button>
+             <div className="admin-section">
+                <h2>Pending Withdrawals ({pendingWithdrawals.length})</h2>
+                <div className="table-container">
+                    <table className="request-table">
+                          <thead><tr><th>User ID</th><th>Amount</th><th>Method</th><th>Details</th><th>Date</th><th>Actions</th></tr></thead>
+                          <tbody>
+                            {pendingWithdrawals.length > 0 ? pendingWithdrawals.map(w => ( <tr key={w.id}><td>{w.user_id}</td><td>{formatCurrency(w.amount)}</td><td>{w.method}</td><td className="details-cell">{w.details}</td><td>{new Date(w.request_date).toLocaleString()}</td><td className="actions"><button className="approve-btn" onClick={() => handleAction('approve-withdrawal', w.id)}>Approve</button><button className="reject-btn" onClick={() => handleAction('reject-withdrawal', w.id)}>Reject</button></td></tr> )) : <tr><td colSpan="6">No pending withdrawals.</td></tr>}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     );
 }
 
-export default AccountView;
+export default AdminPanel;
 
