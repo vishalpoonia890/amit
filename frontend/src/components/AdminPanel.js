@@ -15,6 +15,7 @@ const formatCurrency = (amount) => {
     }).format(amount);
 };
 
+// ✅ FIX: The CountdownTimer component is now correctly defined inside the file.
 const CooldownTimer = ({ targetDate }) => {
     const calculateTimeLeft = useCallback(() => {
         if (!targetDate) return 'Loading...';
@@ -254,7 +255,7 @@ function AdminPanel({ token }) {
                     <h4>Global Income Distribution</h4>
                     <p>Distribute daily income to all active users. This can only be done once per 24 hours.</p>
                     <button onClick={() => handleDistributeIncome()} className="action-btn" disabled={!incomeStatus.canDistribute}>Distribute to All</button>
-                    {!incomeStatus.canDistribute && <div className="cooldown-timer"><CountdownTimer targetDate={incomeStatus.nextDistributionTime} /></div>}
+                    {!incomeStatus.canDistribute && <div className="cooldown-timer"><CooldownTimer targetDate={incomeStatus.nextDistributionTime} /></div>}
                 </div>
                 <div className="action-group">
                     <h4>Custom Income Distribution</h4>
