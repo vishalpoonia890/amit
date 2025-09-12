@@ -1,45 +1,91 @@
-import React from 'react';
-import './NotificationsDialog.css'; // Create this CSS file
+import React, { useState } from 'react';
+import './NotificationsDialog.css';
 
-function NotificationsDialog({ notifications, onClose, onNotificationClick, onReadAll }) {
+// --- Helper: Icon Component (can be shared across components) ---
+const Icon = ({ path, className = "w-6 h-6" }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+        <path strokeLinecap="round" strokeLinejoin="round" d={path} />
+    </svg>
+);
+
+
+function NotificationsDialog({ userNotifications, promotions, onClose, onMarkAsRead, onDeleteRead }) {
+    const [activeTab, setActiveTab] = useState('notifications');
+
+    const handleMarkAllRead = () => {
+        const unreadIds = userNotifications.filter(n => !n.is_read).map(n => n.id);
+        if (unreadIds.length > 0) {
+            onMarkAsRead(unreadIds);
+        }
+    };
+
     return (
-        <div className="notifications-dialog-overlay" onClick={onClose}>
-            <div className="notifications-dialog-content" onClick={e => e.stopPropagation()}> {/* Prevent clicks inside from closing */}
+        <div className="notification-dialog-overlay" onClick={onClose}>
+            <div className="notification-dialog-content" onClick={(e) => e.stopPropagation()}>
                 <div className="dialog-header">
-                    <h3>Notifications</h3>
-                    <button className="close-btn" onClick={onClose}>&times;</button>
+                    <h2>Notifications</h2>
+                    <button onClick={onClose} className="close-button">&times;</button>
                 </div>
-                <div className="notifications-list">
-                    {notifications.length === 0 ? (
-                        <p className="no-notifications">No new notifications.</p>
+
+                <div className="dialog-tabs">
+                    <button 
+                        className={`tab-button ${activeTab === 'notifications' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('notifications')}
+                    >
+                        Personal
+                    </button>
+                    <button 
+                        className={`tab-button ${activeTab === 'promotions' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('promotions')}
+                    >
+                        Promotions
+                    </button>
+                </div>
+
+                <div className="dialog-body">
+                    {activeTab === 'notifications' ? (
+                        <>
+                            {userNotifications.length > 0 ? (
+                                userNotifications.map(notif => (
+                                    <div key={notif.id} className={`notification-item ${!notif.is_read ? 'unread' : ''}`}>
+                                        <div className="notification-icon">
+                                            {notif.type === 'deposit' && '💰'}
+                                            {notif.type === 'withdrawal' && '💸'}
+                                            {notif.type === 'bonus' && '🎁'}
+                                            {notif.type === 'status_change' && '⚠️'}
+                                            {notif.type !== 'deposit' && notif.type !== 'withdrawal' && notif.type !== 'bonus' && notif.type !== 'status_change' && '🔔'}
+                                        </div>
+                                        <div className="notification-text">
+                                            <p>{notif.message}</p>
+                                            <span className="timestamp">{new Date(notif.created_at).toLocaleString()}</span>
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <p className="empty-state">You have no personal notifications.</p>
+                            )}
+                        </>
                     ) : (
-                        notifications.map(notification => (
-                            <div 
-                                key={notification.id} 
-                                className={`notification-item ${notification.read ? 'read' : 'unread'}`}
-                                onClick={() => onNotificationClick(notification.id)}
-                            >
-                                <span className="notification-icon">
-                                    {notification.type === 'deposit' && '💰'}
-                                    {notification.type === 'deposit_approved' && '✅'}
-                                    {notification.type === 'withdrawal' && '💸'}
-                                    {notification.type === 'withdrawal_approved' && '✔️'}
-                                    {notification.type === 'purchase' && '🛍️'}
-                                    {notification.type === 'bonus' && '🎁'}
-                                    {notification.type === 'income' && '📈'}
-                                    {/* Add more icons for different types */}
-                                </span>
-                                <div className="notification-details">
-                                    <p className="notification-message">{notification.message}</p>
-                                    <span className="notification-timestamp">{new Date(notification.timestamp).toLocaleString()}</span>
-                                </div>
-                            </div>
-                        ))
+                        <>
+                            {promotions.length > 0 ? (
+                                promotions.map(promo => (
+                                     <div key={promo.id} className="promotion-item">
+                                         <h4>{promo.title}</h4>
+                                         <p>{promo.message}</p>
+                                         <span className="timestamp">{new Date(promo.created_at).toLocaleString()}</span>
+                                     </div>
+                                ))
+                            ) : (
+                                <p className="empty-state">There are no promotions right now.</p>
+                            )}
+                        </>
                     )}
                 </div>
-                {notifications.length > 0 && (
-                    <div className="dialog-footer">
-                        <button className="read-all-btn" onClick={onReadAll}>Read All Notifications</button>
+
+                {activeTab === 'notifications' && userNotifications.length > 0 && (
+                     <div className="dialog-footer">
+                        <button onClick={handleMarkAllRead} className="footer-button">Mark All as Read</button>
+                        <button onClick={onDeleteRead} className="footer-button delete">Delete Read</button>
                     </div>
                 )}
             </div>
@@ -48,3 +94,4 @@ function NotificationsDialog({ notifications, onClose, onNotificationClick, onRe
 }
 
 export default NotificationsDialog;
+
