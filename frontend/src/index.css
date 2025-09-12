@@ -1,4 +1,4 @@
-/* Using @tailwind directives for base styles, components, and utilities */
+/* ✅ These three lines are essential for Tailwind to work */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -22,38 +22,12 @@
   
   /* Secondary Color (Accent Color - a deep, warm orange) */
   --color-secondary-500: #f97316; /* For gradients and highlights */
-
-  /* Neutral Colors (for text, backgrounds, borders) */
-  --color-gray-50: #f8fafc;
-  --color-gray-100: #f1f5f9;
-  --color-gray-200: #e2e8f0;
-  --color-gray-300: #cbd5e1;
-  --color-gray-400: #94a3b8;
-  --color-gray-500: #64748b;
-  --color-gray-600: #475569;
-  --color-gray-700: #334155;
-  --color-gray-800: #1e293b;
-  --color-gray-900: #0f172a;
-  
-  /* Black & White */
-  --color-black: #020617;
-  --color-white: #ffffff;
 }
 
 /* Base styles for the entire application */
 body {
-  font-family: 'Inter', sans-serif; /* A clean, modern font */
+  font-family: 'Inter', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-/* Custom Animation for the withdrawal ticker */
-@keyframes marquee {
-  0% { transform: translateX(0%); }
-  100% { transform: translateX(-100%); }
-}
-
-.animate-marquee {
-  animation: marquee 40s linear infinite;
 }
 
