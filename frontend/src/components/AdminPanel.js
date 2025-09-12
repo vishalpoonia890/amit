@@ -15,7 +15,6 @@ const formatCurrency = (amount) => {
     }).format(amount);
 };
 
-// ✅ FIX: The CountdownTimer component is now correctly defined inside the file.
 const CooldownTimer = ({ targetDate }) => {
     const calculateTimeLeft = useCallback(() => {
         if (!targetDate) return 'Loading...';
@@ -51,9 +50,13 @@ function AdminPanel({ token }) {
     const [outcomeAnalysis, setOutcomeAnalysis] = useState({ mostProfitable: [], leastProfitable: [] });
     const [nextResult, setNextResult] = useState('');
     const [incomeStatus, setIncomeStatus] = useState({ canDistribute: false, nextDistributionTime: null });
-    const [customUserId, setCustomUserId] = useState('');
-    const [userStatusId, setUserStatusId] = useState('');
-    const [newStatus, setNewStatus] = useState('active');
+    
+    // States for "Manage User Income" feature
+    const [searchUserId, setSearchUserId] = useState('');
+    const [searchedUserInfo, setSearchedUserInfo] = useState(null);
+    const [searchLoading, setSearchLoading] = useState(false);
+    const [searchError, setSearchError] = useState('');
+
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
@@ -131,42 +134,34 @@ function AdminPanel({ token }) {
         }
     };
 
-    const handleDistributeIncome = async (userId = null) => {
-        const isCustom = !!userId;
-        if (isCustom && !customUserId) {
-            alert("Please enter a User ID.");
-            return;
-        }
-        const confirmMessage = isCustom
-            ? `Are you sure you want to distribute income to User ID: ${userId}?`
-            : "Are you sure you want to distribute daily income to ALL active users? This can only be done once every 24 hours.";
-        if (!window.confirm(confirmMessage)) return;
+    const handleUserSearch = async (e) => {
+        e.preventDefault();
+        if (!searchUserId) return;
+        setSearchLoading(true);
+        setSearchError('');
+        setSearchedUserInfo(null);
         try {
-            const payload = userId ? { userId } : {};
-            const res = await axios.post(`${API_BASE_URL}/api/admin/distribute-income`, payload, { headers: { Authorization: `Bearer ${token}` } });
-            alert(res.data.message);
-            if (isCustom) setCustomUserId('');
-            fetchData();
+            const res = await axios.get(`${API_BASE_URL}/api/admin/user-income-status/${searchUserId}`, { headers: { Authorization: `Bearer ${token}` } });
+            setSearchedUserInfo({ id: searchUserId, ...res.data });
         } catch (err) {
-            alert(err.response?.data?.error || 'Failed to distribute income.');
+            setSearchError(err.response?.data?.error || 'Failed to find user.');
+        } finally {
+            setSearchLoading(false);
         }
     };
-
-    const handleSetUserStatus = async (e) => {
-        e.preventDefault();
-        if (!userStatusId) {
-            alert('Please enter a User ID.');
-            return;
-        }
+    
+    const handleManageUserIncome = async (canReceive) => {
+        if (!searchedUserInfo) return;
         try {
-            const res = await axios.post(`${API_BASE_URL}/api/admin/set-user-status`, 
-                { userId: userStatusId, status: newStatus }, 
+            const res = await axios.post(`${API_BASE_URL}/api/admin/manage-user-income`, 
+                { userId: searchedUserInfo.id, canReceiveIncome: canReceive },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
             alert(res.data.message);
-            setUserStatusId('');
+            // Re-search to show the updated status
+            setSearchedUserInfo(prev => ({ ...prev, can_receive_income: canReceive }));
         } catch (err) {
-            alert(err.response?.data?.error || 'Failed to set user status.');
+            alert(err.response?.data?.error || 'Failed to update status.');
         }
     };
 
@@ -250,27 +245,33 @@ function AdminPanel({ token }) {
             </div>
             
             <div className="admin-section server-actions">
-                <h2>Server & User Actions</h2>
+                <h2>Manage User Income</h2>
                 <div className="action-group">
-                    <h4>Global Income Distribution</h4>
-                    <p>Distribute daily income to all active users. This can only be done once per 24 hours.</p>
-                    <button onClick={() => handleDistributeIncome()} className="action-btn" disabled={!incomeStatus.canDistribute}>Distribute to All</button>
-                    {!incomeStatus.canDistribute && <div className="cooldown-timer"><CooldownTimer targetDate={incomeStatus.nextDistributionTime} /></div>}
-                </div>
-                <div className="action-group">
-                    <h4>Custom Income Distribution</h4>
-                    <p>Manually distribute income for a single user at any time.</p>
-                    <div className="input-group"><input type="number" value={customUserId} onChange={e => setCustomUserId(e.target.value)} placeholder="Enter User ID" /><button onClick={() => handleDistributeIncome(customUserId)} className="action-btn">Distribute to User</button></div>
-                </div>
-                <div className="action-group">
-                    <h4>Set User Account Status</h4>
-                    <p>Change a user's status to Active, Non-Active, or Flagged.</p>
-                    <form onSubmit={handleSetUserStatus} className="input-group">
-                        <input type="number" value={userStatusId} onChange={e => setUserStatusId(e.target.value)} placeholder="Enter User ID" required />
-                        <select value={newStatus} onChange={e => setNewStatus(e.target.value)}><option value="active">Active</option><option value="non-active">Non-Active</option><option value="flagged">Flagged</option></select>
-                        <button type="submit" className="action-btn">Set Status</button>
+                    <h4>Find User by ID</h4>
+                    <p>Search for a user to view and manage their income eligibility.</p>
+                    <form onSubmit={handleUserSearch} className="input-group">
+                        <input type="number" value={searchUserId} onChange={e => setSearchUserId(e.target.value)} placeholder="Enter User ID" required />
+                        <button type="submit" disabled={searchLoading}>{searchLoading ? 'Searching...' : 'Search'}</button>
                     </form>
+                    {searchError && <p className="error-message small">{searchError}</p>}
                 </div>
+
+                {searchedUserInfo && (
+                    <div className="action-group user-status-result">
+                        <h4>User: {searchedUserInfo.name} (ID: {searchedUserInfo.id})</h4>
+                        <div className="status-control">
+                            <p>Current Income Status: 
+                                <span className={searchedUserInfo.can_receive_income ? 'status-allowed' : 'status-blocked'}>
+                                    {searchedUserInfo.can_receive_income ? 'Allowed' : 'Blocked'}
+                                </span>
+                            </p>
+                            <div className="button-group">
+                                <button onClick={() => handleManageUserIncome(true)} className="approve-btn" disabled={searchedUserInfo.can_receive_income}>Allow</button>
+                                <button onClick={() => handleManageUserIncome(false)} className="reject-btn" disabled={!searchedUserInfo.can_receive_income}>Block</button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
 
             <div className="admin-section">
