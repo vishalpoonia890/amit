@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'axios';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 
 // --- API Configuration ---
@@ -368,19 +368,14 @@ function App() {
             case 'personal':
                 return <PersonalScreen userData={userData} financialSummary={financialSummary} onLogout={handleLogout} onViewChange={setView} />;
             // Placeholder views for other sections
-           case 'game': return <GameView token={token} financialSummary={financialSummary} onViewChange={setView} onBetPlaced={() => fetchAllUserData(token)} />;
-            case 'news': return <NewsView />;
-            case 'account': return <AccountView userData={userData} financialSummary={financialSummary} onLogout={handleLogout} onViewChange={setView} token={token}/>;
-            case 'rewards': return <Rewards onBack={goBackToDashboard} />;
-            case 'invite': return <Team token={token} onBack={goBackToDashboard} />;
-            case 'team': return <Team token={token} onBack={goBackToDashboard} />;
-            case 'support': return <Support onBack={goBackToDashboard} />;
-            case 'wallet': return <Wallet financialSummary={financialSummary} onBack={goBackToDashboard} />;
-            case 'deposit': return <Deposit token={token} onBack={goBackToDashboard} onDepositRequest={handleDepositRequest} />;
-            case 'withdraw': return <Withdrawal token={token} financialSummary={financialSummary} onBack={goBackToDashboard} onWithdrawalRequest={handleWithdrawalRequest} />;
-            case 'promotions': return <Promotions onBack={goBackToDashboard} />;
-            case 'bet-history': return <BetHistory token={token} onBack={goBackToAccount} />;
-            case 'transactions': return <TransactionHistory onBack={goBackToAccount} />;
+            case 'games':
+            case 'news':
+            case 'deposit':
+            case 'withdraw':
+            case 'rewards':
+            case 'support':
+            case 'transactions':
+            case 'bet-history':
             default:
                 return (
                     <div className="p-4 text-center">
