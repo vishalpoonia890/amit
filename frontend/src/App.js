@@ -10,7 +10,7 @@ import Team from './components/Team';
 import { Wallet, Promotions, Rewards, Support } from './components/PlaceholderViews';
 import AdminPanel from './components/AdminPanel';
 import BottomNav from './components/BottomNav';
-import Notification from './components/Notification';
+import Notification from './components/Snackbar';
 import TopNav from './components/TopNav';
 import AccountView from './components/AccountView';
 import GameView from './components/GameView';
