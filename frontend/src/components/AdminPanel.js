@@ -5,7 +5,6 @@ import './AdminPanel.css';
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
 
 // --- Helper Components ---
-
 const formatCurrency = (amount) => {
     if (typeof amount !== 'number') amount = 0;
     return new Intl.NumberFormat("en-IN", {
@@ -39,7 +38,6 @@ const CooldownTimer = ({ targetDate }) => {
 };
 
 // --- Main Admin Panel Component ---
-
 function AdminPanel({ token }) {
     // --- State Management ---
     const [pendingDeposits, setPendingDeposits] = useState([]);
@@ -51,7 +49,10 @@ function AdminPanel({ token }) {
     const [nextResult, setNextResult] = useState('');
     const [incomeStatus, setIncomeStatus] = useState({ canDistribute: false, nextDistributionTime: null });
     
-    // States for "Manage User Income" feature
+    // States for "Manage User" features
+    const [customUserId, setCustomUserId] = useState('');
+    const [userStatusId, setUserStatusId] = useState('');
+    const [newStatus, setNewStatus] = useState('active');
     const [searchUserId, setSearchUserId] = useState('');
     const [searchedUserInfo, setSearchedUserInfo] = useState(null);
     const [searchLoading, setSearchLoading] = useState(false);
@@ -134,6 +135,27 @@ function AdminPanel({ token }) {
         }
     };
 
+    const handleDistributeIncome = async (userId = null) => {
+        const isCustom = !!userId;
+        if (isCustom && !customUserId) {
+            alert("Please enter a User ID.");
+            return;
+        }
+        const confirmMessage = isCustom
+            ? `Are you sure you want to distribute income to User ID: ${userId}?`
+            : "Are you sure you want to distribute daily income to ALL active users? This can only be done once every 24 hours.";
+        if (!window.confirm(confirmMessage)) return;
+        try {
+            const payload = userId ? { userId } : {};
+            const res = await axios.post(`${API_BASE_URL}/api/admin/distribute-income`, payload, { headers: { Authorization: `Bearer ${token}` } });
+            alert(res.data.message);
+            if (isCustom) setCustomUserId('');
+            fetchData();
+        } catch (err) {
+            alert(err.response?.data?.error || 'Failed to distribute income.');
+        }
+    };
+
     const handleUserSearch = async (e) => {
         e.preventDefault();
         if (!searchUserId) return;
@@ -158,10 +180,27 @@ function AdminPanel({ token }) {
                 { headers: { Authorization: `Bearer ${token}` } }
             );
             alert(res.data.message);
-            // Re-search to show the updated status
             setSearchedUserInfo(prev => ({ ...prev, can_receive_income: canReceive }));
         } catch (err) {
             alert(err.response?.data?.error || 'Failed to update status.');
+        }
+    };
+    
+    const handleSetUserStatus = async (e) => {
+        e.preventDefault();
+        if (!userStatusId) {
+            alert('Please enter a User ID.');
+            return;
+        }
+        try {
+            const res = await axios.post(`${API_BASE_URL}/api/admin/set-user-status`, 
+                { userId: userStatusId, status: newStatus }, 
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            alert(res.data.message);
+            setUserStatusId('');
+        } catch (err) {
+            alert(err.response?.data?.error || 'Failed to set user status.');
         }
     };
 
@@ -245,10 +284,30 @@ function AdminPanel({ token }) {
             </div>
             
             <div className="admin-section server-actions">
-                <h2>Manage User Income</h2>
+                <h2>Server & User Actions</h2>
                 <div className="action-group">
-                    <h4>Find User by ID</h4>
-                    <p>Search for a user to view and manage their income eligibility.</p>
+                    <h4>Global Income Distribution</h4>
+                    <p>Distribute daily income to all active users. This can only be done once per 24 hours.</p>
+                    <button onClick={() => handleDistributeIncome()} className="action-btn" disabled={!incomeStatus.canDistribute}>Distribute to All</button>
+                    {!incomeStatus.canDistribute && <div className="cooldown-timer"><CooldownTimer targetDate={incomeStatus.nextDistributionTime} /></div>}
+                </div>
+                <div className="action-group">
+                    <h4>Custom Income Distribution</h4>
+                    <p>Manually distribute income for a single user at any time.</p>
+                    <div className="input-group"><input type="number" value={customUserId} onChange={e => setCustomUserId(e.target.value)} placeholder="Enter User ID" /><button onClick={() => handleDistributeIncome(customUserId)} className="action-btn">Distribute to User</button></div>
+                </div>
+                 <div className="action-group">
+                    <h4>Set User Account Status</h4>
+                    <p>Change a user's status to Active, Non-Active, or Flagged.</p>
+                    <form onSubmit={handleSetUserStatus} className="input-group">
+                        <input type="number" value={userStatusId} onChange={e => setUserStatusId(e.target.value)} placeholder="Enter User ID" required />
+                        <select value={newStatus} onChange={e => setNewStatus(e.target.value)}><option value="active">Active</option><option value="non-active">Non-Active</option><option value="flagged">Flagged</option></select>
+                        <button type="submit" className="action-btn">Set Status</button>
+                    </form>
+                </div>
+                <div className="action-group">
+                    <h4>Manage User Income</h4>
+                    <p>Search for a user to allow or block their ability to receive daily income.</p>
                     <form onSubmit={handleUserSearch} className="input-group">
                         <input type="number" value={searchUserId} onChange={e => setSearchUserId(e.target.value)} placeholder="Enter User ID" required />
                         <button type="submit" disabled={searchLoading}>{searchLoading ? 'Searching...' : 'Search'}</button>
@@ -273,7 +332,7 @@ function AdminPanel({ token }) {
                     </div>
                 )}
             </div>
-
+            
             <div className="admin-section">
                 <h2>Pending Deposits ({pendingDeposits.length})</h2>
                 <div className="table-container">
