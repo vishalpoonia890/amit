@@ -95,7 +95,6 @@ const AdminPanelScreen = ({ token }) => {
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Admin Panel</h1>
             <p className="text-gray-500 dark:text-gray-400">Welcome, Admin!</p>
             <p className="mt-4 text-sm text-gray-600 dark:text-gray-300">Full administrative controls would be displayed here.</p>
-            {/* In a real scenario, you'd fetch and display pending deposits, withdrawals, game stats, etc. */}
         </div>
     );
 };
@@ -178,27 +177,21 @@ const HomeScreen = ({ financialSummary, featuredPlans, onViewChange }) => {
     );
 };
 
-// Merged ProductsAndPlans component
-const ProductsAndPlansScreen = ({ token, userBalance, onPurchaseComplete, allPlans, loading }) => {
-    // ... This can contain filter/search logic in the future
-    return (
-        <div className="p-4 pb-24">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">All Investment Plans</h1>
-            {loading ? (
-                <p className="text-center text-gray-500 dark:text-gray-400">Loading plans...</p>
-            ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {allPlans.map(plan => <ProductCard key={plan.id} plan={plan} />)}
-                </div>
-            )}
-        </div>
-    );
-};
+const ProductsAndPlansScreen = ({ allPlans, loading }) => (
+    <div className="p-4 pb-24">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">All Investment Plans</h1>
+        {loading ? (
+            <p className="text-center text-gray-500 dark:text-gray-400">Loading plans...</p>
+        ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {allPlans.map(plan => <ProductCard key={plan.id} plan={plan} />)}
+            </div>
+        )}
+    </div>
+);
 
-// Merged AccountView component
 const PersonalScreen = ({ userData, financialSummary, onLogout, onViewChange }) => {
      if (!userData || !financialSummary) return <div className="p-4 text-center">Loading personal data...</div>;
-
      const totalBalance = (financialSummary.balance || 0) + (financialSummary.withdrawable_wallet || 0);
 
      return (
@@ -255,9 +248,8 @@ const PersonalScreen = ({ userData, financialSummary, onLogout, onViewChange }) 
 // --- Main App Component ---
 
 function App() {
-    // --- State from your existing App.js ---
     const [token, setToken] = useState(localStorage.getItem('token') || null);
-    const [view, setView] = useState('landing'); // Will change to 'home' after login
+    const [view, setView] = useState('login');
     const [authView, setAuthView] = useState('login');
     const [userData, setUserData] = useState(null);
     const [financialSummary, setFinancialSummary] = useState(null);
@@ -265,11 +257,8 @@ function App() {
     const [loginFormData, setLoginFormData] = useState({ mobile: '', password: '' });
     const [registerFormData, setRegisterFormData] = useState({ username: '', mobile: '', password: '', confirmPassword: '', referralCode: '' });
     const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
-    
-    // New state for redesigned app
     const [plans, setPlans] = useState([]);
 
-    // --- Functions from your existing App.js ---
     const toggleTheme = () => {
         const newTheme = theme === 'light' ? 'dark' : 'light';
         setTheme(newTheme);
@@ -278,7 +267,6 @@ function App() {
     };
 
     useEffect(() => {
-        // Apply theme on initial load
         document.documentElement.classList.toggle('dark', theme === 'dark');
     }, [theme]);
 
@@ -293,6 +281,7 @@ function App() {
     const fetchAllData = useCallback(async (authToken) => {
         if (!authToken) {
             setLoading(false);
+            setView('login');
             return;
         }
         setLoading(true);
@@ -306,10 +295,10 @@ function App() {
             setUserData(dataRes.data.user);
             setFinancialSummary(summaryRes.data);
             setPlans(plansRes.data.plans || []);
-            setView('home'); // Go to home screen after successful fetch
+            setView('home');
         } catch (error) {
             console.error("Failed to fetch user data:", error);
-            handleLogout(); // If any call fails, log out
+            handleLogout();
         } finally {
             setLoading(false);
         }
@@ -341,7 +330,6 @@ function App() {
         }
     };
 
-    // --- Other handlers from your App.js ---
     const handleLoginInputChange = (e) => setLoginFormData({ ...loginFormData, [e.target.name]: e.target.value });
     
     const renderAuthForms = () => (
@@ -369,7 +357,6 @@ function App() {
     );
 
     const renderMainView = () => {
-        // Your AdminPanel logic can be added back here if needed
          if (userData?.is_admin) { return <AdminPanelScreen token={token} />; }
         
         switch (view) {
@@ -379,15 +366,6 @@ function App() {
                 return <ProductsAndPlansScreen allPlans={plans} loading={loading} />;
             case 'personal':
                 return <PersonalScreen userData={userData} financialSummary={financialSummary} onLogout={handleLogout} onViewChange={setView} />;
-            // Placeholder views for other sections
-            case 'games':
-            case 'news':
-            case 'deposit':
-            case 'withdraw':
-            case 'rewards':
-            case 'support':
-            case 'transactions':
-            case 'bet-history':
             default:
                 return (
                     <div className="p-4 text-center">
