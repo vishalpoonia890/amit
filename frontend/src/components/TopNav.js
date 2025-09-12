@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './TopNav.css';
 
 // You may need to create this Icon component or use SVGs directly
