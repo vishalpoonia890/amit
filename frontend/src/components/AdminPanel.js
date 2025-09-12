@@ -16,9 +16,40 @@ const formatCurrency = (amount) => {
     }).format(amount);
 };
 
+// Timer component for income distribution cooldown
+const CooldownTimer = ({ targetDate }) => {
+    const calculateTimeLeft = useCallback(() => {
+        const difference = +new Date(targetDate) - +new Date();
+        let timeLeft = {};
+        if (difference > 0) {
+            timeLeft = {
+                hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+                minutes: Math.floor((difference / 1000 / 60) % 60),
+                seconds: Math.floor((difference / 1000) % 60)
+            };
+        }
+        return timeLeft;
+    }, [targetDate]);
+
+    const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setTimeLeft(calculateTimeLeft());
+        }, 1000);
+        return () => clearTimeout(timer);
+    });
+
+    const timerComponents = Object.keys(timeLeft).map(interval => {
+        return <span key={interval}>{String(timeLeft[interval]).padStart(2, '0')}</span>;
+    });
+
+    return timerComponents.length ? <span>Next distribution in: {timerComponents[0]}:{timerComponents[1]}:{timerComponents[2]}</span> : <span>Ready to Distribute</span>;
+};
+
 
 function AdminPanel({ token }) {
-    // State for all admin data
+    // State variables
     const [pendingDeposits, setPendingDeposits] = useState([]);
     const [pendingWithdrawals, setPendingWithdrawals] = useState([]);
     const [gameStatus, setGameStatus] = useState({ is_on: false, mode: 'auto', payout_priority: 'admin' });
@@ -26,29 +57,35 @@ function AdminPanel({ token }) {
     const [currentBets, setCurrentBets] = useState({});
     const [outcomeAnalysis, setOutcomeAnalysis] = useState({ mostProfitable: [], leastProfitable: [] });
     const [nextResult, setNextResult] = useState('');
+    const [incomeStatus, setIncomeStatus] = useState({ lastDistribution: null });
+    const [customIncomeUserIds, setCustomIncomeUserIds] = useState('');
+    const [updateUserStatusId, setUpdateUserStatusId] = useState('');
+    const [updateUserStatusTo, setUpdateUserStatusTo] = useState('active');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+
 
     // Centralized data fetching function
     const fetchData = useCallback(async (isInitialLoad = false) => {
         if (isInitialLoad) setLoading(true);
-        setError(''); // Clear previous errors on each refresh
+        setError('');
         try {
-            const [depositsRes, withdrawalsRes, gameStatusRes, statsRes, betsRes, analysisRes] = await Promise.all([
+            const res = await Promise.all([
                 axios.get(`${API_BASE_URL}/api/admin/recharges/pending`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/withdrawals/pending`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/game-status`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/game-statistics`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/current-bets`, { headers: { Authorization: `Bearer ${token}` } }),
-                axios.get(`${API_BASE_URL}/api/admin/game-outcome-analysis`, { headers: { Authorization: `Bearer ${token}` } })
+                axios.get(`${API_BASE_URL}/api/admin/game-outcome-analysis`, { headers: { Authorization: `Bearer ${token}` } }),
+                axios.get(`${API_BASE_URL}/api/admin/income-distribution-status`, { headers: { Authorization: `Bearer ${token}` } })
             ]);
-            setPendingDeposits(depositsRes.data.recharges || []);
-            setPendingWithdrawals(withdrawalsRes.data.withdrawals || []);
-            setGameStatus(gameStatusRes.data.status || { is_on: false, mode: 'auto', payout_priority: 'admin' });
-            setGameStats(statsRes.data || { total: {}, today: {}, currentPeriod: {} });
-            setCurrentBets(betsRes.data.summary || {});
-            setOutcomeAnalysis(analysisRes.data || { mostProfitable: [], leastProfitable: [] });
-
+            setPendingDeposits(res[0].data.recharges || []);
+            setPendingWithdrawals(res[1].data.withdrawals || []);
+            setGameStatus(res[2].data.status || { is_on: false, mode: 'auto', payout_priority: 'admin' });
+            setGameStats(res[3].data || { total: {}, today: {}, currentPeriod: {} });
+            setCurrentBets(res[4].data.summary || {});
+            setOutcomeAnalysis(res[5].data || { mostProfitable: [], leastProfitable: [] });
+            setIncomeStatus(res[6].data || { lastDistribution: null });
         } catch (err) {
             if (isInitialLoad) setError('Failed to fetch admin data. Auto-refresh paused.');
             console.error(err);
@@ -57,12 +94,13 @@ function AdminPanel({ token }) {
         }
     }, [token]);
 
-    // Fetch data on initial load and set up an interval to refresh
     useEffect(() => {
         fetchData(true);
-        const interval = setInterval(() => fetchData(false), 5000); // Refresh every 5 seconds
+        const interval = setInterval(() => fetchData(false), 5000);
         return () => clearInterval(interval);
     }, [fetchData]);
+
+    
 
     // Handler for deposit/withdrawal actions
     const handleAction = async (action, id) => {
@@ -107,8 +145,58 @@ function AdminPanel({ token }) {
         }
     };
 
+    const handleDistributeIncome = async () => {
+        if (!window.confirm("Are you sure you want to distribute daily income to ALL active investments? This can only be done once every 24 hours.")) return;
+        try {
+            const res = await axios.post(`${API_BASE_URL}/api/admin/distribute-daily-income`, {}, { headers: { Authorization: `Bearer ${token}` } });
+            alert(res.data.message);
+            fetchData();
+        } catch (err) {
+            alert(err.response?.data?.error || 'Failed to distribute income.');
+        }
+    };
+
+    const handleCustomDistributeIncome = async () => {
+        const userIdsArray = customIncomeUserIds.split(',').map(id => parseInt(id.trim())).filter(id => !isNaN(id) && id > 0);
+        if (userIdsArray.length === 0) {
+            alert('Please enter at least one valid User ID.');
+            return;
+        }
+        if (!window.confirm(`Are you sure you want to distribute income to ${userIdsArray.length} specific user(s)?`)) return;
+        try {
+            const res = await axios.post(`${API_BASE_URL}/api/admin/distribute-income-custom`, { user_ids: userIdsArray }, { headers: { Authorization: `Bearer ${token}` } });
+            alert(res.data.message);
+            setCustomIncomeUserIds('');
+        } catch (err) {
+            alert(err.response?.data?.error || 'Failed to distribute custom income.');
+        }
+    };
+    
+    const handleUpdateUserStatus = async () => {
+        const userId = parseInt(updateUserStatusId, 10);
+        if (isNaN(userId) || userId <= 0) {
+            alert('Please enter a valid User ID.');
+            return;
+        }
+        if (!window.confirm(`Are you sure you want to change User ${userId}'s status to "${updateUserStatusTo}"?`)) return;
+        try {
+            const res = await axios.post(`${API_BASE_URL}/api/admin/update-user-status`, { userId, status: updateUserStatusTo }, { headers: { Authorization: `Bearer ${token}` } });
+            alert(res.data.message);
+            setUpdateUserStatusId('');
+        } catch (err) {
+            alert(err.response?.data?.error || 'Failed to update user status.');
+        }
+    };
+
+
+    
+
     if (loading) return <div className="loading-spinner">Loading Admin Panel...</div>;
     if (error) return <div className="error-message">{error}</div>;
+
+    const nextDistributionTime = incomeStatus.lastDistribution ? new Date(new Date(incomeStatus.lastDistribution).getTime() + 24 * 60 * 60 * 1000) : null;
+    const isIncomeOnCooldown = nextDistributionTime && nextDistributionTime > new Date();
+
 
     return (
         <div className="admin-panel">
@@ -231,6 +319,34 @@ function AdminPanel({ token }) {
                             {pendingDeposits.length > 0 ? pendingDeposits.map(d => ( <tr key={d.id}><td>{d.user_id}</td><td>{formatCurrency(d.amount)}</td><td>{d.utr}</td><td>{new Date(d.request_date).toLocaleString()}</td><td className="actions"><button className="approve-btn" onClick={() => handleAction('approve-deposit', d.id)}>Approve</button><button className="reject-btn" onClick={() => handleAction('reject-deposit', d.id)}>Reject</button></td></tr> )) : <tr><td colSpan="5">No pending deposits.</td></tr>}
                         </tbody>
                     </table>
+                </div>
+            </div>
+
+                    <div className="admin-section server-actions">
+                <h2>Server & User Actions</h2>
+                <div className="action-group">
+                    <p>Distribute daily income from active investments to all eligible users.</p>
+                    <button onClick={handleDistributeIncome} className="action-btn" disabled={isIncomeOnCooldown}>Distribute to All</button>
+                    {isIncomeOnCooldown && <div className="cooldown-timer"><CooldownTimer targetDate={nextDistributionTime} /></div>}
+                </div>
+                <div className="action-group">
+                    <p>Manually distribute income to specific users by their ID (comma-separated).</p>
+                    <div className="input-group">
+                        <input type="text" value={customIncomeUserIds} onChange={e => setCustomIncomeUserIds(e.target.value)} placeholder="e.g., 1, 5, 12" />
+                        <button onClick={handleCustomDistributeIncome}>Distribute to Custom</button>
+                    </div>
+                </div>
+                <div className="action-group">
+                    <p>Update a user's account status.</p>
+                    <div className="input-group">
+                        <input type="number" value={updateUserStatusId} onChange={e => setUpdateUserStatusId(e.target.value)} placeholder="User ID" />
+                        <select value={updateUserStatusTo} onChange={e => setUpdateUserStatusTo(e.target.value)}>
+                            <option value="active">Active</option>
+                            <option value="non-active">Non-Active</option>
+                            <option value="flagged">Flagged</option>
+                        </select>
+                        <button onClick={handleUpdateUserStatus}>Update Status</button>
+                    </div>
                 </div>
             </div>
 
