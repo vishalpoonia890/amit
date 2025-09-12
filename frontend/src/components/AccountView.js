@@ -15,6 +15,7 @@ const formatCurrency = (amount) => {
 
 function AccountView({ userData, financialSummary, onLogout, onViewChange, token }) {
     const [userInvestments, setUserInvestments] = useState([]);
+    const [isClaiming, setIsClaiming] = useState(false);
     
     useEffect(() => {
         const fetchInvestments = async () => {
@@ -31,15 +32,30 @@ function AccountView({ userData, financialSummary, onLogout, onViewChange, token
         fetchInvestments();
     }, [token]);
 
-    const user = userData || { name: 'User', ip_username: 'N/A' };
+    const handleClaimIncome = async () => {
+        setIsClaiming(true);
+        try {
+            const response = await axios.post(`${API_BASE_URL}/api/claim-income`, {}, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            alert(response.data.message);
+            // NOTE: The balance will auto-refresh from the main App component's interval fetch
+        } catch (error) {
+            alert(error.response?.data?.error || 'Failed to claim income.');
+        } finally {
+            setIsClaiming(false);
+        }
+    };
+
+    const user = userData || { name: 'User', ip_username: 'N/A', status: 'active' };
     const financials = financialSummary ? {
         todays_earnings: financialSummary.todaysIncome || 0,
         withdrawable: financialSummary.withdrawable_wallet || 0,
-        recharge: financialSummary.balance || 0,
         total_balance: (financialSummary.balance || 0) + (financialSummary.withdrawable_wallet || 0)
     } : { todays_earnings: 0, withdrawable: 0, total_balance: 0 };
 
     const avatarUrl = user.avatar_url || `https://placehold.co/150x150/007bff/FFFFFF?text=${user.name?.[0]?.toUpperCase() || 'U'}`;
+    const canClaim = financials.todays_earnings > 0;
 
     return (
         <div className="account-view">
@@ -48,6 +64,12 @@ function AccountView({ userData, financialSummary, onLogout, onViewChange, token
                 <div className="profile-info">
                     <h3 className="username">{user.name}</h3>
                     <p className="user-details">ID: {user.ip_username}</p>
+                    <div className="user-status-wrapper">
+                        Account Status: 
+                        <span className={`status-badge status-${user.status}`}>
+                            {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
+                        </span>
+                    </div>
                 </div>
             </div>
 
@@ -56,7 +78,13 @@ function AccountView({ userData, financialSummary, onLogout, onViewChange, token
                     <p>Today's Earnings</p>
                     <span className="earnings-amount">{formatCurrency(financials.todays_earnings)}</span>
                 </div>
-                <button className="claim-button">Claim</button>
+                <button 
+                    className="claim-button" 
+                    onClick={handleClaimIncome}
+                    disabled={!canClaim || isClaiming}
+                >
+                    {isClaiming ? 'Claiming...' : 'Claim'}
+                </button>
             </div>
 
             <div className="financial-grid-card">
@@ -94,8 +122,8 @@ function AccountView({ userData, financialSummary, onLogout, onViewChange, token
                      {userInvestments.length > 0 ? (
                          userInvestments.map(product => (
                              <li key={product.id}>
-                                <span>{product.plan_name} ({product.status})</span>
-                                <span className="product-details">Ends in {product.days_left} days</span>
+                                 <span>{product.plan_name} ({product.status})</span>
+                                 <span className="product-details">Ends in {product.days_left} days</span>
                              </li>
                          ))
                      ) : (
