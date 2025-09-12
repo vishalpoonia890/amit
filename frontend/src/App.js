@@ -17,7 +17,7 @@ import GameView from './components/GameView';
 import Deposit from './components/Deposit';
 import Withdrawal from './components/Withdrawal';
 import BetHistory from './components/BetHistory';
-import TransactionHistory from './components/TransactionHistory'; // Make sure this component is imported
+import TransactionHistory from './components/TransactionHistory';
 
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
 
