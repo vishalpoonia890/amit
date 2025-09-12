@@ -1,134 +1,184 @@
 .account-view {
-    padding: 15px;
+    padding: 20px;
     padding-bottom: 80px; /* Space for bottom nav */
+    max-width: 600px;
+    margin: 0 auto;
+    color: var(--text-color);
 }
 
-/* Base Card Style */
-.account-view > div {
+.profile-header-card {
     background-color: var(--card-bg-color);
     border-radius: 12px;
-    margin-bottom: 15px;
     padding: 20px;
-    border: 1px solid var(--border-color);
-    box-shadow: var(--card-shadow);
-}
-
-/* Profile Header */
-.profile-header-card {
     display: flex;
     align-items: center;
     gap: 15px;
+    margin-bottom: 20px;
+    box-shadow: var(--card-shadow);
+    border: 1px solid var(--border-color);
 }
+
 .avatar {
-    width: 60px;
-    height: 60px;
+    width: 80px;
+    height: 80px;
     border-radius: 50%;
     object-fit: cover;
-    border: 2px solid var(--primary-color);
+    border: 3px solid var(--primary-color);
 }
+
 .profile-info .username {
-    margin: 0 0 5px 0;
-    font-size: 1.2em;
-    color: var(--text-color);
+    margin: 0 0 5px;
+    font-size: 1.5em;
+    font-weight: 700;
 }
+
 .profile-info .user-details {
     margin: 0;
     font-size: 0.9em;
     color: var(--text-color-light);
+    background-color: var(--bg-color);
+    padding: 3px 8px;
+    border-radius: 5px;
+    display: inline-block;
 }
 
-/* Earnings Card */
+.user-status-wrapper {
+    margin-top: 8px;
+    font-size: 0.9em;
+    color: var(--text-color-light);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.status-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.8em;
+    text-transform: uppercase;
+}
+
+.status-badge.status-active {
+    background-color: rgba(76, 175, 80, 0.2);
+    color: #4CAF50;
+}
+.status-badge.status-non-active {
+    background-color: rgba(255, 193, 7, 0.2);
+    color: #FFC107;
+}
+.status-badge.status-flagged {
+    background-color: rgba(244, 67, 54, 0.2);
+    color: #F44336;
+}
+
+
 .earnings-card {
+    background: linear-gradient(45deg, var(--primary-color), var(--primary-color-dark));
+    color: white;
+    padding: 20px;
+    border-radius: 12px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: var(--bg-color); /* Slightly different background */
-}
-.earnings-info p {
-    margin: 0 0 5px 0;
-    color: var(--text-color-light);
-    font-size: 0.9em;
-}
-.earnings-info .earnings-amount {
-    font-size: 1.5em;
-    font-weight: 700;
-    color: var(--primary-color);
-}
-.claim-button {
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
-    border-radius: 20px;
-    padding: 10px 25px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-.claim-button:hover {
-    background-color: var(--primary-hover-color);
+    margin-bottom: 20px;
 }
 
-/* Financial Grid */
+.earnings-info p {
+    margin: 0 0 5px;
+    opacity: 0.8;
+    font-size: 0.9em;
+}
+
+.earnings-info .earnings-amount {
+    font-size: 2em;
+    font-weight: 700;
+}
+
+.claim-button {
+    background-color: white;
+    color: var(--primary-color);
+    border: none;
+    padding: 10px 25px;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+.claim-button:hover {
+    transform: scale(1.05);
+}
+.claim-button:disabled {
+    background-color: #ccc;
+    color: #666;
+    cursor: not-allowed;
+    transform: none;
+}
+
+
 .financial-grid-card {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 20px;
+    gap: 15px;
+    margin-bottom: 20px;
 }
+
 .grid-item {
-    text-align: left;
+    background-color: var(--card-bg-color);
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    border: 1px solid var(--border-color);
 }
+
 .grid-item .label {
     display: block;
-    font-size: 0.85em;
+    font-size: 0.9em;
     color: var(--text-color-light);
-    margin-bottom: 5px;
+    margin-bottom: 8px;
 }
+
 .grid-item .value {
-    font-size: 1.1em;
+    font-size: 1.5em;
     font-weight: 600;
     color: var(--text-color);
 }
 
-/* Action Buttons */
+
 .action-buttons {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 15px;
-    padding: 0;
-    background: none;
-    border: none;
-    box-shadow: none;
+    margin-bottom: 20px;
 }
-.action-buttons button {
+
+.recharge-btn, .withdraw-btn {
     padding: 15px;
-    border: none;
     border-radius: 8px;
+    border: none;
     font-size: 1em;
     font-weight: 600;
     cursor: pointer;
-    transition: transform 0.2s;
-}
-.action-buttons button:hover {
-    transform: translateY(-2px);
 }
 .recharge-btn {
     background-color: var(--primary-color-light);
     color: var(--primary-color);
 }
 .withdraw-btn {
-    background-color: var(--bg-color);
-    color: var(--text-color);
-    border: 1px solid var(--border-color);
+    background-color: var(--secondary-color-light);
+    color: var(--secondary-color);
 }
 
-/* My Products */
+.account-options-card, .my-products-card {
+    background-color: var(--card-bg-color);
+    border-radius: 12px;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid var(--border-color);
+}
 .my-products-card h4 {
-    margin: -20px -20px 15px -20px;
-    padding: 15px 20px;
-    background-color: var(--primary-color-light);
-    color: var(--primary-color);
-    border-radius: 12px 12px 0 0;
-    font-size: 1em;
+    margin: 10px 10px 15px;
+    font-size: 1.1em;
 }
 .my-products-card ul {
     list-style: none;
@@ -139,127 +189,64 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 0;
+    padding: 15px 10px;
     border-bottom: 1px solid var(--border-color);
-    color: var(--text-color);
-    cursor: pointer;
 }
 .my-products-card li:last-child {
     border-bottom: none;
 }
-.arrow-icon {
+.my-products-card .product-details {
+    font-size: 0.8em;
     color: var(--text-color-light);
-    font-weight: bold;
-}
-.my-products-card .no-products {
-    color: var(--text-color-light);
-    font-style: italic;
-    padding: 15px 0;
-    text-align: center;
-    border-bottom: none;
-    cursor: default;
-}
-
-
-/* Account Options */
-.account-options-card {
-    padding: 10px;
-}
-.option-item {
-    width: 100%;
-    text-align: left;
-    padding: 15px;
-    background: none;
-    border: none;
-    color: var(--text-color);
-    font-size: 1em;
-    cursor: pointer;
-    border-bottom: 1px solid var(--border-color);
-}
-.option-item:last-child {
-    border-bottom: none;
-    color: var(--error-color); /* Make sign out red */
-}
-.option-item:hover {
-    background-color: var(--bg-color);
-}
-
-/* ... (existing styles) ... */
-
-.my-products-card li {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px;
-    background-color: var(--card-color);
-    border-radius: 8px;
-    margin-bottom: 10px;
-    font-size: 0.95rem;
-}
-
-.product-status {
-    background-color: #28a745;
-    color: white;
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 0.75rem;
-    font-weight: bold;
-    text-transform: capitalize;
-}
-
-.account-options {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-top: 20px;
 }
 
 .account-option-item {
     display: flex;
     align-items: center;
-    gap: 15px;
-    padding: 15px;
-    background-color: var(--card-color);
-    border: none;
-    border-radius: 10px;
+    padding: 15px 10px;
     width: 100%;
+    background: none;
+    border: none;
     text-align: left;
-    font-size: 1rem;
+    font-size: 1em;
     color: var(--text-color);
     cursor: pointer;
-    transition: background-color 0.2s, color 0.2s;
+    border-bottom: 1px solid var(--border-color);
 }
-
+.account-option-item:last-child {
+    border-bottom: none;
+}
 .account-option-item .icon {
-    font-size: 1.2rem;
+    font-size: 1.2em;
+    margin-right: 15px;
 }
-
 .account-option-item .label {
     flex-grow: 1;
+    font-weight: 500;
 }
-
 .account-option-item .arrow-icon {
-    font-weight: bold;
+    font-size: 1.2em;
     color: var(--text-color-light);
 }
 
-/* ✨ --- REDESIGNED LOGOUT BUTTON STYLES --- */
-.logout-btn {
-    background-color: #3e2129; /* Dark red background */
-    margin-top: 10px;
-    border: 1px solid #723440;
+
+.logout-section {
+    margin-top: 30px;
 }
 
-.logout-btn .label {
-    color: #ff8a80; /* Light red text for contrast */
-    font-weight: bold;
+.logout-btn-styled {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background-color: #ff4d4d20;
+    color: #ff4d4d;
+    border: 1px solid #ff4d4d50;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
 }
 
-.logout-btn .icon svg {
-    stroke: #ff8a80;
-}
-
-.logout-btn:hover {
-    background-color: #4e2933;
-    border-color: #a14959;
-}
