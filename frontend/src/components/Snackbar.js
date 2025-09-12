@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useState } from 'react';
 import './Snackbar.css';
 
 // The component is now named 'Snackbar' to avoid conflicts.
