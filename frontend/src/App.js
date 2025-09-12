@@ -275,12 +275,23 @@ function App() {
                 show={snackbarNotification.show}
                 onClose={() => setSnackbarNotification({ ...snackbarNotification, show: false })}
             />
+            {showNotificationsDialog && (
+                <NotificationsDialog
+                    userNotifications={userNotifications}
+                    promotions={promotions}
+                    onClose={() => setShowNotificationsDialog(false)}
+                    onMarkAsRead={handleMarkAsRead}
+                    onDeleteRead={handleDeleteRead}
+                />
+            )}
             <div className="app-container">
                 <TopNav
                     theme={theme}
                     toggleTheme={toggleTheme}
                     onLogout={handleLogout}
                     financialSummary={financialSummary}
+                    unreadCount={unreadCount}
+                    onNotificationsClick={() => setShowNotificationsDialog(true)}
                 />
                 <main className="main-content">{renderMainView()}</main>
                 {!userData?.is_admin && <BottomNav activeView={view} onViewChange={setView} />}
