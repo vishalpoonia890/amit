@@ -3,28 +3,21 @@
     top: 0;
     left: 0;
     right: 0;
+    max-width: 600px; /* Match your app's container width */
+    margin: 0 auto;
     height: 60px;
-    padding: 0 15px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background-color: var(--header-footer-bg);
+    padding: 0 16px;
+    background-color: var(--card-bg-color);
     border-bottom: 1px solid var(--border-color);
-    z-index: 1000;
+    z-index: 100;
+    box-shadow: var(--card-shadow);
 }
 
 .nav-left, .nav-right {
     flex: 1;
-}
-
-.nav-center {
-    flex: 2; /* Allows it to be larger but still centered */
-    text-align: center;
-}
-
-.nav-left {
-    display: flex;
-    justify-content: flex-start;
 }
 
 .nav-right {
@@ -32,46 +25,58 @@
     justify-content: flex-end;
 }
 
+.nav-center {
+    flex: 2;
+    text-align: center;
+}
+
 .balance-display {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    display: inline-block;
 }
 
 .balance-label {
-    font-size: 0.75em;
+    display: block;
+    font-size: 0.75rem;
     color: var(--text-color-light);
-    margin-bottom: 2px;
 }
 
 .balance-amount {
-    font-size: 1.1em;
-    font-weight: 600;
+    font-size: 1.25rem;
+    font-weight: 700;
     color: var(--primary-color);
 }
 
 .icon-btn {
     background: none;
     border: none;
-    cursor: pointer;
     padding: 8px;
-    color: var(--text-color-light);
+    cursor: pointer;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 50%;
-    transition: background-color 0.2s, color 0.2s;
+    position: relative;
+    color: var(--text-color);
 }
 
 .icon-btn:hover {
-    background-color: var(--bg-color);
-    color: var(--primary-color);
+    background-color: var(--border-color);
 }
 
-.logout-btn {
-    color: var(--error-color);
-}
-.logout-btn:hover {
-    background-color: rgba(244, 67, 54, 0.1);
+.notification-badge {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background-color: var(--error-color);
+    color: white;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    font-size: 0.7rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--card-bg-color);
 }
 
