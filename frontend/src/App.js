@@ -10,7 +10,7 @@ import Team from './components/Team';
 import { Wallet, Promotions, Rewards, Support } from './components/PlaceholderViews';
 import AdminPanel from './components/AdminPanel';
 import BottomNav from './components/BottomNav';
-import Notification from './components/Snackbar';
+import Snackbar from './components/Snackbar';
 import TopNav from './components/TopNav';
 import AccountView from './components/AccountView';
 import GameView from './components/GameView';
@@ -18,13 +18,14 @@ import Deposit from './components/Deposit';
 import Withdrawal from './components/Withdrawal';
 import BetHistory from './components/BetHistory';
 import TransactionHistory from './components/TransactionHistory';
-import NotificationsDialog from './components/NotificationsDialog'; // Import the new component
+import NotificationsDialog from './components/NotificationsDialog';
 
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
 
 function App() {
+    // --- State Management ---
     const [token, setToken] = useState(localStorage.getItem('token') || null);
-    const [view, setView] = useState('dashboard'); // Start at dashboard after login
+    const [view, setView] = useState('dashboard');
     const [authView, setAuthView] = useState('login');
     const [userData, setUserData] = useState(null);
     const [financialSummary, setFinancialSummary] = useState(null);
@@ -34,11 +35,11 @@ function App() {
     const [registerFormData, setRegisterFormData] = useState({ username: '', mobile: '', password: '', confirmPassword: '', referralCode: '' });
     const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
     const [allPlans, setAllPlans] = useState([]);
-// --- New State for Notifications ---
     const [userNotifications, setUserNotifications] = useState([]);
     const [promotions, setPromotions] = useState([]);
     const [showNotificationsDialog, setShowNotificationsDialog] = useState(false);
 
+    // --- Core Functions ---
     const toggleTheme = () => {
         const newTheme = theme === 'light' ? 'dark' : 'light';
         setTheme(newTheme);
@@ -53,7 +54,54 @@ function App() {
     const showSnackbar = (message, type = 'info') => {
         setSnackbarNotification({ show: true, message, type });
     };
-// --- Notification Handlers ---
+
+    const handleLogout = useCallback(() => {
+        localStorage.removeItem('token');
+        setToken(null);
+        setUserData(null);
+        setFinancialSummary(null);
+        setView('login');
+    }, []);
+
+    const fetchAllUserData = useCallback(async (authToken) => {
+        if (!authToken) return;
+        try {
+            const [dataRes, summaryRes, plansRes, notifRes] = await Promise.all([
+                axios.get(`${API_BASE_URL}/api/data`, { headers: { Authorization: `Bearer ${authToken}` } }),
+                axios.get(`${API_BASE_URL}/api/financial-summary`, { headers: { Authorization: `Bearer ${authToken}` } }),
+                axios.get(`${API_BASE_URL}/api/product-plans`, { headers: { Authorization: `Bearer ${authToken}` } }),
+                axios.get(`${API_BASE_URL}/api/notifications`, { headers: { Authorization: `Bearer ${authToken}` } })
+            ]);
+            setUserData(dataRes.data.user);
+            setFinancialSummary(summaryRes.data);
+            setAllPlans(plansRes.data.plans || []);
+            setUserNotifications(notifRes.data.userNotifications || []);
+            setPromotions(notifRes.data.promotions || []);
+        } catch (err) {
+            console.error("Failed to fetch user data, likely an invalid session:", err);
+            handleLogout();
+        }
+    }, [handleLogout]);
+
+    useEffect(() => {
+        const storedToken = localStorage.getItem('token');
+        if (storedToken) {
+            setToken(storedToken);
+            fetchAllUserData(storedToken).then(() => setLoading(false));
+        } else {
+            setLoading(false);
+            setView('login');
+        }
+    }, [fetchAllUserData]);
+
+    useEffect(() => {
+        if (token) {
+            const interval = setInterval(() => fetchAllUserData(token), 30000);
+            return () => clearInterval(interval);
+        }
+    }, [token, fetchAllUserData]);
+    
+    // --- Notification Handlers ---
     const handleMarkAsRead = async (ids) => {
         try {
             await axios.post(`${API_BASE_URL}/api/notifications/read`, { ids }, { headers: { Authorization: `Bearer ${token}` } });
@@ -71,63 +119,10 @@ function App() {
             console.error("Failed to delete read notifications:", error);
         }
     };
-
+    
     const unreadCount = userNotifications.filter(n => !n.is_read).length;
-
-    const handleLogout = useCallback(() => {
-        localStorage.removeItem('token');
-        setToken(null);
-        setUserData(null);
-        setFinancialSummary(null);
-        showSnackbar('Logged out successfully.', 'info');
-        setView('login');
-        setAuthView('login');
-    }, []);
-
-    const fetchAllUserData = useCallback(async (authToken) => {
-        if (!authToken) return;
-        try {
-            const [dataRes, summaryRes, plansRes] = await Promise.all([
-                axios.get(`${API_BASE_URL}/api/data`, { headers: { Authorization: `Bearer ${authToken}` } }),
-                axios.get(`${API_BASE_URL}/api/financial-summary`, { headers: { Authorization: `Bearer ${authToken}` } }),
-                axios.get(`${API_BASE_URL}/api/product-plans`, { headers: { Authorization: `Bearer ${authToken}` } }),
-            ]);
-            setUserData(dataRes.data.user);
-            setFinancialSummary(summaryRes.data);
-            setAllPlans(plansRes.data.plans || []);
-        } catch (err) {
-            console.error("Failed to fetch user data, likely an invalid session:", err);
-            if ([401, 403, 404].includes(err.response?.status)) {
-                showSnackbar('Your session is invalid. Please log in again.', 'error');
-                handleLogout();
-            }
-        }
-    }, [handleLogout]);
-
-    useEffect(() => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const refCode = urlParams.get('ref');
-        if (refCode) {
-            setRegisterFormData(prev => ({ ...prev, referralCode: refCode }));
-            setAuthView('register');
-        }
-        const storedToken = localStorage.getItem('token');
-        if (storedToken) {
-            setToken(storedToken);
-            fetchAllUserData(storedToken).then(() => setLoading(false));
-        } else {
-            setLoading(false);
-            setView('login');
-        }
-    }, [fetchAllUserData]);
-
-    useEffect(() => {
-        if (token) {
-            const interval = setInterval(() => fetchAllUserData(token), 30000);
-            return () => clearInterval(interval);
-        }
-    }, [token, fetchAllUserData]);
-
+    
+    // --- Authentication and View Rendering ---
     const handleLogin = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -145,11 +140,8 @@ function App() {
             setLoading(false);
         }
     };
-    
-    // Other handlers
-    const handleLoginInputChange = (e) => setLoginFormData({ ...loginFormData, [e.target.name]: e.target.value });
-    const handleRegisterInputChange = (e) => setRegisterFormData({ ...registerFormData, [e.target.name]: e.target.value });
-    const handleRegister = async (e) => { 
+
+    const handleRegister = async (e) => {
         e.preventDefault();
         setLoading(true);
         if (registerFormData.password !== registerFormData.confirmPassword) {
@@ -171,9 +163,11 @@ function App() {
             setLoading(false);
         }
     };
+
+    const handleLoginInputChange = (e) => setLoginFormData({ ...loginFormData, [e.target.name]: e.target.value });
+    const handleRegisterInputChange = (e) => setRegisterFormData({ ...registerFormData, [e.target.name]: e.target.value });
     const handleDepositRequest = useCallback((amount) => showSnackbar(`₹${amount.toLocaleString()} deposit requested.`, 'info'), []);
     const handleWithdrawalRequest = useCallback((amount) => showSnackbar(`₹${amount.toLocaleString()} withdrawal requested.`, 'info'), []);
-
 
     const renderAuthForms = () => (
         <div className="auth-wrapper">
@@ -269,7 +263,7 @@ function App() {
 
     return (
         <div className="App">
-            <Notification
+            <Snackbar
                 message={snackbarNotification.message}
                 type={snackbarNotification.type}
                 show={snackbarNotification.show}
