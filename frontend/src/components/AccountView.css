@@ -103,16 +103,22 @@
     font-weight: 700;
     cursor: pointer;
     transition: transform 0.2s;
+    min-width: 110px;
+    text-align: center;
 }
 .claim-button:hover {
     transform: scale(1.05);
 }
 .claim-button:disabled {
-    background-color: #ccc;
-    color: #666;
+    background-color: #555;
+    color: #aaa;
     cursor: not-allowed;
     transform: none;
 }
+.claim-button:disabled:hover {
+    background-color: #555;
+}
+
 
 .financial-grid-card {
     display: grid;
