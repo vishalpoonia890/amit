@@ -87,7 +87,7 @@ function AccountView({ userData, financialSummary, onLogout, onViewChange, token
                 headers: { Authorization: `Bearer ${token}` }
             });
             alert(response.data.message);
-            // The main App.js component's periodic fetch will update the UI
+            // The main App.js component's periodic fetch will update the UI, including the timer
         } catch (error) {
             alert(error.response?.data?.error || 'Failed to claim income.');
         } finally {
