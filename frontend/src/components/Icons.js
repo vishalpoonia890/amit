@@ -24,3 +24,4 @@ export const ThemeIcon = ({ theme }) => (
 );
 
 export default Icon;
+
