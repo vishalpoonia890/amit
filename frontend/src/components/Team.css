@@ -127,3 +127,55 @@
 .referred-users-table tbody tr:hover {
     background-color: var(--bg-color);
 }
+
+/* ... (Your existing styles for .team-page, .team-card, etc.) ... */
+
+/* ✅ NEW: Styles for the informational box */
+.info-box {
+    background-color: var(--primary-color-light);
+    border-left: 4px solid var(--primary-color);
+}
+.info-box h4 {
+    color: var(--primary-color);
+}
+.info-box ul {
+    list-style: none;
+    padding: 0;
+    margin-top: 10px;
+    font-size: 0.9em;
+    color: var(--text-color-light);
+}
+.info-box li {
+    margin-bottom: 8px;
+    line-height: 1.5;
+}
+.info-box li span {
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+/* Enhancements for the tables */
+.referred-users-table h4 {
+    margin-bottom: 15px;
+}
+.table-container {
+    max-height: 200px;
+    overflow-y: auto;
+}
+.referred-users-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.referred-users-table th, .referred-users-table td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+.referred-users-table th {
+    background-color: var(--bg-color);
+    font-size: 0.9em;
+}
+.referred-users-table tr:last-child td {
+    border-bottom: none;
+}
+
