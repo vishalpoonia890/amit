@@ -202,3 +202,4 @@ function AccountView({ userData, financialSummary, onLogout, onViewChange, token
 }
 
 export default AccountView;
+
