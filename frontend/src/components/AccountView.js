@@ -1,5 +1,5 @@
 import './AccountView.css';
-import React, { useEffect, useState } from 'react';
+import React, 'useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
@@ -13,10 +13,43 @@ const formatCurrency = (amount) => {
     }).format(amount || 0);
 };
 
+// --- Countdown Timer Component for the Claim Button ---
+const CountdownTimer = ({ targetDate, onEnd }) => {
+    const calculateTimeLeft = useCallback(() => {
+        if (!targetDate) return null;
+        const difference = +new Date(targetDate) - +new Date();
+        if (difference <= 0) {
+            onEnd(); // Notify parent that the timer is done
+            return null;
+        }
+        return {
+            hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+            minutes: Math.floor((difference / 1000 / 60) % 60),
+            seconds: Math.floor((difference / 1000) % 60)
+        };
+    }, [targetDate, onEnd]);
+
+    const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setTimeLeft(calculateTimeLeft());
+        }, 1000);
+        return () => clearTimeout(timer);
+    });
+    
+    if (!timeLeft) return "Claim";
+
+    return `${String(timeLeft.hours).padStart(2, '0')}:${String(timeLeft.minutes).padStart(2, '0')}:${String(timeLeft.seconds).padStart(2, '0')}`;
+};
+
+
 function AccountView({ userData, financialSummary, onLogout, onViewChange, token }) {
     const [userInvestments, setUserInvestments] = useState([]);
     const [isClaiming, setIsClaiming] = useState(false);
-    
+    const [nextClaimTime, setNextClaimTime] = useState(null);
+
+    // Fetch the user's active/completed investments
     useEffect(() => {
         const fetchInvestments = async () => {
             if (!token) return;
@@ -32,6 +65,21 @@ function AccountView({ userData, financialSummary, onLogout, onViewChange, token
         fetchInvestments();
     }, [token]);
 
+    // Calculate the next claim time based on data from financialSummary
+    useEffect(() => {
+        if (financialSummary && financialSummary.lastClaimAt) {
+            const lastClaim = new Date(financialSummary.lastClaimAt);
+            const nextClaim = new Date(lastClaim.getTime() + 24 * 60 * 60 * 1000);
+            if (nextClaim > new Date()) {
+                setNextClaimTime(nextClaim);
+            } else {
+                setNextClaimTime(null);
+            }
+        } else {
+            setNextClaimTime(null);
+        }
+    }, [financialSummary]);
+
     const handleClaimIncome = async () => {
         setIsClaiming(true);
         try {
@@ -39,24 +87,22 @@ function AccountView({ userData, financialSummary, onLogout, onViewChange, token
                 headers: { Authorization: `Bearer ${token}` }
             });
             alert(response.data.message);
-            // The main App component will handle refreshing the financial summary automatically.
+            // The main App.js component's periodic fetch will update the UI
         } catch (error) {
             alert(error.response?.data?.error || 'Failed to claim income.');
         } finally {
             setIsClaiming(false);
         }
     };
-
+    
     const user = userData || { name: 'User', ip_username: 'N/A', status: 'active' };
-    const financials = financialSummary ? {
-        todays_earnings: financialSummary.todaysIncome || 0,
-        withdrawable: financialSummary.withdrawable_wallet || 0,
-        total_balance: (financialSummary.balance || 0) + (financialSummary.withdrawable_wallet || 0)
-    } : { todays_earnings: 0, withdrawable: 0, total_balance: 0 };
+    const financials = financialSummary || { todaysIncome: 0, withdrawable_wallet: 0, balance: 0 };
+    const totalBalance = (financials.balance || 0) + (financials.withdrawable_wallet || 0);
 
     const avatarUrl = user.avatar_url || `https://placehold.co/150x150/7F56D9/FFFFFF?text=${user.name?.[0]?.toUpperCase() || 'U'}`;
-    const canClaim = financials.todays_earnings > 0;
-    const status = (user.status || 'active').replace(/\s+/g, '-').toLowerCase(); // Sanitize status for CSS class
+    const canClaim = financials.todaysIncome > 0;
+    const isOnCooldown = nextClaimTime && new Date() < nextClaimTime;
+    const status = (user.status || 'active').replace(/\s+/g, '-').toLowerCase();
 
     return (
         <div className="account-view">
@@ -76,26 +122,28 @@ function AccountView({ userData, financialSummary, onLogout, onViewChange, token
 
             <div className="earnings-card">
                 <div className="earnings-info">
-                    <p>Today's Unclaimed Earnings</p>
-                    <span className="earnings-amount">{formatCurrency(financials.todays_earnings)}</span>
+                    <p>Today's Claimable Income</p>
+                    <span className="earnings-amount">{formatCurrency(financials.todaysIncome)}</span>
                 </div>
                 <button 
                     className="claim-button" 
                     onClick={handleClaimIncome}
-                    disabled={!canClaim || isClaiming}
+                    disabled={!canClaim || isClaiming || isOnCooldown}
                 >
-                    {isClaiming ? 'Claiming...' : 'Claim'}
+                    {isClaiming ? 'Claiming...' : (
+                        isOnCooldown ? <CountdownTimer targetDate={nextClaimTime} onEnd={() => setNextClaimTime(null)} /> : 'Claim'
+                    )}
                 </button>
             </div>
 
             <div className="financial-grid-card">
                  <div className="grid-item">
                     <span className="label">Total Balance</span>
-                    <span className="value">{formatCurrency(financials.total_balance)}</span>
+                    <span className="value">{formatCurrency(totalBalance)}</span>
                 </div>
                  <div className="grid-item">
                     <span className="label">Withdrawable</span>
-                    <span className="value">{formatCurrency(financials.withdrawable)}</span>
+                    <span className="value">{formatCurrency(financials.withdrawable_wallet)}</span>
                 </div>
             </div>
             
@@ -141,7 +189,7 @@ function AccountView({ userData, financialSummary, onLogout, onViewChange, token
 
              <div className="logout-section">
                 <button className="logout-btn-styled" onClick={onLogout}>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <svg xmlns="http://www.w.3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                         <polyline points="16 17 21 12 16 7"></polyline>
                         <line x1="21" y1="12" x2="9" y2="12"></line>
