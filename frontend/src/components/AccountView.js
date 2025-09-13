@@ -1,5 +1,5 @@
 import './AccountView.css';
-import React, 'useEffect, useState, useCallback } from 'react';
+import React, {useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
