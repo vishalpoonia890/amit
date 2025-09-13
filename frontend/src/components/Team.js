@@ -74,6 +74,7 @@ function Team({ token, onBack }) {
                 <ul>
                     <li><span>Level 1:</span> Invite a new user, and when they make their first deposit, you receive a <strong>5%</strong> commission.</li>
                     <li><span>Level 2:</span> When a user you invited invites someone else, you receive a <strong>1%</strong> commission on that new user's first deposit.</li>
+                    <li><span>Ongoing:</span> You will continue to earn smaller commissions on subsequent deposits made by users in your referral chain.</li>
                 </ul>
             </div>
 
