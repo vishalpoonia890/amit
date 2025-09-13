@@ -40,6 +40,7 @@ function AdminPanel({ token }) {
     // --- State Management ---
     const [pendingDeposits, setPendingDeposits] = useState([]);
     const [pendingWithdrawals, setPendingWithdrawals] = useState([]);
+    const [platformStats, setPlatformStats] = useState({ totalDeposits: 0, totalWithdrawals: 0, platformPL: 0 });
     const [gameStatus, setGameStatus] = useState({ is_on: false, mode: 'auto', payout_priority: 'admin' });
     const [gameStats, setGameStats] = useState({ total: {}, today: {}, currentPeriod: {} });
     const [currentBets, setCurrentBets] = useState({});
@@ -64,14 +65,15 @@ function AdminPanel({ token }) {
         if (isInitialLoad) setLoading(true);
         setError('');
         try {
-            const [depositsRes, withdrawalsRes, gameStatusRes, statsRes, betsRes, analysisRes, incomeRes] = await Promise.all([
+            const [depositsRes, withdrawalsRes, gameStatusRes, statsRes, betsRes, analysisRes, incomeRes, platformStatsRes] = await Promise.all([
                 axios.get(`${API_BASE_URL}/api/admin/recharges/pending`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/withdrawals/pending`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/game-status`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/game-statistics`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/current-bets`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/game-outcome-analysis`, { headers: { Authorization: `Bearer ${token}` } }),
-                axios.get(`${API_BASE_URL}/api/admin/income-status`, { headers: { Authorization: `Bearer ${token}` } })
+                axios.get(`${API_BASE_URL}/api/admin/income-status`, { headers: { Authorization: `Bearer ${token}` } }),
+                axios.get(`${API_BASE_URL}/api/admin/platform-stats`, { headers: { Authorization: `Bearer ${token}` } })
             ]);
             setPendingDeposits(depositsRes.data.recharges || []);
             setPendingWithdrawals(withdrawalsRes.data.withdrawals || []);
@@ -80,6 +82,7 @@ function AdminPanel({ token }) {
             setCurrentBets(betsRes.data.summary || {});
             setOutcomeAnalysis(analysisRes.data || { mostProfitable: [], leastProfitable: [] });
             setIncomeStatus(incomeRes.data);
+            setPlatformStats(platformStatsRes.data);
         } catch (err) {
             if (isInitialLoad) setError('Failed to fetch admin data. Auto-refresh paused.');
             console.error(err);
@@ -210,6 +213,26 @@ function AdminPanel({ token }) {
         <div className="admin-panel">
             <h1>Admin Control Panel</h1>
             
+            <div className="admin-section stats-section">
+                <h2>Platform Financials</h2>
+                <div className="stats-grid">
+                    <div className="stat-card">
+                        <h4>Total Deposits</h4>
+                        <p className="stat-value positive">{formatCurrency(platformStats.totalDeposits)}</p>
+                    </div>
+                    <div className="stat-card">
+                        <h4>Total Withdrawals</h4>
+                        <p className="stat-value negative">{formatCurrency(platformStats.totalWithdrawals)}</p>
+                    </div>
+                    <div className="stat-card">
+                        <h4>Platform P/L</h4>
+                        <p className={`stat-value ${platformStats.platformPL >= 0 ? 'positive' : 'negative'}`}>
+                            {formatCurrency(platformStats.platformPL)}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
             <div className="admin-section stats-section">
                 <h2>Game P/L Statistics</h2>
                 <div className="stats-grid">
