@@ -3,7 +3,7 @@
     top: 0;
     left: 0;
     right: 0;
-    width: 100%; /* full width */
+    width: 100%;
     height: 60px;
     display: flex;
     align-items: center;
@@ -13,15 +13,17 @@
     border-bottom: 1px solid var(--border-color);
     z-index: 100;
     box-shadow: var(--card-shadow);
-    border-radius: 0 0 16px 16px; /* curve bottom edges */
+    border-radius: 0 0 16px 16px;
+    box-sizing: border-box;
 }
 
 .nav-left, .nav-right {
     flex: 1;
+    display: flex;
+    align-items: center;
 }
 
 .nav-right {
-    display: flex;
     justify-content: flex-end;
 }
 
@@ -32,6 +34,9 @@
 
 .balance-display {
     display: inline-block;
+    white-space: nowrap; /* Prevent breaking */
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .balance-label {
@@ -79,4 +84,46 @@
     align-items: center;
     justify-content: center;
     border: 2px solid var(--card-bg-color);
+}
+
+/* 📱 Mobile responsive adjustments */
+@media (max-width: 600px) {
+    .top-nav {
+        height: 50px;
+        padding: 0 10px;
+        border-radius: 0 0 12px 12px;
+    }
+
+    .balance-label {
+        font-size: 0.65rem;
+    }
+
+    .balance-amount {
+        font-size: 1rem;
+    }
+
+    .icon-btn {
+        padding: 6px;
+    }
+
+    .notification-badge {
+        width: 16px;
+        height: 16px;
+        font-size: 0.6rem;
+    }
+}
+
+/* 📲 Very small devices (320px - 400px) */
+@media (max-width: 400px) {
+    .nav-center {
+        flex: 3; /* Give balance more room */
+    }
+
+    .balance-amount {
+        font-size: 0.9rem;
+    }
+
+    .balance-label {
+        display: none; /* hide label on extra small screens */
+    }
 }
