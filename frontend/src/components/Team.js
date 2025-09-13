@@ -69,7 +69,6 @@ function Team({ token, onBack }) {
                 </div>
             </div>
 
-            {/* ✅ NEW: Referral Bonus Information Box */}
             <div className="team-card info-box">
                 <h4>Referral Bonus Structure</h4>
                 <ul>
@@ -126,3 +125,4 @@ function Team({ token, onBack }) {
 }
 
 export default Team;
+
