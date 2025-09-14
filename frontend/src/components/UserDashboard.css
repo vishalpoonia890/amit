@@ -1,145 +1,137 @@
 .user-dashboard {
-    padding: 10px;
+    padding: 20px;
     padding-bottom: 80px; /* Space for bottom nav */
-    background-color: var(--bg-color);
 }
 
 .dashboard-card {
     background-color: var(--card-bg-color);
     border-radius: 12px;
-    padding: 15px;
-    margin-bottom: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
     box-shadow: var(--card-shadow);
     border: 1px solid var(--border-color);
 }
 
-.dashboard-card h4 {
-    margin-top: 0;
-    margin-bottom: 15px;
-    text-align: center;
-    color: var(--primary-color);
-    font-size: 1.1em;
-    font-weight: 600;
-}
-
-/* Quick Access Menu */
+/* --- Quick Access Menu --- */
 .menu-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
+    gap: 15px; /* Space between the bordered wrappers */
+}
+
+/* This is the new wrapper that holds the border */
+.menu-item-wrapper {
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    transition: all 0.2s ease-in-out;
+}
+
+/* Add a hover effect to the wrapper */
+.menu-item-wrapper:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    border-color: var(--primary-color);
 }
 
 .menu-item {
-    background-color: transparent;
-    border: none;
-    border-radius: 10px;
-    padding: 10px 5px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    background-color: transparent; /* The button itself has no background */
+    border: none;
+    padding: 12px 5px;
+    width: 100%;
+    height: 100%;
     cursor: pointer;
-    transition: background-color 0.2s, transform 0.2s;
-    color: var(--text-color);
     text-align: center;
-}
-
-.menu-item:hover {
-    background-color: var(--primary-color-light);
-    transform: translateY(-3px);
+    color: var(--text-color);
+    border-radius: 11px; /* Slightly smaller than wrapper to prevent overlap */
 }
 
 .menu-icon {
-    font-size: 1.8em;
-    line-height: 1;
+    font-size: 1.8rem;
     margin-bottom: 8px;
+    line-height: 1;
 }
 
 .menu-label {
-    font-size: 0.75em;
+    font-size: 0.75rem;
     font-weight: 500;
 }
 
-/* Video Section */
+/* --- Video Section --- */
+.video-section h4 {
+    margin: 0 0 15px 0;
+    font-size: 1.1em;
+}
+
 .video-placeholder {
     width: 100%;
     aspect-ratio: 16 / 9;
-    background-color: #000;
     border-radius: 8px;
     overflow: hidden;
+    background-color: #000;
 }
 
 .video-placeholder iframe {
     width: 100%;
     height: 100%;
-    border: none;
 }
 
-/* Marquee Ticker */
+/* --- Marquee/Ticker Section --- */
 .marquee-container {
     width: 100%;
     overflow: hidden;
     background-color: var(--card-bg-color);
-    color: var(--text-color);
-    padding: 12px 0;
+    padding: 10px 0;
     border-radius: 8px;
-    margin-bottom: 15px;
-    white-space: nowrap;
+    margin-bottom: 20px;
     border: 1px solid var(--border-color);
 }
 
 .marquee-content {
-    display: inline-block;
-    padding-left: 100%;
-    /* Increased duration from 50s to 80s to slow down by ~40% */
-    animation: marquee 80s linear infinite;
+    display: flex;
+    animation: marquee 30s linear infinite;
 }
 
 .marquee-item {
-    display: inline-block;
-    margin-right: 60px;
+    flex-shrink: 0;
+    padding: 0 20px;
     font-size: 0.9em;
-}
-
-.marquee-item strong {
-    color: var(--primary-color);
+    color: var(--text-color-light);
 }
 
 @keyframes marquee {
-    0% {
-        transform: translateX(0);
-    }
-    100% {
-        transform: translateX(-100%);
-    }
+    from { transform: translateX(0%); }
+    to { transform: translateX(-50%); }
 }
 
-/* Updates Accordion */
-.updates-section {
-    padding-top: 5px;
+/* --- Accordion/FAQ Section --- */
+.updates-section h4 {
+    margin: 0 0 15px 0;
+    font-size: 1.1em;
 }
 
 .accordion-item {
     border-bottom: 1px solid var(--border-color);
 }
-
 .accordion-item:last-child {
     border-bottom: none;
 }
 
 .accordion-header {
     width: 100%;
-    background: none;
-    border: none;
-    text-align: left;
     padding: 15px 5px;
-    font-size: 1em;
-    font-weight: 600;
-    color: var(--text-color);
-    cursor: pointer;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: 600;
+    color: var(--text-color);
 }
 
 .accordion-icon {
@@ -148,31 +140,19 @@
 }
 
 .accordion-content {
-    padding: 0 10px 15px 10px;
+    padding: 0 5px 15px 5px;
     font-size: 0.9em;
     color: var(--text-color-light);
     line-height: 1.6;
-    animation: fadeIn 0.3s ease-in-out;
 }
 
 .accordion-content ul {
-    padding-left: 20px;
+    list-style-position: inside;
+    padding-left: 5px;
     margin-top: 10px;
-    margin-bottom: 0;
 }
 
 .accordion-content li {
-    margin-bottom: 8px;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-5px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    margin-bottom: 5px;
 }
 
