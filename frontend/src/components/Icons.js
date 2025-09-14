@@ -7,6 +7,7 @@ const Icon = ({ path, className = "w-6 h-6" }) => (
     </svg>
 );
 
+// --- Icons for TopNav ---
 export const BellIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6">
         <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
@@ -22,6 +23,27 @@ export const ThemeIcon = ({ theme }) => (
         <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
       </svg>
 );
+
+// --- Icons for UserDashboard ---
+export const DepositIcon = () => <span>💰</span>;
+export const WithdrawIcon = () => <span>💸</span>;
+export const RewardsIcon = () => <span>🎁</span>;
+// ✅ UPDATED: Changed the Sell USDT icon to a proper SVG symbol
+export const SellUsdtIcon = () => (
+    <svg width="24" height="24" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="50" cy="50" r="50" fill="#26A17B"/>
+        <path d="M68 32H32V40H46V68H54V40H68V32Z" fill="white"/>
+    </svg>
+);
+export const TeamIcon = () => <span>👥</span>;
+export const SupportIcon = () => <span>💬</span>;
+export const WalletIcon = () => <span>💼</span>;
+export const PromotionsIcon = () => <span>🔥</span>;
+
+// --- Icons for Sell USDT Page ---
+export const BitcoinIcon = () => <span>💡</span>;
+export const TwentyDayIcon = () => <span>🛡️</span>;
+export const QuickDisbursalIcon = () => <span>⚡️</span>;
 
 export default Icon;
 
