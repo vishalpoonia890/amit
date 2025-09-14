@@ -240,8 +240,7 @@ function ProductsAndPlans({ token, userBalance, onPurchaseComplete, allPlans = [
                 </ul>
             </div>
             
-            <CategoryStats stats={categoryData[activeCategory].stats} />
-
+            {/* ✅ UPDATED: The product grid now appears before the statistics */}
             <div className="plans-grid">
                 {plansLoading ? (
                     <p>Loading plans...</p>
@@ -284,6 +283,10 @@ function ProductsAndPlans({ token, userBalance, onPurchaseComplete, allPlans = [
                     })
                 )}
             </div>
+
+            {/* ✅ UPDATED: The statistics card is now at the bottom of the page */}
+            <CategoryStats stats={categoryData[activeCategory].stats} />
+
         </div>
     );
 }
