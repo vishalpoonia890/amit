@@ -1,0 +1,145 @@
+.sell-usdt-page {
+    padding: 20px;
+    padding-bottom: 80px;
+}
+
+.page-title {
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 20px;
+}
+
+.info-card-grid {
+    display: grid;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.info-card {
+    background-color: var(--card-bg-color);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    border: 1px solid var(--border-color);
+}
+
+.info-icon {
+    flex-shrink: 0;
+}
+
+.info-card h4 {
+    margin: 0 0 5px 0;
+    color: var(--text-color);
+}
+
+.info-card p {
+    margin: 0;
+    font-size: 0.9em;
+    color: var(--text-color-light);
+}
+
+.calculator-card, .market-rates-card {
+    background-color: var(--card-bg-color);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 25px;
+    border: 1px solid var(--border-color);
+}
+
+.calculator-card h4, .market-rates-card h4 {
+    margin: 0 0 15px 0;
+    text-align: center;
+}
+
+.rate-note {
+    text-align: center;
+    font-size: 0.8em;
+    color: var(--text-color-light);
+    margin-bottom: 15px;
+}
+
+.calculator-inputs {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.input-group {
+    flex: 1;
+}
+
+.input-group label {
+    font-size: 0.8em;
+    color: var(--text-color-light);
+    display: block;
+    margin-bottom: 5px;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-color);
+    font-size: 1.2em;
+    font-weight: 600;
+    text-align: center;
+}
+
+.equals-sign {
+    font-size: 1.5em;
+    font-weight: 600;
+    color: var(--text-color-light);
+    padding-top: 20px; /* Align with inputs */
+}
+
+.action-button {
+    display: block;
+    width: 100%;
+    text-align: center;
+    background-color: var(--primary-color);
+    color: white;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.crypto-rate-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+.crypto-rate-row:last-child {
+    border-bottom: none;
+}
+
+.crypto-name {
+    display: flex;
+    flex-direction: column;
+}
+.crypto-name .crypto-symbol {
+    font-size: 0.8em;
+    color: var(--text-color-light);
+}
+
+.crypto-price {
+    text-align: right;
+}
+.crypto-price .crypto-change {
+    font-size: 0.9em;
+}
+.crypto-change.positive {
+    color: var(--success-color);
+}
+.crypto-change.negative {
+    color: var(--error-color);
+}
