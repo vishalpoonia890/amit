@@ -19,6 +19,7 @@ import Withdrawal from './components/Withdrawal';
 import BetHistory from './components/BetHistory';
 import TransactionHistory from './components/TransactionHistory';
 import NotificationsDialog from './components/NotificationsDialog';
+import SellUsdt from './components/SellUsdt'; // ✅ ADDED: Import the new component
 
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
 
@@ -242,7 +243,7 @@ function App() {
             case 'news': return <NewsView />;
             case 'account': return <AccountView userData={userData} financialSummary={financialSummary} onLogout={handleLogout} onViewChange={setView} token={token}/>;
             case 'rewards': return <Rewards onBack={goBackToDashboard} />;
-            case 'invite': return <Team token={token} onBack={goBackToDashboard} />;
+            case 'sell-usdt': return <SellUsdt onBack={goBackToDashboard} />; // ✅ UPDATED: Added the new view
             case 'team': return <Team token={token} onBack={goBackToDashboard} />;
             case 'support': return <Support onBack={goBackToDashboard} />;
             case 'wallet': return <Wallet financialSummary={financialSummary} onBack={goBackToDashboard} />;
@@ -295,3 +296,4 @@ function App() {
 }
 
 export default App;
+
