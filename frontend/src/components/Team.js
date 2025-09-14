@@ -72,9 +72,9 @@ function Team({ token, onBack }) {
             <div className="team-card info-box">
                 <h4>Referral Bonus Structure</h4>
                 <ul>
-                    <li><span>Level 1:</span> Invite a new user, and when they make their first deposit, you receive a <strong>5%</strong> commission.</li>
-                    <li><span>Level 2:</span> When a user you invited invites someone else, you receive a <strong>1%</strong> commission on that new user's first deposit.</li>
-                    <li><span>Ongoing:</span> You will continue to earn smaller commissions on subsequent deposits made by users in your referral chain.</li>
+                    <li><span>Level 1:</span> Invite a user, and when they deposit, you receive a <strong>5%</strong> commission.</li>
+                    <li><span>Level 2:</span> When your invited user invites someone, you get a <strong>1%</strong> commission on their deposit.</li>
+                    <li><span>Ongoing Rewards:</span> You may also earn smaller commissions on subsequent deposits in your referral chain.</li>
                 </ul>
             </div>
 
@@ -119,7 +119,6 @@ function Team({ token, onBack }) {
                     </table>
                 </div>
             </div>
-
         </div>
     );
 }
