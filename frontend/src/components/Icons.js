@@ -28,7 +28,6 @@ export const ThemeIcon = ({ theme }) => (
 export const DepositIcon = () => <span>💰</span>;
 export const WithdrawIcon = () => <span>💸</span>;
 export const RewardsIcon = () => <span>🎁</span>;
-// ✅ UPDATED: Changed the Sell USDT icon to a proper SVG symbol
 export const SellUsdtIcon = () => (
     <svg width="24" height="24" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
         <circle cx="50" cy="50" r="50" fill="#26A17B"/>
@@ -44,6 +43,16 @@ export const PromotionsIcon = () => <span>🔥</span>;
 export const BitcoinIcon = () => <span>💡</span>;
 export const TwentyDayIcon = () => <span>🛡️</span>;
 export const QuickDisbursalIcon = () => <span>⚡️</span>;
+
+// --- Crypto Icons ---
+export const BtcIcon = () => <svg fill="#F7931A" viewBox="0 0 24 24"><path d="M16.6 13.92c.49-.29.81-.83.81-1.42 0-.92-.75-1.67-1.67-1.67h-1.61v3.33h1.61c.45 0 .87-.17 1.18-.47l-.32-.37zm-1.6-4.17h2.15c.92 0 1.67.75 1.67 1.67s-.75 1.67-1.67 1.67h-2.15V9.75zm3.33 5h-2.15c-.45 0-.87.17-1.18.47l.32.37c.49.29.81.83.81 1.42 0 .92-.75 1.67-1.67 1.67h-2.15v-5h-1.06v5.62c0 .35-.28.63-.63.63H10.5c-.35 0-.63-.28-.63-.63V7.75c0-.35.28-.63.63-.63h3.75c.35 0 .63.28.63.63v1.07h1.61c1.47 0 2.65.96 2.65 2.15 0 .8-.5 1.5-1.21 1.85l1.43 1.67c.2.23.16.58-.07.78-.11.1-.24.15-.37.15-.17 0-.33-.08-.44-.22l-1.4-1.64z"/></svg>;
+export const EthIcon = () => <svg fill="#627EEA" viewBox="0 0 24 24"><path d="M12 1.75l-6.25 10.5 6.25 3.5 6.25-3.5L12 1.75zM12 17.25l-6.25-3.5 6.25 6.25 6.25-6.25-6.25 3.5z"/></svg>;
+export const SolIcon = () => <svg fill="#9945FF" viewBox="0 0 24 24"><path d="M4 10.45h4.86v3.1H4zM9.8 4h4.4v3.1h-4.4zM9.8 16.9h4.4v3.1h-4.4zM15.14 10.45H20v3.1h-4.86z"/></svg>;
+export const DogeIcon = () => <svg fill="#C2A633" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.68 15.15c-.32 0-.6-.11-.83-.29-.44-.35-.65-.9-.65-1.52V8.42c0-.62.21-1.17.65-1.52.23-.18.51-.29.83-.29.32 0 .6.11.83.29.44.35.65.9.65 1.52v6.92c0 .62-.21 1.17-.65 1.52-.23.18-.51.29-.83.29zm-4.32 0c-.32 0-.6-.11-.83-.29-.44-.35-.65-.9-.65-1.52V8.42c0-.62.21-1.17.65-1.52.23-.18.51-.29.83-.29s.6.11.83.29c.44.35.65.9.65 1.52v6.92c0 .62-.21 1.17-.65 1.52-.23.18-.51.29-.83.29z"/></svg>;
+export const UsdtIcon = () => <svg fill="#26A17B" viewBox="0 0 24 24"><path d="M12 2c5.52 0 10 4.48 10 10s-4.48 10-10 10S2 17.52 2 12 6.48 2 12 2zm4 6h-8v2h3v6h2v-6h3V8z"/></svg>;
+export const XrpIcon = () => <svg fill="#23292F" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1.18 4.29l1.18 1.18 1.18-1.18-1.18-1.18-1.18 1.18zM6.29 9.17l1.18 1.18 1.18-1.18-1.18-1.18-1.18 1.18zm8.24 0l1.18 1.18 1.18-1.18-1.18-1.18-1.18 1.18zm-4.12 2.96L9.23 15l-1.18-1.18 1.18-1.18 1.18 1.18zm5.29 0l-1.18 1.18-1.18-1.18 1.18-1.18 1.18 1.18zm-4.12 2.96l1.18 1.18 1.18-1.18-1.18-1.18-1.18 1.18z"/></svg>;
+export const AdaIcon = () => <svg fill="#0033AD" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1.03 4.28l5.03 2.9-5.03 2.9-5.03-2.9 5.03-2.9zm0 6.84l5.03 2.9-5.03 2.9-5.03-2.9 5.03-2.9z"/></svg>;
+
 
 export default Icon;
 
