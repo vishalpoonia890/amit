@@ -200,6 +200,5 @@ function AccountView({ userData, financialSummary, onLogout, onViewChange, token
         </div>
     );
 }
-
 export default AccountView;
 
