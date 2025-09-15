@@ -124,8 +124,9 @@
 .toggle-switch button { background: none; border: none; padding: 8px 20px; cursor: pointer; color: var(--text-color-light); font-weight: 500; transition: background-color 0.2s, color 0.2s; }
 .toggle-switch button.active { background-color: var(--primary-color); color: white; }
 .input-group { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-.input-group input, .input-group select { width: 180px; padding: 8px; border: 1px solid var(--border-color); background-color: var(--bg-color); border-radius: 8px; color: var(--text-color); }
+.input-group input, .input-group select, .input-group textarea { width: 100%; padding: 8px; border: 1px solid var(--border-color); background-color: var(--bg-color); border-radius: 8px; color: var(--text-color); }
 .input-group button { background-color: var(--primary-color-light); color: var(--primary-color); font-weight: 600; border: none; padding: 9px 15px; border-radius: 8px; cursor: pointer; }
+.input-group textarea { resize: vertical; min-height: 80px; }
 
 /* --- Server & User Actions --- */
 .server-actions .action-group { padding: 15px 0; border-bottom: 1px solid var(--border-color); }
@@ -134,7 +135,6 @@
 .server-actions p { margin-top: 0; margin-bottom: 10px; color: var(--text-color-light); font-size: 0.9em; }
 .action-btn { background-color: var(--primary-color-light); color: var(--primary-color); border: 1px solid var(--primary-color); padding: 10px 15px; border-radius: 8px; font-weight: 600; cursor: pointer; }
 .action-btn:disabled { background-color: var(--border-color); color: var(--text-color-light); border-color: var(--text-color-light); cursor: not-allowed; }
-.cooldown-timer { margin-left: 15px; font-size: 0.9em; color: var(--text-color-light); }
 
 .user-status-result { border-top: 1px solid var(--border-color); margin-top: 15px; padding-top: 15px; }
 .user-status-result h4 { margin: 0 0 10px; }
@@ -159,6 +159,12 @@
 .approve-btn:disabled, .reject-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 .approve-btn { background-color: var(--success-color); }
 .reject-btn { background-color: var(--error-color); }
+
+.screenshot-link {
+    color: var(--primary-color);
+    font-weight: bold;
+    text-decoration: underline;
+}
 
 .error-message.small {
     font-size: 0.8em;
