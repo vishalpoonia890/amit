@@ -1,142 +1,219 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { createClient } from '@supabase/supabase-js';
 import './FormPages.css';
-import upiQrCode from '../assets/ptys.jpg';
-import cryptoQrCode from '../assets/usdt.jpg';
+
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
 
-const USDT_TO_INR_RATE = 92;
+// IMPORTANT: You must add these variables to your frontend's .env file
+// In Create React App, they would be in a file named .env.local
+const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
+const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-function Deposit({ token, onBack,onDepositRequest }) {
-    const [inputAmount, setInputAmount] = useState(500);
+function Deposit({ token, onBack, onDepositRequest }) {
+    const [step, setStep] = useState(1);
+    const [amount, setAmount] = useState('');
     const [utr, setUtr] = useState('');
-    const [method, setMethod] = useState('upi');
+    const [paymentInfo, setPaymentInfo] = useState({ upi: {} });
+    const [maintenance, setMaintenance] = useState({ isDown: false, endsAt: null });
     const [loading, setLoading] = useState(false);
-    const [showSuccess, setShowSuccess] = useState(false);
+    const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
+    
+    // New state for file upload
+    const [screenshotFile, setScreenshotFile] = useState(null);
+    const [filePreview, setFilePreview] = useState('');
 
-    const handleAmountChange = (e) => {
-        setInputAmount(Math.max(0, parseFloat(e.target.value) || 0));
+    useEffect(() => {
+        const fetchDepositInfo = async () => {
+            setLoading(true);
+            try {
+                const { data } = await axios.get(`${API_BASE_URL}/api/deposit-info`, { headers: { Authorization: `Bearer ${token}` } });
+                const upiData = data.methods.find(m => m.method_name === 'UPI') || {};
+                setPaymentInfo({ upi: upiData });
+                
+                const status = data.status;
+                if (status.is_maintenance && new Date(status.maintenance_ends_at) > new Date()) {
+                    setMaintenance({ isDown: true, endsAt: status.maintenance_ends_at });
+                }
+            } catch (error) {
+                console.error("Failed to fetch deposit info:", error);
+                setError("Could not load deposit information. Please try again later.");
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchDepositInfo();
+    }, [token]);
+
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            // Basic validation for file type and size (optional but recommended)
+            if (!file.type.startsWith('image/')) {
+                setError('Please upload a valid image file (jpg, png, webp).');
+                return;
+            }
+            if (file.size > 5 * 1024 * 1024) { // 5MB limit
+                setError('File is too large. Please upload an image under 5MB.');
+                return;
+            }
+            setError('');
+            setScreenshotFile(file);
+            setFilePreview(URL.createObjectURL(file));
+        }
     };
 
-    const finalInrAmount = method === 'crypto' ? inputAmount * USDT_TO_INR_RATE : inputAmount;
-
-    const handleSubmitRecharge = async (e) => {
+    const handleDepositSubmit = async (e) => {
         e.preventDefault();
-        if (!utr.trim()) {
-            alert('Please enter the UTR / Hash after payment to confirm your transaction.');
+        if (!utr || utr.length < 12) {
+            setError("Please enter a valid 12-digit UTR number.");
+            return;
+        }
+        if (!screenshotFile) {
+            setError("Please upload a screenshot of your payment.");
             return;
         }
         setLoading(true);
+        setError('');
+
         try {
+            // 1. Get the current user's ID for creating a unique folder path
+            const userResponse = await supabase.auth.getUser();
+            const userId = userResponse.data.user.id;
+            const filePath = `${userId}/${Date.now()}_${screenshotFile.name}`;
+
+            // 2. Upload the screenshot to Supabase Storage
+            const { data: uploadData, error: uploadError } = await supabase.storage
+                .from('payment-screenshots')
+                .upload(filePath, screenshotFile);
+
+            if (uploadError) throw uploadError;
+
+            // 3. Get the public URL of the uploaded file
+            const { data: urlData } = supabase.storage
+                .from('payment-screenshots')
+                .getPublicUrl(uploadData.path);
+            
+            const screenshotUrl = urlData.publicUrl;
+
+            // 4. Submit the recharge request to your server with all details
             await axios.post(
                 `${API_BASE_URL}/api/recharge`,
-                { amount: finalInrAmount, utr: utr.trim() },
+                { amount: parseInt(amount), utr, screenshotUrl },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
-            onDepositRequest(finalInrAmount);
-            setShowSuccess(true);
-            setTimeout(() => onBack(), 2500);
-        } catch (error) {
-            alert(error.response?.data?.error || 'Failed to submit deposit request.');
+            
+            onDepositRequest(amount);
+            setSuccess("Your deposit request has been submitted successfully!");
+            setTimeout(() => onBack(), 2000);
+
+        } catch (err) {
+            console.error(err);
+            setError(err.response?.data?.error || "Failed to submit request. Please try again.");
         } finally {
             setLoading(false);
         }
     };
     
     const copyToClipboard = (text) => {
-        try {
-            const textArea = document.createElement("textarea");
-            textArea.value = text;
-            document.body.appendChild(textArea);
-            textArea.focus();
-            textArea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textArea);
-            alert('Copied to clipboard!');
-        } catch (err) {
-            alert('Failed to copy. Please copy it manually.');
-        }
+        navigator.clipboard.writeText(text).then(() => alert('Copied to clipboard!'));
     };
 
-    const paymentDetails = {
-        upi: { id: 'paytmqr5ie20t@ptys', name: 'Vishal' },
-        crypto: { address: 'TWQRgSUEkcS7q94BSovj2s9JSneHh7fRnp', network: 'USDT (TRC20)' }
-    };
-
-    if (showSuccess) {
+    if (maintenance.isDown) {
         return (
-             <div className="form-page">
-                 <div className="form-container">
-                    <div className="success-message">
-                        <div className="icon">✅</div>
-                        <h3>Request Submitted!</h3>
-                        <p>Your deposit is pending approval and will be reflected in your balance soon.</p>
-                    </div>
+            <div className="form-page">
+                <div className="maintenance-notice">
+                    <h3>Deposits Temporarily Unavailable</h3>
+                    <p>We are currently performing scheduled maintenance. Please try again later.</p>
                 </div>
             </div>
-        )
+        );
     }
 
     return (
-        <div className="form-page">
-            <button className="back-button" onClick={onBack}>← Back</button>
-            <div className="form-container">
-                <h2 className="form-title">Deposit Funds</h2>
-                
-                {/* MOVED: Bonus message is now here */}
-                {method === 'upi' && (
-                    <div className="promo-banner">
-                        🎉 Current Offer: <strong>Get 10% Extra Bonus</strong> on <strong>USDT</strong> deposits! 🎉
+        <div className="recharge-container">
+            <div className="recharge-header">
+                <button onClick={onBack} className="secondary-button">←</button>
+                <h1>Wallet Recharge</h1>
+                <div></div> {/* Placeholder for alignment */}
+            </div>
+
+            {error && <div className="error-message">{error}</div>}
+            {success && <div className="success-message">{success}</div>}
+
+            <div className="recharge-card">
+                <div className="recharge-steps">
+                    {["Amount", "Pay", "Confirm"].map((label, i) => (
+                        <div key={label} className={`step ${step >= i + 1 ? "active" : ""} ${step > i + 1 ? "completed" : ""}`}>
+                            <div className="step-circle">{i + 1}</div>
+                            <div className="step-label">{label}</div>
+                        </div>
+                    ))}
+                </div>
+
+                {step === 1 && (
+                    <div className="recharge-step">
+                        <h2>Enter Recharge Amount</h2>
+                        <input
+                            type="number"
+                            className="amount-input"
+                            placeholder="e.g., 500"
+                            value={amount}
+                            onChange={(e) => setAmount(e.target.value)}
+                        />
+                        <div className="form-buttons">
+                            <button className="gradient-button" onClick={() => setStep(2)} disabled={!amount || parseInt(amount) < 100}>
+                                Proceed to Pay
+                            </button>
+                        </div>
+                    </div>
+                )}
+            
+                {step === 2 && (
+                    <div className="recharge-step">
+                        <h2>Complete Payment</h2>
+                        <p>Scan the QR to pay <strong>₹{parseInt(amount).toLocaleString()}</strong></p>
+                        <img src={paymentInfo.upi.qr_code_url} alt="UPI QR Code" className="qr-code" />
+                        <div className="upi-id-display">
+                            <span>{paymentInfo.upi.account_id}</span>
+                            <button className="copy-button" onClick={() => copyToClipboard(paymentInfo.upi.account_id)}>Copy</button>
+                        </div>
+                        <div className="form-buttons">
+                            <button className="secondary-button" onClick={() => setStep(1)}>Back</button>
+                            <button className="gradient-button" onClick={() => setStep(3)}>Next Step</button>
+                        </div>
                     </div>
                 )}
 
-                <div className="method-selector">
-                    <button className={method === 'upi' ? 'active' : ''} onClick={() => setMethod('upi')}>UPI</button>
-                    <button className={method === 'crypto' ? 'active' : ''} onClick={() => setMethod('crypto')}>Crypto</button>
-                </div>
-                <div className="form-card">
-                    <h4>Step 1: Make Payment</h4>
-                    <p className="form-subtitle">Enter an amount and pay using the details below.</p>
-                     <div className="form-group">
-                        <label>Amount ({method === 'upi' ? '₹' : 'USDT'})</label>
-                        <input type="number" value={inputAmount} onChange={handleAmountChange} min="1" />
-                    </div>
-
-                    {method === 'crypto' && (
-                        <p className="conversion-note">
-                            You are depositing <strong>{inputAmount} USDT</strong> which is equal to <strong>₹{finalInrAmount.toLocaleString('en-IN')}</strong>.
-                        </p>
-                    )}
-
-                    <div className="qr-code-container">
-                        <img src={method === 'upi' ? upiQrCode : cryptoQrCode} alt={`${method.toUpperCase()} QR Code`} />
-                    </div>
-
-                    {method === 'upi' && (
-                        <div className="payment-info">
-                            <p><strong>UPI ID:</strong> {paymentDetails.upi.id} <button onClick={() => copyToClipboard(paymentDetails.upi.id)} className="copy-btn">Copy</button></p>
-                            <p><strong>Name:</strong> {paymentDetails.upi.name}</p>
+                {step === 3 && (
+                    <form className="recharge-step" onSubmit={handleDepositSubmit}>
+                        <h2>Confirm Your Payment</h2>
+                        <input
+                            type="text"
+                            placeholder="Enter 12-digit UTR"
+                            value={utr}
+                            onChange={(e) => setUtr(e.target.value.replace(/[^a-zA-Z0-9]/g, "").slice(0, 12))}
+                            className="utr-input"
+                        />
+                        <div className="upload-area">
+                            <label htmlFor="screenshot-upload">
+                                {filePreview ? 
+                                    <img src={filePreview} alt="Screenshot Preview" className="screenshot-preview"/> : 
+                                    "Click to Upload Screenshot"
+                                }
+                            </label>
+                            <input id="screenshot-upload" type="file" accept="image/*" onChange={handleFileChange} />
                         </div>
-                    )}
-
-                    {method === 'crypto' && (
-                        <div className="payment-info">
-                             <p><strong>Network:</strong> {paymentDetails.crypto.network}</p>
-                            <p><strong>Address:</strong> <span className="crypto-address">{paymentDetails.crypto.address}</span> <button onClick={() => copyToClipboard(paymentDetails.crypto.address)} className="copy-btn">Copy</button></p>
+                        <div className="form-buttons">
+                            <button type="button" className="secondary-button" onClick={() => setStep(2)}>Back</button>
+                            <button type="submit" className="gradient-button" disabled={loading || !utr || !screenshotFile}>
+                                {loading ? "Submitting..." : "Submit Request"}
+                            </button>
                         </div>
-                    )}
-                </div>
-                <form onSubmit={handleSubmitRecharge} className="form-card">
-                     <h4>Step 2: Confirm Deposit</h4>
-                     <p className="form-subtitle">After paying, enter the transaction number to confirm.</p>
-                    <div className="form-group">
-                        <label htmlFor="utr">{method === 'upi' ? 'UTR Number' : 'Transaction Hash'}</label>
-                        <input id="utr" type="text" value={utr} onChange={(e) => setUtr(e.target.value)} placeholder={method === 'upi' ? 'Enter 12-digit UTR' : 'Enter transaction hash'} required />
-                    </div>
-                    <button type="submit" className="form-button" disabled={loading}>
-                        {loading ? 'Submitting...' : `Confirm Deposit of ₹${finalInrAmount.toLocaleString()}`}
-                    </button>
-                </form>
+                    </form>
+                )}
             </div>
         </div>
     );
