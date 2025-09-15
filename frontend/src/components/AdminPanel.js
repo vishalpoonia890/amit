@@ -14,27 +14,6 @@ const formatCurrency = (amount) => {
     }).format(amount);
 };
 
-const CooldownTimer = ({ targetDate }) => {
-    const calculateTimeLeft = useCallback(() => {
-        if (!targetDate) return 'Loading...';
-        const difference = +new Date(targetDate) - +new Date();
-        if (difference <= 0) return 'Ready Now';
-        const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
-        const minutes = Math.floor((difference / 1000 / 60) % 60);
-        const seconds = Math.floor((difference / 1000) % 60);
-        return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-    }, [targetDate]);
-
-    const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
-
-    useEffect(() => {
-        const timer = setInterval(() => setTimeLeft(calculateTimeLeft()), 1000);
-        return () => clearInterval(timer);
-    }, [calculateTimeLeft]);
-
-    return <span>{timeLeft}</span>;
-};
-
 // --- Main Admin Panel Component ---
 function AdminPanel({ token }) {
     // --- State Management ---
@@ -46,16 +25,21 @@ function AdminPanel({ token }) {
     const [currentBets, setCurrentBets] = useState({});
     const [outcomeAnalysis, setOutcomeAnalysis] = useState({ mostProfitable: [], leastProfitable: [] });
     const [nextResult, setNextResult] = useState('');
-    const [incomeStatus, setIncomeStatus] = useState({ canDistribute: false, nextDistributionTime: null });
     
     // States for "Manage User" features
-    const [customUserId, setCustomUserId] = useState('');
     const [userStatusId, setUserStatusId] = useState('');
     const [newStatus, setNewStatus] = useState('active');
     const [searchUserId, setSearchUserId] = useState('');
     const [searchedUserInfo, setSearchedUserInfo] = useState(null);
     const [searchLoading, setSearchLoading] = useState(false);
     const [searchError, setSearchError] = useState('');
+
+    // States for Bonus & Promotions
+    const [bonusAmount, setBonusAmount] = useState('');
+    const [bonusReason, setBonusReason] = useState('');
+    const [bonusUserIds, setBonusUserIds] = useState('');
+    const [promoTitle, setPromoTitle] = useState('');
+    const [promoMessage, setPromoMessage] = useState('');
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -65,14 +49,13 @@ function AdminPanel({ token }) {
         if (isInitialLoad) setLoading(true);
         setError('');
         try {
-            const [depositsRes, withdrawalsRes, gameStatusRes, statsRes, betsRes, analysisRes, incomeRes, platformStatsRes] = await Promise.all([
+            const [depositsRes, withdrawalsRes, gameStatusRes, statsRes, betsRes, analysisRes, platformStatsRes] = await Promise.all([
                 axios.get(`${API_BASE_URL}/api/admin/recharges/pending`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/withdrawals/pending`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/game-status`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/game-statistics`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/current-bets`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/game-outcome-analysis`, { headers: { Authorization: `Bearer ${token}` } }),
-                axios.get(`${API_BASE_URL}/api/admin/income-status`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/platform-stats`, { headers: { Authorization: `Bearer ${token}` } })
             ]);
             setPendingDeposits(depositsRes.data.recharges || []);
@@ -81,7 +64,6 @@ function AdminPanel({ token }) {
             setGameStats(statsRes.data || { total: {}, today: {}, currentPeriod: {} });
             setCurrentBets(betsRes.data.summary || {});
             setOutcomeAnalysis(analysisRes.data || { mostProfitable: [], leastProfitable: [] });
-            setIncomeStatus(incomeRes.data);
             setPlatformStats(platformStatsRes.data);
         } catch (err) {
             if (isInitialLoad) setError('Failed to fetch admin data. Auto-refresh paused.');
@@ -136,27 +118,6 @@ function AdminPanel({ token }) {
         }
     };
 
-    const handleDistributeIncome = async (userId = null) => {
-        const isCustom = !!userId;
-        if (isCustom && !customUserId) {
-            alert("Please enter a User ID.");
-            return;
-        }
-        const confirmMessage = isCustom
-            ? `Are you sure you want to distribute income to User ID: ${userId}?`
-            : "Are you sure you want to distribute daily income to ALL active users? This can only be done once every 24 hours.";
-        if (!window.confirm(confirmMessage)) return;
-        try {
-            const payload = userId ? { userId } : {};
-            const res = await axios.post(`${API_BASE_URL}/api/admin/distribute-income`, payload, { headers: { Authorization: `Bearer ${token}` } });
-            alert(res.data.message);
-            if (isCustom) setCustomUserId('');
-            fetchData();
-        } catch (err) {
-            alert(err.response?.data?.error || 'Failed to distribute income.');
-        }
-    };
-
     const handleUserSearch = async (e) => {
         e.preventDefault();
         if (!searchUserId) return;
@@ -205,6 +166,35 @@ function AdminPanel({ token }) {
         }
     };
 
+    const handleGrantBonus = async (e) => {
+        e.preventDefault();
+        const userIdsArray = bonusUserIds.split(',').map(id => parseInt(id.trim())).filter(id => !isNaN(id));
+        try {
+            const res = await axios.post(`${API_BASE_URL}/api/admin/grant-bonus`, 
+                { amount: parseFloat(bonusAmount), reason: bonusReason, user_ids: userIdsArray.length > 0 ? userIdsArray : null },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            alert(res.data.message);
+            setBonusAmount(''); setBonusReason(''); setBonusUserIds('');
+        } catch (err) {
+            alert(err.response?.data?.error || 'Failed to grant bonus.');
+        }
+    };
+
+    const handleCreatePromotion = async (e) => {
+        e.preventDefault();
+        try {
+            const res = await axios.post(`${API_BASE_URL}/api/admin/create-promotion`, 
+                { title: promoTitle, message: promoMessage },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            alert(res.data.message);
+            setPromoTitle(''); setPromoMessage('');
+        } catch (err) {
+            alert(err.response?.data?.error || 'Failed to create promotion.');
+        }
+    };
+
     // --- Render Logic ---
     if (loading) return <div className="loading-spinner">Loading Admin Panel...</div>;
     if (error) return <div className="error-message">{error}</div>;
@@ -232,7 +222,7 @@ function AdminPanel({ token }) {
                     </div>
                 </div>
             </div>
-
+            
             <div className="admin-section stats-section">
                 <h2>Game P/L Statistics</h2>
                 <div className="stats-grid">
@@ -296,32 +286,13 @@ function AdminPanel({ token }) {
                 </div>
             </div>
 
-            <div className="admin-section game-controls">
-                <h2>Game Management</h2>
-                <div className="control-group"><label>Game Status</label><div className="toggle-switch"><button onClick={() => handleGameStatusUpdate({ is_on: true })} className={gameStatus.is_on ? 'active' : ''}>ON</button><button onClick={() => handleGameStatusUpdate({ is_on: false })} className={!gameStatus.is_on ? 'active' : ''}>OFF</button></div></div>
-                <div className="control-group"><label>Game Mode</label><div className="toggle-switch"><button onClick={() => handleGameStatusUpdate({ mode: 'auto' })} className={gameStatus.mode === 'auto' ? 'active' : ''}>Auto</button><button onClick={() => handleGameStatusUpdate({ mode: 'admin' })} className={gameStatus.mode === 'admin' ? 'active' : ''}>Admin</button></div></div>
-                <div className="control-group"><label>Payout Priority</label><div className="toggle-switch"><button onClick={() => handleGameStatusUpdate({ payout_priority: 'admin' })} className={gameStatus.payout_priority === 'admin' ? 'active' : ''}>Admin</button><button onClick={() => handleGameStatusUpdate({ payout_priority: 'users' })} className={gameStatus.payout_priority === 'users' ? 'active' : ''}>Users</button></div></div>
-                {gameStatus.mode === 'admin' && gameStatus.is_on && (<div className="control-group manual-control"><label>Set Next Winning Number (0-9)</label><div className="input-group"><input type="number" value={nextResult} onChange={(e) => setNextResult(e.target.value)} min="0" max="9" placeholder="e.g., 5" /><button onClick={handleSetNextResult}>Set Result</button></div></div>)}
-            </div>
-            
             <div className="admin-section server-actions">
-                <h2>Server & User Actions</h2>
+                <h2>User & Platform Management</h2>
                 <div className="action-group">
-                    <h4>Global Income Distribution</h4>
-                    <p>Distribute daily income to all active users. This can only be done once per 24 hours.</p>
-                    <button onClick={() => handleDistributeIncome()} className="action-btn" disabled={!incomeStatus.canDistribute}>Distribute to All</button>
-                    {!incomeStatus.canDistribute && <div className="cooldown-timer"><CooldownTimer targetDate={incomeStatus.nextDistributionTime} /></div>}
-                </div>
-                <div className="action-group">
-                    <h4>Custom Income Distribution</h4>
-                    <p>Manually distribute income for a single user at any time.</p>
-                    <div className="input-group"><input type="number" value={customUserId} onChange={e => setCustomUserId(e.target.value)} placeholder="Enter User ID" /><button onClick={() => handleDistributeIncome(customUserId)} className="action-btn">Distribute to User</button></div>
-                </div>
-                 <div className="action-group">
                     <h4>Set User Account Status</h4>
                     <p>Change a user's status to Active, Non-Active, or Flagged.</p>
                     <form onSubmit={handleSetUserStatus} className="input-group">
-                        <input type="number" value={userStatusId} onChange={e => setUserStatusId(e.target.value)} placeholder="Enter User ID" required />
+                        <input type="number" value={userStatusId} onChange={e => setUserStatusId(e.target.value)} placeholder="User ID" required />
                         <select value={newStatus} onChange={e => setNewStatus(e.target.value)}><option value="active">Active</option><option value="non-active">Non-Active</option><option value="flagged">Flagged</option></select>
                         <button type="submit" className="action-btn">Set Status</button>
                     </form>
@@ -335,7 +306,6 @@ function AdminPanel({ token }) {
                     </form>
                     {searchError && <p className="error-message small">{searchError}</p>}
                 </div>
-
                 {searchedUserInfo && (
                     <div className="action-group user-status-result">
                         <h4>User: {searchedUserInfo.name} (ID: {searchedUserInfo.id})</h4>
@@ -352,15 +322,41 @@ function AdminPanel({ token }) {
                         </div>
                     </div>
                 )}
+                <div className="action-group">
+                    <h4>Grant Bonus</h4>
+                    <form onSubmit={handleGrantBonus}>
+                        <input type="number" placeholder="Bonus Amount (₹)" value={bonusAmount} onChange={e => setBonusAmount(e.target.value)} required />
+                        <input type="text" placeholder="Reason for Bonus" value={bonusReason} onChange={e => setBonusReason(e.target.value)} required />
+                        <input type="text" placeholder="User IDs (comma-separated, or leave blank for all)" value={bonusUserIds} onChange={e => setBonusUserIds(e.target.value)} />
+                        <button type="submit" className="action-btn">Grant Bonus</button>
+                    </form>
+                </div>
+                <div className="action-group">
+                    <h4>Create Promotion</h4>
+                    <form onSubmit={handleCreatePromotion}>
+                        <input type="text" placeholder="Promotion Title" value={promoTitle} onChange={e => setPromoTitle(e.target.value)} required />
+                        <textarea placeholder="Promotion Message" value={promoMessage} onChange={e => setPromoMessage(e.target.value)} required />
+                        <button type="submit" className="action-btn">Create Promotion</button>
+                    </form>
+                </div>
             </div>
             
             <div className="admin-section">
                 <h2>Pending Deposits ({pendingDeposits.length})</h2>
                 <div className="table-container">
                     <table className="request-table">
-                        <thead><tr><th>User ID</th><th>Amount</th><th>UTR/Hash</th><th>Date</th><th>Actions</th></tr></thead>
+                        <thead><tr><th>User ID</th><th>Amount</th><th>UTR/Hash</th><th>Screenshot</th><th>Date</th><th>Actions</th></tr></thead>
                         <tbody>
-                            {pendingDeposits.length > 0 ? pendingDeposits.map(d => ( <tr key={d.id}><td>{d.user_id}</td><td>{formatCurrency(d.amount)}</td><td>{d.utr}</td><td>{new Date(d.request_date).toLocaleString()}</td><td className="actions"><button className="approve-btn" onClick={() => handleAction('approve-deposit', d.id)}>Approve</button><button className="reject-btn" onClick={() => handleAction('reject-deposit', d.id)}>Reject</button></td></tr> )) : <tr><td colSpan="5">No pending deposits.</td></tr>}
+                            {pendingDeposits.map(d => (
+                                <tr key={d.id}>
+                                    <td>{d.user_id}</td>
+                                    <td>{formatCurrency(d.amount)}</td>
+                                    <td>{d.utr}</td>
+                                    <td><a href={d.screenshot_url} target="_blank" rel="noopener noreferrer" className="screenshot-link">View</a></td>
+                                    <td>{new Date(d.request_date).toLocaleString()}</td>
+                                    <td className="actions"><button className="approve-btn" onClick={() => handleAction('approve-deposit', d.id)}>Approve</button><button className="reject-btn" onClick={() => handleAction('reject-deposit', d.id)}>Reject</button></td>
+                                </tr>
+                            ))}
                         </tbody>
                     </table>
                 </div>
@@ -370,9 +366,20 @@ function AdminPanel({ token }) {
                 <h2>Pending Withdrawals ({pendingWithdrawals.length})</h2>
                 <div className="table-container">
                     <table className="request-table">
-                          <thead><tr><th>User ID</th><th>Amount</th><th>Method</th><th>Details</th><th>Date</th><th>Actions</th></tr></thead>
+                          <thead><tr><th>User ID</th><th>Name</th><th>Account Status</th><th>Amount</th><th>Method</th><th>Details</th><th>Date</th><th>Actions</th></tr></thead>
                           <tbody>
-                            {pendingWithdrawals.length > 0 ? pendingWithdrawals.map(w => ( <tr key={w.id}><td>{w.user_id}</td><td>{formatCurrency(w.amount)}</td><td>{w.method}</td><td className="details-cell">{w.details}</td><td>{new Date(w.request_date).toLocaleString()}</td><td className="actions"><button className="approve-btn" onClick={() => handleAction('approve-withdrawal', w.id)}>Approve</button><button className="reject-btn" onClick={() => handleAction('reject-withdrawal', w.id)}>Reject</button></td></tr> )) : <tr><td colSpan="6">No pending withdrawals.</td></tr>}
+                            {pendingWithdrawals.map(w => (
+                                <tr key={w.id}>
+                                    <td>{w.user_id}</td>
+                                    <td>{w.users ? w.users.name : 'N/A'}</td>
+                                    <td><span className={`status-badge status-${w.users ? w.users.status : 'active'}`}>{w.users ? w.users.status : 'Active'}</span></td>
+                                    <td>{formatCurrency(w.amount)}</td>
+                                    <td>{w.method}</td>
+                                    <td className="details-cell">{w.details}</td>
+                                    <td>{new Date(w.request_date).toLocaleString()}</td>
+                                    <td className="actions"><button className="approve-btn" onClick={() => handleAction('approve-withdrawal', w.id)}>Approve</button><button className="reject-btn" onClick={() => handleAction('reject-withdrawal', w.id)}>Reject</button></td>
+                                </tr>
+                            ))}
                         </tbody>
                     </table>
                 </div>
