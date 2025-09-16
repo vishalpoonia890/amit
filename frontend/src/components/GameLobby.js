@@ -1,8 +1,9 @@
 import React from 'react';
 import './GameLobby.css';
+import { SelectGameIcon, PlaceBetIcon, WinBigIcon } from './Icons'; // New icons for the "How to Play" section
 
 // --- Image Placeholders ---
-const colorPredictionImage = 'https://i.ibb.co/7jQqySP/color-prediction-game-thumb.png'; // Corrected, working URL
+const colorPredictionImage = 'https://i.ibb.co/7jQqySP/color-prediction-game-thumb.png';
 const lotteryImage = 'https://placehold.co/600x400/7c3aed/ffffff?text=IP+Lottery';
 const winWinImage = 'https://placehold.co/600x400/db2777/ffffff?text=Win-Win';
 
@@ -20,7 +21,7 @@ const games = [
         name: 'IP Lottery',
         description: 'Try your luck and earn a jackpot of 10k!',
         image: lotteryImage,
-        view: 'ip-lottery', // Navigates to your new lottery game
+        view: 'ip-lottery',
         isAvailable: true,
     },
     {
@@ -28,18 +29,20 @@ const games = [
         name: 'Win-Win',
         description: '100% rewards for everyone with a prize pool of 10 Lakh+!',
         image: winWinImage,
-        view: 'win-win', // Navigates to the placeholder game page
+        view: 'win-win',
         isAvailable: true,
     },
 ];
 
-const partners = ['Pragmatic Play', 'Evolution', 'Ezugi', 'Betsoft'];
+const partners = ['Pragmatic Play', 'Evolution', 'Ezugi', 'Betsoft', 'NetEnt', 'Playtech'];
 
 function GameLobby({ onViewChange }) {
     return (
         <div className="game-lobby">
-            <h1 className="lobby-title">Game Center</h1>
-            <p className="lobby-subtitle">Choose a game to play and win big!</p>
+            <div className="lobby-hero">
+                <h1 className="lobby-title">Game Center</h1>
+                <p className="lobby-subtitle">Choose a game to play and win big!</p>
+            </div>
             
             <div className="game-grid">
                 {games.map(game => (
@@ -48,7 +51,9 @@ function GameLobby({ onViewChange }) {
                         className={`game-card ${!game.isAvailable ? 'disabled' : ''}`}
                         onClick={() => game.isAvailable && onViewChange(game.view)}
                     >
-                        <img src={game.image} alt={game.name} className="game-image" />
+                        <div className="game-image-container">
+                            <img src={game.image} alt={game.name} className="game-image" />
+                        </div>
                         <div className="game-info">
                             <h3>{game.name}</h3>
                             <p>{game.description}</p>
@@ -59,15 +64,28 @@ function GameLobby({ onViewChange }) {
             </div>
 
             <div className="how-to-play-card">
-                <h3>About Our Games</h3>
-                <p><strong>Simple & Rewarding:</strong> Our games are designed to be easy to understand and quick to play, with clear rules and high-potential rewards.</p>
-                <p><strong>Instant Payouts:</strong> Winnings are credited directly to your withdrawable balance the moment a round ends. No waiting, no delays.</p>
-                <p><strong>Fair & Transparent:</strong> We believe in fair play. Our game algorithms are designed for excitement and transparency, ensuring a trustworthy experience for all players.</p>
-                <p><strong>Play Responsibly:</strong> Games are a fun way to earn, but we encourage all users to play responsibly and within their limits.</p>
+                <h3>How to Play</h3>
+                <div className="how-to-play-steps">
+                    <div className="step-item">
+                        <div className="step-icon"><SelectGameIcon /></div>
+                        <h4>1. Select a Game</h4>
+                        <p>Choose any available game from our lobby to get started.</p>
+                    </div>
+                    <div className="step-item">
+                        <div className="step-icon"><PlaceBetIcon /></div>
+                        <h4>2. Place Your Bet</h4>
+                        <p>Understand the rules, enter your amount, and confirm your bet. Always play responsibly.</p>
+                    </div>
+                    <div className="step-item">
+                        <div className="step-icon"><WinBigIcon /></div>
+                        <h4>3. Enjoy & Win</h4>
+                        <p>Watch the results and see your winnings credited to your account instantly!</p>
+                    </div>
+                </div>
             </div>
 
             <div className="partners-section">
-                <h3>Our Game Providers</h3>
+                <h3>Our Trusted Game Providers</h3>
                 <div className="partners-grid">
                     {partners.map(partner => (
                         <div key={partner} className="partner-logo">{partner}</div>
