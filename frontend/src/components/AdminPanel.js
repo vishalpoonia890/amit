@@ -43,6 +43,13 @@ function AdminPanel({ token }) {
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    
+ // --- New Lottery Admin State ---
+    const [lotteryAnalysis, setLotteryAnalysis] = useState([]);
+    const [lotteryMode, setLotteryMode] = useState('auto');
+    const [manualNumA, setManualNumA] = useState('');
+    const [manualNumB, setManualNumB] = useState('');
+    const [currentLotteryRoundId, setCurrentLotteryRoundId] = useState('');
 
     // --- Data Fetching ---
     const fetchData = useCallback(async (isInitialLoad = false) => {
@@ -79,7 +86,91 @@ function AdminPanel({ token }) {
         return () => clearInterval(interval);
     }, [fetchData]);
 
+// --- Data Fetching ---
+    const fetchData = useCallback(async (isInitialLoad = false) => {
+        if (isInitialLoad) setLoading(true);
+        setError('');
+        try {
+            // Determine current lottery round ID client-side to request analysis
+            const now = new Date(new Date().getTime() + (5.5 * 60 * 60 * 1000));
+            const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+            const drawHours = [8, 12, 16, 20];
+            let nextDrawHour = drawHours[drawHours.length - 1];
+            for (const hour of drawHours) {
+                const drawTime = new Date(today);
+                drawTime.setUTCHours(hour, 0, 0, 0);
+                if (now < drawTime) {
+                    nextDrawHour = hour;
+                    break;
+                }
+            }
+            const roundId = `${today.toISOString().slice(0, 10)}-${nextDrawHour}`;
+            setCurrentLotteryRoundId(roundId);
+
+            const [depositsRes, withdrawalsRes, platformStatsRes, lotteryAnalysisRes] = await Promise.all([
+                axios.get(`${API_BASE_URL}/api/admin/recharges/pending`, { headers: { Authorization: `Bearer ${token}` } }),
+                axios.get(`${API_BASE_URL}/api/admin/withdrawals/pending`, { headers: { Authorization: `Bearer ${token}` } }),
+                axios.get(`${API_BASE_URL}/api/admin/platform-stats`, { headers: { Authorization: `Bearer ${token}` } }),
+                axios.get(`${API_BASE_URL}/api/admin/lottery-analysis?roundId=${roundId}`, { headers: { Authorization: `Bearer ${token}` } })
+            ]);
+            setPendingDeposits(depositsRes.data.recharges || []);
+            setPendingWithdrawals(withdrawalsRes.data.withdrawals || []);
+            setPlatformStats(platformStatsRes.data);
+            setLotteryAnalysis(lotteryAnalysisRes.data.outcomes || []);
+            setLotteryMode(lotteryAnalysisRes.data.mode || 'auto');
+
+        } catch (err) {
+            if (isInitialLoad) setError('Failed to fetch admin data. Auto-refresh paused.');
+            console.error(err);
+        } finally {
+            if (isInitialLoad) setLoading(false);
+        }
+    }, [token]);
+
+    useEffect(() => {
+        fetchData(true);
+        const interval = setInterval(() => fetchData(false), 10000); // Refresh every 10 seconds
+        return () => clearInterval(interval);
+    }, [fetchData]);
+
     // --- Action Handlers ---
+
+    //Lottery-------------
+    
+const handleLotteryModeChange = async (mode) => {
+        try {
+            const res = await axios.post(`${API_BASE_URL}/api/admin/lottery-mode`, { mode }, { headers: { Authorization: `Bearer ${token}` } });
+            setLotteryMode(mode);
+            alert(res.data.message);
+        } catch (err) {
+            alert(err.response?.data?.error || 'Failed to change mode.');
+        }
+    };
+    
+    const handleSetLotteryResult = async (e) => {
+        e.preventDefault();
+        const numA = parseInt(manualNumA, 10);
+        const numB = parseInt(manualNumB, 10);
+        if (isNaN(numA) || isNaN(numB) || numA < 0 || numA > 9 || numB < 0 || numB > 9) {
+            alert('Please enter valid numbers between 0 and 9.');
+            return;
+        }
+        try {
+            const res = await axios.post(`${API_BASE_URL}/api/admin/lottery-set-result`, {
+                roundId: currentLotteryRoundId,
+                winning_num_a: numA,
+                winning_num_b: numB
+            }, { headers: { Authorization: `Bearer ${token}` } });
+            alert(res.data.message);
+        } catch (err) {
+            alert(err.response?.data?.error || 'Failed to set result.');
+        }
+    };
+
+    
+//----------------other actions than the lottery-----------------------
+
+    
     const handleAction = async (action, id) => {
         const urlMap = {
             'approve-deposit': `/api/admin/recharge/${id}/approve`, 'reject-deposit': `/api/admin/recharge/${id}/reject`,
@@ -384,6 +475,53 @@ function AdminPanel({ token }) {
                     </table>
                 </div>
             </div>
+//============================Lottery Section===========================
+                                <div className="admin-section">
+                <h2>Lottery Management (Round: {currentLotteryRoundId})</h2>
+                <div className="control-group">
+                    <label>Lottery Mode</label>
+                    <div className="toggle-switch">
+                        <button onClick={() => handleLotteryModeChange('auto')} className={lotteryMode === 'auto' ? 'active' : ''}>Auto (Profit-First)</button>
+                        <button onClick={() => handleLotteryModeChange('admin')} className={lotteryMode === 'admin' ? 'active' : ''}>Admin Choice</button>
+                    </div>
+                </div>
+
+                {lotteryMode === 'admin' && (
+                    <form className="action-group" onSubmit={handleSetLotteryResult}>
+                        <h4>Set Manual Result for Next Draw</h4>
+                        <div className="input-group">
+                            <input type="number" value={manualNumA} onChange={e => setManualNumA(e.target.value)} min="0" max="9" placeholder="Num A" required />
+                            <input type="number" value={manualNumB} onChange={e => setManualNumB(e.target.value)} min="0" max="9" placeholder="Num B" required />
+                            <button type="submit" className="action-btn">Set Result</button>
+                        </div>
+                    </form>
+                )}
+
+                <h4>Live Round Analysis</h4>
+                <div className="analysis-table-container">
+                    <table className="analysis-table">
+                         <thead>
+                            <tr>
+                                <th>Winning Pair</th>
+                                <th>Total Bets On Pair</th>
+                                <th>Total Payout</th>
+                                <th>Admin P/L</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {lotteryAnalysis.map(outcome => (
+                                <tr key={`${outcome.a}-${outcome.b}`} className={outcome.netResult >= 0 ? 'positive' : 'negative'}>
+                                    <td>{`{${outcome.a}, ${outcome.b}}`}</td>
+                                    <td>{formatCurrency(outcome.totalBetOnPair)}</td>
+                                    <td>{formatCurrency(outcome.payout)}</td>
+                                    <td>{formatCurrency(outcome.netResult)}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
         </div>
     );
 }
