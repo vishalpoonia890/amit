@@ -10,7 +10,6 @@ const DRAW_TIMES_HOURS = [8, 12, 16, 20]; // 8 AM, 12 PM, 4 PM, 8 PM IST
 // --- Helper Function to get the current and next draw ---
 const getDrawTimes = () => {
     const now = new Date();
-    // Use Indian Standard Time (IST is UTC+5:30) for calculations
     const nowIST = new Date(now.getTime() + (5.5 * 60 * 60 * 1000));
     const todayIST = new Date(Date.UTC(nowIST.getUTCFullYear(), nowIST.getUTCMonth(), nowIST.getUTCDate()));
 
@@ -22,11 +21,10 @@ const getDrawTimes = () => {
         if (nowIST < drawTime) {
             const prevHour = i > 0 ? DRAW_TIMES_HOURS[i - 1] : DRAW_TIMES_HOURS[DRAW_TIMES_HOURS.length - 1];
             const startTime = new Date(drawTime);
-            if (i === 0) { // First draw of the day, start time was yesterday
+            if (i === 0) {
                 startTime.setUTCDate(startTime.getUTCDate() - 1);
             }
             startTime.setUTCHours(prevHour, 0, 0, 0);
-            
             return {
                 endTime: drawTime,
                 startTime: startTime,
@@ -39,7 +37,6 @@ const getDrawTimes = () => {
     tomorrowIST.setUTCDate(todayIST.getUTCDate() + 1);
     const nextDrawTime = new Date(tomorrowIST);
     nextDrawTime.setUTCHours(DRAW_TIMES_HOURS[0], 0, 0, 0);
-    
     const lastDrawOfToday = new Date(todayIST);
     lastDrawOfToday.setUTCHours(DRAW_TIMES_HOURS[DRAW_TIMES_HOURS.length - 1], 0, 0, 0);
 
@@ -74,32 +71,6 @@ const Countdown = ({ endTime, onEnd }) => {
     return <span>{timeLeft}</span>;
 };
 
-const HistoryModal = ({ onClose, token }) => {
-    const [history, setHistory] = useState([]);
-    useEffect(() => {
-        axios.get(`${API_BASE_URL}/api/lottery/history`, { headers: { Authorization: `Bearer ${token}` } })
-            .then(res => setHistory(res.data.history))
-            .catch(err => console.error("Failed to fetch history", err));
-    }, [token]);
-
-    return (
-        <div className="modal-overlay" onClick={onClose}>
-            <div className="modal-content" onClick={e => e.stopPropagation()}>
-                <h3>Last 20 Results</h3>
-                <div className="history-list">
-                    {history.map(item => (
-                        <div key={item.round_id} className="history-item">
-                            <span>Round: {item.round_id}</span>
-                            <strong>{item.winning_num_a}, {item.winning_num_b}</strong>
-                        </div>
-                    ))}
-                </div>
-                <button onClick={onClose}>Close</button>
-            </div>
-        </div>
-    );
-};
-
 const ResultModal = ({ result, onClose }) => (
     <div className="modal-overlay">
         <div className="modal-content result-modal">
@@ -110,6 +81,15 @@ const ResultModal = ({ result, onClose }) => (
     </div>
 );
 
+// --- Mock Data for New Sections ---
+const luckyWins = [
+    { id: 1, name: 'Rahul S.', amount: 2500 }, { id: 2, name: 'Priya K.', amount: 250 },
+    { id: 3, name: 'Amit V.', amount: 25000 }, { id: 4, name: 'Sneha G.', amount: 250 },
+];
+const topWins = [
+    { id: 1, name: 'Vikas M.', amount: 125000 }, { id: 2, name: 'Anjali P.', amount: 95000 },
+    { id: 3, name: 'Sandeep R.', amount: 78000 },
+];
 
 function IpLottery({ token, onBack }) {
     const [round, setRound] = useState(null);
@@ -118,33 +98,31 @@ function IpLottery({ token, onBack }) {
     const [selectedNumB, setSelectedNumB] = useState(null);
     const [activeSlot, setActiveSlot] = useState('A');
     const [betAmount, setBetAmount] = useState(100);
-    const [lastResult, setLastResult] = useState(null);
     const [history, setHistory] = useState([]);
-    const [showHistory, setShowHistory] = useState(false);
     const [showResultModal, setShowResultModal] = useState(null);
-
-    const [basePlayers] = useState(Math.floor(Math.random() * 150) + 100);
-    const [basePool] = useState(Math.floor(Math.random() * 200000) + 50000);
+    
+    const [basePlayers, setBasePlayers] = useState(0);
+    const [basePool, setBasePool] = useState(0);
     
     const liveStats = useMemo(() => {
         if (!round) return { players: 0, pool: 0 };
         const totalDuration = round.endTime.getTime() - round.startTime.getTime();
         const elapsedTime = Date.now() - round.startTime.getTime();
         const progress = Math.max(0, Math.min(elapsedTime / totalDuration, 1));
-
-        const players = basePlayers + Math.floor(progress * 350);
-        const pool = basePool + Math.floor(progress * 800000);
+        const players = basePlayers + Math.floor(progress * (basePlayers * 1.5));
+        const pool = basePool + Math.floor(progress * (basePool * 2.5));
         return { players, pool };
     }, [round, basePlayers, basePool]);
 
-    const fetchInitialState = useCallback(async () => {
+    const fetchInitialState = useCallback(async (currentRoundId) => {
         try {
-            const [lastResultRes, historyRes] = await Promise.all([
-                axios.get(`${API_BASE_URL}/api/lottery/state`, { headers: { Authorization: `Bearer ${token}` } }),
-                axios.get(`${API_BASE_URL}/api/lottery/history`, { headers: { Authorization: `Bearer ${token}` } })
+            const [historyRes, liveStatsRes] = await Promise.all([
+                axios.get(`${API_BASE_URL}/api/lottery/history`, { headers: { Authorization: `Bearer ${token}` } }),
+                axios.get(`${API_BASE_URL}/api/lottery/live-stats/${currentRoundId}`, { headers: { Authorization: `Bearer ${token}` } })
             ]);
-            setLastResult(lastResultRes.data.lastResult);
             setHistory(historyRes.data.history);
+            setBasePlayers(liveStatsRes.data.base_player_count);
+            setBasePool(liveStatsRes.data.total_pool_amount);
         } catch (error) {
             console.error("Failed to fetch lottery state/history:", error);
         }
@@ -153,7 +131,7 @@ function IpLottery({ token, onBack }) {
     useEffect(() => {
         const nextDraw = getDrawTimes();
         setRound({ roundId: nextDraw.id, endTime: nextDraw.endTime, startTime: nextDraw.startTime });
-        fetchInitialState();
+        fetchInitialState(nextDraw.id);
     }, [fetchInitialState]);
     
     const handleNumberSelect = (num) => {
@@ -162,13 +140,8 @@ function IpLottery({ token, onBack }) {
             setSelectedNumB(null);
             setActiveSlot(null);
         } else {
-            if (activeSlot === 'A') {
-                setSelectedNumA(num);
-                setActiveSlot('B');
-            } else if (activeSlot === 'B') {
-                setSelectedNumB(num);
-                setActiveSlot(null);
-            }
+            if (activeSlot === 'A') { setSelectedNumA(num); setActiveSlot('B'); } 
+            else if (activeSlot === 'B') { setSelectedNumB(num); setActiveSlot(null); }
         }
     };
     
@@ -212,16 +185,13 @@ function IpLottery({ token, onBack }) {
 
     return (
         <div className="game-page-container lottery-theme">
-            {showHistory && <HistoryModal token={token} onClose={() => setShowHistory(false)} />}
             {showResultModal && <ResultModal result={showResultModal} onClose={() => { setShowResultModal(null); window.location.reload(); }} />}
             
             <button className="back-button" onClick={onBack}>← Back to Lobby</button>
             <div className="game-header">
                 <h1>IP Lottery</h1>
                 <p>Next Draw: {new Date(round.endTime).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })} IST</p>
-                <div className="round-timer">
-                    <Countdown endTime={round.endTime} onEnd={handleDrawEnd}/>
-                </div>
+                <div className="round-timer"><Countdown endTime={round.endTime} onEnd={handleDrawEnd}/></div>
             </div>
 
             <div className="live-pool-card">
@@ -263,37 +233,52 @@ function IpLottery({ token, onBack }) {
                 <button className="action-button" onClick={handleBet}>Confirm Bet</button>
             </div>
 
-            {history.length > 0 && (
-                <div className="history-card">
-                    <h4>Recent Results</h4>
-                    <div className="history-table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Round</th>
-                                    <th>Winning Numbers</th>
+            <div className="history-card">
+                <h4>Recent Results</h4>
+                <div className="history-table-container">
+                    <table>
+                        <thead>
+                            <tr><th>Round</th><th>Result</th><th>Winners</th><th>Top Winner</th></tr>
+                        </thead>
+                        <tbody>
+                            {history.slice(0, 20).map(item => (
+                                <tr key={item.round_id}>
+                                    <td>{item.round_id.slice(-5)}</td>
+                                    <td><span className="winning-num">{item.winning_num_a}</span><span className="winning-num">{item.winning_num_b}</span></td>
+                                    <td>{item.winner_count}</td>
+                                    <td>{item.sample_winner_name || '--'}</td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                {history.slice(0, 20).map(item => (
-                                    <tr key={item.round_id}>
-                                        <td>{item.round_id}</td>
-                                        <td><span className="winning-num">{item.winning_num_a}</span>, <span className="winning-num">{item.winning_num_b}</span></td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                            ))}
+                        </tbody>
+                    </table>
                 </div>
-            )}
+            </div>
+
+            <div className="winners-grid">
+                <div className="winners-card">
+                    <h4>🍀 Lucky Wins</h4>
+                    {luckyWins.map(win => <div key={win.id} className="winner-row"><span>{win.name}</span><strong>₹{win.amount.toLocaleString()}</strong></div>)}
+                </div>
+                <div className="winners-card">
+                    <h4>🏆 Top Wins</h4>
+                    {topWins.map(win => <div key={win.id} className="winner-row"><span>{win.name}</span><strong>₹{win.amount.toLocaleString()}</strong></div>)}
+                </div>
+            </div>
 
             <div className="rules-card">
                 <h4>About This Game</h4>
-                <p><strong>Four Daily Draws:</strong> Your chance to win big is always just around the corner, with draws at 8 AM, 12 PM, 4 PM, and 8 PM!</p>
-                <p><strong>Strategic Payouts:</strong> Go for a reliable 2.5x win by matching just one number, or aim for the massive 25x jackpot by picking two!</p>
-                <p><strong>Community Driven:</strong> The prize pool grows with every player who joins. More players mean bigger potential wins for everyone.</p>
-                <p><strong>Fair & Transparent:</strong> Our system is designed for excitement. In rare high-risk rounds, the jackpot rolls over, creating an even bigger prize pool for the next draw. A win is always possible!</p>
-                 <p><strong>Regional Pool:</strong> To ensure the best odds, this prize pool is specific to your IP location, creating more frequent winners in your region.</p>
+                <ul>
+                    <li><strong>Four Daily Draws:</strong> Your chance to win big is always just around the corner, with draws at 8 AM, 12 PM, 4 PM, and 8 PM!</li>
+                    <li><strong>Strategic Payouts:</strong> Go for a reliable 2.5x win by matching just one number, or aim for the massive 25x jackpot by picking two!</li>
+                    <li><strong>Instant Payouts:</strong> Winnings are credited directly to your withdrawable balance the moment a round ends. No waiting, no delays.</li>
+                    <li><strong>Simple to Play:</strong> No complex rules. Just pick your numbers, place your bet, and watch the draw. It's that easy!</li>
+                    <li><strong>Community Driven:</strong> The prize pool grows with every player who joins. More players mean bigger potential wins for everyone.</li>
+                    <li><strong>Fair & Transparent:</strong> Our system is designed for excitement. In rare high-risk rounds, the jackpot rolls over, creating an even bigger prize pool for the next draw.</li>
+                    <li><strong>Secure & Trusted:</strong> Our platform uses state-of-the-art security to ensure your funds and bets are always safe.</li>
+                    <li><strong>Progressive Jackpots:</strong> In rollover rounds, the prize pool gets even bigger, leading to massive potential winnings!</li>
+                    <li><strong>Loss Protection:</strong> To reward loyal players, we offer special cashback bonuses if you experience a long losing streak.</li>
+                    <li><strong>Regional Pool:</strong> To ensure the best odds, this prize pool is specific to your IP location, creating more frequent winners in your region.</li>
+                </ul>
             </div>
         </div>
     );
