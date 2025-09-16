@@ -107,16 +107,20 @@ function IpLottery({ token, onBack }) {
     const [showHistory, setShowHistory] = useState(false);
     const [showResultModal, setShowResultModal] = useState(null);
 
+
+     // ✅ FIX: The live stats logic is now based on time progression for guaranteed positive numbers.
+    const [basePlayers, setBasePlayers] = useState(Math.floor(Math.random() * 150) + 100);
+    const [basePool, setBasePool] = useState(Math.floor(Math.random() * 200000) + 50000);
+    
     // Live Stats Simulation
     const currentPlayers = useMemo(() => {
         if (!round) return 0;
         const totalDuration = DRAW_TIMES_HOURS[1] - DRAW_TIMES_HOURS[0]; // 4 hours in ms
         const timeLeft = (new Date(round.endTime) - new Date()) / (1000 * 60 * 60);
-        const players = 500 - Math.floor(400 * (timeLeft / totalDuration));
-        return players + Math.floor(Math.random() * 50);
-    }, [round]);
-    
-    const totalPool = useMemo(() => currentPlayers * (Math.random() * 500 + 150), [currentPlayers]);
+        const players = basePlayers + Math.floor(progress * 350); // Grows by up to 350 players
+        const pool = basePool + Math.floor(progress * 800000); // Grows by up to 8 Lakh
+        return { players, pool };
+    }, [round, basePlayers, basePool]);
 
     const fetchInitialState = useCallback(async () => {
         try {
