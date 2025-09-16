@@ -10,6 +10,7 @@ const DRAW_TIMES_HOURS = [8, 12, 16, 20]; // 8 AM, 12 PM, 4 PM, 8 PM IST
 // --- Helper Function to get the current and next draw ---
 const getDrawTimes = () => {
     const now = new Date();
+    // Use Indian Standard Time (IST is UTC+5:30) for calculations
     const nowIST = new Date(now.getTime() + (5.5 * 60 * 60 * 1000));
     const todayIST = new Date(Date.UTC(nowIST.getUTCFullYear(), nowIST.getUTCMonth(), nowIST.getUTCDate()));
 
@@ -21,7 +22,7 @@ const getDrawTimes = () => {
         if (nowIST < drawTime) {
             const prevHour = i > 0 ? DRAW_TIMES_HOURS[i - 1] : DRAW_TIMES_HOURS[DRAW_TIMES_HOURS.length - 1];
             const startTime = new Date(drawTime);
-            if (i === 0) {
+            if (i === 0) { // First draw of the day, start time was yesterday
                 startTime.setUTCDate(startTime.getUTCDate() - 1);
             }
             startTime.setUTCHours(prevHour, 0, 0, 0);
@@ -119,16 +120,18 @@ function IpLottery({ token, onBack }) {
     const [betAmount, setBetAmount] = useState(100);
     const [lastResult, setLastResult] = useState(null);
     const [history, setHistory] = useState([]);
+    const [showHistory, setShowHistory] = useState(false);
     const [showResultModal, setShowResultModal] = useState(null);
 
-    const [basePlayers, setBasePlayers] = useState(Math.floor(Math.random() * 150) + 100);
-    const [basePool, setBasePool] = useState(Math.floor(Math.random() * 200000) + 50000);
+    const [basePlayers] = useState(Math.floor(Math.random() * 150) + 100);
+    const [basePool] = useState(Math.floor(Math.random() * 200000) + 50000);
     
     const liveStats = useMemo(() => {
         if (!round) return { players: 0, pool: 0 };
         const totalDuration = round.endTime.getTime() - round.startTime.getTime();
         const elapsedTime = Date.now() - round.startTime.getTime();
-        const progress = Math.min(elapsedTime / totalDuration, 1);
+        const progress = Math.max(0, Math.min(elapsedTime / totalDuration, 1));
+
         const players = basePlayers + Math.floor(progress * 350);
         const pool = basePool + Math.floor(progress * 800000);
         return { players, pool };
@@ -209,6 +212,7 @@ function IpLottery({ token, onBack }) {
 
     return (
         <div className="game-page-container lottery-theme">
+            {showHistory && <HistoryModal token={token} onClose={() => setShowHistory(false)} />}
             {showResultModal && <ResultModal result={showResultModal} onClose={() => { setShowResultModal(null); window.location.reload(); }} />}
             
             <button className="back-button" onClick={onBack}>← Back to Lobby</button>
@@ -271,7 +275,7 @@ function IpLottery({ token, onBack }) {
                                 </tr>
                             </thead>
                             <tbody>
-                                {history.slice(0, 5).map(item => (
+                                {history.slice(0, 20).map(item => (
                                     <tr key={item.round_id}>
                                         <td>{item.round_id}</td>
                                         <td><span className="winning-num">{item.winning_num_a}</span>, <span className="winning-num">{item.winning_num_b}</span></td>
@@ -285,10 +289,10 @@ function IpLottery({ token, onBack }) {
 
             <div className="rules-card">
                 <h4>About This Game</h4>
-                <p><strong>High-Frequency Draws:</strong> With draws four times a day, your next big win is always just around the corner.</p>
-                <p><strong>Strategic Betting:</strong> Choose a single number for a high chance of a solid 2.5x return, or go for the big 25x jackpot by picking two numbers!</p>
+                <p><strong>Four Daily Draws:</strong> Your chance to win big is always just around the corner, with draws at 8 AM, 12 PM, 4 PM, and 8 PM!</p>
+                <p><strong>Strategic Payouts:</strong> Go for a reliable 2.5x win by matching just one number, or aim for the massive 25x jackpot by picking two!</p>
                 <p><strong>Community Driven:</strong> The prize pool grows with every player who joins. More players mean bigger potential wins for everyone.</p>
-                <p><strong>Fair & Transparent:</strong> Our system is designed for fairness. In rare high-risk rounds, the jackpot rolls over, creating an even bigger prize pool for the next draw and ensuring the game is always exciting.</p>
+                <p><strong>Fair & Transparent:</strong> Our system is designed for excitement. In rare high-risk rounds, the jackpot rolls over, creating an even bigger prize pool for the next draw. A win is always possible!</p>
                  <p><strong>Regional Pool:</strong> To ensure the best odds, this prize pool is specific to your IP location, creating more frequent winners in your region.</p>
             </div>
         </div>
