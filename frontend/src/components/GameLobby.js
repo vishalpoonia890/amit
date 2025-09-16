@@ -2,7 +2,7 @@ import React from 'react';
 import './GameLobby.css';
 
 // --- Image Placeholders ---
-const colorPredictionImage = 'https://i.ibb.co/bF9MDkC/color-prediction-game-thumb.png';
+const colorPredictionImage = 'https://i.ibb.co/7jQqySP/color-prediction-game-thumb.png'; // Corrected, working URL
 const lotteryImage = 'https://placehold.co/600x400/7c3aed/ffffff?text=IP+Lottery';
 const winWinImage = 'https://placehold.co/600x400/db2777/ffffff?text=Win-Win';
 
@@ -20,7 +20,7 @@ const games = [
         name: 'IP Lottery',
         description: 'Try your luck and earn a jackpot of 10k!',
         image: lotteryImage,
-        view: 'ip-lottery', // New view name
+        view: 'ip-lottery', // Navigates to your new lottery game
         isAvailable: true,
     },
     {
@@ -28,7 +28,7 @@ const games = [
         name: 'Win-Win',
         description: '100% rewards for everyone with a prize pool of 10 Lakh+!',
         image: winWinImage,
-        view: 'win-win', // New view name
+        view: 'win-win', // Navigates to the placeholder game page
         isAvailable: true,
     },
 ];
@@ -59,11 +59,11 @@ function GameLobby({ onViewChange }) {
             </div>
 
             <div className="how-to-play-card">
-                <h3>How to Play</h3>
-                <p><strong>1. Select a Game:</strong> Choose any available game from our lobby to get started.</p>
-                <p><strong>2. Understand the Rules:</strong> Each game has unique rules. For Color Prediction, you guess the outcome. For IP Lottery, you pick numbers for a chance at the jackpot.</p>
-                <p><strong>3. Place Your Bet:</strong> Enter the amount you wish to play with. Always play responsibly.</p>
-                <p><strong>4. Enjoy & Win:</strong> Watch the results and see your winnings credited to your account instantly!</p>
+                <h3>About Our Games</h3>
+                <p><strong>Simple & Rewarding:</strong> Our games are designed to be easy to understand and quick to play, with clear rules and high-potential rewards.</p>
+                <p><strong>Instant Payouts:</strong> Winnings are credited directly to your withdrawable balance the moment a round ends. No waiting, no delays.</p>
+                <p><strong>Fair & Transparent:</strong> We believe in fair play. Our game algorithms are designed for excitement and transparency, ensuring a trustworthy experience for all players.</p>
+                <p><strong>Play Responsibly:</strong> Games are a fun way to earn, but we encourage all users to play responsibly and within their limits.</p>
             </div>
 
             <div className="partners-section">
