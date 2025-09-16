@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './GamePages.css'; // Shared stylesheet
 
 // --- Game Configuration ---
@@ -11,24 +11,17 @@ const getNextDraw = () => {
     
     for (const hour of DRAW_TIMES_HOURS) {
         const drawTime = new Date(today);
-        drawTime.setHours(hour, 0, 0, 0); // Set to the specific hour, minute 0, second 0
+        drawTime.setHours(hour, 0, 0, 0);
         if (now < drawTime) {
-            return {
-                endTime: drawTime,
-                id: `${today.toISOString().slice(0, 10)}-${hour}`
-            };
+            return { endTime: drawTime, id: `${today.toISOString().slice(0, 10)}-${hour}` };
         }
     }
     
-    // If all draws for today have passed, get the first draw of tomorrow
     const tomorrow = new Date(today);
     tomorrow.setDate(today.getDate() + 1);
     const nextDrawTime = new Date(tomorrow);
     nextDrawTime.setHours(DRAW_TIMES_HOURS[0], 0, 0, 0);
-    return {
-        endTime: nextDrawTime,
-        id: `${tomorrow.toISOString().slice(0, 10)}-${DRAW_TIMES_HOURS[0]}`
-    };
+    return { endTime: nextDrawTime, id: `${tomorrow.toISOString().slice(0, 10)}-${DRAW_TIMES_HOURS[0]}` };
 };
 
 // --- Countdown Component ---
@@ -54,22 +47,19 @@ const Countdown = ({ endTime }) => {
 
 function IpLottery({ token, onBack }) {
     const [round, setRound] = useState(null);
+    const [selectionMode, setSelectionMode] = useState('double');
     const [selectedNumA, setSelectedNumA] = useState(null);
     const [selectedNumB, setSelectedNumB] = useState(null);
+    const [activeSlot, setActiveSlot] = useState('A'); // 'A' or 'B'
     const [betAmount, setBetAmount] = useState(100);
-
-    // Live Stats Simulation
+    
     const [currentPlayers, setCurrentPlayers] = useState(1345);
     const [totalPool, setTotalPool] = useState(875630);
 
     useEffect(() => {
         const nextDraw = getNextDraw();
-        setRound({
-            roundId: nextDraw.id,
-            endTime: nextDraw.endTime,
-        });
+        setRound({ roundId: nextDraw.id, endTime: nextDraw.endTime });
 
-        // Simulate live stats increasing
         const interval = setInterval(() => {
             setCurrentPlayers(prev => prev + Math.floor(Math.random() * 5) + 1);
             setTotalPool(prev => prev + Math.floor(Math.random() * 1000) + 100);
@@ -79,22 +69,38 @@ function IpLottery({ token, onBack }) {
     }, []);
 
     const handleNumberSelect = (num) => {
-        if (selectedNumA === num) setSelectedNumA(null);
-        else if (selectedNumB === num) setSelectedNumB(null);
-        else if (selectedNumA === null) setSelectedNumA(num);
-        else if (selectedNumB === null) setSelectedNumB(num);
+        if (selectionMode === 'single') {
+            setSelectedNumA(num);
+            setSelectedNumB(null);
+            setActiveSlot(null); // No active slot after selection
+        } else { // Double mode
+            if (activeSlot === 'A') {
+                setSelectedNumA(num);
+                setActiveSlot('B'); // Automatically move to the next slot
+            } else if (activeSlot === 'B') {
+                setSelectedNumB(num);
+                setActiveSlot(null); // Deactivate slots after filling the second one
+            }
+        }
+    };
+    
+    const clearSelection = () => {
+        setSelectedNumA(null);
+        setSelectedNumB(null);
+        setActiveSlot('A');
     };
 
     const handleBet = () => {
-        if (selectedNumA === null && selectedNumB === null) {
-            alert("Please select at least one number.");
+        const isSingleBetValid = selectionMode === 'single' && selectedNumA !== null;
+        const isDoubleBetValid = selectionMode === 'double' && selectedNumA !== null && selectedNumB !== null;
+        if (!isSingleBetValid && !isDoubleBetValid) {
+            alert("Please make your number selection(s).");
             return;
         }
         if (betAmount < 100) {
             alert("Minimum bet amount is ₹100.");
             return;
         }
-        
         let betDetails = `You bet ₹${betAmount} on the number(s): ${[selectedNumA, selectedNumB].filter(n => n !== null).join(', ')}.`;
         alert(`${betDetails} Good luck!`);
     };
@@ -102,9 +108,6 @@ function IpLottery({ token, onBack }) {
     if (!round) {
         return <div className="loading-spinner">Loading Lottery...</div>;
     }
-
-    const isSingleSelection = selectedNumA !== null && selectedNumB === null;
-    const isDoubleSelection = selectedNumA !== null && selectedNumB !== null;
 
     return (
         <div className="game-page-container lottery-theme">
@@ -129,8 +132,30 @@ function IpLottery({ token, onBack }) {
             </div>
 
             <div className="lottery-card">
-                <h3>Select Your Numbers</h3>
-                <p className="selection-info">Select one number for a 2.5x win, or two numbers for the 25x jackpot!</p>
+                <h3>Betting Mode</h3>
+                <div className="toggle-switch">
+                    <button className={selectionMode === 'single' ? 'active' : ''} onClick={() => { setSelectionMode('single'); clearSelection(); }}>Single (2.5x)</button>
+                    <button className={selectionMode === 'double' ? 'active' : ''} onClick={() => { setSelectionMode('double'); clearSelection(); }}>Double (25x)</button>
+                </div>
+            </div>
+
+            <div className="lottery-card">
+                <div className="selection-header">
+                    <h3>Select Your Numbers</h3>
+                    <button onClick={clearSelection} className="clear-selection-btn">Clear</button>
+                </div>
+                
+                <div className="selection-slots">
+                    <div className={`slot ${activeSlot === 'A' ? 'active' : ''}`} onClick={() => setActiveSlot('A')}>
+                        {selectedNumA !== null ? selectedNumA : '?'}
+                    </div>
+                    {selectionMode === 'double' && (
+                        <div className={`slot ${activeSlot === 'B' ? 'active' : ''}`} onClick={() => setActiveSlot('B')}>
+                            {selectedNumB !== null ? selectedNumB : '?'}
+                        </div>
+                    )}
+                </div>
+
                 <div className="number-grid">
                     {Array.from({ length: 10 }, (_, i) => i).map(num => (
                         <button 
@@ -153,12 +178,7 @@ function IpLottery({ token, onBack }) {
                 </div>
                 <div className="bet-input-group">
                     <span>₹</span>
-                    <input 
-                        type="number" 
-                        value={betAmount} 
-                        onChange={(e) => setBetAmount(parseInt(e.target.value) || 0)}
-                        min="100"
-                    />
+                    <input type="number" value={betAmount} onChange={(e) => setBetAmount(parseInt(e.target.value) || 0)} min="100"/>
                 </div>
                 <button className="action-button" onClick={handleBet}>
                     Confirm Bet
@@ -167,9 +187,9 @@ function IpLottery({ token, onBack }) {
 
             <div className="rules-card">
                 <h4>How to Win</h4>
-                <p><strong>Single Number Bet (2.5x):</strong> If you select only one number and it matches one of the two winning numbers, you win 2.5x your bet.</p>
-                <p><strong>Double Number Bet (25x):</strong> If you select two numbers and they both match the two winning numbers (in any order), you win the 25x jackpot!</p>
-                <p><strong>Important:</strong> If you select two numbers and only one matches, you do not win.</p>
+                <p><strong>Single Number Bet (2.5x):</strong> If your one selected number matches either of the two winning numbers, you win 2.5x.</p>
+                <p><strong>Double Number Bet (25x):</strong> If both of your selected numbers match the two winning numbers (in any order), you win the 25x jackpot!</p>
+                <p><strong>Important:</strong> In Double mode, if only one number matches, you do not win.</p>
                 <p><strong>Regional Pool:</strong> To ensure the best odds, this prize pool is specific to your IP location.</p>
             </div>
         </div>
