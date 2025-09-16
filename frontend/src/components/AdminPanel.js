@@ -52,41 +52,7 @@ function AdminPanel({ token }) {
     const [currentLotteryRoundId, setCurrentLotteryRoundId] = useState('');
 
     // --- Data Fetching ---
-    const fetchData = useCallback(async (isInitialLoad = false) => {
-        if (isInitialLoad) setLoading(true);
-        setError('');
-        try {
-            const [depositsRes, withdrawalsRes, gameStatusRes, statsRes, betsRes, analysisRes, platformStatsRes] = await Promise.all([
-                axios.get(`${API_BASE_URL}/api/admin/recharges/pending`, { headers: { Authorization: `Bearer ${token}` } }),
-                axios.get(`${API_BASE_URL}/api/admin/withdrawals/pending`, { headers: { Authorization: `Bearer ${token}` } }),
-                axios.get(`${API_BASE_URL}/api/admin/game-status`, { headers: { Authorization: `Bearer ${token}` } }),
-                axios.get(`${API_BASE_URL}/api/admin/game-statistics`, { headers: { Authorization: `Bearer ${token}` } }),
-                axios.get(`${API_BASE_URL}/api/admin/current-bets`, { headers: { Authorization: `Bearer ${token}` } }),
-                axios.get(`${API_BASE_URL}/api/admin/game-outcome-analysis`, { headers: { Authorization: `Bearer ${token}` } }),
-                axios.get(`${API_BASE_URL}/api/admin/platform-stats`, { headers: { Authorization: `Bearer ${token}` } })
-            ]);
-            setPendingDeposits(depositsRes.data.recharges || []);
-            setPendingWithdrawals(withdrawalsRes.data.withdrawals || []);
-            setGameStatus(gameStatusRes.data.status || { is_on: false, mode: 'auto', payout_priority: 'admin' });
-            setGameStats(statsRes.data || { total: {}, today: {}, currentPeriod: {} });
-            setCurrentBets(betsRes.data.summary || {});
-            setOutcomeAnalysis(analysisRes.data || { mostProfitable: [], leastProfitable: [] });
-            setPlatformStats(platformStatsRes.data);
-        } catch (err) {
-            if (isInitialLoad) setError('Failed to fetch admin data. Auto-refresh paused.');
-            console.error(err);
-        } finally {
-            if (isInitialLoad) setLoading(false);
-        }
-    }, [token]);
-
-    useEffect(() => {
-        fetchData(true);
-        const interval = setInterval(() => fetchData(false), 5000);
-        return () => clearInterval(interval);
-    }, [fetchData]);
-
-// --- Data Fetching ---
+    // ✅ FIX: Merged the two fetchData functions into one comprehensive function
     const fetchData = useCallback(async (isInitialLoad = false) => {
         if (isInitialLoad) setLoading(true);
         setError('');
@@ -107,18 +73,25 @@ function AdminPanel({ token }) {
             const roundId = `${today.toISOString().slice(0, 10)}-${nextDrawHour}`;
             setCurrentLotteryRoundId(roundId);
 
-            const [depositsRes, withdrawalsRes, platformStatsRes, lotteryAnalysisRes] = await Promise.all([
+            const [depositsRes, withdrawalsRes, gameStatusRes, statsRes, betsRes, analysisRes, platformStatsRes, lotteryAnalysisRes] = await Promise.all([
                 axios.get(`${API_BASE_URL}/api/admin/recharges/pending`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/withdrawals/pending`, { headers: { Authorization: `Bearer ${token}` } }),
+                axios.get(`${API_BASE_URL}/api/admin/game-status`, { headers: { Authorization: `Bearer ${token}` } }),
+                axios.get(`${API_BASE_URL}/api/admin/game-statistics`, { headers: { Authorization: `Bearer ${token}` } }),
+                axios.get(`${API_BASE_URL}/api/admin/current-bets`, { headers: { Authorization: `Bearer ${token}` } }),
+                axios.get(`${API_BASE_URL}/api/admin/game-outcome-analysis`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/platform-stats`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/lottery-analysis?roundId=${roundId}`, { headers: { Authorization: `Bearer ${token}` } })
             ]);
             setPendingDeposits(depositsRes.data.recharges || []);
             setPendingWithdrawals(withdrawalsRes.data.withdrawals || []);
+            setGameStatus(gameStatusRes.data.status || { is_on: false, mode: 'auto', payout_priority: 'admin' });
+            setGameStats(statsRes.data || { total: {}, today: {}, currentPeriod: {} });
+            setCurrentBets(betsRes.data.summary || {});
+            setOutcomeAnalysis(analysisRes.data || { mostProfitable: [], leastProfitable: [] });
             setPlatformStats(platformStatsRes.data);
             setLotteryAnalysis(lotteryAnalysisRes.data.outcomes || []);
             setLotteryMode(lotteryAnalysisRes.data.mode || 'auto');
-
         } catch (err) {
             if (isInitialLoad) setError('Failed to fetch admin data. Auto-refresh paused.');
             console.error(err);
@@ -129,7 +102,7 @@ function AdminPanel({ token }) {
 
     useEffect(() => {
         fetchData(true);
-        const interval = setInterval(() => fetchData(false), 10000); // Refresh every 10 seconds
+        const interval = setInterval(() => fetchData(false), 10000);
         return () => clearInterval(interval);
     }, [fetchData]);
 
