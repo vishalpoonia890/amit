@@ -1,25 +1,34 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import axios from 'axios';
-import './GamePages.css'; // Shared stylesheet for all game pages
+import './GamePages.css'; // Shared stylesheet
 
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
 
 // --- Game Configuration ---
 const DRAW_TIMES_HOURS = [8, 12, 16, 20]; // 8 AM, 12 PM, 4 PM, 8 PM IST
 
-// --- Helper Function to get the next draw ---
-const getNextDraw = () => {
+// --- Helper Function to get the current and next draw ---
+const getDrawTimes = () => {
     const now = new Date();
-    // Use Indian Standard Time (IST is UTC+5:30)
     const nowIST = new Date(now.getTime() + (5.5 * 60 * 60 * 1000));
     const todayIST = new Date(Date.UTC(nowIST.getUTCFullYear(), nowIST.getUTCMonth(), nowIST.getUTCDate()));
 
-    for (const hour of DRAW_TIMES_HOURS) {
+    for (let i = 0; i < DRAW_TIMES_HOURS.length; i++) {
+        const hour = DRAW_TIMES_HOURS[i];
         const drawTime = new Date(todayIST);
         drawTime.setUTCHours(hour, 0, 0, 0);
+
         if (nowIST < drawTime) {
+            const prevHour = i > 0 ? DRAW_TIMES_HOURS[i - 1] : DRAW_TIMES_HOURS[DRAW_TIMES_HOURS.length - 1];
+            const startTime = new Date(drawTime);
+            if (i === 0) {
+                startTime.setUTCDate(startTime.getUTCDate() - 1);
+            }
+            startTime.setUTCHours(prevHour, 0, 0, 0);
+            
             return {
                 endTime: drawTime,
+                startTime: startTime,
                 id: `${todayIST.toISOString().slice(0, 10)}-${hour}`
             };
         }
@@ -29,8 +38,13 @@ const getNextDraw = () => {
     tomorrowIST.setUTCDate(todayIST.getUTCDate() + 1);
     const nextDrawTime = new Date(tomorrowIST);
     nextDrawTime.setUTCHours(DRAW_TIMES_HOURS[0], 0, 0, 0);
+    
+    const lastDrawOfToday = new Date(todayIST);
+    lastDrawOfToday.setUTCHours(DRAW_TIMES_HOURS[DRAW_TIMES_HOURS.length - 1], 0, 0, 0);
+
     return {
         endTime: nextDrawTime,
+        startTime: lastDrawOfToday,
         id: `${tomorrowIST.toISOString().slice(0, 10)}-${DRAW_TIMES_HOURS[0]}`
     };
 };
@@ -43,7 +57,7 @@ const Countdown = ({ endTime, onEnd }) => {
             onEnd();
             return "DRAWING NOW";
         }
-        const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
+        const hours = Math.floor(difference / (1000 * 60 * 60));
         const minutes = Math.floor((difference / 1000 / 60) % 60);
         const seconds = Math.floor((difference / 1000) % 60);
         return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
@@ -104,39 +118,41 @@ function IpLottery({ token, onBack }) {
     const [activeSlot, setActiveSlot] = useState('A');
     const [betAmount, setBetAmount] = useState(100);
     const [lastResult, setLastResult] = useState(null);
-    const [showHistory, setShowHistory] = useState(false);
+    const [history, setHistory] = useState([]);
     const [showResultModal, setShowResultModal] = useState(null);
 
-
-     // ✅ FIX: The live stats logic is now based on time progression for guaranteed positive numbers.
     const [basePlayers, setBasePlayers] = useState(Math.floor(Math.random() * 150) + 100);
     const [basePool, setBasePool] = useState(Math.floor(Math.random() * 200000) + 50000);
     
-    // Live Stats Simulation
-    const currentPlayers = useMemo(() => {
-        if (!round) return 0;
-        const totalDuration = DRAW_TIMES_HOURS[1] - DRAW_TIMES_HOURS[0]; // 4 hours in ms
-        const timeLeft = (new Date(round.endTime) - new Date()) / (1000 * 60 * 60);
-        const players = basePlayers + Math.floor(progress * 350); // Grows by up to 350 players
-        const pool = basePool + Math.floor(progress * 800000); // Grows by up to 8 Lakh
+    const liveStats = useMemo(() => {
+        if (!round) return { players: 0, pool: 0 };
+        const totalDuration = round.endTime.getTime() - round.startTime.getTime();
+        const elapsedTime = Date.now() - round.startTime.getTime();
+        const progress = Math.min(elapsedTime / totalDuration, 1);
+        const players = basePlayers + Math.floor(progress * 350);
+        const pool = basePool + Math.floor(progress * 800000);
         return { players, pool };
     }, [round, basePlayers, basePool]);
 
     const fetchInitialState = useCallback(async () => {
         try {
-            const res = await axios.get(`${API_BASE_URL}/api/lottery/state`, { headers: { Authorization: `Bearer ${token}` } });
-            setLastResult(res.data.lastResult);
+            const [lastResultRes, historyRes] = await Promise.all([
+                axios.get(`${API_BASE_URL}/api/lottery/state`, { headers: { Authorization: `Bearer ${token}` } }),
+                axios.get(`${API_BASE_URL}/api/lottery/history`, { headers: { Authorization: `Bearer ${token}` } })
+            ]);
+            setLastResult(lastResultRes.data.lastResult);
+            setHistory(historyRes.data.history);
         } catch (error) {
-            console.error("Failed to fetch initial lottery state:", error);
+            console.error("Failed to fetch lottery state/history:", error);
         }
     }, [token]);
 
     useEffect(() => {
-        const nextDraw = getNextDraw();
-        setRound({ roundId: nextDraw.id, endTime: nextDraw.endTime });
+        const nextDraw = getDrawTimes();
+        setRound({ roundId: nextDraw.id, endTime: nextDraw.endTime, startTime: nextDraw.startTime });
         fetchInitialState();
     }, [fetchInitialState]);
-
+    
     const handleNumberSelect = (num) => {
         if (selectionMode === 'single') {
             setSelectedNumA(num);
@@ -153,6 +169,12 @@ function IpLottery({ token, onBack }) {
         }
     };
     
+    const clearSelection = () => {
+        setSelectedNumA(null);
+        setSelectedNumB(null);
+        setActiveSlot('A');
+    };
+
     const handleBet = async () => {
         const isSingleBetValid = selectionMode === 'single' && selectedNumA !== null;
         const isDoubleBetValid = selectionMode === 'double' && selectedNumA !== null && selectedNumB !== null;
@@ -173,7 +195,6 @@ function IpLottery({ token, onBack }) {
     };
     
     const handleDrawEnd = useCallback(async () => {
-        // After the draw, check if the user played this round and show their result
         try {
             const res = await axios.get(`${API_BASE_URL}/api/lottery/my-bet-result/${round.roundId}`, { headers: { Authorization: `Bearer ${token}` } });
             setShowResultModal(res.data);
@@ -188,7 +209,6 @@ function IpLottery({ token, onBack }) {
 
     return (
         <div className="game-page-container lottery-theme">
-            {showHistory && <HistoryModal token={token} onClose={() => setShowHistory(false)} />}
             {showResultModal && <ResultModal result={showResultModal} onClose={() => { setShowResultModal(null); window.location.reload(); }} />}
             
             <button className="back-button" onClick={onBack}>← Back to Lobby</button>
@@ -201,17 +221,17 @@ function IpLottery({ token, onBack }) {
             </div>
 
             <div className="live-pool-card">
-                <div className="pool-stat"><span>Current Players</span><strong>{currentPlayers.toLocaleString('en-IN')}</strong></div>
-                <div className="pool-stat"><span>Total Pool Amount</span><strong>₹{totalPool.toLocaleString('en-IN')}</strong></div>
+                <div className="pool-stat"><span>Current Players</span><strong>{liveStats.players.toLocaleString('en-IN')}</strong></div>
+                <div className="pool-stat"><span>Total Pool Amount</span><strong>₹{liveStats.pool.toLocaleString('en-IN')}</strong></div>
             </div>
 
             <div className="lottery-card">
                 <div className="selection-header">
                     <h3>Select Your Numbers</h3>
-                    <button onClick={() => { setSelectedNumA(null); setSelectedNumB(null); setActiveSlot('A'); }} className="clear-selection-btn">Clear</button>
+                    <button onClick={clearSelection} className="clear-selection-btn">Clear</button>
                 </div>
                 <div className="toggle-switch">
-                    <button className={selectionMode === 'single' ? 'active' : ''} onClick={() => { setSelectionMode('single'); setSelectedNumB(null); setActiveSlot('A'); }}>Single (2.5x)</button>
+                    <button className={selectionMode === 'single' ? 'active' : ''} onClick={() => { setSelectionMode('single'); clearSelection(); }}>Single (2.5x)</button>
                     <button className={selectionMode === 'double' ? 'active' : ''} onClick={() => setSelectionMode('double')}>Double (25x)</button>
                 </div>
                 <div className="selection-slots">
@@ -239,24 +259,37 @@ function IpLottery({ token, onBack }) {
                 <button className="action-button" onClick={handleBet}>Confirm Bet</button>
             </div>
 
-            {lastResult && (
-                <div className="last-result-card">
-                    <h3>Last Result (Round: {lastResult.round_id})</h3>
-                    <div className="result-numbers">
-                        <span>{lastResult.winning_num_a}</span>
-                        <span>{lastResult.winning_num_b}</span>
+            {history.length > 0 && (
+                <div className="history-card">
+                    <h4>Recent Results</h4>
+                    <div className="history-table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Round</th>
+                                    <th>Winning Numbers</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {history.slice(0, 5).map(item => (
+                                    <tr key={item.round_id}>
+                                        <td>{item.round_id}</td>
+                                        <td><span className="winning-num">{item.winning_num_a}</span>, <span className="winning-num">{item.winning_num_b}</span></td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
-                    {lastResult.jackpot_rolled_over && <p className="rollover-alert">JACKPOT ROLLED OVER!</p>}
-                    <button onClick={() => setShowHistory(true)}>View History</button>
                 </div>
             )}
 
             <div className="rules-card">
                 <h4>About This Game</h4>
-                <p><strong>Instant Action:</strong> With draws happening four times a day, your chance to win is always just around the corner.</p>
-                <p><strong>High Payouts:</strong> Our generous 2.5x and 25x payouts offer the potential for significant returns on even small bets.</p>
-                <p><strong>Fair & Transparent:</strong> Our system is designed to be fair. In the rare case of a high-risk round, the jackpot rolls over, creating an even bigger prize pool for the next draw. This means bigger wins are always possible!</p>
-                <p><strong>IP Location Pool:</strong> This prize pool is specific to your IP location to ensure better odds and more frequent winners in your region.</p>
+                <p><strong>High-Frequency Draws:</strong> With draws four times a day, your next big win is always just around the corner.</p>
+                <p><strong>Strategic Betting:</strong> Choose a single number for a high chance of a solid 2.5x return, or go for the big 25x jackpot by picking two numbers!</p>
+                <p><strong>Community Driven:</strong> The prize pool grows with every player who joins. More players mean bigger potential wins for everyone.</p>
+                <p><strong>Fair & Transparent:</strong> Our system is designed for fairness. In rare high-risk rounds, the jackpot rolls over, creating an even bigger prize pool for the next draw and ensuring the game is always exciting.</p>
+                 <p><strong>Regional Pool:</strong> To ensure the best odds, this prize pool is specific to your IP location, creating more frequent winners in your region.</p>
             </div>
         </div>
     );
