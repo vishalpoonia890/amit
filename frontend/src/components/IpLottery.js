@@ -83,12 +83,12 @@ const ResultModal = ({ result, onClose }) => (
 
 // --- Mock Data for New Sections ---
 const luckyWins = [
-    { id: 1, name: 'Rahul S.', amount: 2500 }, { id: 2, name: 'Priya K.', amount: 250 },
-    { id: 3, name: 'Amit V.', amount: 25000 }, { id: 4, name: 'Sneha G.', amount: 250 },
+    { id: 1, name: 'Rahul S.', amount: 250000 }, { id: 2, name: 'Priya K.', amount: 65000 },
+    { id: 3, name: 'Amit V.', amount: 75000 }, { id: 4, name: 'Kamal', amount: 50000},
 ];
 const topWins = [
-    { id: 1, name: 'Vikas M.', amount: 125000 }, { id: 2, name: 'Anjali P.', amount: 95000 },
-    { id: 3, name: 'Sandeep R.', amount: 78000 },
+    { id: 1, name: 'Vikas M.', amount: 1250000 }, { id: 2, name: 'Anjali P.', amount: 950000 },
+    { id: 3, name: 'Sandeep R.', amount: 780000 },
 ];
 
 function IpLottery({ token, onBack }) {
