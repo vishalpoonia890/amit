@@ -134,7 +134,6 @@
 .server-actions h4 { margin: 0 0 5px 0; }
 .server-actions p { margin-top: 0; margin-bottom: 10px; color: var(--text-color-light); font-size: 0.9em; }
 .action-btn { background-color: var(--primary-color-light); color: var(--primary-color); border: 1px solid var(--primary-color); padding: 10px 15px; border-radius: 8px; font-weight: 600; cursor: pointer; }
-.action-btn:disabled { background-color: var(--border-color); color: var(--text-color-light); border-color: var(--text-color-light); cursor: not-allowed; }
 
 .user-status-result { border-top: 1px solid var(--border-color); margin-top: 15px; padding-top: 15px; }
 .user-status-result h4 { margin: 0 0 10px; }
@@ -143,6 +142,38 @@
 .status-allowed { color: var(--success-color); font-weight: 600; }
 .status-blocked { color: var(--error-color); font-weight: 600; }
 .button-group { display: flex; gap: 10px; }
+
+/* --- Lottery Analysis Table --- */
+.analysis-table-container {
+    max-height: 400px;
+    overflow-y: auto;
+}
+.analysis-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.analysis-table th, .analysis-table td {
+    padding: 8px;
+    text-align: center;
+    border-bottom: 1px solid var(--border-color);
+}
+.analysis-table th {
+    font-weight: 600;
+    font-size: 0.8em;
+    text-transform: uppercase;
+    background-color: var(--bg-color);
+    position: sticky;
+    top: 0;
+}
+.analysis-table tr.positive td:last-child {
+    color: var(--success-color);
+    font-weight: 600;
+}
+.analysis-table tr.negative td:last-child {
+    color: var(--error-color);
+    font-weight: 600;
+}
+
 
 /* --- Table Styling --- */
 .table-container { overflow-x: auto; }
