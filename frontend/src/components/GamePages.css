@@ -1,9 +1,10 @@
-.game-page-placeholder {
+.game-page-placeholder, .game-page-container {
     padding: 20px;
-    text-align: center;
+    padding-bottom: 80px;
     animation: fadeIn 0.5s;
 }
-.game-page-placeholder .back-button {
+
+.back-button {
     display: block;
     margin-bottom: 20px;
     background: none;
@@ -13,15 +14,203 @@
     cursor: pointer;
     font-weight: 600;
 }
-.game-page-placeholder h1 {
-    color: var(--primary-color);
+
+.game-header {
+    text-align: center;
+    margin-bottom: 20px;
 }
-.game-page-placeholder p {
+.game-header h1 {
+    color: var(--primary-color);
+    margin: 0 0 5px 0;
+}
+.game-header p {
+    margin: 0;
     color: var(--text-color-light);
 }
+
+/* --- Lottery Specific Styles --- */
+.lottery-theme {
+    /* You can add a background gradient or image here for a more premium feel */
+}
+
+.round-timer {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-top: 10px;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.live-pool-card {
+    display: flex;
+    justify-content: space-around;
+    background: linear-gradient(45deg, var(--primary-color), var(--primary-hover-color));
+    color: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+.pool-stat {
+    flex: 1;
+}
+.pool-stat span {
+    display: block;
+    font-size: 0.9em;
+    opacity: 0.8;
+}
+.pool-stat strong {
+    font-size: 1.5em;
+    font-weight: 700;
+}
+
+.lottery-card, .rules-card {
+    background-color: var(--card-bg-color);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid var(--border-color);
+}
+
+.lottery-card h3, .rules-card h4 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    text-align: center;
+    color: var(--text-color);
+}
+
+.selection-info {
+    text-align: center;
+    font-size: 0.9em;
+    color: var(--text-color-light);
+    margin-bottom: 15px;
+}
+
+.toggle-switch {
+    display: flex;
+    justify-content: center;
+    background-color: var(--bg-color);
+    border-radius: 20px;
+    padding: 4px;
+    max-width: 400px;
+    margin: 0 auto 15px auto;
+}
+.toggle-switch button {
+    flex: 1;
+    padding: 8px 15px;
+    border: none;
+    background: none;
+    border-radius: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--text-color-light);
+    transition: all 0.3s ease;
+}
+.toggle-switch button.active {
+    background-color: var(--primary-color);
+    color: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.number-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+}
+
+.num-button {
+    padding: 15px 10px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-color);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.num-button:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+.num-button.selected {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+    transform: scale(1.05);
+}
+
+.bet-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.quick-bet-buttons {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+.quick-bet-buttons button {
+    padding: 8px 15px;
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-color);
+    cursor: pointer;
+    font-weight: 500;
+}
+.bet-input-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+.bet-input-group input {
+    width: 120px;
+    padding: 10px;
+    font-size: 1.2rem;
+    text-align: center;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
+.action-button {
+    width: 100%;
+    padding: 12px;
+    font-size: 1.1em;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    background-color: var(--primary-color);
+    color: white;
+    cursor: pointer;
+}
+
+.rules-card p {
+    font-size: 0.9em;
+    line-height: 1.6;
+    color: var(--text-color-light);
+    margin-bottom: 10px;
+}
+.rules-card p:last-child {
+    margin-bottom: 0;
+}
+.rules-card strong {
+    color: var(--text-color);
+}
+
+/* For simple placeholder pages */
+.game-page-placeholder { text-align: center; }
+.game-page-placeholder h1 { color: var(--primary-color); }
+.game-page-placeholder p { color: var(--text-color-light); }
 .game-page-placeholder .coming-soon {
     margin-top: 30px;
     font-size: 1.5rem;
     font-weight: bold;
     color: var(--text-color);
 }
+
