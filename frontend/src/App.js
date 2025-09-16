@@ -246,7 +246,7 @@ function App() {
             
             case 'game': return <GameLobby onViewChange={setView} />; 
             case 'color-prediction-game': return <GameView token={token} financialSummary={financialSummary} onBack={goBackToGameLobby} onBetPlaced={() => fetchAllUserData(token)} />;
-            case 'ip-lottery': return <IpLottery onBack={goBackToGameLobby} />;
+            case 'ip-lottery': return <IpLottery token={token} onBack={goBackToGameLobby} />;
             case 'win-win': return <WinWinGame onBack={goBackToGameLobby} />;
 
             case 'news': return <NewsView />;
