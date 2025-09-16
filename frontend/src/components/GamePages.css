@@ -1,0 +1,27 @@
+.game-page-placeholder {
+    padding: 20px;
+    text-align: center;
+    animation: fadeIn 0.5s;
+}
+.game-page-placeholder .back-button {
+    display: block;
+    margin-bottom: 20px;
+    background: none;
+    border: none;
+    font-size: 1rem;
+    color: var(--primary-color);
+    cursor: pointer;
+    font-weight: 600;
+}
+.game-page-placeholder h1 {
+    color: var(--primary-color);
+}
+.game-page-placeholder p {
+    color: var(--text-color-light);
+}
+.game-page-placeholder .coming-soon {
+    margin-top: 30px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--text-color);
+}
