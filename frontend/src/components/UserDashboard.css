@@ -1,69 +1,164 @@
 .user-dashboard {
+    padding: 0 0 80px 0; /* Remove side padding for full-width sections */
+    background: linear-gradient(180deg, #1a202c 0%, #2d3748 70%, #1a202c 100%);
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.dashboard-hero {
+    text-align: center;
+    padding: 40px 20px;
+    margin-bottom: 30px;
+    background: linear-gradient(rgba(26, 32, 44, 0.8), rgba(26, 32, 44, 0.95)), 
+                url('https://www.transparenttextures.com/patterns/dark-denim-3.png');
+    border-bottom: 1px solid var(--border-color);
+}
+
+.hero-title {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #FFFFFF;
+    text-shadow: 0 0 10px var(--primary-color), 0 0 20px var(--primary-color);
+    animation: pulse-glow 3s infinite ease-in-out;
+}
+
+.hero-subtitle {
+    font-size: 1rem;
+    color: var(--text-color-light);
+    margin-top: 5px;
+    opacity: 0.8;
+}
+
+@keyframes pulse-glow {
+    0%, 100% { text-shadow: 0 0 10px var(--primary-color-light), 0 0 20px var(--primary-color-light); }
+    50% { text-shadow: 0 0 20px var(--primary-color), 0 0 30px var(--primary-color); }
+}
+
+.quick-actions-scroll-container {
+    width: 100%;
+    overflow-x: auto;
+    padding: 0 0 20px 0;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* For Firefox */
+}
+.quick-actions-scroll-container::-webkit-scrollbar { 
+    display: none; /* For Chrome, Safari, and Opera */
+}
+
+.quick-actions-grid {
+    display: flex;
+    flex-wrap: nowrap; /* Ensures items stay in a single line */
+    gap: 15px;
+    padding: 0 20px; /* Adds padding to the start and end of the scrollable area */
+}
+
+.action-card-wrapper {
+    flex: 0 0 80px; /* Each button has a fixed width */
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    transition: all 0.2s ease-in-out;
+    background-color: var(--card-bg-color);
+}
+
+.action-card-wrapper:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    border-color: var(--primary-color);
+}
+
+.action-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    padding: 15px 5px;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    text-align: center;
+    color: var(--text-color);
+    border-radius: 11px;
+}
+
+.action-icon-container {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-color);
+}
+
+.action-icon-container svg {
+    width: 28px;
+    height: 28px;
+}
+
+.action-card span {
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.info-section {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+    margin: 0 20px 30px 20px;
+}
+@media (min-width: 768px) {
+    .info-section {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.info-card {
+    background-color: var(--card-bg-color);
+    border-radius: 12px;
     padding: 20px;
-    padding-bottom: 80px; /* Space for bottom nav */
+    text-align: center;
+    border: 1px solid var(--border-color);
+    transition: all 0.2s ease-in-out;
+}
+.info-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--card-hover-shadow);
+}
+.info-card-icon {
+    color: var(--primary-color);
+    margin-bottom: 10px;
+}
+.info-card-icon svg {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto;
+}
+.info-card h4 {
+    margin: 0 0 5px 0;
+    font-size: 1.1em;
+    color: var(--text-color);
+}
+.info-card p {
+    margin: 0;
+    font-size: 0.9em;
+    color: var(--text-color-light);
 }
 
 .dashboard-card {
     background-color: var(--card-bg-color);
     border-radius: 12px;
     padding: 20px;
-    margin-bottom: 20px;
+    margin: 0 20px 20px 20px;
     box-shadow: var(--card-shadow);
     border: 1px solid var(--border-color);
 }
 
-/* --- Quick Access Menu --- */
-.menu-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 15px; /* Space between the bordered wrappers */
-}
-
-/* This is the new wrapper that holds the border */
-.menu-item-wrapper {
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    transition: all 0.2s ease-in-out;
-}
-
-/* Add a hover effect to the wrapper */
-.menu-item-wrapper:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-    border-color: var(--primary-color);
-}
-
-.menu-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background-color: transparent; /* The button itself has no background */
-    border: none;
-    padding: 12px 5px;
-    width: 100%;
-    height: 100%;
-    cursor: pointer;
-    text-align: center;
-    color: var(--text-color);
-    border-radius: 11px; /* Slightly smaller than wrapper to prevent overlap */
-}
-
-.menu-icon {
-    font-size: 1.8rem;
-    margin-bottom: 8px;
-    line-height: 1;
-}
-
-.menu-label {
-    font-size: 0.75rem;
-    font-weight: 500;
-}
-
-/* --- Video Section --- */
-.video-section h4 {
+.video-section h4, .updates-section h4, .blog-section h4 {
     margin: 0 0 15px 0;
-    font-size: 1.1em;
+    font-size: 1.2em;
+    text-align: center;
+    color: var(--primary-color);
 }
 
 .video-placeholder {
@@ -73,86 +168,105 @@
     overflow: hidden;
     background-color: #000;
 }
-
 .video-placeholder iframe {
     width: 100%;
     height: 100%;
 }
 
-/* --- Marquee/Ticker Section --- */
 .marquee-container {
-    width: 100%;
+    width: auto; /* Let it be contained by the margin of dashboard-card */
     overflow: hidden;
     background-color: var(--card-bg-color);
     padding: 10px 0;
     border-radius: 8px;
-    margin-bottom: 20px;
+    margin: 0 20px 20px 20px;
     border: 1px solid var(--border-color);
 }
-
 .marquee-content {
     display: flex;
     animation: marquee 30s linear infinite;
 }
-
 .marquee-item {
     flex-shrink: 0;
     padding: 0 20px;
     font-size: 0.9em;
     color: var(--text-color-light);
 }
-
 @keyframes marquee {
     from { transform: translateX(0%); }
     to { transform: translateX(-50%); }
 }
 
-/* --- Accordion/FAQ Section --- */
-.updates-section h4 {
-    margin: 0 0 15px 0;
-    font-size: 1.1em;
+.blog-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+}
+@media (min-width: 768px) {
+    .blog-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
-.accordion-item {
-    border-bottom: 1px solid var(--border-color);
+.blog-card {
+    background-color: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
 }
-.accordion-item:last-child {
-    border-bottom: none;
-}
-
-.accordion-header {
-    width: 100%;
-    padding: 15px 5px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 1em;
-    font-weight: 600;
-    color: var(--text-color);
-}
-
-.accordion-icon {
-    font-size: 1.2em;
+.blog-card-icon {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
     color: var(--primary-color);
 }
-
-.accordion-content {
-    padding: 0 5px 15px 5px;
-    font-size: 0.9em;
+.blog-card-icon svg {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto;
+}
+.blog-card h5 {
+    margin: 0 0 8px 0;
+    font-size: 1em;
+    font-weight: 600;
+}
+.blog-card p {
+    margin: 0;
+    font-size: 0.85em;
     color: var(--text-color-light);
-    line-height: 1.6;
+    line-height: 1.5;
 }
 
-.accordion-content ul {
-    list-style-position: inside;
-    padding-left: 5px;
-    margin-top: 10px;
+.dashboard-footer {
+    margin-top: 40px;
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--text-color-light);
+    line-height: 1.5;
+    opacity: 0.7;
+    padding: 0 20px;
 }
-
-.accordion-content li {
-    margin-bottom: 5px;
+.footer-logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: var(--text-color);
+    opacity: 1;
+}
+.footer-regulatory {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 10px;
+    font-weight: 500;
+}
+.footer-regulatory span {
+    background-color: var(--card-bg-color);
+    padding: 3px 8px;
+    border-radius: 5px;
+    border: 1px solid var(--border-color);
+}
+.footer-disclaimer {
+    font-size: 0.7rem;
 }
 
