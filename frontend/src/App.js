@@ -13,7 +13,7 @@ import BottomNav from './components/BottomNav';
 import Snackbar from './components/Snackbar';
 import TopNav from './components/TopNav';
 import AccountView from './components/AccountView';
-import GameLobby from './components/GameLobby'; // ✅ NEW
+import GameLobby from './components/GameLobby';
 import GameView from './components/GameView';
 import Deposit from './components/Deposit';
 import Withdrawal from './components/Withdrawal';
@@ -21,6 +21,8 @@ import BetHistory from './components/BetHistory';
 import TransactionHistory from './components/TransactionHistory';
 import NotificationsDialog from './components/NotificationsDialog';
 import SellUsdt from './components/SellUsdt';
+import IpLottery from './components/IpLottery';
+import WinWinGame from './components/WinWinGame';
 
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
 
@@ -244,6 +246,8 @@ function App() {
             
             case 'game': return <GameLobby onViewChange={setView} />; 
             case 'color-prediction-game': return <GameView token={token} financialSummary={financialSummary} onBack={goBackToGameLobby} onBetPlaced={() => fetchAllUserData(token)} />;
+            case 'ip-lottery': return <IpLottery onBack={goBackToGameLobby} />;
+            case 'win-win': return <WinWinGame onBack={goBackToGameLobby} />;
 
             case 'news': return <NewsView />;
             case 'account': return <AccountView userData={userData} financialSummary={financialSummary} onLogout={handleLogout} onViewChange={setView} token={token}/>;
