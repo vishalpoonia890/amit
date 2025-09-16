@@ -1,7 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './UserDashboard.css';
-import { DepositIcon, WithdrawIcon, RewardsIcon, SellUsdtIcon, TeamIcon, SupportIcon, WalletIcon, PromotionsIcon } from './Icons'; // Assuming these are in an Icons.js file
+import { 
+    DepositIcon, WithdrawIcon, RewardsIcon, SellUsdtIcon, 
+    TeamIcon, SupportIcon, WalletIcon, PromotionsIcon,
+    SecurePlatformIcon, HighReturnsIcon, InstantPayoutsIcon,
+    BankVsInvestIcon, PassiveIncomeIcon, FinancialFreedomIcon,
+    SmartInvestingIcon, LongTermGrowthIcon, DiversificationIcon,
+    Support247Icon, IntuitiveInterfaceIcon, CommunityRewardsIcon // New Icons
+} from './Icons';
 
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
 
@@ -22,19 +29,6 @@ const Marquee = ({ items }) => (
     </div>
 );
 
-const AccordionItem = ({ title, children }) => {
-    const [isOpen, setIsOpen] = useState(false);
-    return (
-        <div className="accordion-item">
-            <button className="accordion-header" onClick={() => setIsOpen(!isOpen)}>
-                <span>{title}</span>
-                <span className="accordion-icon">{isOpen ? '−' : '+'}</span>
-            </button>
-            {isOpen && <div className="accordion-content">{children}</div>}
-        </div>
-    );
-};
-
 function UserDashboard({ onViewChange }) {
     const [withdrawals, setWithdrawals] = useState([]);
 
@@ -52,66 +46,104 @@ function UserDashboard({ onViewChange }) {
         fetchWithdrawals();
     }, []);
 
-    const menuItems = [
-        { id: 'deposit', label: 'Deposit', icon: <DepositIcon /> },
-        { id: 'withdraw', label: 'Withdraw', icon: <WithdrawIcon /> },
-        { id: 'sell-usdt', label: 'Sell USDT', icon: <SellUsdtIcon /> }, // ✅ UPDATED
-        { id: 'rewards', label: 'Rewards', icon: <RewardsIcon /> },
-        { id: 'team', label: 'Team', icon: <TeamIcon /> },
-        { id: 'support', label: 'Support', icon: <SupportIcon /> },
-        { id: 'wallet', label: 'Wallet', icon: <WalletIcon /> },
-        { id: 'promotions', label: 'Promotions', icon: <PromotionsIcon /> },
+    const quickActions = [
+        { id: 'deposit', label: 'Deposit', icon: <DepositIcon />, view: 'deposit' },
+        { id: 'withdraw', label: 'Withdraw', icon: <WithdrawIcon />, view: 'withdraw' },
+        { id: 'sell-usdt', label: 'Sell USDT', icon: <SellUsdtIcon />, view: 'sell-usdt' },
+        { id: 'team', label: 'Team', icon: <TeamIcon />, view: 'team' },
+        { id: 'rewards', label: 'Rewards', icon: <RewardsIcon />, view: 'rewards' },
+        { id: 'support', label: 'Support', icon: <SupportIcon />, view: 'support' },
     ];
-    
+
+    const blogPosts = [
+        { id: 1, title: 'Bank Savings vs. Smart Investing', text: 'Discover why letting your money work for you in investments can vastly outperform traditional savings.', icon: <BankVsInvestIcon /> },
+        { id: 2, title: 'The Power of Passive Income', text: 'Learn how our platform helps you build steady, passive income streams that grow over time.', icon: <PassiveIncomeIcon /> },
+        { id: 3, title: 'Start Your Independence Journey', text: 'Take the first step towards financial freedom. Our tools are designed for beginners and experts alike.', icon: <FinancialFreedomIcon /> },
+        { id: 4, title: 'Smart Investing in a Digital Age', text: 'Explore how diversifying into high-growth digital assets can accelerate your wealth creation.', icon: <SmartInvestingIcon /> },
+        { id: 5, title: 'Long-Term Growth Strategies', text: 'See how consistent, strategic investments can lead to substantial long-term financial security.', icon: <LongTermGrowthIcon /> },
+        { id: 6, title: 'The Art of Diversification', text: 'Understand why spreading your investments across different products minimizes risk and maximizes returns.', icon: <DiversificationIcon /> },
+    ];
+
     return (
         <div className="user-dashboard">
-            <div className="dashboard-card quick-access-menu">
-                <div className="menu-grid">
-                    {menuItems.map(item => (
-                        // ✅ UPDATED: Added a wrapper for the new border style
-                        <div key={item.id} className="menu-item-wrapper">
-                            <button className="menu-item" onClick={() => onViewChange(item.id)}>
-                                <div className="menu-icon">{item.icon}</div>
-                                <span className="menu-label">{item.label}</span>
+            <div className="dashboard-hero">
+                <h1 className="hero-title">Welcome to InvestmentPlus</h1>
+                <p className="hero-subtitle">Your Premier Destination for Digital Asset Growth & Gaming</p>
+            </div>
+
+            <div className="quick-actions-scroll-container">
+                <div className="quick-actions-grid">
+                    {quickActions.map(action => (
+                        <div key={action.id} className="action-card-wrapper">
+                            <button onClick={() => onViewChange(action.view)} className="action-card">
+                                <div className="action-icon-container">{action.icon}</div>
+                                <span>{action.label}</span>
                             </button>
                         </div>
                     ))}
                 </div>
             </div>
-
-            <div className="dashboard-card video-section">
-                <h4>How to Earn with InvestmentPlus</h4>
-                <div className="video-placeholder">
-                    <iframe 
-                        src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1&loop=1&playlist=dQw4w9WgXcQ&controls=0" 
-                        title="Promotional Video"
-                        frameBorder="0" 
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                        allowFullScreen>
-                    </iframe>
+            
+            {/* ✅ UPDATED: The "Why Choose Us" section is now fully implemented with more content */}
+            <div className="info-section">
+                 <div className="info-card">
+                    <div className="info-card-icon"><InstantPayoutsIcon /></div>
+                    <h4>Instant Payouts</h4>
+                    <p>Your winnings and earnings are credited to your withdrawable balance immediately.</p>
+                </div>
+                <div className="info-card">
+                    <div className="info-card-icon"><SecurePlatformIcon /></div>
+                    <h4>Secure Platform</h4>
+                    <p>We use state-of-the-art security to protect your data and transactions, 24/7.</p>
+                </div>
+                <div className="info-card">
+                    <div className="info-card-icon"><HighReturnsIcon /></div>
+                    <h4>High Returns</h4>
+                    <p>Our diverse investment plans and games are designed to maximize your earning potential.</p>
+                </div>
+                <div className="info-card">
+                    <div className="info-card-icon"><Support247Icon /></div>
+                    <h4>24/7 Support</h4>
+                    <p>Our dedicated support team is available around the clock to assist you with any questions.</p>
+                </div>
+                <div className="info-card">
+                    <div className="info-card-icon"><IntuitiveInterfaceIcon /></div>
+                    <h4>Intuitive Interface</h4>
+                    <p>Our platform is designed to be easy to navigate for both beginners and experts.</p>
+                </div>
+                <div className="info-card">
+                    <div className="info-card-icon"><CommunityRewardsIcon /></div>
+                    <h4>Community Rewards</h4>
+                    <p>Join a thriving community and participate in exclusive events to maximize your earnings.</p>
                 </div>
             </div>
-
+            
             <Marquee items={withdrawals} />
 
-            <div className="dashboard-card updates-section">
-                <h4>Latest Updates & Guides</h4>
-                <AccordionItem title="🚀 How to Earn on InvestmentPlus">
-                    <p>Earning with us is designed to be simple and rewarding. Here’s your path to success:</p>
-                    <ul>
-                        <li><strong>Step 1: Register & Bonus:</strong> Sign up in seconds and instantly receive a welcome bonus to kickstart your journey.</li>
-                        <li><strong>Step 2: Secure Deposit:</strong> Add funds to your account using our trusted UPI or Crypto (USDT TRC20) payment methods.</li>
-                        <li><strong>Step 3: Choose a Plan:</strong> Browse our diverse range of investment products, each with clear daily returns and durations.</li>
-                        <li><strong>Step 4: Earn Daily:</strong> Purchase a product and relax! Your daily income will be automatically credited to your account.</li>
-                    </ul>
-                </AccordionItem>
-                 <AccordionItem title="🏆 Our Winning Strategy">
-                    <p>Our core strategy revolves around smart diversification and proactive market analysis. We don't just follow trends; we create opportunities. By investing in a carefully curated portfolio of high-growth digital and financial assets, we effectively minimize risk while maximizing potential returns for our entire user community. Your financial growth is the ultimate measure of our success.</p>
-                </AccordionItem>
-                <AccordionItem title="💸 Maximize Your Winnings with Referrals">
-                    <p>Want to unlock a powerful new income stream? Use the "Team" feature! Share your unique referral link with friends, family, and your network. You will earn a generous commission on every single investment they make, creating a sustainable source of passive income. The more active members in your team, the higher your earnings potential becomes. It's a true win-win!</p>
-                </AccordionItem>
+            <div className="dashboard-card blog-section">
+                <h4>Start Your Financial Journey</h4>
+                <div className="blog-grid">
+                    {blogPosts.map(post => (
+                        <div key={post.id} className="blog-card">
+                            <div className="blog-card-icon">{post.icon}</div>
+                            <h5>{post.title}</h5>
+                            <p>{post.text}</p>
+                        </div>
+                    ))}
+                </div>
             </div>
+            
+            <footer className="dashboard-footer">
+                <div className="footer-logo">InvestmentPlus</div>
+                <div className="footer-regulatory">
+                    <span>SEBI Compliant*</span>
+                    <span>Follows RBI Guidelines*</span>
+                </div>
+                <p className="footer-disclaimer">
+                    *Disclaimer: InvestmentPlus is a privately operated platform. While we adhere to the highest standards of financial conduct and security inspired by regulatory bodies, we are not directly affiliated with, endorsed, or regulated by SEBI or RBI. All investments carry risks.
+                </p>
+                <p>© 2025 InvestmentPlus.com | All Rights Reserved.</p>
+            </footer>
         </div>
     );
 }
