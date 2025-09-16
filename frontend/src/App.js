@@ -13,13 +13,14 @@ import BottomNav from './components/BottomNav';
 import Snackbar from './components/Snackbar';
 import TopNav from './components/TopNav';
 import AccountView from './components/AccountView';
+import GameLobby from './components/GameLobby'; // ✅ NEW
 import GameView from './components/GameView';
 import Deposit from './components/Deposit';
 import Withdrawal from './components/Withdrawal';
 import BetHistory from './components/BetHistory';
 import TransactionHistory from './components/TransactionHistory';
 import NotificationsDialog from './components/NotificationsDialog';
-import SellUsdt from './components/SellUsdt'; // ✅ ADDED: Import the new component
+import SellUsdt from './components/SellUsdt';
 
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
 
@@ -233,17 +234,21 @@ function App() {
 
         const goBackToDashboard = () => setView('dashboard');
         const goBackToAccount = () => setView('account');
+        const goBackToGameLobby = () => setView('game');
 
         switch (view) {
             case 'dashboard': return <UserDashboard onViewChange={setView} />;
             case 'plans':
                 const totalBalance = financialSummary ? parseFloat(financialSummary.balance) + parseFloat(financialSummary.withdrawable_wallet) : 0;
                 return <ProductsAndPlans token={token} userBalance={totalBalance} allPlans={allPlans} loading={loading} onPurchaseComplete={() => fetchAllUserData(token)} />;
-            case 'game': return <GameView token={token} financialSummary={financialSummary} onViewChange={setView} onBetPlaced={() => fetchAllUserData(token)} />;
+            
+            case 'game': return <GameLobby onViewChange={setView} />; 
+            case 'color-prediction-game': return <GameView token={token} financialSummary={financialSummary} onBack={goBackToGameLobby} onBetPlaced={() => fetchAllUserData(token)} />;
+
             case 'news': return <NewsView />;
             case 'account': return <AccountView userData={userData} financialSummary={financialSummary} onLogout={handleLogout} onViewChange={setView} token={token}/>;
             case 'rewards': return <Rewards onBack={goBackToDashboard} />;
-            case 'sell-usdt': return <SellUsdt onBack={goBackToDashboard} />; // ✅ UPDATED: Added the new view
+            case 'sell-usdt': return <SellUsdt onBack={goBackToDashboard} />;
             case 'team': return <Team token={token} onBack={goBackToDashboard} />;
             case 'support': return <Support onBack={goBackToDashboard} />;
             case 'wallet': return <Wallet financialSummary={financialSummary} onBack={goBackToDashboard} />;
