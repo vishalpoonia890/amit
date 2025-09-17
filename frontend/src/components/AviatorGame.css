@@ -1,55 +1,98 @@
 /* --- Shared Game Page Styles --- */
 .game-page-container {
-    padding: 20px;
+    padding: 15px;
     padding-bottom: 80px;
     animation: fadeIn 0.5s ease-in-out;
 }
 
 .back-button {
     display: block;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
     background: none;
     border: none;
     font-size: 1rem;
-    color: var(--primary-color);
+    color: #90cdf4; /* Light blue for visibility */
     cursor: pointer;
     font-weight: 600;
 }
 
-.game-header {
-    text-align: center;
-    margin-bottom: 20px;
-}
-.game-header h1 {
-    color: var(--primary-color);
-    margin: 0 0 5px 0;
-}
-.game-header p {
-    margin: 0;
-    color: var(--text-color-light);
-}
-
 /* --- Aviator Specific Styles --- */
 .aviator-theme {
-    background: linear-gradient(180deg, #1a202c 0%, #2d3748 100%);
-    color: #E2E8F0;
+    background: #0f212e; /* Dark blue-gray background from reference */
+    color: #ffffff;
+}
+
+.aviator-main-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+@media (min-width: 1024px) {
+    .aviator-main-grid {
+        flex-direction: row;
+        height: 70vh;
+    }
+}
+
+.aviator-live-bets-panel {
+    width: 100%;
+    background: #213743; /* Darker panel color */
+    border-radius: 8px;
+    padding: 10px;
+    overflow-y: auto;
+    height: 300px; /* Fixed height for mobile */
+}
+@media (min-width: 1024px) {
+    .aviator-live-bets-panel {
+        width: 250px;
+        height: auto; /* Full height on desktop */
+    }
+}
+
+.aviator-live-bets-panel h4 {
+    margin: 0 0 10px 0;
+    text-align: center;
+    font-size: 0.9em;
+    color: #a0aec0;
+}
+.aviator-live-bets-panel table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.aviator-live-bets-panel th, .aviator-live-bets-panel td {
+    padding: 6px;
+    font-size: 0.8em;
+    text-align: left;
+}
+.aviator-live-bets-panel th {
+    color: #a0aec0;
+}
+.aviator-live-bets-panel td {
+    color: #e2e8f0;
+}
+
+
+.aviator-game-area {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .history-bar {
     display: flex;
     gap: 8px;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     padding-bottom: 10px;
     overflow-x: auto;
     white-space: nowrap;
     -webkit-overflow-scrolling: touch;
-    scrollbar-width: none; /* For Firefox */
+    scrollbar-width: none;
 }
-.history-bar::-webkit-scrollbar {
-    display: none; /* For Chrome, Safari, Opera */
-}
+.history-bar::-webkit-scrollbar { display: none; }
+
 .history-bar span {
-    background-color: var(--card-bg-color);
+    background-color: #2f4553;
     padding: 5px 10px;
     border-radius: 5px;
     font-weight: 600;
@@ -59,17 +102,15 @@
 .history-bar span.loss { color: #F44336; }
 
 .aviator-display-area {
-    background-color: rgba(0,0,0,0.3);
+    background-color: #0f212e;
     border-radius: 12px;
-    height: 300px;
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    flex-grow: 1;
     position: relative;
     overflow: hidden;
-    border: 1px solid var(--border-color);
-    box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
+    height: 300px;
+}
+@media (min-width: 1024px) {
+    .aviator-display-area { height: auto; }
 }
 
 .aviator-canvas {
@@ -81,84 +122,75 @@
 }
 
 .multiplier-display {
-    font-size: 3.5rem;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 4rem;
     font-weight: 700;
     z-index: 10;
     text-shadow: 0 0 15px rgba(255, 255, 255, 0.7);
     transition: color 0.3s ease, font-size 0.3s ease;
 }
-.multiplier-display.playing {
-    color: #FFFFFF;
-    animation: pulse-multiplier 2s infinite ease-in-out;
-}
-.multiplier-display.waiting, .multiplier-display.betting {
-    color: var(--text-color-light);
-    font-size: 2rem;
-}
-.multiplier-display.crashed {
-    color: var(--error-color);
-    animation: shake 0.5s;
-}
+.multiplier-display.playing { color: #FFFFFF; animation: pulse-multiplier 2s infinite ease-in-out; }
+.multiplier-display.waiting, .multiplier-display.betting { color: #a0aec0; font-size: 2rem; }
+.multiplier-display.crashed { color: #EF4444; animation: shake 0.5s; }
 .crashed-text { font-size: 2.5rem; }
 
 @keyframes shake {
-  10%, 90% { transform: translate3d(-1px, 0, 0); }
-  20%, 80% { transform: translate3d(2px, 0, 0); }
-  30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
-  40%, 60% { transform: translate3d(4px, 0, 0); }
+  10%, 90% { transform: translate(-50%, -50%) translate3d(-1px, 0, 0); }
+  20%, 80% { transform: translate(-50%, -50%) translate3d(2px, 0, 0); }
 }
 @keyframes pulse-multiplier {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
+    0%, 100% { transform: translate(-50%, -50%) scale(1); }
+    50% { transform: translate(-50%, -50%) scale(1.05); }
 }
 
 .aviator-controls-grid {
     display: grid;
     grid-template-columns: 1fr;
     gap: 15px;
-    margin-bottom: 20px;
+    margin-top: 15px;
 }
-@media (min-width: 768px) {
+@media (min-width: 1024px) {
     .aviator-controls-grid { grid-template-columns: 1fr 1fr; }
 }
 
 .aviator-controls {
-    background-color: var(--card-bg-color);
+    background-color: #213743;
     border-radius: 12px;
-    padding: 20px;
-    border: 1px solid var(--border-color);
+    padding: 15px;
     transition: box-shadow 0.3s ease;
 }
 .aviator-controls.bet-placed {
-    box-shadow: 0 0 15px var(--primary-color-light);
+    box-shadow: 0 0 15px #38a16955;
 }
 
-.bet-controls-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    margin-bottom: 15px;
-}
+.bet-controls-row { display: flex; flex-direction: column; gap: 10px; }
 .bet-input-group { flex-grow: 1; }
 .bet-input-group input[type="number"] {
     width: 100%; padding: 10px; font-size: 1.2rem; border-radius: 8px;
-    border: 1px solid var(--border-color); background-color: var(--bg-color);
-    color: var(--text-color); margin-bottom: 10px;
+    border: 1px solid #4a5568; background-color: #1a202c;
+    color: white; margin-bottom: 10px;
 }
 .quick-bet-buttons { display: flex; gap: 10px; }
-.quick-bet-buttons button { padding: 8px 15px; border-radius: 20px; border: 1px solid var(--border-color); background-color: var(--bg-color); color: var(--text-color); cursor: pointer; font-weight: 500; }
+.quick-bet-buttons button {
+    padding: 8px 15px; border-radius: 20px; border: 1px solid #4a5568;
+    background-color: #2d3748; color: #e2e8f0; cursor: pointer; font-weight: 500;
+}
 .quick-bet-buttons button:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .auto-cashout-group {
-    display: flex; align-items: center; gap: 8px; background-color: var(--bg-color);
-    padding: 5px 10px; border-radius: 8px; border: 1px solid var(--border-color);
+    display: flex; align-items: center; gap: 8px; background-color: #1a202c;
+    padding: 5px 10px; border-radius: 8px; border: 1px solid #4a5568;
 }
-.auto-cashout-group svg { width: 20px; height: 20px; color: var(--text-color-light); }
-.auto-cashout-group input { background: transparent; border: none; color: var(--text-color); width: 100px; font-weight: 600; outline: none; }
+.auto-cashout-group svg { width: 20px; height: 20px; color: #a0aec0; }
+.auto-cashout-group input { background: transparent; border: none; color: white; width: 100px; font-weight: 600; outline: none; }
 
 .action-button {
     width: 100%; padding: 15px; font-size: 1.2em; font-weight: 700;
-    border: none; border-radius: 8px; color: white; cursor: pointer; transition: transform 0.2s, filter 0.2s;
+    border: none; border-radius: 8px; color: white; cursor: pointer;
+    transition: transform 0.2s, filter 0.2s;
 }
 .action-button:hover { filter: brightness(1.1); }
 .action-button:disabled { opacity: 0.6; cursor: not-allowed; filter: grayscale(50%); }
@@ -175,30 +207,9 @@
 }
 
 .cashout-msg, .queued-msg {
-    text-align: center;
-    font-weight: 600;
-    padding: 10px;
-    border-radius: 8px;
-    margin-top: 15px;
+    text-align: center; font-weight: 600; padding: 10px;
+    border-radius: 8px; margin-top: 15px;
 }
-.cashout-msg { background-color: var(--success-color-light); color: var(--success-color); }
-.queued-msg { background-color: var(--primary-color-light); color: var(--primary-color); }
-
-.live-bets-table {
-    background-color: var(--card-bg-color); border-radius: 12px; padding: 20px;
-    margin-bottom: 20px; border: 1px solid var(--border-color);
-}
-.live-bets-table h4 { margin: 0 0 15px 0; text-align: center; color: var(--text-color); }
-.live-bets-table table { width: 100%; border-collapse: collapse; }
-.live-bets-table th, .live-bets-table td { padding: 8px; text-align: left; border-bottom: 1px solid var(--border-color); }
-.live-bets-table th { font-size: 0.8em; color: var(--text-color-light); }
-.live-bets-table tr:last-child td { border-bottom: none; }
-
-.rules-card {
-    background-color: var(--card-bg-color); border-radius: 12px; padding: 20px;
-    margin-bottom: 20px; border: 1px solid var(--border-color);
-}
-.rules-card h4 { margin: 0 0 10px 0; }
-.rules-card p { font-size: 0.9em; line-height: 1.6; color: var(--text-color-light); }
-.rules-card strong { color: var(--text-color); }
+.cashout-msg { background-color: #2f855a4d; color: #38a169; }
+.queued-msg { background-color: #2b6cb04d; color: #4299e1; }
 
