@@ -41,7 +41,7 @@ function AdminPanel({ token }) {
     const [pendingDeposits, setPendingDeposits] = useState([]);
     const [pendingWithdrawals, setPendingWithdrawals] = useState([]);
     const [platformStats, setPlatformStats] = useState({ totalDeposits: 0, totalWithdrawals: 0, platformPL: 0 });
-    const [overallGameStats, setOverallGameStats] = useState({ totalBet: 0, totalPayout: 0, totalPL: 0 }); // ✅ NEW
+    const [overallGameStats, setOverallGameStats] = useState({ totalBet: 0, totalPayout: 0, totalPL: 0 });
     const [gameStatus, setGameStatus] = useState({ is_on: false, mode: 'auto', payout_priority: 'admin' });
     const [gameStats, setGameStats] = useState({ total: {}, today: {}, currentPeriod: {} });
     const [currentBets, setCurrentBets] = useState({});
@@ -50,7 +50,6 @@ function AdminPanel({ token }) {
     const [incomeStatus, setIncomeStatus] = useState({ canDistribute: false, nextDistributionTime: null });
     
     // States for "Manage User" features
-    const [customUserId, setCustomUserId] = useState('');
     const [userStatusId, setUserStatusId] = useState('');
     const [newStatus, setNewStatus] = useState('active');
     const [searchUserId, setSearchUserId] = useState('');
@@ -94,7 +93,7 @@ function AdminPanel({ token }) {
             const roundId = `${today.toISOString().slice(0, 10)}-${nextDrawHour}`;
             setCurrentLotteryRoundId(roundId);
 
-            const [depositsRes, withdrawalsRes, gameStatusRes, statsRes, betsRes, analysisRes, incomeRes, platformStatsRes, lotteryAnalysisRes] = await Promise.all([
+            const [depositsRes, withdrawalsRes, gameStatusRes, statsRes, betsRes, analysisRes, incomeRes, platformStatsRes, lotteryAnalysisRes, overallGameStatsRes] = await Promise.all([
                 axios.get(`${API_BASE_URL}/api/admin/recharges/pending`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/withdrawals/pending`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/game-status`, { headers: { Authorization: `Bearer ${token}` } }),
@@ -104,8 +103,7 @@ function AdminPanel({ token }) {
                 axios.get(`${API_BASE_URL}/api/admin/income-status`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/platform-stats`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/lottery-analysis?roundId=${roundId}`, { headers: { Authorization: `Bearer ${token}` } }),
-                axios.get(`${API_BASE_URL}/api/admin/overall-game-stats`, { headers: { Authorization: `Bearer ${token}` } }) // ✅ FIX: Added a comma here
-
+                axios.get(`${API_BASE_URL}/api/admin/overall-game-stats`, { headers: { Authorization: `Bearer ${token}` } })
             ]);
             setPendingDeposits(depositsRes.data.recharges || []);
             setPendingWithdrawals(withdrawalsRes.data.withdrawals || []);
@@ -117,7 +115,7 @@ function AdminPanel({ token }) {
             setPlatformStats(platformStatsRes.data);
             setLotteryAnalysis(lotteryAnalysisRes.data.outcomes || []);
             setLotteryMode(lotteryAnalysisRes.data.mode || 'auto');
-            setOverallGameStats(overallGameStatsRes.data); // ✅ NEW STATE SET
+            setOverallGameStats(overallGameStatsRes.data);
         } catch (err) {
             if (isInitialLoad) setError('Failed to fetch admin data. Auto-refresh paused.');
             console.error(err);
