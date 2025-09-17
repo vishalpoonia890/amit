@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
 import './GamePages.css'; // Shared stylesheet for all game pages
-import { AutoCashOutIcon } from './Icons'; // New Icon
+import { AutoCashOutIcon } from './Icons';
 
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
 
@@ -40,7 +40,6 @@ function AviatorGame({ token, onBack, financialSummary }) {
     const draw = useCallback((ctx, planePosition, trail) => {
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
         
-        // Draw moving grid background
         const gridOffset = (Date.now() / 20) % 40;
         ctx.strokeStyle = "rgba(255, 255, 255, 0.1)";
         ctx.lineWidth = 1;
@@ -50,14 +49,7 @@ function AviatorGame({ token, onBack, financialSummary }) {
             ctx.lineTo(ctx.canvas.width, i);
             ctx.stroke();
         }
-        for (let i = gridOffset - 40; i < ctx.canvas.width; i += 20) {
-            ctx.beginPath();
-            ctx.moveTo(i, 0);
-            ctx.lineTo(i, ctx.canvas.height);
-            ctx.stroke();
-        }
-
-        // Draw particle trail
+        
         trail.forEach(p => {
             ctx.fillStyle = `rgba(239, 68, 68, ${p.opacity})`;
             ctx.beginPath();
@@ -65,18 +57,17 @@ function AviatorGame({ token, onBack, financialSummary }) {
             ctx.fill();
         });
 
-        // Draw the plane
         ctx.save();
         ctx.translate(planePosition.x, planePosition.y);
         ctx.rotate(planePosition.angle);
         ctx.fillStyle = '#EF4444';
         ctx.shadowColor = '#EF4444';
         ctx.shadowBlur = 15;
+        // Simple SVG-like plane shape
         ctx.beginPath();
-        ctx.moveTo(-15, 0);
-        ctx.lineTo(15, 0);
-        ctx.lineTo(10, 10);
+        ctx.moveTo(15, 0);
         ctx.lineTo(-15, 10);
+        ctx.lineTo(-15, -10);
         ctx.closePath();
         ctx.fill();
         ctx.restore();
@@ -107,8 +98,7 @@ function AviatorGame({ token, onBack, financialSummary }) {
             const planeY = ctx.canvas.height - 40 - Math.pow(progress, 2) * (ctx.canvas.height - 80);
             const angle = -Math.atan(progress * 0.5);
 
-            // Add particles to trail
-            trail.push({ x: planeX - 15, y: planeY + 5, size: Math.random() * 2 + 1, opacity: 1 });
+            trail.push({ x: planeX - 15, y: planeY, size: Math.random() * 2 + 1, opacity: 1 });
             trail = trail.map(p => ({ ...p, opacity: p.opacity - 0.03, size: p.size * 0.98 })).filter(p => p.opacity > 0);
             
             if (hasBet && !cashedOut && autoCashOut && currentMultiplier >= autoCashOut) {
@@ -128,7 +118,14 @@ function AviatorGame({ token, onBack, financialSummary }) {
         return () => cancelAnimationFrame(animationFrameId);
     }, [gameState, draw, hasBet, autoCashOut, cashedOut]);
 
-    // --- Round Management & Sound Effects ---
+    // --- Round Management, Sound Effects & Data Fetching ---
+    useEffect(() => {
+        // Fetch history on initial load
+        axios.get(`${API_BASE_URL}/api/aviator/history`, { headers: { Authorization: `Bearer ${token}` } })
+            .then(res => setHistory(res.data.history || []))
+            .catch(err => console.error("Failed to fetch history:", err));
+    }, [token]);
+    
     useEffect(() => {
         if (gameState === 'playing') {
             audioRefs.current.takeoff.currentTime = 0;
@@ -143,13 +140,13 @@ function AviatorGame({ token, onBack, financialSummary }) {
                 setCountdown(prev => {
                     if (prev <= 1) {
                         clearInterval(timer);
-                        setGameState('betting'); // Give a moment to bet
+                        setGameState('betting');
                         setHasBet(false);
                         setCashedOut(false);
                         setCashOutMultiplier(null);
                         setMultiplier(1.00);
-                        setLiveBets([ { name: 'Rahul S.', amount: 500 }, { name: 'Priya K.', amount: 1200 } ]);
-                        setTimeout(() => setGameState('playing'), 2000); // Start game after 2s betting window
+                        setLiveBets([ { id: 1, name: 'Rahul S.', amount: 500 }, { id: 2, name: 'Priya K.', amount: 1200 } ]);
+                        setTimeout(() => setGameState('playing'), 2000);
                         return 10;
                     }
                     return prev - 1;
@@ -162,7 +159,6 @@ function AviatorGame({ token, onBack, financialSummary }) {
     const placeBet = () => {
         if (financialSummary.balance < betAmount) { alert("Insufficient balance."); return; }
         setHasBet(true);
-        // API call to deduct balance would go here
     };
 
     const cashOut = (currentMultiplier) => {
@@ -172,7 +168,6 @@ function AviatorGame({ token, onBack, financialSummary }) {
         setCashedOut(true);
         audioRefs.current.takeoff.pause();
         audioRefs.current.cashout.play();
-        // API call to add winnings would go here
     };
 
     return (
@@ -181,9 +176,8 @@ function AviatorGame({ token, onBack, financialSummary }) {
             <div className="game-header"><h1>Aviator</h1></div>
             
             <div className="history-bar">
-                {/* In a real app, this data would be fetched via API */}
-                {[2.34, 1.12, 5.89, 1.01, 10.45, 3.22, 1.56, 4.01].map((m, i) => (
-                    <span key={i} className={m < 2 ? 'loss' : 'win'}>{m}x</span>
+                {history.map(item => (
+                    <span key={item.id} className={item.crash_multiplier < 2 ? 'loss' : 'win'}>{item.crash_multiplier}x</span>
                 ))}
             </div>
 
@@ -225,7 +219,9 @@ function AviatorGame({ token, onBack, financialSummary }) {
                 )}
                 
                 {(gameState === 'playing' && hasBet && !cashedOut) && (
-                     <button className="action-button cashout-button" onClick={() => cashOut(multiplier)}>Cash Out {formatCurrency(betAmount * multiplier)}</button>
+                     <button className="action-button cashout-button" onClick={() => cashOut(multiplier)}>
+                        Cash Out {formatCurrency(betAmount * multiplier)}
+                    </button>
                 )}
             </div>
             
@@ -234,8 +230,8 @@ function AviatorGame({ token, onBack, financialSummary }) {
                 <table>
                     <thead><tr><th>Player</th><th>Bet Amount</th></tr></thead>
                     <tbody>
-                        {liveBets.map((bet, i) => (
-                            <tr key={i}><td>{bet.name}</td><td>{formatCurrency(bet.amount)}</td></tr>
+                        {liveBets.map((bet) => (
+                            <tr key={bet.id}><td>{bet.name}</td><td>{formatCurrency(bet.amount)}</td></tr>
                         ))}
                     </tbody>
                 </table>
