@@ -235,11 +235,27 @@
     margin-bottom: 20px;
     border: 1px solid var(--border-color);
 }
-.live-bets-table h4 { margin: 0 0 15px 0; text-align: center; color: var(--text-color); }
-.live-bets-table table { width: 100%; border-collapse: collapse; }
-.live-bets-table th, .live-bets-table td { padding: 8px; text-align: left; border-bottom: 1px solid var(--border-color); }
-.live-bets-table th { font-size: 0.8em; color: var(--text-color-light); }
-.live-bets-table tr:last-child td { border-bottom: none; }
+.live-bets-table h4 {
+    margin: 0 0 15px 0;
+    text-align: center;
+    color: var(--text-color);
+}
+.live-bets-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.live-bets-table th, .live-bets-table td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+.live-bets-table th {
+    font-size: 0.8em;
+    color: var(--text-color-light);
+}
+.live-bets-table tr:last-child td {
+    border-bottom: none;
+}
 
 .rules-card {
     background-color: var(--card-bg-color);
@@ -253,12 +269,20 @@
     line-height: 1.6;
     color: var(--text-color-light);
 }
-.rules-card strong { color: var(--text-color); }
+.rules-card strong {
+    color: var(--text-color);
+}
 
 /* Placeholder Styles */
-.game-page-placeholder { text-align: center; }
-.game-page-placeholder h1 { color: var(--primary-color); }
-.game-page-placeholder p { color: var(--text-color-light); }
+.game-page-placeholder {
+    text-align: center;
+}
+.game-page-placeholder h1 {
+    color: var(--primary-color);
+}
+.game-page-placeholder p {
+    color: var(--text-color-light);
+}
 .game-page-placeholder .coming-soon {
     margin-top: 30px;
     font-size: 1.5rem;
