@@ -23,6 +23,7 @@ import NotificationsDialog from './components/NotificationsDialog';
 import SellUsdt from './components/SellUsdt';
 import IpLottery from './components/IpLottery';
 import WinWinGame from './components/WinWinGame';
+import AviatorGame from './components/AviatorGame'; // ✅ ADDED: Import the Aviator game component
 
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
 
@@ -248,6 +249,7 @@ function App() {
             case 'color-prediction-game': return <GameView token={token} financialSummary={financialSummary} onBack={goBackToGameLobby} onBetPlaced={() => fetchAllUserData(token)} />;
             case 'ip-lottery': return <IpLottery token={token} onBack={goBackToGameLobby} />;
             case 'win-win': return <WinWinGame onBack={goBackToGameLobby} />;
+            case 'aviator': return <AviatorGame token={token} onBack={goBackToGameLobby} financialSummary={financialSummary} />;
 
             case 'news': return <NewsView />;
             case 'account': return <AccountView userData={userData} financialSummary={financialSummary} onLogout={handleLogout} onViewChange={setView} token={token}/>;
@@ -305,3 +307,4 @@ function App() {
 }
 
 export default App;
+
