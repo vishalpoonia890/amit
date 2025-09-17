@@ -1,5 +1,5 @@
 import './AccountView.css';
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import axios from 'axios';
 
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
@@ -13,13 +13,12 @@ const formatCurrency = (amount) => {
     }).format(amount || 0);
 };
 
-// --- Countdown Timer Component for the Claim Button ---
 const CountdownTimer = ({ targetDate, onEnd }) => {
     const calculateTimeLeft = useCallback(() => {
         if (!targetDate) return null;
         const difference = +new Date(targetDate) - +new Date();
         if (difference <= 0) {
-            onEnd(); // Notify parent that the timer is done
+            onEnd();
             return null;
         }
         return {
@@ -43,13 +42,11 @@ const CountdownTimer = ({ targetDate, onEnd }) => {
     return `${String(timeLeft.hours).padStart(2, '0')}:${String(timeLeft.minutes).padStart(2, '0')}:${String(timeLeft.seconds).padStart(2, '0')}`;
 };
 
-
 function AccountView({ userData, financialSummary, onLogout, onViewChange, token }) {
     const [userInvestments, setUserInvestments] = useState([]);
     const [isClaiming, setIsClaiming] = useState(false);
     const [nextClaimTime, setNextClaimTime] = useState(null);
 
-    // Fetch the user's active/completed investments
     useEffect(() => {
         const fetchInvestments = async () => {
             if (!token) return;
@@ -65,7 +62,6 @@ function AccountView({ userData, financialSummary, onLogout, onViewChange, token
         fetchInvestments();
     }, [token]);
 
-    // Calculate the next claim time based on data from financialSummary
     useEffect(() => {
         if (financialSummary && financialSummary.lastClaimAt) {
             const lastClaim = new Date(financialSummary.lastClaimAt);
@@ -80,6 +76,16 @@ function AccountView({ userData, financialSummary, onLogout, onViewChange, token
         }
     }, [financialSummary]);
 
+    const activeInvestments = useMemo(() => 
+        userInvestments.filter(inv => inv.status === 'active' && inv.days_left > 0),
+        [userInvestments]
+    );
+
+    const totalDailyIncome = useMemo(() =>
+        activeInvestments.reduce((sum, inv) => sum + (inv.daily_income || 0), 0),
+        [activeInvestments]
+    );
+
     const handleClaimIncome = async () => {
         setIsClaiming(true);
         try {
@@ -87,7 +93,6 @@ function AccountView({ userData, financialSummary, onLogout, onViewChange, token
                 headers: { Authorization: `Bearer ${token}` }
             });
             alert(response.data.message);
-            // The main App.js component's periodic fetch will update the UI, including the timer
         } catch (error) {
             alert(error.response?.data?.error || 'Failed to claim income.');
         } finally {
@@ -107,7 +112,9 @@ function AccountView({ userData, financialSummary, onLogout, onViewChange, token
     return (
         <div className="account-view">
             <div className="profile-header-card">
-                <img src={avatarUrl} alt="User Avatar" className="avatar" />
+                <div className="avatar-container">
+                    <img src={avatarUrl} alt="User Avatar" className="avatar" />
+                </div>
                 <div className="profile-info">
                     <h3 className="username">{user.name}</h3>
                     <p className="user-details">ID: {user.ip_username}</p>
@@ -122,8 +129,8 @@ function AccountView({ userData, financialSummary, onLogout, onViewChange, token
 
             <div className="earnings-card">
                 <div className="earnings-info">
-                    <p>Today's Claimable Income</p>
-                    <span className="earnings-amount">{formatCurrency(financials.todaysIncome)}</span>
+                    <p>Today's Total Plan Income</p>
+                    <span className="earnings-amount">{formatCurrency(totalDailyIncome)}</span>
                 </div>
                 <button 
                     className="claim-button" 
@@ -131,7 +138,9 @@ function AccountView({ userData, financialSummary, onLogout, onViewChange, token
                     disabled={!canClaim || isClaiming || isOnCooldown}
                 >
                     {isClaiming ? 'Claiming...' : (
-                        isOnCooldown ? <CountdownTimer targetDate={nextClaimTime} onEnd={() => setNextClaimTime(null)} /> : 'Claim'
+                        isOnCooldown 
+                        ? <CountdownTimer targetDate={nextClaimTime} onEnd={() => setNextClaimTime(null)} /> 
+                        : `Claim (₹${financials.todaysIncome.toLocaleString()})`
                     )}
                 </button>
             </div>
@@ -166,13 +175,13 @@ function AccountView({ userData, financialSummary, onLogout, onViewChange, token
             </div>
 
              <div className="my-products-card">
-                 <h4>My Products</h4>
+                 <h4>My Active Investments</h4>
                  <ul>
-                     {userInvestments.length > 0 ? (
-                         userInvestments.map(product => (
+                     {activeInvestments.length > 0 ? (
+                         activeInvestments.map(product => (
                              <li key={product.id}>
                                  <div className="product-info">
-                                     <span>{product.plan_name} ({product.status})</span>
+                                     <span>{product.plan_name}</span>
                                      <span className="product-details">Ends in {product.days_left} days</span>
                                  </div>
                                  <div className="product-income">
@@ -182,7 +191,7 @@ function AccountView({ userData, financialSummary, onLogout, onViewChange, token
                              </li>
                          ))
                      ) : (
-                         <li className="no-products">You have no active products.</li>
+                         <li className="no-products">You have no active investments.</li>
                      )}
                  </ul>
              </div>
@@ -200,5 +209,6 @@ function AccountView({ userData, financialSummary, onLogout, onViewChange, token
         </div>
     );
 }
+
 export default AccountView;
 
