@@ -1,11 +1,12 @@
 import React from 'react';
 import './GameLobby.css';
-import { SelectGameIcon, PlaceBetIcon, WinBigIcon } from './Icons'; // New icons for the "How to Play" section
+import { SelectGameIcon, PlaceBetIcon, WinBigIcon } from './Icons';
 
 // --- Image Placeholders ---
 const colorPredictionImage = 'https://i.ibb.co/7jQqySP/color-prediction-game-thumb.png';
 const lotteryImage = 'https://placehold.co/600x400/7c3aed/ffffff?text=IP+Lottery';
 const winWinImage = 'https://placehold.co/600x400/db2777/ffffff?text=Win-Win';
+const aviatorImage = 'https://i.ibb.co/zV9W7Yc/aviator-game-thumb.png';
 
 const games = [
     {
@@ -22,6 +23,14 @@ const games = [
         description: 'Try your luck and earn a jackpot of 10k!',
         image: lotteryImage,
         view: 'ip-lottery',
+        isAvailable: true,
+    },
+    {
+        id: 'aviator',
+        name: 'Aviator',
+        description: 'Cash out before the plane flies away. How high can you go?',
+        image: aviatorImage,
+        view: 'aviator',
         isAvailable: true,
     },
     {
