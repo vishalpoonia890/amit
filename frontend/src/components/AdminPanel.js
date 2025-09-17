@@ -14,6 +14,28 @@ const formatCurrency = (amount) => {
     }).format(amount);
 };
 
+const CooldownTimer = ({ targetDate }) => {
+    const calculateTimeLeft = useCallback(() => {
+        if (!targetDate) return 'Loading...';
+        const difference = +new Date(targetDate) - +new Date();
+        if (difference <= 0) return 'Ready Now';
+        const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
+        const minutes = Math.floor((difference / 1000 / 60) % 60);
+        const seconds = Math.floor((difference / 1000) % 60);
+        return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    }, [targetDate]);
+
+    const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
+
+    useEffect(() => {
+        const timer = setInterval(() => setTimeLeft(calculateTimeLeft()), 1000);
+        return () => clearInterval(timer);
+    }, [calculateTimeLeft]);
+
+    return <span>{timeLeft}</span>;
+};
+
+
 // --- Main Admin Panel Component ---
 function AdminPanel({ token }) {
     // --- State Management ---
@@ -197,6 +219,28 @@ const handleLotteryModeChange = async (mode) => {
             setSearchLoading(false);
         }
     };
+
+    const handleDistributeIncome = async (userId = null) => {
+        const isCustom = !!userId;
+        if (isCustom && !customUserId) {
+            alert("Please enter a User ID.");
+            return;
+        }
+        const confirmMessage = isCustom
+            ? `Are you sure you want to distribute income to User ID: ${userId}?`
+            : "Are you sure you want to distribute daily income to ALL active users? This can only be done once every 24 hours.";
+        if (!window.confirm(confirmMessage)) return;
+        try {
+            const payload = userId ? { userId } : {};
+            const res = await axios.post(`${API_BASE_URL}/api/admin/distribute-income`, payload, { headers: { Authorization: `Bearer ${token}` } });
+            alert(res.data.message);
+            if (isCustom) setCustomUserId('');
+            fetchData();
+        } catch (err) {
+            alert(err.response?.data?.error || 'Failed to distribute income.');
+        }
+    };
+
     
     const handleManageUserIncome = async (canReceive) => {
         if (!searchedUserInfo) return;
@@ -349,7 +393,21 @@ const handleLotteryModeChange = async (mode) => {
                     </div>
                 </div>
             </div>
-
+                            
+<div className="admin-section server-actions">
+                <h2>User & Platform Management</h2>
+                 <div className="action-group">
+                    <h4>Global Daily Income Distribution</h4>
+                    <p>Calculate and distribute daily income to all users with active investments. This will enable their "Claim" button and send a notification.</p>
+                    <button onClick={handleDistributeIncome} className="action-btn" disabled={!incomeStatus.canDistribute}>
+                        Distribute Income Now
+                    </button>
+                    {!incomeStatus.canDistribute && (
+                        <div className="cooldown-timer">
+                            Next distribution available in: <CooldownTimer targetDate={incomeStatus.nextDistributionTime} />
+                        </div>
+                    )}
+                </div>
             <div className="admin-section server-actions">
                 <h2>User & Platform Management</h2>
                 <div className="action-group">
