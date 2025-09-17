@@ -130,6 +130,7 @@ function AdminPanel({ token }) {
         return () => clearInterval(interval);
     }, [fetchData]);
 
+    // --- Action Handlers ---
     const handleAction = async (action, id) => {
         const urlMap = {
             'approve-deposit': `/api/admin/recharge/${id}/approve`, 'reject-deposit': `/api/admin/recharge/${id}/reject`,
@@ -354,6 +355,25 @@ function AdminPanel({ token }) {
                 </div>
             </div>
 
+            <div className="admin-section">
+                <h2>Live Round Analysis (Lottery)</h2>
+                <div className="analysis-table-container">
+                    <table className="analysis-table">
+                         <thead><tr><th>Winning Pair</th><th>Total Bets On Pair</th><th>Total Payout</th><th>Admin P/L</th></tr></thead>
+                        <tbody>
+                            {lotteryAnalysis.map(outcome => (
+                                <tr key={`${outcome.a}-${outcome.b}`} className={outcome.netResult >= 0 ? 'positive' : 'negative'}>
+                                    <td>{`{${outcome.a}, ${outcome.b}}`}</td>
+                                    <td>{formatCurrency(outcome.totalBetOnPair)}</td>
+                                    <td>{formatCurrency(outcome.payout)}</td>
+                                    <td>{formatCurrency(outcome.netResult)}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             <div className="admin-section server-actions">
                 <h2>User & Platform Management</h2>
                 <div className="action-group">
@@ -467,5 +487,6 @@ function AdminPanel({ token }) {
         </div>
     );
 }
+
 export default AdminPanel;
 
