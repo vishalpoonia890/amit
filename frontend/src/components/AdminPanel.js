@@ -374,6 +374,63 @@ function AdminPanel({ token }) {
                 </div>
             </div>
 
+                                <div className="admin-grid">
+                <div className="grid-column">
+                    <div className="admin-section live-bets">
+                        <h2>Color Prediction: Live Bets</h2>
+                        <div className="bet-summary-grid">
+                            {Object.entries(currentBets).filter(([key]) => !isNaN(key)).map(([num, amount]) => (
+                                <div key={num} className="bet-summary-item"><span className="bet-number">{num}</span><span className="bet-amount">{formatCurrency(amount)}</span></div>
+                            ))}
+                        </div>
+                        <div className="bet-summary-colors">
+                            <div className="bet-summary-item color"><span className="bet-number red">Red</span><span className="bet-amount">{formatCurrency(currentBets['Red'] || 0)}</span></div>
+                            <div className="bet-summary-item color"><span className="bet-number green">Green</span><span className="bet-amount">{formatCurrency(currentBets['Green'] || 0)}</span></div>
+                            <div className="bet-summary-item color"><span className="bet-number violet">Violet</span><span className="bet-amount">{formatCurrency(currentBets['Violet'] || 0)}</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div className="grid-column">
+                    <div className="admin-section outcome-analysis">
+                        <h2>Color Prediction: Admin's Choice</h2>
+                        <div className="analysis-table-container">
+                            <table className="analysis-table">
+                                <thead><tr><th>Outcome</th><th>Admin P/L</th></tr></thead>
+                                <tbody>
+                                    {outcomeAnalysis.mostProfitable.map(outcome => (
+                                        <tr className="positive" key={`most-${outcome.number}`}><td>{outcome.number}</td><td>{formatCurrency(outcome.pl)}</td></tr>
+                                    ))}
+                                    {outcomeAnalysis.leastProfitable.length > 0 && <tr><td colSpan="2"><div className="analysis-divider"></div></td></tr>}
+                                    {outcomeAnalysis.leastProfitable.map(outcome => (
+                                        <tr className="negative" key={`least-${outcome.number}`}><td>{outcome.number}</td><td>{formatCurrency(outcome.pl)}</td></tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="admin-section">
+                <h2>Live Round Analysis (Lottery)</h2>
+                <div className="analysis-table-container">
+                    <table className="analysis-table">
+                         <thead><tr><th>Winning Pair</th><th>Total Bets On Pair</th><th>Total Payout</th><th>Admin P/L</th></tr></thead>
+                        <tbody>
+                            {lotteryAnalysis.map(outcome => (
+                                <tr key={`${outcome.a}-${outcome.b}`} className={outcome.netResult >= 0 ? 'positive' : 'negative'}>
+                                    <td>{`{${outcome.a}, ${outcome.b}}`}</td>
+                                    <td>{formatCurrency(outcome.totalBetOnPair)}</td>
+                                    <td>{formatCurrency(outcome.payout)}</td>
+                                    <td>{formatCurrency(outcome.netResult)}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+
             <div className="admin-section server-actions">
                 <h2>User & Platform Management</h2>
                 <div className="action-group">
