@@ -1,252 +1,260 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import axios from 'axios';
-import './AviatorGame.css'; // Shared stylesheet for all game pages
-import { AutoCashOutIcon } from './Icons';
-
-const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
-
-// --- Preload audio files for better performance ---
-const takeoffSound = new Audio('/sounds/aviator-takeoff.mp3');
-const crashSound = new Audio('/sounds/aviator-crash.mp3');
-const cashoutSound = new Audio('/sounds/aviator-cashout.mp3');
-takeoffSound.volume = 0.5;
-
-// --- Helper Functions ---
-const formatCurrency = (amount) =>
-  new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR" }).format(amount);
-
-// --- Reusable Bet Panel Component ---
-const BetPanel = ({ betId, gameState, placeBet, cancelBet, cashOut, betAmount, setBetAmount, autoCashOut, setAutoCashOut, hasBet, cashedOut, cashOutMultiplier, currentMultiplier }) => {
-    
-    const handleBetClick = () => {
-        if (!hasBet) {
-            placeBet(betId);
-        } else if(hasBet && !cashedOut && gameState === 'playing') {
-            cashOut(betId, currentMultiplier);
-        } else if (hasBet && (gameState === 'waiting' || gameState === 'betting')) {
-            cancelBet(betId);
-        }
-    };
-
-    const getButtonState = () => {
-        if (hasBet) {
-            if (cashedOut) return { text: `Cashed Out @ ${cashOutMultiplier}x`, className: 'cashed-out-btn', disabled: true };
-            if (gameState === 'playing') return { text: `Cash Out ${formatCurrency(betAmount * currentMultiplier)}`, className: 'cashout-btn', disabled: false };
-            return { text: 'Cancel Bet', className: 'cancel-btn', disabled: false };
-        }
-        return { text: 'Place Bet', className: 'bet-btn', disabled: gameState === 'playing' || gameState === 'crashed' };
-    };
-    
-    const buttonState = getButtonState();
-
-    return (
-        <div className={`aviator-controls ${hasBet ? 'bet-placed' : ''}`}>
-            <div className="bet-controls-row">
-                <div className="bet-input-group">
-                    <input type="number" value={betAmount} onChange={(e) => setBetAmount(parseInt(e.target.value) || 0)} min="10" disabled={hasBet}/>
-                    <div className="quick-bet-buttons">
-                        {[100, 250, 500, 1000].map(amount => <button key={amount} onClick={() => setBetAmount(amount)} disabled={hasBet}>₹{amount}</button>)}
-                    </div>
-                </div>
-                 <div className="auto-cashout-group">
-                    <AutoCashOutIcon />
-                    <input type="number" step="0.1" value={autoCashOut} onChange={(e) => setAutoCashOut(parseFloat(e.target.value) || null)} placeholder="Auto Cash Out" disabled={hasBet} />
-                </div>
-            </div>
-            <button className={`action-button ${buttonState.className}`} onClick={handleBetClick} disabled={buttonState.disabled}>
-                {buttonState.text}
-            </button>
-        </div>
-    );
-};
-
-// --- Main Game Component ---
-function AviatorGame({ token, onBack }) {
-    const canvasRef = useRef(null);
-
-    // Game states
-    const [gameState, setGameState] = useState("waiting");
-    const [multiplier, setMultiplier] = useState(1.0);
-    const [countdown, setCountdown] = useState(8);
-
-    // Bet states for two panels
-    const [bet1, setBet1] = useState({ amount: 100, autoCashOut: 2.0, hasBet: false, cashedOut: false, cashOutMultiplier: null });
-    const [bet2, setBet2] = useState({ amount: 100, autoCashOut: 2.0, hasBet: false, cashedOut: false, cashOutMultiplier: null });
-
-    // Tracking
-    const [history, setHistory] = useState([]);
-    const [liveBets, setLiveBets] = useState([]);
-
-    const draw = useCallback((ctx, pos, trail) => {
-        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-
-        // Trail
-        trail.forEach(p => {
-            ctx.fillStyle = `rgba(239, 68, 68, ${p.opacity})`;
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-            ctx.fill();
-        });
-
-        // Plane
-        ctx.save();
-        ctx.translate(pos.x, pos.y);
-        ctx.rotate(pos.angle);
-        ctx.fillStyle = "#EF4444";
-        ctx.shadowColor = '#EF4444';
-        ctx.shadowBlur = 15;
-        ctx.beginPath();
-        ctx.moveTo(15, 0);
-        ctx.lineTo(-15, 10);
-        ctx.lineTo(-15, -10);
-        ctx.closePath();
-        ctx.fill();
-        ctx.restore();
-    }, []);
-
-    useEffect(() => {
-        const canvas = canvasRef.current;
-        const ctx = canvas.getContext("2d");
-        let animationId;
-        let trail = [];
-        let crashPoint = 1.5 + Math.random() * 6;
-        let startTime = Date.now();
-
-        const animate = () => {
-            const elapsed = (Date.now() - startTime) / 1000;
-            const currentMult = parseFloat((1 + elapsed * 0.3 + elapsed ** 2 * 0.03).toFixed(2));
-
-            if (currentMult >= crashPoint) {
-                setHistory(h => [{ id: Date.now(), crash_multiplier: currentMult }, ...h.slice(0, 19)]);
-                setGameState("crashed");
-                crashSound.play();
-                return;
-            }
-
-            setMultiplier(currentMult);
-
-            const x = 40 + Math.min(elapsed / 6, 1) * (ctx.canvas.width - 80);
-            const y = ctx.canvas.height - 60 - Math.pow(elapsed / 3, 2) * 100;
-            const angle = -0.3;
-
-            trail.push({ x: x - 10, y, size: Math.random() * 2 + 1, opacity: 1 });
-            trail = trail.map(p => ({ ...p, opacity: p.opacity - 0.02, size: p.size * 0.97 })).filter(p => p.opacity > 0);
-
-            if (bet1.hasBet && !bet1.cashedOut && bet1.autoCashOut && currentMult >= bet1.autoCashOut) {
-                cashOut(1, currentMult);
-            }
-            if (bet2.hasBet && !bet2.cashedOut && bet2.autoCashOut && currentMult >= bet2.autoCashOut) {
-                cashOut(2, currentMult);
-            }
-
-            draw(ctx, { x, y, angle }, trail);
-            animationId = requestAnimationFrame(animate);
-        };
-
-        if (gameState === "playing") {
-            takeoffSound.play();
-            animate();
-        } else {
-            draw(ctx, { x: 30, y: ctx.canvas.height - 50, angle: 0 }, []);
-        }
-
-        return () => cancelAnimationFrame(animationId);
-    }, [gameState, draw, bet1.hasBet, bet1.cashedOut, bet1.autoCashOut, bet2.hasBet, bet2.cashedOut, bet2.autoCashOut]);
-
-    useEffect(() => {
-        if (gameState === "waiting" || gameState === "crashed") {
-            let timer = setInterval(() => {
-                setCountdown(c => {
-                    if (c <= 1) {
-                        clearInterval(timer);
-                        setGameState("betting");
-                        setBet1(prev => ({...prev, hasBet: false, cashedOut: false, cashOutMultiplier: null}));
-                        setBet2(prev => ({...prev, hasBet: false, cashedOut: false, cashOutMultiplier: null}));
-                        setMultiplier(1.0);
-                        setLiveBets([ { id: 1, name: "Rahul", amount: 200 }, { id: 2, name: "Priya", amount: 500 } ]);
-                        setTimeout(() => setGameState("playing"), 2000);
-                        return 8;
-                    }
-                    return c - 1;
-                });
-            }, 1000);
-            return () => clearInterval(timer);
-        }
-    }, [gameState]);
-
-    const placeBet = (betId) => {
-        if (betId === 1) setBet1(prev => ({ ...prev, hasBet: true }));
-        if (betId === 2) setBet2(prev => ({ ...prev, hasBet: true }));
-    };
-
-    const cancelBet = (betId) => {
-        if (betId === 1) setBet1(prev => ({ ...prev, hasBet: false }));
-        if (betId === 2) setBet2(prev => ({ ...prev, hasBet: false }));
-    };
-
-    const cashOut = (betId, currentMultiplier) => {
-        cashoutSound.play();
-        if (betId === 1) setBet1(prev => ({ ...prev, cashedOut: true, cashOutMultiplier: currentMultiplier }));
-        if (betId === 2) setBet2(prev => ({ ...prev, cashedOut: true, cashOutMultiplier: currentMultiplier }));
-    };
-
-    return (
-        <div className="game-page-container aviator-theme">
-            <button className="back-button" onClick={onBack}>← Back to Lobby</button>
-            <div className="game-header"><h1>Aviator</h1></div>
-            
-            <div className="history-bar">
-                {history.map(item => (
-                    <span key={item.id} className={item.crash_multiplier < 2 ? 'loss' : 'win'}>{item.crash_multiplier}x</span>
-                ))}
-            </div>
-
-            <div className="aviator-display-area">
-                <canvas ref={canvasRef} width="320" height="240" className="aviator-canvas" />
-                <div className={`multiplier-display ${gameState}`}>
-                    {gameState === 'playing' && `${multiplier.toFixed(2)}x`}
-                    {gameState === 'crashed' && <span className="crashed-text">Flew Away @ {multiplier.toFixed(2)}x</span>}
-                    {(gameState === 'waiting' || gameState === 'betting') && `Next round in ${countdown}s...`}
-                </div>
-            </div>
-
-            <div className="aviator-controls-grid">
-                <BetPanel 
-                    betId={1} gameState={gameState} placeBet={placeBet} cancelBet={cancelBet} cashOut={cashOut}
-                    betAmount={bet1.amount} setBetAmount={(val) => setBet1(p => ({...p, amount: val}))}
-                    autoCashOut={bet1.autoCashOut} setAutoCashOut={(val) => setBet1(p => ({...p, autoCashOut: val}))}
-                    hasBet={bet1.hasBet} cashedOut={bet1.cashedOut} cashOutMultiplier={bet1.cashOutMultiplier} currentMultiplier={multiplier}
-                />
-                <BetPanel 
-                    betId={2} gameState={gameState} placeBet={placeBet} cancelBet={cancelBet} cashOut={cashOut}
-                    betAmount={bet2.amount} setBetAmount={(val) => setBet2(p => ({...p, amount: val}))}
-                    autoCashOut={bet2.autoCashOut} setAutoCashOut={(val) => setBet2(p => ({...p, autoCashOut: val}))}
-                    hasBet={bet2.hasBet} cashedOut={bet2.cashedOut} cashOutMultiplier={bet2.cashOutMultiplier} currentMultiplier={multiplier}
-                />
-            </div>
-            
-            <div className="live-bets-table">
-                 <h4>Current Round Bets</h4>
-                <table>
-                    <thead><tr><th>Player</th><th>Bet Amount</th></tr></thead>
-                    <tbody>
-                        {liveBets.map((bet) => (
-                            <tr key={bet.id}><td>{bet.name}</td><td>{formatCurrency(bet.amount)}</td></tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-
-            <div className="rules-card">
-                <h4>How to Play Aviator</h4>
-                <p><strong>1. Place Your Bet:</strong> Set your bet amount and an optional auto cash-out multiplier before the round begins.</p>
-                <p><strong>2. Watch the Plane:</strong> As the plane flies higher, the prize multiplier increases.</p>
-                <p><strong>3. Cash Out:</strong> Click "Cash Out" at any time to lock in your winnings at the current multiplier.</p>
-                <p><strong>Warning:</strong> The plane can fly away at any moment! If it does before you cash out, you lose your stake.</p>
-            </div>
-        </div>
-    );
+/* --- Aviator Specific Styles --- */
+.aviator-theme {
+    background: linear-gradient(180deg, #1a202c 0%, #4a5568 100%);
+    color: #E2E8F0;
 }
 
-export default AviatorGame;
+.history-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+
+.history-bar::-webkit-scrollbar {
+    display: none;
+}
+
+.history-bar span {
+    background-color: var(--card-bg-color);
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-weight: 600;
+    font-size: 0.9em;
+}
+
+.history-bar span.win {
+    color: #4CAF50;
+}
+
+.history-bar span.loss {
+    color: #F44336;
+}
+
+.aviator-display-area {
+    background-color: rgba(0,0,0,0.3);
+    border-radius: 12px;
+    height: 300px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
+}
+
+.aviator-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.multiplier-display {
+    font-size: 3.5rem;
+    font-weight: 700;
+    z-index: 10;
+    text-shadow: 0 0 15px rgba(255, 255, 255, 0.7);
+    transition: color 0.3s ease, font-size 0.3s ease;
+}
+.multiplier-display.playing {
+    color: #FFFFFF;
+    animation: pulse-multiplier 2s infinite ease-in-out;
+}
+.multiplier-display.waiting, .multiplier-display.betting {
+    color: var(--text-color-light);
+    font-size: 2rem;
+}
+.multiplier-display.crashed {
+    color: var(--error-color);
+    animation: shake 0.5s;
+}
+
+.crashed-text {
+    font-size: 2.5rem;
+}
+
+@keyframes shake {
+  10%, 90% { transform: translate3d(-1px, 0, 0); }
+  20%, 80% { transform: translate3d(2px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+  40%, 60% { transform: translate3d(4px, 0, 0); }
+}
+
+@keyframes pulse-multiplier {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.aviator-controls-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+@media (min-width: 768px) {
+    .aviator-controls-grid { grid-template-columns: 1fr 1fr; }
+}
+
+.aviator-controls {
+    background-color: var(--card-bg-color);
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid var(--border-color);
+}
+
+.bet-controls-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.bet-input-group {
+    flex-grow: 1;
+}
+
+.bet-input-group input[type="number"] {
+    width: 100%;
+    padding: 10px;
+    font-size: 1.2rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    margin-bottom: 10px;
+}
+
+.quick-bet-buttons {
+    display: flex;
+    gap: 10px;
+}
+.quick-bet-buttons button {
+    padding: 8px 15px;
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    cursor: pointer;
+    font-weight: 500;
+}
+.quick-bet-buttons button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.auto-cashout-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: var(--bg-color);
+    padding: 5px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+.auto-cashout-group svg {
+    width: 20px;
+    height: 20px;
+    color: var(--text-color-light);
+}
+.auto-cashout-group input {
+    background: transparent;
+    border: none;
+    color: var(--text-color);
+    width: 100px;
+    font-weight: 600;
+    outline: none;
+}
+
+.action-button {
+    width: 100%;
+    padding: 15px;
+    font-size: 1.2em;
+    font-weight: 700;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+.action-button:hover {
+    transform: scale(1.02);
+}
+.action-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.bet-btn { background: linear-gradient(90deg, #10B981, #34D399); }
+.cancel-btn { background: linear-gradient(90deg, #6B7280, #4B5563); }
+.cashout-btn { background: linear-gradient(90deg, #F59E0B, #FBBF24); animation: pulse-yellow 2s infinite; }
+
+@keyframes pulse-yellow {
+    0% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(251, 191, 36, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0); }
+}
+
+.cashout-success-message {
+    background-color: var(--success-color-light);
+    color: var(--success-color);
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.live-bets-table {
+    background-color: var(--card-bg-color);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid var(--border-color);
+}
+.live-bets-table h4 {
+    margin: 0 0 15px 0;
+    text-align: center;
+    color: var(--text-color);
+}
+.live-bets-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.live-bets-table th, .live-bets-table td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+.live-bets-table th {
+    font-size: 0.8em;
+    color: var(--text-color-light);
+}
+.live-bets-table tr:last-child td {
+    border-bottom: none;
+}
+
+.rules-card {
+    background-color: var(--card-bg-color);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid var(--border-color);
+}
+.rules-card p {
+    font-size: 0.9em;
+    line-height: 1.6;
+    color: var(--text-color-light);
+}
+.rules-card strong {
+    color: var(--text-color);
+}
 
