@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
 import './AviatorGame.css'; // Using a new, dedicated CSS file
-import { AutoCashOutIcon } from './Icons'; // Assuming you have an icon component
+import { AutoCashOutIcon } from './Icons';
 
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
 
@@ -11,7 +11,7 @@ const cashoutSound = new Audio('/sounds/aviator-cashout.mp3');
 const crashSound = new Audio('/sounds/aviator-crash.mp3');
 takeoffSound.volume = 0.3;
 
-const formatCurrency = (amount) => new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR" }).format(amount);
+const formatCurrency = (amount) => new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(amount);
 
 // --- Reusable Bet Panel Component ---
 const BetPanel = ({ betId, gameState, placeBet, cancelBet, cashOut, bet, setBet, currentMultiplier }) => {
@@ -24,7 +24,7 @@ const BetPanel = ({ betId, gameState, placeBet, cancelBet, cashOut, bet, setBet,
     };
 
     const getButtonState = () => {
-        if (isQueued) return { text: 'Cancel Bet', className: 'cancel-btn', disabled: false };
+        if (isQueued) return { text: 'Bet (Next Round)', className: 'waiting-btn', disabled: false };
         if (hasBet) {
             if (cashedOut) return { text: `Cashed Out @ ${cashOutMultiplier}x`, className: 'cashed-out-btn', disabled: true };
             if (gameState === 'playing') return { text: `Cash Out ${formatCurrency(amount * currentMultiplier)}`, className: 'cashout-btn', disabled: false };
@@ -78,21 +78,26 @@ function AviatorGame({ token, onBack }) {
     const [roundId, setRoundId] = useState('');
 
     const [bet1, setBet1] = useState({ amount: 100, autoCashOut: 2.0, hasBet: false, isQueued: false, cashedOut: false, cashOutMultiplier: null });
-    const [bet2, setBet2] = useState({ amount: 100, autoCashOut: 2.0, hasBet: false, isQueued: false, cashedOut: false, cashOutMultiplier: null });
     
     const updateBetState = (betId, key, value) => {
-        const setter = betId === 1 ? setBet1 : setBet2;
-        setter(prev => ({...prev, [key]: value}));
+        if (betId === 1) setBet1(prev => ({...prev, [key]: value}));
     };
 
     const draw = useCallback((ctx, multiplier) => {
+        const dpr = window.devicePixelRatio || 1;
+        const rect = ctx.canvas.getBoundingClientRect();
+        ctx.canvas.width = rect.width * dpr;
+        ctx.canvas.height = rect.height * dpr;
+        ctx.scale(dpr, dpr);
+
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        
         const maxMultiplierVisual = 10;
         const progress = Math.min((multiplier - 1) / (maxMultiplierVisual - 1), 1);
 
-        const startX = 40, startY = ctx.canvas.height - 40;
-        const endX = startX + progress * (ctx.canvas.width - 80);
-        const endY = startY - Math.pow(progress, 2) * (ctx.canvas.height - 80);
+        const startX = 40, startY = rect.height - 40;
+        const endX = startX + progress * (rect.width - 80);
+        const endY = startY - Math.pow(progress, 2) * (rect.height - 80);
 
         const gradient = ctx.createLinearGradient(0, startY, 0, endY);
         gradient.addColorStop(0, 'rgba(251, 191, 36, 0)');
@@ -110,38 +115,71 @@ function AviatorGame({ token, onBack }) {
         ctx.moveTo(startX, startY);
         ctx.quadraticCurveTo(startX + (endX - startX) * 0.5, startY, endX, endY);
         ctx.strokeStyle = '#FBBF24';
-        ctx.lineWidth = 6;
+        ctx.lineWidth = 4;
         ctx.lineCap = 'round';
         ctx.stroke();
 
         ctx.beginPath();
-        ctx.arc(endX, endY, 10, 0, Math.PI * 2);
+        ctx.arc(endX, endY, 8, 0, Math.PI * 2);
         ctx.fillStyle = '#FBBF24';
         ctx.shadowColor = '#FBBF24';
-        ctx.shadowBlur = 20;
+        ctx.shadowBlur = 15;
         ctx.fill();
         ctx.shadowBlur = 0;
 
-        // Draw Axes
         ctx.fillStyle = '#a0aec0';
-        ctx.font = '12px sans-serif';
+        ctx.font = '10px sans-serif';
         [1.0, 1.5, 2.0, 2.5, 3.0, 3.5].forEach(val => {
-            const yPos = startY - ((val - 1) / (maxMultiplierVisual - 1)) * (startY - 40);
-            ctx.fillText(`${val.toFixed(1)}x`, 5, yPos + 4);
+            const yPos = startY - (((val - 1) / (maxMultiplierVisual - 1)) * (startY - 40));
+            ctx.fillText(`${val.toFixed(1)}x`, 5, yPos + 3);
         });
         [4, 9, 13, 18].forEach(val => {
-            const xPos = startX + (val / 20) * (ctx.canvas.width - 80);
-            ctx.fillText(`${val}s`, xPos - 10, startY + 20);
+            const xPos = startX + ((val / 20) * (rect.width - 80));
+            ctx.fillText(`${val}s`, xPos - 10, startY + 15);
         });
     }, []);
 
     useEffect(() => {
         const canvas = canvasRef.current;
+        if (!canvas) return;
         const ctx = canvas.getContext("2d");
         draw(ctx, multiplier);
     }, [draw, multiplier]);
 
-    // ... (Your real-time data fetching and round management useEffect hooks)
+    useEffect(() => {
+        const fetchState = async () => {
+            try {
+                const { data } = await axios.get(`${API_BASE_URL}/api/aviator/state`, { headers: { Authorization: `Bearer ${token}` } });
+                
+                if (data.gameState !== gameState) setGameState(data.gameState);
+                if (data.multiplier !== multiplier) setMultiplier(data.multiplier);
+                if (data.roundId !== roundId) {
+                    setRoundId(data.roundId);
+                    setBet1(p => ({...p, hasBet: p.isQueued, isQueued: false, cashedOut: false, cashOutMultiplier: null}));
+                }
+                setCountdown(data.countdown);
+
+            } catch (error) { console.error("Failed to fetch game state:", error); }
+        };
+        const interval = setInterval(fetchState, 500);
+        return () => clearInterval(interval);
+    }, [token, gameState, multiplier, roundId]);
+    
+    useEffect(() => {
+        if(gameState === 'playing') takeoffSound.play();
+        if(gameState === 'crashed') {
+            takeoffSound.pause();
+            takeoffSound.currentTime = 0;
+            crashSound.play();
+        }
+    }, [gameState]);
+    
+    useEffect(() => {
+        axios.get(`${API_BASE_URL}/api/aviator/history`, { headers: { Authorization: `Bearer ${token}` } })
+            .then(res => setHistory(res.data.history || []))
+            .catch(err => console.error("Failed to fetch history:", err));
+    }, [token, gameState]);
+
 
     const placeBet = (betId) => {
         if (gameState === "playing" || gameState === "crashed") {
@@ -161,10 +199,6 @@ function AviatorGame({ token, onBack }) {
             updateBetState(1, 'cashedOut', true);
             updateBetState(1, 'cashOutMultiplier', currentMultiplier);
         }
-        if (betId === 2 && !bet2.cashedOut) {
-            updateBetState(2, 'cashedOut', true);
-            updateBetState(2, 'cashOutMultiplier', currentMultiplier);
-        }
     };
     
     const commonProps = { gameState, placeBet, cancelBet, cashOut, currentMultiplier: multiplier };
@@ -172,21 +206,24 @@ function AviatorGame({ token, onBack }) {
     return (
         <div className="aviator-page-container">
             <div className="aviator-main-grid">
-                <div className="aviator-live-bets-panel">
-                    <h4>Live Bets</h4>
-                    <table>
-                        <thead><tr><th>User</th><th>Bet</th><th>Multiplier</th><th>Payout</th></tr></thead>
-                        <tbody>
-                            {liveBets.map(b => ( <tr key={b.id}><td>{b.name}</td><td>{formatCurrency(b.amount)}</td><td>-</td><td>-</td></tr> ))}
-                        </tbody>
-                    </table>
+                <div className="aviator-side-panel">
+                    <BetPanel betId={1} {...{...commonProps, bet: bet1, setBet: updateBetState}} />
+                    <div className="aviator-live-bets-panel">
+                        <h4>Live Bets</h4>
+                        <table>
+                            <thead><tr><th>User</th><th>Bet</th><th>Multiplier</th><th>Payout</th></tr></thead>
+                            <tbody>
+                                {liveBets.map(b => ( <tr key={b.id}><td>{b.name}</td><td>{formatCurrency(b.amount)}</td><td>-</td><td>-</td></tr> ))}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
                 <div className="aviator-game-area">
                     <div className="history-bar">
-                        {history.map(h => ( <span key={h.id} className={h.crash_multiplier > 1.99 ? "win" : "loss"}>{h.crash_multiplier}x</span> ))}
+                        {history.slice(0, 20).map(h => ( <span key={h.id} className={h.crash_multiplier > 1.99 ? "win" : "loss"}>{h.crash_multiplier}x</span> ))}
                     </div>
                     <div className="aviator-display-area">
-                        <canvas ref={canvasRef} width="600" height="400" className="aviator-canvas" />
+                        <canvas ref={canvasRef} className="aviator-canvas" />
                         <div className={`multiplier-display ${gameState}`}>
                             {gameState === "playing" && `${multiplier.toFixed(2)}x`}
                             {(gameState === "waiting" || gameState === "betting") && `Starting in ${countdown}s...`}
@@ -194,10 +231,6 @@ function AviatorGame({ token, onBack }) {
                         </div>
                     </div>
                 </div>
-            </div>
-            <div className="aviator-controls-grid">
-                <BetPanel betId={1} {...{...commonProps, bet: bet1, setBet: updateBetState}} />
-                <BetPanel betId={2} {...{...commonProps, bet: bet2, setBet: updateBetState}} />
             </div>
         </div>
     );
