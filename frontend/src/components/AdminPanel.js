@@ -467,6 +467,5 @@ function AdminPanel({ token }) {
         </div>
     );
 }
-
 export default AdminPanel;
 
