@@ -42,14 +42,24 @@ function AdminPanel({ token }) {
     const [pendingWithdrawals, setPendingWithdrawals] = useState([]);
     const [platformStats, setPlatformStats] = useState({ totalDeposits: 0, totalWithdrawals: 0, platformPL: 0 });
     const [overallGameStats, setOverallGameStats] = useState({ totalBet: 0, totalPayout: 0, totalPL: 0 });
+    
     const [gameStatus, setGameStatus] = useState({ is_on: false, mode: 'auto', payout_priority: 'admin' });
     const [gameStats, setGameStats] = useState({ total: {}, today: {}, currentPeriod: {} });
     const [currentBets, setCurrentBets] = useState({});
     const [outcomeAnalysis, setOutcomeAnalysis] = useState({ mostProfitable: [], leastProfitable: [] });
     const [nextResult, setNextResult] = useState('');
-    const [incomeStatus, setIncomeStatus] = useState({ canDistribute: false, nextDistributionTime: null });
     
-    // States for "Manage User" features
+    const [lotteryAnalysis, setLotteryAnalysis] = useState([]);
+    const [lotteryMode, setLotteryMode] = useState('auto');
+    const [manualNumA, setManualNumA] = useState('');
+    const [manualNumB, setManualNumB] = useState('');
+    const [currentLotteryRoundId, setCurrentLotteryRoundId] = useState('');
+
+    const [aviatorLiveBets, setAviatorLiveBets] = useState([]);
+    const [aviatorAnalysis, setAviatorAnalysis] = useState([]);
+    const [aviatorSettings, setAviatorSettings] = useState({ mode: 'auto', profitMargin: 0.10, manualCrashPoint: null });
+
+    const [incomeStatus, setIncomeStatus] = useState({ canDistribute: false, nextDistributionTime: null });
     const [userStatusId, setUserStatusId] = useState('');
     const [newStatus, setNewStatus] = useState('active');
     const [searchUserId, setSearchUserId] = useState('');
@@ -57,24 +67,11 @@ function AdminPanel({ token }) {
     const [searchLoading, setSearchLoading] = useState(false);
     const [searchError, setSearchError] = useState('');
 
-    // States for Bonus & Promotions
     const [bonusAmount, setBonusAmount] = useState('');
     const [bonusReason, setBonusReason] = useState('');
     const [bonusUserIds, setBonusUserIds] = useState('');
     const [promoTitle, setPromoTitle] = useState('');
     const [promoMessage, setPromoMessage] = useState('');
-    
-    // New Lottery Admin State
-    const [lotteryAnalysis, setLotteryAnalysis] = useState([]);
-    const [lotteryMode, setLotteryMode] = useState('auto');
-    const [manualNumA, setManualNumA] = useState('');
-    const [manualNumB, setManualNumB] = useState('');
-    const [currentLotteryRoundId, setCurrentLotteryRoundId] = useState('');
-
-// Aviator State
-    const [aviatorLiveBets, setAviatorLiveBets] = useState([]);
-    const [aviatorSettings, setAviatorSettings] = useState({ mode: 'auto', profitMargin: 0.10, manualCrashPoint: null });
-
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -90,15 +87,12 @@ function AdminPanel({ token }) {
             for (const hour of drawHours) {
                 const drawTime = new Date(today);
                 drawTime.setUTCHours(hour, 0, 0, 0);
-                if (now < drawTime) {
-                    nextDrawHour = hour;
-                    break;
-                }
+                if (now < drawTime) { nextDrawHour = hour; break; }
             }
             const roundId = `${today.toISOString().slice(0, 10)}-${nextDrawHour}`;
             setCurrentLotteryRoundId(roundId);
 
-            const [depositsRes, withdrawalsRes, gameStatusRes, statsRes, betsRes, analysisRes, incomeRes, platformStatsRes, lotteryAnalysisRes, overallGameStatsRes] = await Promise.all([
+            const [depositsRes, withdrawalsRes, gameStatusRes, statsRes, betsRes, analysisRes, incomeRes, platformStatsRes, lotteryAnalysisRes, overallGameStatsRes, aviatorBetsRes, aviatorAnalysisRes] = await Promise.all([
                 axios.get(`${API_BASE_URL}/api/admin/recharges/pending`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/withdrawals/pending`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/game-status`, { headers: { Authorization: `Bearer ${token}` } }),
@@ -111,7 +105,6 @@ function AdminPanel({ token }) {
                 axios.get(`${API_BASE_URL}/api/admin/overall-game-stats`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/aviator/live-bets`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/aviator-analysis`, { headers: { Authorization: `Bearer ${token}` } })
-         
             ]);
             setPendingDeposits(depositsRes.data.recharges || []);
             setPendingWithdrawals(withdrawalsRes.data.withdrawals || []);
@@ -125,9 +118,7 @@ function AdminPanel({ token }) {
             setLotteryMode(lotteryAnalysisRes.data.mode || 'auto');
             setOverallGameStats(overallGameStatsRes.data);
             setAviatorLiveBets(aviatorBetsRes.data.bets || []);
-             setAviatorAnalysis(aviatorAnalysisRes.data.analysis || []);
-
-      
+            setAviatorAnalysis(aviatorAnalysisRes.data.analysis || []);
         } catch (err) {
             if (isInitialLoad) setError('Failed to fetch admin data. Auto-refresh paused.');
             console.error(err);
@@ -142,6 +133,7 @@ function AdminPanel({ token }) {
         return () => clearInterval(interval);
     }, [fetchData]);
 
+    
     // --- Action Handlers ---
     const handleAction = async (action, id) => {
         const urlMap = {
@@ -353,6 +345,19 @@ const handleAviatorSettingsUpdate = async (update) => {
                         <div className="control-group"><label>Payout Priority</label><div className="toggle-switch"><button onClick={() => handleGameStatusUpdate({ payout_priority: 'admin' })} className={gameStatus.payout_priority === 'admin' ? 'active' : ''}>Admin</button><button onClick={() => handleGameStatusUpdate({ payout_priority: 'users' })} className={gameStatus.payout_priority === 'users' ? 'active' : ''}>Users</button></div></div>
                         {gameStatus.mode === 'admin' && gameStatus.is_on && (<div className="control-group manual-control"><label>Set Next Winning Number (0-9)</label><div className="input-group"><input type="number" value={nextResult} onChange={(e) => setNextResult(e.target.value)} min="0" max="9" placeholder="e.g., 5" /><button onClick={handleSetNextResult}>Set Result</button></div></div>)}
                     </div>
+                    <div className="admin-section live-bets">
+                        <h2>Color Prediction: Live Bets</h2>
+                        <div className="bet-summary-grid">
+                            {Object.entries(currentBets).filter(([key]) => !isNaN(key)).map(([num, amount]) => (
+                                <div key={num} className="bet-summary-item"><span className="bet-number">{num}</span><span className="bet-amount">{formatCurrency(amount)}</span></div>
+                            ))}
+                        </div>
+                        <div className="bet-summary-colors">
+                            <div className="bet-summary-item color"><span className="bet-number red">Red</span><span className="bet-amount">{formatCurrency(currentBets['Red'] || 0)}</span></div>
+                            <div className="bet-summary-item color"><span className="bet-number green">Green</span><span className="bet-amount">{formatCurrency(currentBets['Green'] || 0)}</span></div>
+                            <div className="bet-summary-item color"><span className="bet-number violet">Violet</span><span className="bet-amount">{formatCurrency(currentBets['Violet'] || 0)}</span></div>
+                        </div>
+                    </div>
                 </div>
                 <div className="grid-column">
                     <div className="admin-section">
@@ -375,46 +380,7 @@ const handleAviatorSettingsUpdate = async (update) => {
                             </form>
                         )}
                     </div>
-                </div>
-            </div>
-
-            <div className="admin-section">
-                <h2>Live Round Analysis (Lottery)</h2>
-                <div className="analysis-table-container">
-                    <table className="analysis-table">
-                         <thead><tr><th>Winning Pair</th><th>Total Bets On Pair</th><th>Total Payout</th><th>Admin P/L</th></tr></thead>
-                        <tbody>
-                            {lotteryAnalysis.map(outcome => (
-                                <tr key={`${outcome.a}-${outcome.b}`} className={outcome.netResult >= 0 ? 'positive' : 'negative'}>
-                                    <td>{`{${outcome.a}, ${outcome.b}}`}</td>
-                                    <td>{formatCurrency(outcome.totalBetOnPair)}</td>
-                                    <td>{formatCurrency(outcome.payout)}</td>
-                                    <td>{formatCurrency(outcome.netResult)}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-                                <div className="admin-grid">
-                <div className="grid-column">
-                    <div className="admin-section live-bets">
-                        <h2>Color Prediction: Live Bets</h2>
-                        <div className="bet-summary-grid">
-                            {Object.entries(currentBets).filter(([key]) => !isNaN(key)).map(([num, amount]) => (
-                                <div key={num} className="bet-summary-item"><span className="bet-number">{num}</span><span className="bet-amount">{formatCurrency(amount)}</span></div>
-                            ))}
-                        </div>
-                        <div className="bet-summary-colors">
-                            <div className="bet-summary-item color"><span className="bet-number red">Red</span><span className="bet-amount">{formatCurrency(currentBets['Red'] || 0)}</span></div>
-                            <div className="bet-summary-item color"><span className="bet-number green">Green</span><span className="bet-amount">{formatCurrency(currentBets['Green'] || 0)}</span></div>
-                            <div className="bet-summary-item color"><span className="bet-number violet">Violet</span><span className="bet-amount">{formatCurrency(currentBets['Violet'] || 0)}</span></div>
-                        </div>
-                    </div>
-                </div>
-                <div className="grid-column">
-                    <div className="admin-section outcome-analysis">
+                     <div className="admin-section outcome-analysis">
                         <h2>Color Prediction: Admin's Choice</h2>
                         <div className="analysis-table-container">
                             <table className="analysis-table">
@@ -435,6 +401,58 @@ const handleAviatorSettingsUpdate = async (update) => {
             </div>
 
             <div className="admin-section">
+                <h2>Aviator Management</h2>
+                <div className="control-group">
+                    <label>Game Mode</label>
+                    <div className="toggle-switch">
+                        <button onClick={() => handleAviatorSettingsUpdate({ mode: 'auto' })} className={aviatorSettings.mode === 'auto' ? 'active' : ''}>Auto (Profit-Based)</button>
+                        <button onClick={() => handleAviatorSettingsUpdate({ mode: 'admin' })} className={aviatorSettings.mode === 'admin' ? 'active' : ''}>Admin Choice</button>
+                    </div>
+                </div>
+                 <div className="action-group">
+                    <h4>Set Profit Margin (Auto Mode)</h4>
+                    <input type="number" step="0.01" value={aviatorSettings.profitMargin} onChange={e => handleAviatorSettingsUpdate({ profitMargin: parseFloat(e.target.value) })} />
+                </div>
+                {aviatorSettings.mode === 'admin' && (
+                    <div className="action-group">
+                        <h4>Set Manual Crash Point</h4>
+                        <input type="number" step="0.01" placeholder="e.g., 2.50" onChange={e => handleAviatorSettingsUpdate({ manualCrashPoint: parseFloat(e.target.value) })} />
+                    </div>
+                )}
+                 <h4>Live Bets in Current Round ({aviatorLiveBets.length})</h4>
+                <div className="analysis-table-container">
+                    <table className="analysis-table">
+                        <thead><tr><th>Player</th><th>Bet Amount</th></tr></thead>
+                        <tbody>
+                            {aviatorLiveBets.map(bet => (
+                                <tr key={bet.id}>
+                                    <td>{bet.users.name} (ID: {bet.user_id})</td>
+                                    <td>{formatCurrency(bet.bet_amount)}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+                <h4>Profitability Analysis (Current Round)</h4>
+                <div className="analysis-table-container">
+                    <table className="analysis-table">
+                        <thead><tr><th>Target Profit</th><th>Required Crash At</th><th>Total Bet In</th><th>Estimated Payout</th><th>Net P/L</th></tr></thead>
+                        <tbody>
+                            {aviatorAnalysis.map(row => (
+                                <tr key={row.profitMargin} className={row.netProfit >= 0 ? 'positive' : 'negative'}>
+                                    <td>{row.profitMargin}</td>
+                                    <td>{row.requiredMultiplier}</td>
+                                    <td>{formatCurrency(row.totalBet)}</td>
+                                    <td>{formatCurrency(row.estimatedPayout)}</td>
+                                    <td>{formatCurrency(row.netProfit)}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div className="admin-section">
                 <h2>Live Round Analysis (Lottery)</h2>
                 <div className="analysis-table-container">
                     <table className="analysis-table">
@@ -453,6 +471,21 @@ const handleAviatorSettingsUpdate = async (update) => {
                 </div>
             </div>
 
+            <div className="admin-section server-actions">
+                <h2>User & Platform Management</h2>
+                <div className="action-group">
+                    <h4>Global Daily Income Distribution</h4>
+                    <p>Calculate and distribute daily income to all users with active investments. This will enable their "Claim" button and send a notification.</p>
+                    <button onClick={handleDistributeIncome} className="action-btn" disabled={!incomeStatus.canDistribute}>
+                        Distribute Income Now
+                    </button>
+                    {!incomeStatus.canDistribute && (
+                        <div className="cooldown-timer">
+                            Next distribution available in: <CooldownTimer targetDate={incomeStatus.nextDistributionTime} />
+                        </div>
+                    )}
+                </div>
+                    </div>
 
             <div className="admin-section server-actions">
                 <h2>User & Platform Management</h2>
