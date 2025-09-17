@@ -130,7 +130,6 @@ function AdminPanel({ token }) {
         return () => clearInterval(interval);
     }, [fetchData]);
 
-    // --- Action Handlers ---
     const handleAction = async (action, id) => {
         const urlMap = {
             'approve-deposit': `/api/admin/recharge/${id}/approve`, 'reject-deposit': `/api/admin/recharge/${id}/reject`,
@@ -144,7 +143,7 @@ function AdminPanel({ token }) {
             alert(err.response?.data?.error || 'Action failed.');
         }
     };
-
+    
     const handleGameStatusUpdate = async (update) => {
         try {
             const res = await axios.post(`${API_BASE_URL}/api/admin/game-status`, update, { headers: { Authorization: `Bearer ${token}` } });
@@ -168,7 +167,7 @@ function AdminPanel({ token }) {
             alert(err.response?.data?.error || 'Failed to set next result.');
         }
     };
-    
+
     const handleDistributeIncome = async () => {
         if (!window.confirm("Are you sure you want to distribute daily income to ALL active users? This will trigger notifications.")) return;
         try {
@@ -256,7 +255,7 @@ function AdminPanel({ token }) {
             alert(err.response?.data?.error || 'Failed to create promotion.');
         }
     };
-
+    
     const handleLotteryModeChange = async (mode) => {
         try {
             const res = await axios.post(`${API_BASE_URL}/api/admin/lottery-mode`, { mode }, { headers: { Authorization: `Bearer ${token}` } });
@@ -287,7 +286,6 @@ function AdminPanel({ token }) {
         }
     };
 
-    // --- Render Logic ---
     if (loading) return <div className="loading-spinner">Loading Admin Panel...</div>;
     if (error) return <div className="error-message">{error}</div>;
 
@@ -298,147 +296,61 @@ function AdminPanel({ token }) {
             <div className="admin-section stats-section">
                 <h2>Platform Financials</h2>
                 <div className="stats-grid">
-                    <div className="stat-card">
-                        <h4>Total Deposits</h4>
-                        <p className="stat-value positive">{formatCurrency(platformStats.totalDeposits)}</p>
-                    </div>
-                    <div className="stat-card">
-                        <h4>Total Withdrawals</h4>
-                        <p className="stat-value negative">{formatCurrency(platformStats.totalWithdrawals)}</p>
-                    </div>
-                    <div className="stat-card">
-                        <h4>Platform P/L</h4>
-                        <p className={`stat-value ${platformStats.platformPL >= 0 ? 'positive' : 'negative'}`}>{formatCurrency(platformStats.platformPL)}</p>
-                    </div>
+                    <div className="stat-card"><h4>Total Deposits</h4><p className="stat-value positive">{formatCurrency(platformStats.totalDeposits)}</p></div>
+                    <div className="stat-card"><h4>Total Withdrawals</h4><p className="stat-value negative">{formatCurrency(platformStats.totalWithdrawals)}</p></div>
+                    <div className="stat-card"><h4>Platform P/L</h4><p className={`stat-value ${platformStats.platformPL >= 0 ? 'positive' : 'negative'}`}>{formatCurrency(platformStats.platformPL)}</p></div>
                 </div>
             </div>
 
-     {/* ✅ NEW SECTION: Overall Game Financials */}
             <div className="admin-section stats-section">
                 <h2>Overall Game Financials</h2>
                 <div className="stats-grid">
-                    <div className="stat-card">
-                        <h4>Total Bet Amount</h4>
-                        <p className="stat-value">{formatCurrency(overallGameStats.totalBet)}</p>
-                    </div>
-                    <div className="stat-card">
-                        <h4>Total Payouts</h4>
-                        <p className="stat-value">{formatCurrency(overallGameStats.totalPayout)}</p>
-                    </div>
-                    <div className="stat-card">
-                        <h4>Overall Game P/L</h4>
-                        <p className={`stat-value ${overallGameStats.totalPL >= 0 ? 'positive' : 'negative'}`}>
-                            {formatCurrency(overallGameStats.totalPL)}
-                        </p>
-                    </div>
+                    <div className="stat-card"><h4>Total Bet Amount</h4><p className="stat-value">{formatCurrency(overallGameStats.totalBet)}</p></div>
+                    <div className="stat-card"><h4>Total Payouts</h4><p className="stat-value">{formatCurrency(overallGameStats.totalPayout)}</p></div>
+                    <div className="stat-card"><h4>Overall Game P/L</h4><p className={`stat-value ${overallGameStats.totalPL >= 0 ? 'positive' : 'negative'}`}>{formatCurrency(overallGameStats.totalPL)}</p></div>
                 </div>
             </div>
             
-            
             <div className="admin-section stats-section">
-                <h2>Game P/L Statistics</h2>
+                <h2>Color Prediction P/L Statistics</h2>
                 <div className="stats-grid">
-                    <div className="stat-card">
-                        <h4>Current Period</h4>
-                        <p className={`stat-value ${gameStats.currentPeriod.pl >= 0 ? 'positive' : 'negative'}`}>{formatCurrency(gameStats.currentPeriod.pl)}</p>
-                        <div className="stat-details"><span>In:</span> {formatCurrency(gameStats.currentPeriod.totalIn)}</div>
-                        <div className="stat-details"><span>Out:</span> {formatCurrency(gameStats.currentPeriod.totalOut)}</div>
-                    </div>
-                    <div className="stat-card">
-                        <h4>Today</h4>
-                        <p className={`stat-value ${gameStats.today.pl >= 0 ? 'positive' : 'negative'}`}>{formatCurrency(gameStats.today.pl)}</p>
-                        <div className="stat-details"><span>In:</span> {formatCurrency(gameStats.today.totalIn)}</div>
-                        <div className="stat-details"><span>Out:</span> {formatCurrency(gameStats.today.totalOut)}</div>
-                    </div>
-                    <div className="stat-card">
-                        <h4>Overall</h4>
-                        <p className={`stat-value ${gameStats.total.pl >= 0 ? 'positive' : 'negative'}`}>{formatCurrency(gameStats.total.pl)}</p>
-                        <div className="stat-details"><span>In:</span> {formatCurrency(gameStats.total.totalIn)}</div>
-                        <div className="stat-details"><span>Out:</span> {formatCurrency(gameStats.total.totalOut)}</div>
-                    </div>
+                    <div className="stat-card"><h4>Current Period</h4><p className={`stat-value ${gameStats.currentPeriod.pl >= 0 ? 'positive' : 'negative'}`}>{formatCurrency(gameStats.currentPeriod.pl)}</p></div>
+                    <div className="stat-card"><h4>Today</h4><p className={`stat-value ${gameStats.today.pl >= 0 ? 'positive' : 'negative'}`}>{formatCurrency(gameStats.today.pl)}</p></div>
+                    <div className="stat-card"><h4>Overall</h4><p className={`stat-value ${gameStats.total.pl >= 0 ? 'positive' : 'negative'}`}>{formatCurrency(gameStats.total.pl)}</p></div>
                 </div>
             </div>
 
             <div className="admin-grid">
                 <div className="grid-column">
-                    <div className="admin-section live-bets">
-                        <h2>Current Round Bet Summary</h2>
-                        <div className="bet-summary-grid">
-                            {Object.entries(currentBets).filter(([key]) => !isNaN(key)).map(([num, amount]) => (
-                                <div key={num} className="bet-summary-item"><span className="bet-number">{num}</span><span className="bet-amount">{formatCurrency(amount)}</span></div>
-                            ))}
-                        </div>
-                        <div className="bet-summary-colors">
-                            <div className="bet-summary-item color"><span className="bet-number red">Red</span><span className="bet-amount">{formatCurrency(currentBets['Red'] || 0)}</span></div>
-                            <div className="bet-summary-item color"><span className="bet-number green">Green</span><span className="bet-amount">{formatCurrency(currentBets['Green'] || 0)}</span></div>
-                            <div className="bet-summary-item color"><span className="bet-number violet">Violet</span><span className="bet-amount">{formatCurrency(currentBets['Violet'] || 0)}</span></div>
-                        </div>
+                    <div className="admin-section">
+                        <h2>Color Prediction Management</h2>
+                        <div className="control-group"><label>Game Status</label><div className="toggle-switch"><button onClick={() => handleGameStatusUpdate({ is_on: true })} className={gameStatus.is_on ? 'active' : ''}>ON</button><button onClick={() => handleGameStatusUpdate({ is_on: false })} className={!gameStatus.is_on ? 'active' : ''}>OFF</button></div></div>
+                        <div className="control-group"><label>Game Mode</label><div className="toggle-switch"><button onClick={() => handleGameStatusUpdate({ mode: 'auto' })} className={gameStatus.mode === 'auto' ? 'active' : ''}>Auto</button><button onClick={() => handleGameStatusUpdate({ mode: 'admin' })} className={gameStatus.mode === 'admin' ? 'active' : ''}>Admin</button></div></div>
+                        <div className="control-group"><label>Payout Priority</label><div className="toggle-switch"><button onClick={() => handleGameStatusUpdate({ payout_priority: 'admin' })} className={gameStatus.payout_priority === 'admin' ? 'active' : ''}>Admin</button><button onClick={() => handleGameStatusUpdate({ payout_priority: 'users' })} className={gameStatus.payout_priority === 'users' ? 'active' : ''}>Users</button></div></div>
+                        {gameStatus.mode === 'admin' && gameStatus.is_on && (<div className="control-group manual-control"><label>Set Next Winning Number (0-9)</label><div className="input-group"><input type="number" value={nextResult} onChange={(e) => setNextResult(e.target.value)} min="0" max="9" placeholder="e.g., 5" /><button onClick={handleSetNextResult}>Set Result</button></div></div>)}
                     </div>
                 </div>
                 <div className="grid-column">
-                    <div className="admin-section outcome-analysis">
-                        <h2>Admin's Choice (Current Round)</h2>
-                        <div className="analysis-table">
-                            <div className="analysis-header"><div>Outcome</div><div>Admin P/L</div></div>
-                            {outcomeAnalysis.mostProfitable.map(outcome => (
-                                <div className="analysis-row positive" key={`most-${outcome.number}`}>
-                                    <div className="outcome-number">{outcome.number}</div>
-                                    <div className="outcome-pl">{formatCurrency(outcome.pl)}</div>
-                                </div>
-                            ))}
-                            {outcomeAnalysis.leastProfitable.length > 0 && <div className="analysis-divider"></div>}
-                            {outcomeAnalysis.leastProfitable.map(outcome => (
-                                <div className="analysis-row negative" key={`least-${outcome.number}`}>
-                                    <div className="outcome-number">{outcome.number}</div>
-                                    <div className="outcome-pl">{formatCurrency(outcome.pl)}</div>
-                                </div>
-                            ))}
+                    <div className="admin-section">
+                        <h2>Lottery Management (Round: {currentLotteryRoundId})</h2>
+                        <div className="control-group">
+                            <label>Lottery Mode</label>
+                            <div className="toggle-switch">
+                                <button onClick={() => handleLotteryModeChange('auto')} className={lotteryMode === 'auto' ? 'active' : ''}>Auto (Profit-First)</button>
+                                <button onClick={() => handleLotteryModeChange('admin')} className={lotteryMode === 'admin' ? 'active' : ''}>Admin Choice</button>
+                            </div>
                         </div>
+                        {lotteryMode === 'admin' && (
+                            <form className="action-group" onSubmit={handleSetLotteryResult}>
+                                <h4>Set Manual Result for Next Draw</h4>
+                                <div className="input-group">
+                                    <input type="number" value={manualNumA} onChange={e => setManualNumA(e.target.value)} min="0" max="9" placeholder="Num A" required />
+                                    <input type="number" value={manualNumB} onChange={e => setManualNumB(e.target.value)} min="0" max="9" placeholder="Num B" required />
+                                    <button type="submit" className="action-btn">Set Result</button>
+                                </div>
+                            </form>
+                        )}
                     </div>
-                </div>
-            </div>
-            
-            <div className="admin-section">
-                <h2>Lottery Management (Round: {currentLotteryRoundId})</h2>
-                <div className="control-group">
-                    <label>Lottery Mode</label>
-                    <div className="toggle-switch">
-                        <button onClick={() => handleLotteryModeChange('auto')} className={lotteryMode === 'auto' ? 'active' : ''}>Auto (Profit-First)</button>
-                        <button onClick={() => handleLotteryModeChange('admin')} className={lotteryMode === 'admin' ? 'active' : ''}>Admin Choice</button>
-                    </div>
-                </div>
-                {lotteryMode === 'admin' && (
-                    <form className="action-group" onSubmit={handleSetLotteryResult}>
-                        <h4>Set Manual Result for Next Draw</h4>
-                        <div className="input-group">
-                            <input type="number" value={manualNumA} onChange={e => setManualNumA(e.target.value)} min="0" max="9" placeholder="Num A" required />
-                            <input type="number" value={manualNumB} onChange={e => setManualNumB(e.target.value)} min="0" max="9" placeholder="Num B" required />
-                            <button type="submit" className="action-btn">Set Result</button>
-                        </div>
-                    </form>
-                )}
-                <h4>Live Round Analysis</h4>
-                <div className="analysis-table-container">
-                    <table className="analysis-table">
-                         <thead>
-                            <tr>
-                                <th>Winning Pair</th>
-                                <th>Total Bets On Pair</th>
-                                <th>Total Payout</th>
-                                <th>Admin P/L</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {lotteryAnalysis.map(outcome => (
-                                <tr key={`${outcome.a}-${outcome.b}`} className={outcome.netResult >= 0 ? 'positive' : 'negative'}>
-                                    <td>{`{${outcome.a}, ${outcome.b}}`}</td>
-                                    <td>{formatCurrency(outcome.totalBetOnPair)}</td>
-                                    <td>{formatCurrency(outcome.payout)}</td>
-                                    <td>{formatCurrency(outcome.netResult)}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
                 </div>
             </div>
 
