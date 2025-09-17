@@ -20,13 +20,9 @@ const BetPanel = ({ betId, gameState, placeBet, cancelBet, cashOut, bet, setBet,
     const { amount, autoCashOut, hasBet, isQueued, cashedOut, cashOutMultiplier } = bet;
 
     const handleBetClick = () => {
-        if (!hasBet && !isQueued) {
-            placeBet(betId);
-        } else if (hasBet && !cashedOut && gameState === 'playing') {
-            cashOut(betId, currentMultiplier);
-        } else if (isQueued) {
-            cancelBet(betId);
-        }
+        if (!hasBet && !isQueued) placeBet(betId);
+        else if (hasBet && !cashedOut && gameState === 'playing') cashOut(betId, currentMultiplier);
+        else if (isQueued) cancelBet(betId);
     };
 
     const getButtonState = () => {
@@ -83,73 +79,79 @@ function AviatorGame({ token, onBack }) {
 
     const draw = useCallback((ctx, multiplier) => {
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-        
-        // Dynamic properties based on multiplier
-        const maxTime = 10; 
-        const time = (multiplier - 1) * 2;
-        const progress = Math.min(time / maxTime, 1);
-        
-        // Draw the curve
+        const maxMultiplierVisual = 10;
+        const progress = Math.min((multiplier - 1) / (maxMultiplierVisual - 1), 1);
+
+        const startX = 40, startY = ctx.canvas.height - 40;
+        const endX = startX + progress * (ctx.canvas.width - 80);
+        const endY = startY - Math.pow(progress, 2) * (ctx.canvas.height - 80);
+
+        const gradient = ctx.createLinearGradient(0, 0, 0, ctx.canvas.height);
+        gradient.addColorStop(0, 'rgba(239, 68, 68, 0.5)');
+        gradient.addColorStop(1, 'rgba(239, 68, 68, 0)');
+
         ctx.beginPath();
-        ctx.moveTo(0, ctx.canvas.height);
-        const controlX = progress * ctx.canvas.width * 0.7;
-        const controlY = ctx.canvas.height;
-        const endX = progress * ctx.canvas.width;
-        const endY = ctx.canvas.height - (progress * ctx.canvas.height * 0.8);
-        ctx.quadraticCurveTo(controlX, controlY, endX, endY);
-        
-        // Gradient for the curve
-        const curveGradient = ctx.createLinearGradient(0, ctx.canvas.height, endX, endY);
-        curveGradient.addColorStop(0, "#EF4444");
-        curveGradient.addColorStop(1, "#FBBF24");
-        ctx.strokeStyle = curveGradient;
-        ctx.lineWidth = 10;
+        ctx.moveTo(startX, startY);
+        ctx.quadraticCurveTo(startX + (endX - startX) * 0.5, startY, endX, endY);
+        ctx.lineTo(endX, startY);
+        ctx.closePath();
+        ctx.fillStyle = gradient;
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.moveTo(startX, startY);
+        ctx.quadraticCurveTo(startX + (endX - startX) * 0.5, startY, endX, endY);
+        ctx.strokeStyle = '#FBBF24';
+        ctx.lineWidth = 8;
+        ctx.lineCap = 'round';
         ctx.stroke();
 
-        // Draw the plane at the end of the curve
-        const planeX = endX;
-        const planeY = endY;
-        
-        ctx.save();
-        ctx.translate(planeX, planeY);
-        ctx.fillStyle = "#FFFFFF";
-        ctx.font = '24px sans-serif';
-        ctx.fillText('✈️', -12, 8); // Center the emoji
-        ctx.restore();
+        ctx.beginPath();
+        ctx.arc(endX, endY, 12, 0, Math.PI * 2);
+        ctx.fillStyle = '#FBBF24';
+        ctx.shadowColor = '#FBBF24';
+        ctx.shadowBlur = 20;
+        ctx.fill();
+        ctx.shadowBlur = 0;
 
+        ctx.fillStyle = '#a0aec0';
+        ctx.font = '12px sans-serif';
+        [1.0, 1.5, 2.0, 2.5, 3.0, 3.5].forEach(val => {
+            const yPos = startY - ((val - 1) / (maxMultiplierVisual - 1)) * (startY - 40);
+            ctx.fillText(`${val.toFixed(1)}x`, 5, yPos + 4);
+        });
+        [4, 9, 13, 18].forEach(val => {
+            const xPos = startX + (val / 20) * (ctx.canvas.width - 80);
+            ctx.fillText(`${val}s`, xPos - 10, startY + 20);
+        });
     }, []);
 
     useEffect(() => {
         const canvas = canvasRef.current;
         const ctx = canvas.getContext("2d");
-        draw(ctx, multiplier); // Initial draw
+        draw(ctx, multiplier);
     }, [draw, multiplier]);
-
 
     useEffect(() => {
         const fetchState = async () => {
             try {
                 const { data } = await axios.get(`${API_BASE_URL}/api/aviator/state`, { headers: { Authorization: `Bearer ${token}` } });
-                
                 if (data.gameState !== gameState) setGameState(data.gameState);
                 if (data.multiplier !== multiplier) setMultiplier(data.multiplier);
                 if (data.roundId !== roundId) {
                     setRoundId(data.roundId);
-                    // Reset bets for the new round
                     setBet1(p => ({...p, hasBet: p.isQueued, isQueued: false, cashedOut: false, cashOutMultiplier: null}));
                     setBet2(p => ({...p, hasBet: p.isQueued, isQueued: false, cashedOut: false, cashOutMultiplier: null}));
                 }
                 setCountdown(data.countdown);
-
             } catch (error) { console.error("Failed to fetch game state:", error); }
         };
-
         const interval = setInterval(fetchState, 500);
         return () => clearInterval(interval);
     }, [token, gameState, multiplier, roundId]);
     
     useEffect(() => {
-        if(gameState === 'playing') takeoffSound.play();
+        if(gameState === 'playing') { takeoffSound.play(); }
         if(gameState === 'crashed') {
             takeoffSound.pause();
             takeoffSound.currentTime = 0;
@@ -162,7 +164,6 @@ function AviatorGame({ token, onBack }) {
             .then(res => setHistory(res.data.history || []))
             .catch(err => console.error("Failed to fetch history:", err));
     }, [token, gameState]);
-
 
     const placeBet = (betId) => {
         const bet = betId === 1 ? bet1 : bet2;
@@ -179,8 +180,14 @@ function AviatorGame({ token, onBack }) {
 
     const cashOut = (betId, currentMultiplier) => {
         cashoutSound.play();
-        if (betId === 1 && !bet1.cashedOut) updateBetState(betId, 'cashedOut', true); updateBetState(betId, 'cashOutMultiplier', currentMultiplier);
-        if (betId === 2 && !bet2.cashedOut) updateBetState(betId, 'cashedOut', true); updateBetState(betId, 'cashOutMultiplier', currentMultiplier);
+        if (betId === 1 && !bet1.cashedOut) {
+            updateBetState(1, 'cashedOut', true);
+            updateBetState(1, 'cashOutMultiplier', currentMultiplier);
+        }
+        if (betId === 2 && !bet2.cashedOut) {
+            updateBetState(2, 'cashedOut', true);
+            updateBetState(2, 'cashOutMultiplier', currentMultiplier);
+        }
     };
     
     const commonProps = { gameState, placeBet, cancelBet, cashOut, currentMultiplier: multiplier };
