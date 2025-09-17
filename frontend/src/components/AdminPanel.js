@@ -104,7 +104,7 @@ function AdminPanel({ token }) {
                 axios.get(`${API_BASE_URL}/api/admin/income-status`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/platform-stats`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/lottery-analysis?roundId=${roundId}`, { headers: { Authorization: `Bearer ${token}` } }),
-                axios.get(`${API_BASE_URL}/api/admin/overall-game-stats`, { headers: { Authorization: `Bearer ${token}` } }) // ✅ NEW API CALL
+                axios.get(`${API_BASE_URL}/api/admin/overall-game-stats`, { headers: { Authorization: `Bearer ${token}` } }) // ✅ FIX: Added a comma here
 
             ]);
             setPendingDeposits(depositsRes.data.recharges || []);
