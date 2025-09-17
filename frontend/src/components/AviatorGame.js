@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
-import './GamePages.css'; // Shared stylesheet for all game pages
+import './AviatorGame.css'; // Shared stylesheet for all game pages
 import { AutoCashOutIcon } from './Icons';
 
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
