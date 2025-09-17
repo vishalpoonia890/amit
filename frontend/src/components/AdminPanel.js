@@ -35,7 +35,6 @@ const CooldownTimer = ({ targetDate }) => {
     return <span>{timeLeft}</span>;
 };
 
-
 // --- Main Admin Panel Component ---
 function AdminPanel({ token }) {
     // --- State Management ---
@@ -47,8 +46,10 @@ function AdminPanel({ token }) {
     const [currentBets, setCurrentBets] = useState({});
     const [outcomeAnalysis, setOutcomeAnalysis] = useState({ mostProfitable: [], leastProfitable: [] });
     const [nextResult, setNextResult] = useState('');
+    const [incomeStatus, setIncomeStatus] = useState({ canDistribute: false, nextDistributionTime: null });
     
     // States for "Manage User" features
+    const [customUserId, setCustomUserId] = useState('');
     const [userStatusId, setUserStatusId] = useState('');
     const [newStatus, setNewStatus] = useState('active');
     const [searchUserId, setSearchUserId] = useState('');
@@ -62,24 +63,21 @@ function AdminPanel({ token }) {
     const [bonusUserIds, setBonusUserIds] = useState('');
     const [promoTitle, setPromoTitle] = useState('');
     const [promoMessage, setPromoMessage] = useState('');
-
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState('');
     
- // --- New Lottery Admin State ---
+    // New Lottery Admin State
     const [lotteryAnalysis, setLotteryAnalysis] = useState([]);
     const [lotteryMode, setLotteryMode] = useState('auto');
     const [manualNumA, setManualNumA] = useState('');
     const [manualNumB, setManualNumB] = useState('');
     const [currentLotteryRoundId, setCurrentLotteryRoundId] = useState('');
 
-    // --- Data Fetching ---
-    // ✅ FIX: Merged the two fetchData functions into one comprehensive function
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+
     const fetchData = useCallback(async (isInitialLoad = false) => {
         if (isInitialLoad) setLoading(true);
         setError('');
         try {
-            // Determine current lottery round ID client-side to request analysis
             const now = new Date(new Date().getTime() + (5.5 * 60 * 60 * 1000));
             const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
             const drawHours = [8, 12, 16, 20];
@@ -95,13 +93,14 @@ function AdminPanel({ token }) {
             const roundId = `${today.toISOString().slice(0, 10)}-${nextDrawHour}`;
             setCurrentLotteryRoundId(roundId);
 
-            const [depositsRes, withdrawalsRes, gameStatusRes, statsRes, betsRes, analysisRes, platformStatsRes, lotteryAnalysisRes] = await Promise.all([
+            const [depositsRes, withdrawalsRes, gameStatusRes, statsRes, betsRes, analysisRes, incomeRes, platformStatsRes, lotteryAnalysisRes] = await Promise.all([
                 axios.get(`${API_BASE_URL}/api/admin/recharges/pending`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/withdrawals/pending`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/game-status`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/game-statistics`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/current-bets`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/game-outcome-analysis`, { headers: { Authorization: `Bearer ${token}` } }),
+                axios.get(`${API_BASE_URL}/api/admin/income-status`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/platform-stats`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/lottery-analysis?roundId=${roundId}`, { headers: { Authorization: `Bearer ${token}` } })
             ]);
@@ -111,6 +110,7 @@ function AdminPanel({ token }) {
             setGameStats(statsRes.data || { total: {}, today: {}, currentPeriod: {} });
             setCurrentBets(betsRes.data.summary || {});
             setOutcomeAnalysis(analysisRes.data || { mostProfitable: [], leastProfitable: [] });
+            setIncomeStatus(incomeRes.data);
             setPlatformStats(platformStatsRes.data);
             setLotteryAnalysis(lotteryAnalysisRes.data.outcomes || []);
             setLotteryMode(lotteryAnalysisRes.data.mode || 'auto');
@@ -129,43 +129,6 @@ function AdminPanel({ token }) {
     }, [fetchData]);
 
     // --- Action Handlers ---
-
-    //Lottery-------------
-    
-const handleLotteryModeChange = async (mode) => {
-        try {
-            const res = await axios.post(`${API_BASE_URL}/api/admin/lottery-mode`, { mode }, { headers: { Authorization: `Bearer ${token}` } });
-            setLotteryMode(mode);
-            alert(res.data.message);
-        } catch (err) {
-            alert(err.response?.data?.error || 'Failed to change mode.');
-        }
-    };
-    
-    const handleSetLotteryResult = async (e) => {
-        e.preventDefault();
-        const numA = parseInt(manualNumA, 10);
-        const numB = parseInt(manualNumB, 10);
-        if (isNaN(numA) || isNaN(numB) || numA < 0 || numA > 9 || numB < 0 || numB > 9) {
-            alert('Please enter valid numbers between 0 and 9.');
-            return;
-        }
-        try {
-            const res = await axios.post(`${API_BASE_URL}/api/admin/lottery-set-result`, {
-                roundId: currentLotteryRoundId,
-                winning_num_a: numA,
-                winning_num_b: numB
-            }, { headers: { Authorization: `Bearer ${token}` } });
-            alert(res.data.message);
-        } catch (err) {
-            alert(err.response?.data?.error || 'Failed to set result.');
-        }
-    };
-
-    
-//----------------other actions than the lottery-----------------------
-
-    
     const handleAction = async (action, id) => {
         const urlMap = {
             'approve-deposit': `/api/admin/recharge/${id}/approve`, 'reject-deposit': `/api/admin/recharge/${id}/reject`,
@@ -203,6 +166,17 @@ const handleLotteryModeChange = async (mode) => {
             alert(err.response?.data?.error || 'Failed to set next result.');
         }
     };
+    
+    const handleDistributeIncome = async () => {
+        if (!window.confirm("Are you sure you want to distribute daily income to ALL active users? This will trigger notifications.")) return;
+        try {
+            const res = await axios.post(`${API_BASE_URL}/api/admin/distribute-income`, {}, { headers: { Authorization: `Bearer ${token}` } });
+            alert(res.data.message);
+            fetchData();
+        } catch (err) {
+            alert(err.response?.data?.error || 'Failed to distribute income.');
+        }
+    };
 
     const handleUserSearch = async (e) => {
         e.preventDefault();
@@ -219,28 +193,6 @@ const handleLotteryModeChange = async (mode) => {
             setSearchLoading(false);
         }
     };
-
-    const handleDistributeIncome = async (userId = null) => {
-        const isCustom = !!userId;
-        if (isCustom && !customUserId) {
-            alert("Please enter a User ID.");
-            return;
-        }
-        const confirmMessage = isCustom
-            ? `Are you sure you want to distribute income to User ID: ${userId}?`
-            : "Are you sure you want to distribute daily income to ALL active users? This can only be done once every 24 hours.";
-        if (!window.confirm(confirmMessage)) return;
-        try {
-            const payload = userId ? { userId } : {};
-            const res = await axios.post(`${API_BASE_URL}/api/admin/distribute-income`, payload, { headers: { Authorization: `Bearer ${token}` } });
-            alert(res.data.message);
-            if (isCustom) setCustomUserId('');
-            fetchData();
-        } catch (err) {
-            alert(err.response?.data?.error || 'Failed to distribute income.');
-        }
-    };
-
     
     const handleManageUserIncome = async (canReceive) => {
         if (!searchedUserInfo) return;
@@ -303,6 +255,36 @@ const handleLotteryModeChange = async (mode) => {
         }
     };
 
+    const handleLotteryModeChange = async (mode) => {
+        try {
+            const res = await axios.post(`${API_BASE_URL}/api/admin/lottery-mode`, { mode }, { headers: { Authorization: `Bearer ${token}` } });
+            setLotteryMode(mode);
+            alert(res.data.message);
+        } catch (err) {
+            alert(err.response?.data?.error || 'Failed to change mode.');
+        }
+    };
+    
+    const handleSetLotteryResult = async (e) => {
+        e.preventDefault();
+        const numA = parseInt(manualNumA, 10);
+        const numB = parseInt(manualNumB, 10);
+        if (isNaN(numA) || isNaN(numB) || numA < 0 || numA > 9 || numB < 0 || numB > 9) {
+            alert('Please enter valid numbers between 0 and 9.');
+            return;
+        }
+        try {
+            const res = await axios.post(`${API_BASE_URL}/api/admin/lottery-set-result`, {
+                roundId: currentLotteryRoundId,
+                winning_num_a: numA,
+                winning_num_b: numB
+            }, { headers: { Authorization: `Bearer ${token}` } });
+            alert(res.data.message);
+        } catch (err) {
+            alert(err.response?.data?.error || 'Failed to set result.');
+        }
+    };
+
     // --- Render Logic ---
     if (loading) return <div className="loading-spinner">Loading Admin Panel...</div>;
     if (error) return <div className="error-message">{error}</div>;
@@ -324,9 +306,7 @@ const handleLotteryModeChange = async (mode) => {
                     </div>
                     <div className="stat-card">
                         <h4>Platform P/L</h4>
-                        <p className={`stat-value ${platformStats.platformPL >= 0 ? 'positive' : 'negative'}`}>
-                            {formatCurrency(platformStats.platformPL)}
-                        </p>
+                        <p className={`stat-value ${platformStats.platformPL >= 0 ? 'positive' : 'negative'}`}>{formatCurrency(platformStats.platformPL)}</p>
                     </div>
                 </div>
             </div>
@@ -393,10 +373,54 @@ const handleLotteryModeChange = async (mode) => {
                     </div>
                 </div>
             </div>
-                            
-<div className="admin-section server-actions">
+            
+            <div className="admin-section">
+                <h2>Lottery Management (Round: {currentLotteryRoundId})</h2>
+                <div className="control-group">
+                    <label>Lottery Mode</label>
+                    <div className="toggle-switch">
+                        <button onClick={() => handleLotteryModeChange('auto')} className={lotteryMode === 'auto' ? 'active' : ''}>Auto (Profit-First)</button>
+                        <button onClick={() => handleLotteryModeChange('admin')} className={lotteryMode === 'admin' ? 'active' : ''}>Admin Choice</button>
+                    </div>
+                </div>
+                {lotteryMode === 'admin' && (
+                    <form className="action-group" onSubmit={handleSetLotteryResult}>
+                        <h4>Set Manual Result for Next Draw</h4>
+                        <div className="input-group">
+                            <input type="number" value={manualNumA} onChange={e => setManualNumA(e.target.value)} min="0" max="9" placeholder="Num A" required />
+                            <input type="number" value={manualNumB} onChange={e => setManualNumB(e.target.value)} min="0" max="9" placeholder="Num B" required />
+                            <button type="submit" className="action-btn">Set Result</button>
+                        </div>
+                    </form>
+                )}
+                <h4>Live Round Analysis</h4>
+                <div className="analysis-table-container">
+                    <table className="analysis-table">
+                         <thead>
+                            <tr>
+                                <th>Winning Pair</th>
+                                <th>Total Bets On Pair</th>
+                                <th>Total Payout</th>
+                                <th>Admin P/L</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {lotteryAnalysis.map(outcome => (
+                                <tr key={`${outcome.a}-${outcome.b}`} className={outcome.netResult >= 0 ? 'positive' : 'negative'}>
+                                    <td>{`{${outcome.a}, ${outcome.b}}`}</td>
+                                    <td>{formatCurrency(outcome.totalBetOnPair)}</td>
+                                    <td>{formatCurrency(outcome.payout)}</td>
+                                    <td>{formatCurrency(outcome.netResult)}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div className="admin-section server-actions">
                 <h2>User & Platform Management</h2>
-                 <div className="action-group">
+                <div className="action-group">
                     <h4>Global Daily Income Distribution</h4>
                     <p>Calculate and distribute daily income to all users with active investments. This will enable their "Claim" button and send a notification.</p>
                     <button onClick={handleDistributeIncome} className="action-btn" disabled={!incomeStatus.canDistribute}>
@@ -408,8 +432,6 @@ const handleLotteryModeChange = async (mode) => {
                         </div>
                     )}
                 </div>
-            <div className="admin-section server-actions">
-                <h2>User & Platform Management</h2>
                 <div className="action-group">
                     <h4>Set User Account Status</h4>
                     <p>Change a user's status to Active, Non-Active, or Flagged.</p>
@@ -506,55 +528,9 @@ const handleLotteryModeChange = async (mode) => {
                     </table>
                 </div>
             </div>
-//============================Lottery Section===========================
-                                <div className="admin-section">
-                <h2>Lottery Management (Round: {currentLotteryRoundId})</h2>
-                <div className="control-group">
-                    <label>Lottery Mode</label>
-                    <div className="toggle-switch">
-                        <button onClick={() => handleLotteryModeChange('auto')} className={lotteryMode === 'auto' ? 'active' : ''}>Auto (Profit-First)</button>
-                        <button onClick={() => handleLotteryModeChange('admin')} className={lotteryMode === 'admin' ? 'active' : ''}>Admin Choice</button>
-                    </div>
-                </div>
-
-                {lotteryMode === 'admin' && (
-                    <form className="action-group" onSubmit={handleSetLotteryResult}>
-                        <h4>Set Manual Result for Next Draw</h4>
-                        <div className="input-group">
-                            <input type="number" value={manualNumA} onChange={e => setManualNumA(e.target.value)} min="0" max="9" placeholder="Num A" required />
-                            <input type="number" value={manualNumB} onChange={e => setManualNumB(e.target.value)} min="0" max="9" placeholder="Num B" required />
-                            <button type="submit" className="action-btn">Set Result</button>
-                        </div>
-                    </form>
-                )}
-
-                <h4>Live Round Analysis</h4>
-                <div className="analysis-table-container">
-                    <table className="analysis-table">
-                         <thead>
-                            <tr>
-                                <th>Winning Pair</th>
-                                <th>Total Bets On Pair</th>
-                                <th>Total Payout</th>
-                                <th>Admin P/L</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {lotteryAnalysis.map(outcome => (
-                                <tr key={`${outcome.a}-${outcome.b}`} className={outcome.netResult >= 0 ? 'positive' : 'negative'}>
-                                    <td>{`{${outcome.a}, ${outcome.b}}`}</td>
-                                    <td>{formatCurrency(outcome.totalBetOnPair)}</td>
-                                    <td>{formatCurrency(outcome.payout)}</td>
-                                    <td>{formatCurrency(outcome.netResult)}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            
-        
+        </div>
     );
 }
+
 export default AdminPanel;
 
