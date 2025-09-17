@@ -1,176 +1,260 @@
-/* 🎨 AviatorGame.css */
-
-/* Main container */
-.aviator-container {
-  max-width: 480px;
-  margin: 20px auto;
-  padding: 16px;
-  background: #0f172a;
-  color: #f1f5f9;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+/* --- Aviator Specific Styles --- */
+.aviator-theme {
+    background: linear-gradient(180deg, #1a202c 0%, #4a5568 100%);
+    color: #E2E8F0;
 }
 
-/* Back button */
-.back-btn {
-  background: transparent;
-  border: none;
-  color: #94a3b8;
-  font-size: 14px;
-  margin-bottom: 10px;
-  cursor: pointer;
-}
-.back-btn:hover { color: #f1f5f9; }
-
-/* Game title */
-.aviator-container h2 {
-  text-align: center;
-  margin-bottom: 12px;
-  font-size: 20px;
-  color: #38bdf8;
-}
-
-/* History bar */
 .history-bar {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-  margin-bottom: 10px;
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
 }
+
+.history-bar::-webkit-scrollbar {
+    display: none;
+}
+
 .history-bar span {
-  padding: 4px 8px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: bold;
+    background-color: var(--card-bg-color);
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-weight: 600;
+    font-size: 0.9em;
 }
-.history-bar .win { background: #16a34a; color: #fff; }
-.history-bar .loss { background: #dc2626; color: #fff; }
 
-/* Canvas */
+.history-bar span.win {
+    color: #4CAF50;
+}
+
+.history-bar span.loss {
+    color: #F44336;
+}
+
+.aviator-display-area {
+    background-color: rgba(0,0,0,0.3);
+    border-radius: 12px;
+    height: 300px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
+}
+
 .aviator-canvas {
-  display: block;
-  margin: 0 auto;
-  border: 2px solid #1e293b;
-  border-radius: 8px;
-  background: #020617;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
 }
 
-/* Multiplier display */
-.multiplier {
-  text-align: center;
-  font-size: 18px;
-  font-weight: bold;
-  margin: 10px 0;
+.multiplier-display {
+    font-size: 3.5rem;
+    font-weight: 700;
+    z-index: 10;
+    text-shadow: 0 0 15px rgba(255, 255, 255, 0.7);
+    transition: color 0.3s ease, font-size 0.3s ease;
 }
-.multiplier.playing { color: #22c55e; }
-.multiplier.crashed { color: #ef4444; }
-.multiplier.waiting { color: #eab308; }
-
-/* Cashout success */
-.cashout-msg {
-  text-align: center;
-  color: #22c55e;
-  font-weight: bold;
-  margin-bottom: 10px;
+.multiplier-display.playing {
+    color: #FFFFFF;
+    animation: pulse-multiplier 2s infinite ease-in-out;
 }
-
-/* Bet controls */
-.bet-controls {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 12px;
+.multiplier-display.waiting, .multiplier-display.betting {
+    color: var(--text-color-light);
+    font-size: 2rem;
 }
-.bet-controls input {
-  padding: 8px;
-  border-radius: 6px;
-  border: 1px solid #334155;
-  background: #1e293b;
-  color: #f1f5f9;
-  font-size: 14px;
-}
-.bet-controls input:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.multiplier-display.crashed {
+    color: var(--error-color);
+    animation: shake 0.5s;
 }
 
-/* Buttons */
-.bet-btn, .cashout-btn, .next-bet-btn {
-  padding: 10px;
-  font-size: 14px;
-  font-weight: bold;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-.bet-btn {
-  background: #2563eb;
-  color: #fff;
-}
-.bet-btn:hover { background: #1d4ed8; }
-
-.cashout-btn {
-  background: #22c55e;
-  color: #fff;
-}
-.cashout-btn:hover { background: #16a34a; }
-
-.next-bet-btn {
-  background: #eab308;
-  color: #fff;
-}
-.next-bet-btn:hover { background: #ca8a04; }
-
-/* Queued bet message */
-.queued-msg {
-  font-size: 13px;
-  text-align: center;
-  color: #38bdf8;
+.crashed-text {
+    font-size: 2.5rem;
 }
 
-/* Live bets */
-.live-bets {
-  background: #1e293b;
-  padding: 10px;
-  border-radius: 8px;
-  margin-bottom: 12px;
-}
-.live-bets h4 {
-  margin-bottom: 6px;
-  font-size: 14px;
-  color: #38bdf8;
-}
-.live-bets table {
-  width: 100%;
-  border-collapse: collapse;
-}
-.live-bets th, .live-bets td {
-  padding: 6px;
-  text-align: left;
-  font-size: 13px;
-}
-.live-bets th {
-  color: #94a3b8;
-}
-.live-bets td {
-  border-top: 1px solid #334155;
+@keyframes shake {
+  10%, 90% { transform: translate3d(-1px, 0, 0); }
+  20%, 80% { transform: translate3d(2px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+  40%, 60% { transform: translate3d(4px, 0, 0); }
 }
 
-/* Rules card */
-.rules {
-  background: #111827;
-  padding: 12px;
-  border-radius: 8px;
+@keyframes pulse-multiplier {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
 }
-.rules h4 {
-  font-size: 15px;
-  margin-bottom: 6px;
-  color: #38bdf8;
+
+.aviator-controls-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
 }
-.rules p {
-  font-size: 13px;
-  margin: 3px 0;
-  color: #cbd5e1;
+@media (min-width: 768px) {
+    .aviator-controls-grid { grid-template-columns: 1fr 1fr; }
 }
+
+.aviator-controls {
+    background-color: var(--card-bg-color);
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid var(--border-color);
+}
+
+.bet-controls-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.bet-input-group {
+    flex-grow: 1;
+}
+
+.bet-input-group input[type="number"] {
+    width: 100%;
+    padding: 10px;
+    font-size: 1.2rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    margin-bottom: 10px;
+}
+
+.quick-bet-buttons {
+    display: flex;
+    gap: 10px;
+}
+.quick-bet-buttons button {
+    padding: 8px 15px;
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    cursor: pointer;
+    font-weight: 500;
+}
+.quick-bet-buttons button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.auto-cashout-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: var(--bg-color);
+    padding: 5px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+.auto-cashout-group svg {
+    width: 20px;
+    height: 20px;
+    color: var(--text-color-light);
+}
+.auto-cashout-group input {
+    background: transparent;
+    border: none;
+    color: var(--text-color);
+    width: 100px;
+    font-weight: 600;
+    outline: none;
+}
+
+.action-button {
+    width: 100%;
+    padding: 15px;
+    font-size: 1.2em;
+    font-weight: 700;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+.action-button:hover {
+    transform: scale(1.02);
+}
+.action-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.bet-btn { background: linear-gradient(90deg, #10B981, #34D399); }
+.cancel-btn { background: linear-gradient(90deg, #6B7280, #4B5563); }
+.cashout-btn { background: linear-gradient(90deg, #F59E0B, #FBBF24); animation: pulse-yellow 2s infinite; }
+
+@keyframes pulse-yellow {
+    0% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(251, 191, 36, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0); }
+}
+
+.cashout-success-message {
+    background-color: var(--success-color-light);
+    color: var(--success-color);
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.live-bets-table {
+    background-color: var(--card-bg-color);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid var(--border-color);
+}
+.live-bets-table h4 {
+    margin: 0 0 15px 0;
+    text-align: center;
+    color: var(--text-color);
+}
+.live-bets-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.live-bets-table th, .live-bets-table td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+.live-bets-table th {
+    font-size: 0.8em;
+    color: var(--text-color-light);
+}
+.live-bets-table tr:last-child td {
+    border-bottom: none;
+}
+
+.rules-card {
+    background-color: var(--card-bg-color);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid var(--border-color);
+}
+.rules-card p {
+    font-size: 0.9em;
+    line-height: 1.6;
+    color: var(--text-color-light);
+}
+.rules-card strong {
+    color: var(--text-color);
+}
+
