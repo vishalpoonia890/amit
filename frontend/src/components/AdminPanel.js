@@ -553,7 +553,7 @@ const handleLotteryModeChange = async (mode) => {
                 </div>
             </div>
             
-        </div>
+        
     );
 }
 export default AdminPanel;
