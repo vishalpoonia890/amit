@@ -60,55 +60,41 @@ const BetPanel = ({ betId, gameState, placeBet, cancelBet, cashOut, betAmount, s
     );
 };
 
+
 // --- Main Game Component ---
 function AviatorGame({ token, onBack }) {
     const canvasRef = useRef(null);
-
-    // Game states
     const [gameState, setGameState] = useState("waiting");
     const [multiplier, setMultiplier] = useState(1.0);
     const [countdown, setCountdown] = useState(8);
-
-    // Bet states for two panels
-    const [bet1, setBet1] = useState({ amount: 100, autoCashOut: 2.0, hasBet: false, cashedOut: false, cashOutMultiplier: null });
-    const [bet2, setBet2] = useState({ amount: 100, autoCashOut: 2.0, hasBet: false, cashedOut: false, cashOutMultiplier: null });
-
-    // Tracking
     const [history, setHistory] = useState([]);
     const [liveBets, setLiveBets] = useState([]);
 
-    const draw = useCallback((ctx, pos, trail) => {
+    const [bet1, setBet1] = useState({ amount: 100, autoCashOut: 2.0, hasBet: false, cashedOut: false, cashOutMultiplier: null, isQueued: false });
+    const [bet2, setBet2] = useState({ amount: 100, autoCashOut: 2.0, hasBet: false, cashedOut: false, cashOutMultiplier: null, isQueued: false });
+
+    const draw = useCallback((ctx, multiplier) => {
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        const maxTime = 10; // Corresponds to max multiplier visually
+        const time = (multiplier - 1) * 2; // Simple relation for demonstration
+        const progress = Math.min(time / maxTime, 1);
 
-        // Trail
-        trail.forEach(p => {
-            ctx.fillStyle = `rgba(239, 68, 68, ${p.opacity})`;
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-            ctx.fill();
-        });
-
-        // Plane
-        ctx.save();
-        ctx.translate(pos.x, pos.y);
-        ctx.rotate(pos.angle);
-        ctx.fillStyle = "#EF4444";
-        ctx.shadowColor = '#EF4444';
-        ctx.shadowBlur = 15;
+        // Draw curve
         ctx.beginPath();
-        ctx.moveTo(15, 0);
-        ctx.lineTo(-15, 10);
-        ctx.lineTo(-15, -10);
-        ctx.closePath();
-        ctx.fill();
-        ctx.restore();
+        ctx.moveTo(0, ctx.canvas.height);
+        ctx.quadraticCurveTo(
+            progress * ctx.canvas.width * 0.7, ctx.canvas.height,
+            progress * ctx.canvas.width, ctx.canvas.height - (progress * ctx.canvas.height * 0.8)
+        );
+        ctx.strokeStyle = '#FBBF24';
+        ctx.lineWidth = 10;
+        ctx.stroke();
     }, []);
 
     useEffect(() => {
         const canvas = canvasRef.current;
         const ctx = canvas.getContext("2d");
         let animationId;
-        let trail = [];
         let crashPoint = 1.5 + Math.random() * 6;
         let startTime = Date.now();
 
@@ -125,21 +111,15 @@ function AviatorGame({ token, onBack }) {
 
             setMultiplier(currentMult);
 
-            const x = 40 + Math.min(elapsed / 6, 1) * (ctx.canvas.width - 80);
-            const y = ctx.canvas.height - 60 - Math.pow(elapsed / 3, 2) * 100;
-            const angle = -0.3;
-
-            trail.push({ x: x - 10, y, size: Math.random() * 2 + 1, opacity: 1 });
-            trail = trail.map(p => ({ ...p, opacity: p.opacity - 0.02, size: p.size * 0.97 })).filter(p => p.opacity > 0);
-
+            // Auto cashout checks
             if (bet1.hasBet && !bet1.cashedOut && bet1.autoCashOut && currentMult >= bet1.autoCashOut) {
                 cashOut(1, currentMult);
             }
             if (bet2.hasBet && !bet2.cashedOut && bet2.autoCashOut && currentMult >= bet2.autoCashOut) {
                 cashOut(2, currentMult);
             }
-
-            draw(ctx, { x, y, angle }, trail);
+            
+            draw(ctx, currentMult);
             animationId = requestAnimationFrame(animate);
         };
 
@@ -147,10 +127,14 @@ function AviatorGame({ token, onBack }) {
             takeoffSound.play();
             animate();
         } else {
-            draw(ctx, { x: 30, y: ctx.canvas.height - 50, angle: 0 }, []);
+            draw(ctx, 1.0);
         }
 
-        return () => cancelAnimationFrame(animationId);
+        return () => {
+            takeoffSound.pause();
+            takeoffSound.currentTime = 0;
+            cancelAnimationFrame(animationId);
+        }
     }, [gameState, draw, bet1.hasBet, bet1.cashedOut, bet1.autoCashOut, bet2.hasBet, bet2.cashedOut, bet2.autoCashOut]);
 
     useEffect(() => {
@@ -160,8 +144,8 @@ function AviatorGame({ token, onBack }) {
                     if (c <= 1) {
                         clearInterval(timer);
                         setGameState("betting");
-                        setBet1(prev => ({...prev, hasBet: false, cashedOut: false, cashOutMultiplier: null}));
-                        setBet2(prev => ({...prev, hasBet: false, cashedOut: false, cashOutMultiplier: null}));
+                        setBet1(p => ({ ...p, hasBet: p.isQueued, isQueued: false, cashedOut: false, cashOutMultiplier: null }));
+                        setBet2(p => ({ ...p, hasBet: p.isQueued, isQueued: false, cashedOut: false, cashOutMultiplier: null }));
                         setMultiplier(1.0);
                         setLiveBets([ { id: 1, name: "Rahul", amount: 200 }, { id: 2, name: "Priya", amount: 500 } ]);
                         setTimeout(() => setGameState("playing"), 2000);
@@ -175,38 +159,42 @@ function AviatorGame({ token, onBack }) {
     }, [gameState]);
 
     const placeBet = (betId) => {
-        if (betId === 1) setBet1(prev => ({ ...prev, hasBet: true }));
-        if (betId === 2) setBet2(prev => ({ ...prev, hasBet: true }));
+        if (gameState === "playing" || gameState === "crashed") {
+            if (betId === 1) setBet1(p => ({...p, isQueued: true}));
+            if (betId === 2) setBet2(p => ({...p, isQueued: true}));
+        } else {
+            if (betId === 1) setBet1(p => ({...p, hasBet: true}));
+            if (betId === 2) setBet2(p => ({...p, hasBet: true}));
+        }
     };
 
     const cancelBet = (betId) => {
-        if (betId === 1) setBet1(prev => ({ ...prev, hasBet: false }));
-        if (betId === 2) setBet2(prev => ({ ...prev, hasBet: false }));
+        if (betId === 1) setBet1(p => ({...p, hasBet: false, isQueued: false}));
+        if (betId === 2) setBet2(p => ({...p, hasBet: false, isQueued: false}));
     };
 
     const cashOut = (betId, currentMultiplier) => {
         cashoutSound.play();
-        if (betId === 1) setBet1(prev => ({ ...prev, cashedOut: true, cashOutMultiplier: currentMultiplier }));
-        if (betId === 2) setBet2(prev => ({ ...prev, cashedOut: true, cashOutMultiplier: currentMultiplier }));
+        if (betId === 1 && !bet1.cashedOut) setBet1(p => ({ ...p, cashedOut: true, cashOutMultiplier: currentMultiplier }));
+        if (betId === 2 && !bet2.cashedOut) setBet2(p => ({ ...p, cashedOut: true, cashOutMultiplier: currentMultiplier }));
     };
 
     return (
         <div className="game-page-container aviator-theme">
             <button className="back-button" onClick={onBack}>← Back to Lobby</button>
-            <div className="game-header"><h1>Aviator</h1></div>
             
             <div className="history-bar">
-                {history.map(item => (
-                    <span key={item.id} className={item.crash_multiplier < 2 ? 'loss' : 'win'}>{item.crash_multiplier}x</span>
+                {history.map(h => (
+                    <span key={h.id} className={h.crash_multiplier > 1.99 ? "win" : "loss"}>{h.crash_multiplier}x</span>
                 ))}
             </div>
 
             <div className="aviator-display-area">
-                <canvas ref={canvasRef} width="320" height="240" className="aviator-canvas" />
+                <canvas ref={canvasRef} width="600" height="400" className="aviator-canvas" />
                 <div className={`multiplier-display ${gameState}`}>
-                    {gameState === 'playing' && `${multiplier.toFixed(2)}x`}
-                    {gameState === 'crashed' && <span className="crashed-text">Flew Away @ {multiplier.toFixed(2)}x</span>}
-                    {(gameState === 'waiting' || gameState === 'betting') && `Next round in ${countdown}s...`}
+                    {gameState === "playing" && `${multiplier.toFixed(2)}x`}
+                    {(gameState === "waiting" || gameState === "betting") && `Next round in ${countdown}s`}
+                    {gameState === "crashed" && `💥 Flew Away @ ${multiplier.toFixed(2)}x`}
                 </div>
             </div>
 
@@ -215,34 +203,26 @@ function AviatorGame({ token, onBack }) {
                     betId={1} gameState={gameState} placeBet={placeBet} cancelBet={cancelBet} cashOut={cashOut}
                     betAmount={bet1.amount} setBetAmount={(val) => setBet1(p => ({...p, amount: val}))}
                     autoCashOut={bet1.autoCashOut} setAutoCashOut={(val) => setBet1(p => ({...p, autoCashOut: val}))}
-                    hasBet={bet1.hasBet} cashedOut={bet1.cashedOut} cashOutMultiplier={bet1.cashOutMultiplier} currentMultiplier={multiplier}
+                    hasBet={bet1.hasBet || bet1.isQueued} cashedOut={bet1.cashedOut} cashOutMultiplier={bet1.cashOutMultiplier} currentMultiplier={multiplier}
                 />
                 <BetPanel 
                     betId={2} gameState={gameState} placeBet={placeBet} cancelBet={cancelBet} cashOut={cashOut}
                     betAmount={bet2.amount} setBetAmount={(val) => setBet2(p => ({...p, amount: val}))}
                     autoCashOut={bet2.autoCashOut} setAutoCashOut={(val) => setBet2(p => ({...p, autoCashOut: val}))}
-                    hasBet={bet2.hasBet} cashedOut={bet2.cashedOut} cashOutMultiplier={bet2.cashOutMultiplier} currentMultiplier={multiplier}
+                    hasBet={bet2.hasBet || bet2.isQueued} cashedOut={bet2.cashedOut} cashOutMultiplier={bet2.cashOutMultiplier} currentMultiplier={multiplier}
                 />
             </div>
             
             <div className="live-bets-table">
-                 <h4>Current Round Bets</h4>
+                 <h4>💸 Current Bets</h4>
                 <table>
-                    <thead><tr><th>Player</th><th>Bet Amount</th></tr></thead>
+                    <thead><tr><th>Player</th><th>Bet</th><th>Multiplier</th><th>Payout</th></tr></thead>
                     <tbody>
-                        {liveBets.map((bet) => (
-                            <tr key={bet.id}><td>{bet.name}</td><td>{formatCurrency(bet.amount)}</td></tr>
+                        {liveBets.map(b => (
+                            <tr key={b.id}><td>{b.name}</td><td>{formatCurrency(b.amount)}</td><td>-</td><td>-</td></tr>
                         ))}
                     </tbody>
                 </table>
-            </div>
-
-            <div className="rules-card">
-                <h4>How to Play Aviator</h4>
-                <p><strong>1. Place Your Bet:</strong> Set your bet amount and an optional auto cash-out multiplier before the round begins.</p>
-                <p><strong>2. Watch the Plane:</strong> As the plane flies higher, the prize multiplier increases.</p>
-                <p><strong>3. Cash Out:</strong> Click "Cash Out" at any time to lock in your winnings at the current multiplier.</p>
-                <p><strong>Warning:</strong> The plane can fly away at any moment! If it does before you cash out, you lose your stake.</p>
             </div>
         </div>
     );
