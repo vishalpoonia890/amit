@@ -41,6 +41,7 @@ function AdminPanel({ token }) {
     const [pendingDeposits, setPendingDeposits] = useState([]);
     const [pendingWithdrawals, setPendingWithdrawals] = useState([]);
     const [platformStats, setPlatformStats] = useState({ totalDeposits: 0, totalWithdrawals: 0, platformPL: 0 });
+    const [overallGameStats, setOverallGameStats] = useState({ totalBet: 0, totalPayout: 0, totalPL: 0 }); // ✅ NEW
     const [gameStatus, setGameStatus] = useState({ is_on: false, mode: 'auto', payout_priority: 'admin' });
     const [gameStats, setGameStats] = useState({ total: {}, today: {}, currentPeriod: {} });
     const [currentBets, setCurrentBets] = useState({});
@@ -103,6 +104,8 @@ function AdminPanel({ token }) {
                 axios.get(`${API_BASE_URL}/api/admin/income-status`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/platform-stats`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/lottery-analysis?roundId=${roundId}`, { headers: { Authorization: `Bearer ${token}` } })
+                axios.get(`${API_BASE_URL}/api/admin/overall-game-stats`, { headers: { Authorization: `Bearer ${token}` } }) // ✅ NEW API CALL
+
             ]);
             setPendingDeposits(depositsRes.data.recharges || []);
             setPendingWithdrawals(withdrawalsRes.data.withdrawals || []);
@@ -114,6 +117,7 @@ function AdminPanel({ token }) {
             setPlatformStats(platformStatsRes.data);
             setLotteryAnalysis(lotteryAnalysisRes.data.outcomes || []);
             setLotteryMode(lotteryAnalysisRes.data.mode || 'auto');
+            setOverallGameStats(overallGameStatsRes.data); // ✅ NEW STATE SET
         } catch (err) {
             if (isInitialLoad) setError('Failed to fetch admin data. Auto-refresh paused.');
             console.error(err);
@@ -310,6 +314,28 @@ function AdminPanel({ token }) {
                     </div>
                 </div>
             </div>
+
+     {/* ✅ NEW SECTION: Overall Game Financials */}
+            <div className="admin-section stats-section">
+                <h2>Overall Game Financials</h2>
+                <div className="stats-grid">
+                    <div className="stat-card">
+                        <h4>Total Bet Amount</h4>
+                        <p className="stat-value">{formatCurrency(overallGameStats.totalBet)}</p>
+                    </div>
+                    <div className="stat-card">
+                        <h4>Total Payouts</h4>
+                        <p className="stat-value">{formatCurrency(overallGameStats.totalPayout)}</p>
+                    </div>
+                    <div className="stat-card">
+                        <h4>Overall Game P/L</h4>
+                        <p className={`stat-value ${overallGameStats.totalPL >= 0 ? 'positive' : 'negative'}`}>
+                            {formatCurrency(overallGameStats.totalPL)}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
             
             <div className="admin-section stats-section">
                 <h2>Game P/L Statistics</h2>
