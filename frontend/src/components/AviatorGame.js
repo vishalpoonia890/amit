@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
-import './GamePages.css';
+import './AviatorGame.css';
 import { AutoCashOutIcon } from './Icons';
 
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
