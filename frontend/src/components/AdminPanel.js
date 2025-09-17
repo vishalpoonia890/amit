@@ -71,6 +71,11 @@ function AdminPanel({ token }) {
     const [manualNumB, setManualNumB] = useState('');
     const [currentLotteryRoundId, setCurrentLotteryRoundId] = useState('');
 
+// Aviator State
+    const [aviatorLiveBets, setAviatorLiveBets] = useState([]);
+    const [aviatorSettings, setAviatorSettings] = useState({ mode: 'auto', profitMargin: 0.10, manualCrashPoint: null });
+
+
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
@@ -103,7 +108,10 @@ function AdminPanel({ token }) {
                 axios.get(`${API_BASE_URL}/api/admin/income-status`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/platform-stats`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/lottery-analysis?roundId=${roundId}`, { headers: { Authorization: `Bearer ${token}` } }),
-                axios.get(`${API_BASE_URL}/api/admin/overall-game-stats`, { headers: { Authorization: `Bearer ${token}` } })
+                axios.get(`${API_BASE_URL}/api/admin/overall-game-stats`, { headers: { Authorization: `Bearer ${token}` } }),
+                axios.get(`${API_BASE_URL}/api/admin/aviator/live-bets`, { headers: { Authorization: `Bearer ${token}` } }),
+                axios.get(`${API_BASE_URL}/api/admin/aviator-analysis`, { headers: { Authorization: `Bearer ${token}` } })
+         
             ]);
             setPendingDeposits(depositsRes.data.recharges || []);
             setPendingWithdrawals(withdrawalsRes.data.withdrawals || []);
@@ -116,6 +124,10 @@ function AdminPanel({ token }) {
             setLotteryAnalysis(lotteryAnalysisRes.data.outcomes || []);
             setLotteryMode(lotteryAnalysisRes.data.mode || 'auto');
             setOverallGameStats(overallGameStatsRes.data);
+            setAviatorLiveBets(aviatorBetsRes.data.bets || []);
+             setAviatorAnalysis(aviatorAnalysisRes.data.analysis || []);
+
+      
         } catch (err) {
             if (isInitialLoad) setError('Failed to fetch admin data. Auto-refresh paused.');
             console.error(err);
@@ -286,7 +298,18 @@ function AdminPanel({ token }) {
             alert(err.response?.data?.error || 'Failed to set result.');
         }
     };
+    
+const handleAviatorSettingsUpdate = async (update) => {
+        try {
+            const res = await axios.post(`${API_BASE_URL}/api/admin/aviator-settings`, update, { headers: { Authorization: `Bearer ${token}` } });
+            setAviatorSettings(res.data.settings);
+            alert(res.data.message);
+        } catch (err) {
+            alert('Failed to update Aviator settings.');
+        }
+    };
 
+    
     if (loading) return <div className="loading-spinner">Loading Admin Panel...</div>;
     if (error) return <div className="error-message">{error}</div>;
 
