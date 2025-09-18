@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import './LandingPage.css';
-import { 
-    FidelityLogoIcon, LoginIcon 
-} from './Icons';
+import { FidelityLogoIcon, LoginIcon } from './Icons';
 // ✅ IMPORTANT: Make sure you have an 'assets' folder inside your 'src' folder
 // and that these images are placed inside it.
 import solarPlanImage from '../assets/solar.png'; 
@@ -75,6 +73,13 @@ function LandingPage({ authView, setAuthView, loginFormData, registerFormData, h
             
             <section className="hero-section" onClick={() => scrollToAuth('register')}>
                 <img src={promoImage} alt="InvestmentPlus Promotion" className="hero-image"/>
+                <div className="hero-overlay"></div>
+                <div className="hero-content">
+                    <h1 className="hero-title-animate">Your Financial Future, Reimagined</h1>
+                    <div className="hero-cta-animate">
+                        <span className="cta-button-text">Click Anywhere to Begin</span>
+                    </div>
+                </div>
             </section>
 
             <main id="main-content" className="main-content">
