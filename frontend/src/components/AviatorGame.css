@@ -1,149 +1,236 @@
+/* AviatorGame.css - dark crash UI inspired by screenshot */
+
 .aviator-page-container {
-    background: #0f212e;
-    color: #ffffff;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    padding: 15px;
+  background: linear-gradient(#0f212e, #0b1b24);
+  color: #e6eef3;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 18px;
+  box-sizing: border-box;
+  font-family: Inter, "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial;
 }
 
+/* layout */
 .aviator-main-grid {
-    display: flex;
-    flex-direction: column; /* Mobile first */
-    gap: 15px;
-    flex-grow: 1;
-    min-height: 0;
+  display: flex;
+  gap: 16px;
+  flex: 1;
+  min-height: 0;
+  flex-direction: column;
 }
-
 @media (min-width: 1024px) {
-    .aviator-main-grid {
-        flex-direction: row;
-    }
+  .aviator-main-grid { flex-direction: row; }
 }
 
 .aviator-side-panel {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 @media (min-width: 1024px) {
-    .aviator-side-panel {
-        width: 300px;
-        flex-shrink: 0;
-    }
+  .aviator-side-panel { width: 320px; flex-shrink: 0; }
 }
 
 .aviator-game-area {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 420px;
 }
 
 .history-bar {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 10px;
-    padding-bottom: 10px;
-    overflow-x: auto;
-    scrollbar-width: none;
+  display: flex;
+  gap: 8px;
+  padding-bottom: 10px;
+  overflow-x: auto;
 }
-.history-bar::-webkit-scrollbar { display: none; }
 .history-bar span {
-    background-color: #2f4553;
-    padding: 5px 12px;
-    border-radius: 15px;
-    font-weight: 600;
-    font-size: 0.85em;
-    flex-shrink: 0;
+  background: rgba(47,69,83,0.4);
+  padding: 6px 12px;
+  border-radius: 14px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  white-space: nowrap;
 }
-.history-bar span.win { color: #4CAF50; }
-.history-bar span.loss { color: #F44336; }
+.history-bar span.win { color: #22c55e; }
+.history-bar span.loss { color: #ff6b6b; }
 
 .aviator-display-area {
-    background-color: #0f212e;
-    border-radius: 12px;
-    flex-grow: 1;
-    position: relative;
-    overflow: hidden;
+  background: linear-gradient(180deg, rgba(7,25,32,0.4), rgba(4,12,16,0.4));
+  border-radius: 12px;
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.02);
 }
 
 .aviator-canvas {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
 }
 
+/* big multiplier display */
 .multiplier-display {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 4rem;
-    font-weight: 700;
-    z-index: 10;
-    text-shadow: 0 0 15px rgba(255, 255, 255, 0.7);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-weight: 800;
+  z-index: 10;
+  text-align: center;
+  text-shadow: 0 6px 30px rgba(0,0,0,0.8);
 }
-.multiplier-display.playing { color: #FFFFFF; animation: pulse-multiplier 2s infinite ease-in-out; }
-.multiplier-display.waiting, .multiplier-display.betting { color: #a0aec0; font-size: 2rem; }
-.multiplier-display.crashed { color: #EF4444; animation: shake 0.5s; }
+.multiplier-display.playing {
+  color: #fff;
+  font-size: 5.2rem;
+  animation: pulse-multi 2s infinite;
+}
+.multiplier-display.waiting, .multiplier-display.betting {
+  color: #9fb0ba;
+  font-size: 2.1rem;
+}
+.multiplier-display.crashed {
+  color: #ff6b6b;
+  font-size: 3rem;
+  animation: shake 0.6s both;
+}
 
+@keyframes pulse-multi {
+  0%,100% { transform: translate(-50%, -50%) scale(1); }
+  50% { transform: translate(-50%, -50%) scale(1.03); }
+}
 @keyframes shake {
-  10%, 90% { transform: translate(-50%, -50%) translate3d(-1px, 0, 0); }
-  20%, 80% { transform: translate(-50%, -50%) translate3d(2px, 0, 0); }
-}
-@keyframes pulse-multiplier {
-    0%, 100% { transform: translate(-50%, -50%) scale(1); }
-    50% { transform: translate(-50%, -50%) scale(1.05); }
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  25% { transform: translate(-48%, -50%) rotate(-1.5deg); }
+  75% { transform: translate(-52%, -50%) rotate(1.5deg); }
+  100% { transform: translate(-50%, -50%) rotate(0deg); }
 }
 
+/* small round indicator bottom-left */
+.round-indicator {
+  position: absolute;
+  left: 28px;
+  bottom: 20px;
+  z-index: 12;
+}
+.round-indicator .dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #9aa8b1;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.6);
+}
+.round-indicator .dot.playing { background: #22c55e; box-shadow: 0 6px 18px rgba(34,197,94,0.12); }
+.round-indicator .dot.crashed { background: #ff6b6b; }
+
+/* controls grid for mobile */
 .aviator-controls-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 15px;
-    margin-top: 15px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-top: 12px;
 }
 @media (min-width: 1024px) {
-    .aviator-controls-grid { display: none; }
+  .aviator-controls-grid { display: none; }
 }
 
-.bet-panel { background-color: #213743; border-radius: 8px; }
-.bet-panel-tabs { display: flex; background-color: #2f4553; border-radius: 8px 8px 0 0; }
-.bet-panel-tabs button { flex: 1; background: transparent; border: none; color: #a0aec0; padding: 10px; font-weight: 600; cursor: pointer; }
-.bet-panel-tabs button.active { background-color: #213743; color: white; border-radius: 8px 8px 0 0; }
-.bet-panel-body { padding: 15px; }
-.input-group { margin-bottom: 10px; }
-.input-group label { font-size: 0.8em; color: #a0aec0; display: block; margin-bottom: 5px; }
+/* bet panel */
+.bet-panel {
+  background: rgba(33,55,67,0.7);
+  border-radius: 10px;
+  overflow: hidden;
+  min-width: 240px;
+}
+.bet-panel-tabs { display: flex; background: rgba(47,69,83,0.6); }
+.bet-panel-tabs button {
+  flex: 1;
+  padding: 12px 10px;
+  border: none;
+  background: transparent;
+  color: #a7bcc5;
+  font-weight: 700;
+  cursor: pointer;
+}
+.bet-panel-tabs button.active {
+  background: rgba(27,46,54,0.95);
+  color: #fff;
+}
+.bet-panel-body { padding: 14px; }
+
+.input-group { margin-bottom: 12px; }
+.input-group label { display: block; font-size: .78rem; color: #9fb0ba; margin-bottom: 6px; font-weight: 700; }
+
 .amount-input, .cashout-input { position: relative; }
 .amount-input input, .cashout-input input, .auto-bet-input input {
-    width: 100%;
-    background-color: #0f212e;
-    border: 1px solid #4a5568;
-    border-radius: 5px;
-    color: white;
-    padding: 10px;
-    font-size: 1em;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.04);
+  background: rgba(11,27,33,0.5);
+  color: #e6eef3;
+  font-weight: 700;
+  box-sizing: border-box;
 }
-.amount-adjusters { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); display: flex; gap: 5px; }
-.amount-adjusters button { background: #2f4553; border: none; color: white; border-radius: 3px; cursor: pointer; padding: 2px 6px;}
 
-.action-button { width: 100%; padding: 15px; font-size: 1.2em; font-weight: 700; border: none; border-radius: 8px; color: white; cursor: pointer; }
-.bet-btn { background-color: #28a745; }
-.cashout-btn { background-color: #f59e0b; }
-.cashed-out-btn { background-color: #8b5cf6; }
-.cancel-btn, .waiting-btn { background-color: #6b7280; }
+.amount-adjusters {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 6px;
+}
+.amount-adjusters button {
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: none;
+  background: rgba(43,65,76,0.7);
+  color: #fff;
+  cursor: pointer;
+}
 
-.auto-bet-options { margin-top: 15px; }
-.auto-bet-input { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-.auto-bet-input label { flex-basis: 40%; }
+/* stylistic icon inside cashout input */
+.cashout-with-icon { display:flex; align-items:center; }
+.cashout-with-icon input { flex:1; }
+.auto-icon { margin-left: 8px; display:flex; align-items:center; }
 
-.aviator-live-bets-panel { background: #213743; border-radius: 8px; padding: 10px; overflow-y: auto; flex-grow: 1; }
-.aviator-live-bets-panel h4 { margin: 0 0 10px 0; text-align: center; font-size: 0.9em; color: #a0aec0; }
-.aviator-live-bets-panel table { width: 100%; border-collapse: collapse; }
-.aviator-live-bets-panel th, .aviator-live-bets-panel td { padding: 6px; font-size: 0.8em; text-align: left; }
-.aviator-live-bets-panel th { color: #a0aec0; }
-.aviator-live-bets-panel td { color: #e2e8f0; }
+/* action buttons */
+.action-button {
+  width: 100%;
+  padding: 14px;
+  font-size: 1.05rem;
+  border-radius: 10px;
+  border: none;
+  font-weight: 800;
+  cursor: pointer;
+}
+.bet-btn { background: #00d74f; color: #01260b; box-shadow: 0 8px 30px rgba(0,215,79,0.12); }
+.cashout-btn { background: #f59e0b; color: #2b1600; }
+.cashed-out-btn { background: #7c3aed; color: white; }
+.waiting-btn { background: #6b7280; color: white; }
 
+/* live bets panel */
+.aviator-live-bets-panel {
+  background: rgba(33,55,67,0.6);
+  border-radius: 10px;
+  padding: 10px;
+  color: #cfe7ee;
+  overflow-y: auto;
+  min-height: 120px;
+}
+.aviator-live-bets-panel h4 {
+  margin: 0 0 8px;
+  font-size: 0.85rem;
+  color: #9fb0ba;
+  text-align: center;
+}
+.aviator-live-bets-panel table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+.aviator-live-bets-panel th { color: #9fb0ba; font-weight: 800; font-size: 0.75rem; }
+.aviator-live-bets-panel td { color: #eef8ff; padding: 6px 0; }
