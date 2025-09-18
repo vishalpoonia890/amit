@@ -1,301 +1,139 @@
-/* AviatorGame.css - dark crash UI inspired by screenshot */
-
+/* === Main Layout === */
 .aviator-page-container {
-  background: linear-gradient(#0f212e, #0b1b24);
-  color: #e6eef3;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 16px;
+  background: #0f172a; /* dark slate */
+  color: #fff;
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  padding: 18px;
-  box-sizing: border-box;
-  font-family: Inter, "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial;
-}
-
-/* layout */
-.aviator-main-grid {
-  display: flex;
-  gap: 16px;
-  flex: 1;
-  min-height: 0;
-  flex-direction: column;
-}
-@media (min-width: 1024px) {
-  .aviator-main-grid { flex-direction: row; }
-}
-
-.aviator-side-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-@media (min-width: 1024px) {
-  .aviator-side-panel { width: 320px; flex-shrink: 0; }
-}
-
-.aviator-game-area {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 420px;
-}
-
-.history-bar {
-  display: flex;
-  gap: 8px;
-  padding-bottom: 10px;
-  overflow-x: auto;
-}
-.history-bar span {
-  background: rgba(47,69,83,0.4);
-  padding: 6px 12px;
-  border-radius: 14px;
-  font-weight: 700;
-  font-size: 0.9rem;
-  white-space: nowrap;
-}
-.history-bar span.win { color: #22c55e; }
-.history-bar span.loss { color: #ff6b6b; }
-
-.aviator-display-area {
-  background: linear-gradient(180deg, rgba(7,25,32,0.4), rgba(4,12,16,0.4));
-  border-radius: 12px;
-  position: relative;
-  flex: 1;
-  overflow: hidden;
-  border: 1px solid rgba(255,255,255,0.02);
-}
-
-.aviator-canvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-}
-
-/* big multiplier display */
-.multiplier-display {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-weight: 800;
-  z-index: 10;
-  text-align: center;
-  text-shadow: 0 6px 30px rgba(0,0,0,0.8);
-}
-.multiplier-display.playing {
-  color: #fff;
-  font-size: 5.2rem;
-  animation: pulse-multi 2s infinite;
-}
-.multiplier-display.waiting, .multiplier-display.betting {
-  color: #9fb0ba;
-  font-size: 2.1rem;
-}
-.multiplier-display.crashed {
-  color: #ff6b6b;
-  font-size: 3rem;
-  animation: shake 0.6s both;
-}
-
-@keyframes pulse-multi {
-  0%,100% { transform: translate(-50%, -50%) scale(1); }
-  50% { transform: translate(-50%, -50%) scale(1.03); }
-}
-@keyframes shake {
-  0% { transform: translate(-50%, -50%) rotate(0deg); }
-  25% { transform: translate(-48%, -50%) rotate(-1.5deg); }
-  75% { transform: translate(-52%, -50%) rotate(1.5deg); }
-  100% { transform: translate(-50%, -50%) rotate(0deg); }
-}
-
-/* small round indicator bottom-left */
-.round-indicator {
-  position: absolute;
-  left: 28px;
-  bottom: 20px;
-  z-index: 12;
-}
-.round-indicator .dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: #9aa8b1;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.6);
-}
-.round-indicator .dot.playing { background: #22c55e; box-shadow: 0 6px 18px rgba(34,197,94,0.12); }
-.round-indicator .dot.crashed { background: #ff6b6b; }
-
-/* controls grid for mobile */
-.aviator-controls-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
-  margin-top: 12px;
-}
-@media (min-width: 1024px) {
-  .aviator-controls-grid { display: none; }
-}
-
-/* bet panel */
-.bet-panel {
-  background: rgba(33,55,67,0.7);
-  border-radius: 10px;
-  overflow: hidden;
-  min-width: 240px;
-}
-.bet-panel-tabs { display: flex; background: rgba(47,69,83,0.6); }
-.bet-panel-tabs button {
-  flex: 1;
-  padding: 12px 10px;
-  border: none;
-  background: transparent;
-  color: #a7bcc5;
-  font-weight: 700;
-  cursor: pointer;
-}
-.bet-panel-tabs button.active {
-  background: rgba(27,46,54,0.95);
-  color: #fff;
-}
-.bet-panel-body { padding: 14px; }
-
-.input-group { margin-bottom: 12px; }
-.input-group label { display: block; font-size: .78rem; color: #9fb0ba; margin-bottom: 6px; font-weight: 700; }
-
-.amount-input, .cashout-input { position: relative; }
-.amount-input input, .cashout-input input, .auto-bet-input input {
-  width: 100%;
-  padding: 10px 12px;
-  border-radius: 8px;
-  border: 1px solid rgba(255,255,255,0.04);
-  background: rgba(11,27,33,0.5);
-  color: #e6eef3;
-  font-weight: 700;
   box-sizing: border-box;
 }
 
-.amount-adjusters {
-  position: absolute;
-  right: 8px;
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  gap: 6px;
-}
-.amount-adjusters button {
-  padding: 6px 8px;
-  border-radius: 6px;
-  border: none;
-  background: rgba(43,65,76,0.7);
-  color: #fff;
-  cursor: pointer;
-}
-
-/* stylistic icon inside cashout input */
-.cashout-with-icon { display:flex; align-items:center; }
-.cashout-with-icon input { flex:1; }
-.auto-icon { margin-left: 8px; display:flex; align-items:center; }
-
-/* action buttons */
-.action-button {
-  width: 100%;
-  padding: 14px;
-  font-size: 1.05rem;
-  border-radius: 10px;
-  border: none;
-  font-weight: 800;
-  cursor: pointer;
-}
-.bet-btn { background: #00d74f; color: #01260b; box-shadow: 0 8px 30px rgba(0,215,79,0.12); }
-.cashout-btn { background: #f59e0b; color: #2b1600; }
-.cashed-out-btn { background: #7c3aed; color: white; }
-.waiting-btn { background: #6b7280; color: white; }
-
-/* live bets panel */
-.aviator-live-bets-panel {
-  background: rgba(33,55,67,0.6);
-  border-radius: 10px;
-  padding: 10px;
-  color: #cfe7ee;
-  overflow-y: auto;
-  min-height: 120px;
-}
-.aviator-live-bets-panel h4 {
-  margin: 0 0 8px;
-  font-size: 0.85rem;
-  color: #9fb0ba;
-  text-align: center;
-}
-.aviator-live-bets-panel table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.85rem;
-}
-.aviator-live-bets-panel th { color: #9fb0ba; font-weight: 800; font-size: 0.75rem; }
-.aviator-live-bets-panel td { color: #eef8ff; padding: 6px 0; }
-
-.multiplier-display {
-  font-size: 6rem; /* Bigger multiplier text */
-}
-
-.history-bar span {
-  font-size: 1rem;
-  padding: 8px 14px;
-}
-
-.aviator-description {
-  background: #1b2d3a;
-  padding: 20px;
-  border-radius: 10px;
-  margin-top: 20px;
-  font-size: 0.95rem;
-  line-height: 1.6;
-}
-
-
-/* Big Box */
 .aviator-main-box {
   display: flex;
-  gap: 20px;
-  background: #1b2d3a;
-  padding: 16px;
+  background: #1e293b;
   border-radius: 12px;
-  margin: 20px;
-  flex-wrap: wrap;
+  overflow: hidden;
+  flex: 1;
+  min-height: 500px;
 }
 
-/* Left + Right Layout */
-.aviator-left {
+.aviator-left,
+.aviator-right {
   flex: 1;
-  min-width: 280px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
 }
 
 .aviator-right {
-  flex: 2;
-  min-width: 320px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
+  align-items: center;
+  justify-content: center;
+  background: #111827;
+  border-left: 2px solid #374151;
 }
 
-/* Live Bets */
-.aviator-live-bets-panel {
-  background: #0f1923;
-  border-radius: 10px;
+/* === Bet Panel === */
+.bet-panel {
+  background: #111827;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.bet-panel-tabs {
+  display: flex;
+  gap: 8px;
+}
+
+.bet-panel-tabs button {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  background: #374151;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.bet-panel-tabs button.active {
+  background: #f59e0b;
+  color: #111;
+}
+
+.bet-panel-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.input-group,
+.auto-bet-input {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.input-group label,
+.auto-bet-input label {
+  font-size: 14px;
+  color: #9ca3af;
+}
+
+.input-group input,
+.auto-bet-input input {
+  padding: 8px;
+  border-radius: 6px;
+  border: none;
+  outline: none;
+  background: #1f2937;
+  color: #fff;
+}
+
+.action-button {
   padding: 12px;
-  max-height: 240px; /* scrollable */
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
+  border-radius: 6px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
 }
 
-.aviator-live-bets-panel.full-width {
-  width: 100%;
-  max-height: 280px;
+.bet-btn {
+  background: #10b981;
+  color: white;
+}
+
+.cashout-btn {
+  background: #ef4444;
+  color: white;
+}
+
+.waiting-btn {
+  background: #6b7280;
+  color: white;
+}
+
+.cashed-out-btn {
+  background: #3b82f6;
+  color: white;
+}
+
+/* === Live Bets Panel === */
+.aviator-live-bets-panel {
+  background: #111827;
+  border-radius: 12px;
+  flex: 1;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .live-bets-header {
@@ -306,8 +144,7 @@
 }
 
 .total-bets {
-  font-size: 0.9rem;
-  font-weight: 600;
+  font-weight: bold;
   color: #fbbf24;
 }
 
@@ -316,22 +153,111 @@
   overflow-y: auto;
 }
 
-.live-bets-scroll::-webkit-scrollbar {
-  width: 6px;
+.live-bets-scroll table {
+  width: 100%;
+  border-collapse: collapse;
 }
 
-.live-bets-scroll::-webkit-scrollbar-thumb {
-  background: #374151;
-  border-radius: 3px;
+.live-bets-scroll th,
+.live-bets-scroll td {
+  padding: 6px;
+  font-size: 14px;
+  text-align: center;
+  border-bottom: 1px solid #374151;
 }
 
-/* Responsive: Mobile layout */
+.live-bets-scroll tr:nth-child(even) {
+  background: #1f2937;
+}
+
+/* === Crash Game === */
+.aviator-canvas {
+  width: 100%;
+  height: 100%;
+  max-height: 400px;
+  border-radius: 12px;
+  background: #000;
+}
+
+.multiplier-display {
+  margin-top: 10px;
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.multiplier-display.waiting {
+  color: #f59e0b;
+}
+
+.multiplier-display.crashed {
+  color: #ef4444;
+}
+
+/* === History Bar === */
+.history-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.history-bar span {
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.history-bar .win {
+  background: #10b981;
+  color: #fff;
+}
+
+.history-bar .loss {
+  background: #ef4444;
+  color: #fff;
+}
+
+/* === Description Section === */
+.aviator-description {
+  background: #1e293b;
+  border-radius: 12px;
+  padding: 16px;
+  line-height: 1.6;
+}
+
+.aviator-description h3 {
+  margin-bottom: 8px;
+  color: #fbbf24;
+}
+
+.aviator-description ul {
+  padding-left: 20px;
+  margin: 0;
+}
+
+.aviator-description li {
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+
+/* === Responsive (Mobile First) === */
 @media (max-width: 768px) {
   .aviator-main-box {
     flex-direction: column;
   }
 
   .aviator-right {
-    order: -1; /* game comes on top */
+    order: -1; /* game goes on top */
+    border-left: none;
+    border-bottom: 2px solid #374151;
+  }
+
+  .aviator-left {
+    flex: unset;
+  }
+
+  .aviator-live-bets-panel {
+    max-height: 250px;
   }
 }
