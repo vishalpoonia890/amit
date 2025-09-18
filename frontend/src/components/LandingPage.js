@@ -5,9 +5,9 @@ import {
 } from './Icons';
 // ✅ IMPORTANT: Make sure you have an 'assets' folder inside your 'src' folder
 // and that these images are placed inside it.
-import solarPlanImage from '../assets/solar-plan.png'; 
-import aviatorGameImage from '../assets/aviator-game.png';
-import inflationImage from '../assets/inflation-image.jpg';
+import solarPlanImage from '../assets/solar.png'; 
+import aviatorGameImage from '../assets/color.png';
+import inflationImage from '../assets/inflation.png';
 import promoImage from '../assets/ipbi.png';
 
 const AccordionItem = ({ title, children, isOpen, onClick }) => (
