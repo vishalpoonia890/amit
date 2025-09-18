@@ -234,3 +234,21 @@
 }
 .aviator-live-bets-panel th { color: #9fb0ba; font-weight: 800; font-size: 0.75rem; }
 .aviator-live-bets-panel td { color: #eef8ff; padding: 6px 0; }
+
+.multiplier-display {
+  font-size: 6rem; /* Bigger multiplier text */
+}
+
+.history-bar span {
+  font-size: 1rem;
+  padding: 8px 14px;
+}
+
+.aviator-description {
+  background: #1b2d3a;
+  padding: 20px;
+  border-radius: 10px;
+  margin-top: 20px;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
