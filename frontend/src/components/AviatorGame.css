@@ -1,5 +1,5 @@
 .aviator-page-container {
-    background: #0f212e; /* Dark blue-gray background from reference */
+    background: #0f212e;
     color: #ffffff;
     height: 100vh;
     display: flex;
@@ -13,12 +13,12 @@
     flex-direction: column; /* Mobile first */
     gap: 15px;
     flex-grow: 1;
-    min-height: 0; /* Important for flex children to not overflow */
+    min-height: 0;
 }
 
 @media (min-width: 1024px) {
     .aviator-main-grid {
-        flex-direction: row; /* Desktop layout */
+        flex-direction: row;
     }
 }
 
@@ -38,7 +38,7 @@
     flex-grow: 1;
     display: flex;
     flex-direction: column;
-    min-height: 300px; /* Ensure it has height on mobile */
+    min-height: 300px;
 }
 
 .history-bar {
@@ -107,7 +107,7 @@
     margin-top: 15px;
 }
 @media (min-width: 1024px) {
-    .aviator-controls-grid { display: none; /* Hide on desktop, as it's in the side panel */ }
+    .aviator-controls-grid { display: none; }
 }
 
 .bet-panel { background-color: #213743; border-radius: 8px; }
@@ -118,7 +118,7 @@
 .input-group { margin-bottom: 10px; }
 .input-group label { font-size: 0.8em; color: #a0aec0; display: block; margin-bottom: 5px; }
 .amount-input, .cashout-input { position: relative; }
-.amount-input input, .cashout-input input {
+.amount-input input, .cashout-input input, .auto-bet-input input {
     width: 100%;
     background-color: #0f212e;
     border: 1px solid #4a5568;
@@ -130,14 +130,15 @@
 .amount-adjusters { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); display: flex; gap: 5px; }
 .amount-adjusters button { background: #2f4553; border: none; color: white; border-radius: 3px; cursor: pointer; padding: 2px 6px;}
 
-.action-button {
-    width: 100%; padding: 15px; font-size: 1.2em; font-weight: 700;
-    border: none; border-radius: 8px; color: white; cursor: pointer;
-}
+.action-button { width: 100%; padding: 15px; font-size: 1.2em; font-weight: 700; border: none; border-radius: 8px; color: white; cursor: pointer; }
 .bet-btn { background-color: #28a745; }
 .cashout-btn { background-color: #f59e0b; }
 .cashed-out-btn { background-color: #8b5cf6; }
 .cancel-btn, .waiting-btn { background-color: #6b7280; }
+
+.auto-bet-options { margin-top: 15px; }
+.auto-bet-input { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.auto-bet-input label { flex-basis: 40%; }
 
 .aviator-live-bets-panel { background: #213743; border-radius: 8px; padding: 10px; overflow-y: auto; flex-grow: 1; }
 .aviator-live-bets-panel h4 { margin: 0 0 10px 0; text-align: center; font-size: 0.9em; color: #a0aec0; }
