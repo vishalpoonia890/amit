@@ -1,174 +1,96 @@
-/* src/components/LandingPage.css */
 .landing-page {
-  background-color: var(--bg-color);
-  color: var(--text-color);
+    background-color: var(--bg-color);
+    color: var(--text-color);
 }
 
 .landing-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px 30px;
-  background-color: var(--card-bg);
-  box-shadow: 0 2px 4px var(--shadow-color);
-  position: sticky;
-  top: 0;
-  z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 30px;
+    background-color: var(--card-bg-color);
+    border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: 100;
 }
-
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 24px;
-  font-weight: bold;
-}
-
-.logo-circle-landing {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background-color: var(--primary-color);
-  color: white;
-  display: grid;
-  place-items: center;
-}
-
-.auth-buttons button {
-  margin-left: 15px;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 20px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.2s ease-in-out;
-}
-
-.login-btn {
-  background-color: transparent;
-  border: 1px solid var(--primary-color);
-  color: var(--primary-color);
-}
-
-.login-btn:hover {
-  background-color: var(--primary-color);
-  color: white;
-}
-
-.register-btn {
-  background-color: var(--primary-color);
-  color: white;
-}
-.register-btn:hover {
-    background-color: var(--primary-hover);
-}
-
-.theme-toggle-btn {
-    background: none;
+.landing-logo { font-size: 1.5rem; font-weight: bold; }
+.landing-nav { display: flex; align-items: center; gap: 20px; }
+.landing-nav a { text-decoration: none; color: var(--text-color-light); font-weight: 500; }
+.login-btn-nav {
+    background-color: var(--primary-color);
+    color: white;
     border: none;
-    font-size: 24px;
+    padding: 8px 16px;
+    border-radius: 8px;
     cursor: pointer;
 }
 
 .hero-section {
-  position: relative;
-  height: 70vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  color: white;
+    text-align: center;
+    padding: 60px 20px;
+    background: linear-gradient(rgba(26, 32, 44, 0.8), rgba(26, 32, 44, 0.95)), url('https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?q=80&w=2070&auto=format&fit=crop');
+    background-size: cover;
+    background-position: center;
 }
-
-.hero-background-video {
-  position: absolute;
-  top: 0; left: 0; width: 100%; height: 100%;
-  object-fit: cover; z-index: 1;
-}
-
-.hero-overlay {
-  position: absolute;
-  top: 0; left: 0; width: 100%; height: 100%;
-  background-color: rgba(0,0,0,0.6); z-index: 2;
-}
-
-.hero-content {
-  z-index: 3;
-  padding: 20px;
-}
-
-.hero-content h1 { font-size: clamp(2rem, 5vw, 3.5rem); margin-bottom: 1rem;}
-.hero-content p { font-size: clamp(1rem, 2vw, 1.25rem); }
-
+.hero-content h1 { font-size: 2.5rem; margin-bottom: 15px; color: white; }
+.hero-content p { font-size: 1.1rem; color: var(--text-color-light); max-width: 600px; margin: 0 auto 25px auto; }
 .cta-button {
-  margin-top: 1.5rem;
-  padding: 15px 30px; font-size: 1.2em;
-  background-color: var(--primary-color);
-  color: white; border: none; border-radius: 25px; cursor: pointer;
-  transition: background-color 0.3s;
-}
-.cta-button:hover {
-    background-color: var(--primary-hover);
+    background: linear-gradient(90deg, var(--primary-color), var(--primary-hover-color));
+    color: white; border: none; padding: 15px 30px; border-radius: 8px;
+    font-size: 1.1rem; font-weight: bold; cursor: pointer;
 }
 
-.product-details-section {
-  padding: 50px 20px;
-  text-align: center;
+.content-section {
+    padding: 50px 20px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 30px;
+    align-items: center;
+    max-width: 1000px;
+    margin: 0 auto;
 }
+@media (min-width: 768px) {
+    .content-section { grid-template-columns: 1fr 1fr; }
+    .content-section:nth-child(odd) .content-image { order: 2; }
+}
+.content-section.dark-bg { background-color: var(--card-bg-color); }
+.content-image img { width: 100%; border-radius: 12px; }
+.content-text h2 { font-size: 2rem; margin-bottom: 15px; }
+.content-text p { color: var(--text-color-light); line-height: 1.6; }
 
-.product-details-section h2 {
-    font-size: 2.5rem;
-    margin-bottom: 2rem;
-}
+.sample-section { text-align: center; padding: 50px 20px; }
+.sample-section h2 { font-size: 2rem; margin-bottom: 30px; }
+.sample-grid { display: grid; grid-template-columns: 1fr; gap: 20px; max-width: 800px; margin: 0 auto; }
+@media (min-width: 768px) { .sample-grid { grid-template-columns: 1fr 1fr; } }
+.sample-card { background: var(--card-bg-color); border-radius: 12px; overflow: hidden; }
+.sample-card img { width: 100%; height: 180px; object-fit: cover; }
+.sample-card h3 { margin: 15px; }
+.sample-card p { margin: 0 15px 15px; color: var(--text-color-light); font-size: 0.9em; }
 
-.scroller-wrapper {
-  overflow: hidden;
-  -webkit-mask: linear-gradient(90deg, transparent, white 20%, white 80%, transparent);
-  mask: linear-gradient(90deg, transparent, white 20%, white 80%, transparent);
-}
+.auth-section { padding: 50px 20px; background-color: var(--bg-color); }
+.auth-container { max-width: 400px; margin: 0 auto; }
+.auth-form { background: var(--card-bg-color); padding: 30px; border-radius: 12px; }
+.auth-form h2 { text-align: center; margin-bottom: 20px; }
+.input-box { position: relative; margin-bottom: 25px; }
+.input-box input { width: 100%; padding: 10px 0; background: transparent; border: none; border-bottom: 1px solid var(--border-color); color: var(--text-color); font-size: 1em; outline: none; }
+.input-box label { position: absolute; top: 10px; left: 0; color: var(--text-color-light); transition: 0.3s; }
+.input-box input:focus ~ label, .input-box input:valid ~ label { top: -12px; font-size: 0.8em; color: var(--primary-color); }
+.auth-switch { text-align: center; margin-top: 20px; font-size: 0.9em; }
+.auth-switch button { background: none; border: none; color: var(--primary-color); cursor: pointer; font-weight: bold; }
 
-.scroller {
-  display: flex;
-  width: max-content;
-  gap: 20px;
-  animation: scroll 30s linear infinite;
-}
+.faq-section { max-width: 800px; margin: 0 auto; }
+.faq-item { border-bottom: 1px solid var(--border-color); }
+.faq-header { width: 100%; background: none; border: none; padding: 20px 0; display: flex; justify-content: space-between; align-items: center; text-align: left; font-size: 1.1rem; font-weight: 600; color: var(--text-color); cursor: pointer; }
+.faq-icon { font-size: 1.5rem; color: var(--primary-color); }
+.faq-content { padding: 0 0 20px; color: var(--text-color-light); }
 
-@keyframes scroll {
-  to { transform: translate(calc(-50% - 10px)); }
-}
+.trust-section { display: flex; justify-content: center; gap: 20px; margin-top: 20px; }
+.trust-badge { background: var(--card-bg-color); padding: 8px 15px; border-radius: 8px; border: 1px solid var(--border-color); }
+.partner-section { text-align: center; margin-top: 30px; color: var(--text-color-light); }
+.partner-section span { display: block; margin-bottom: 10px; }
+.partner-section svg { height: 40px; }
 
-.product-card-landing {
-  background: var(--card-bg);
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0 4px 8px var(--shadow-color);
-  width: 300px;
-  text-align: left;
-}
-
-.product-card-landing img {
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
-}
-
-.product-info {
-  padding: 20px;
-}
-.purchase-btn {
-    width: 100%;
-    margin-top: 1rem;
-    padding: 10px;
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-.landing-footer {
-    padding: 20px;
-    background-color: var(--card-bg);
-    border-top: 1px solid var(--border-color);
-}
+.landing-footer { text-align: center; padding: 40px 20px; background-color: #000; color: #777; }
+.landing-footer p { margin: 5px 0; }
+.disclaimer { font-size: 0.8em; max-width: 800px; margin: 15px auto 0 auto; }
