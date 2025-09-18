@@ -24,6 +24,7 @@ import SellUsdt from './components/SellUsdt';
 import IpLottery from './components/IpLottery';
 import WinWinGame from './components/WinWinGame';
 import AviatorGame from './components/AviatorGame'; // ✅ ADDED: Import the Aviator game component
+import LandingPage from './components/LandingPage'; // The new landing page for logged-out users
 
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
 
@@ -65,7 +66,7 @@ function App() {
         setToken(null);
         setUserData(null);
         setFinancialSummary(null);
-        setView('login');
+        setView('landingpage');
     }, []);
 
     const fetchAllUserData = useCallback(async (authToken) => {
@@ -271,6 +272,20 @@ function App() {
     
     if (!token) {
         return renderAuthForms();
+    }
+    return (
+            <LandingPage
+                authView={authView}
+                setAuthView={setAuthView}
+                loginFormData={loginFormData}
+                registerFormData={registerFormData}
+                handleLoginInputChange={handleLoginInputChange}
+                handleRegisterInputChange={handleRegisterInputChange}
+                handleLogin={handleLogin}
+                handleRegister={handleRegister}
+                loading={loading}
+            />
+        );
     }
 
     return (
