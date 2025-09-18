@@ -25,8 +25,7 @@ const generateHiddenUsers = () => {
 };
 
 // --- Bet Panel ---
-const BetPanel = ({ bet, setBet, gameState, placeBet, cancelBet, cashOut, currentMultiplier, startAutoBet }) => {
-  const [activeTab, setActiveTab] = useState('manual');
+const BetPanel = ({ bet, setBet, gameState, placeBet, cancelBet, cashOut, currentMultiplier, startAutoBet, activeTab, setActiveTab }) => {
   const { amount, autoCashOut, hasBet, isQueued, cashedOut, cashOutMultiplier } = bet;
 
   const handleBetClick = () => {
@@ -107,6 +106,7 @@ function AviatorGame({ token }) {
   const [history, setHistory] = useState([]);
   const [liveBets, setLiveBets] = useState([]);
   const [roundId, setRoundId] = useState('');
+  const [activeTab, setActiveTab] = useState('manual');
 
   // --- Only one bet ---
   const [bet, setBetState] = useState({
@@ -123,7 +123,6 @@ function AviatorGame({ token }) {
     loss: 0
   });
 
-  // update bet helper
   const setBet = (key, value) => setBetState(prev => ({ ...prev, [key]: value }));
 
   // --- Drawing on canvas ---
@@ -202,57 +201,147 @@ function AviatorGame({ token }) {
 
   return (
     <div className="aviator-page-container">
-      <div className="aviator-main-grid">
-        <div className="aviator-side-panel">
-          <BetPanel
-            bet={bet}
-            setBet={setBet}
-            gameState={gameState}
-            placeBet={placeBet}
-            cancelBet={cancelBet}
-            cashOut={cashOut}
-            currentMultiplier={multiplier}
-            startAutoBet={startAutoBet}
-          />
-          <div className="aviator-live-bets-panel">
-            <h4>Live Bets</h4>
-            <table>
-              <thead><tr><th>User</th><th>Bet</th><th>Multiplier</th><th>Payout</th></tr></thead>
-              <tbody>
-                {liveBets.map(b => (
-                  <tr key={b.id}><td>{b.name}</td><td>{formatCurrency(b.amount)}</td><td>{b.multiplier}</td><td>{b.payout}</td></tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div className="aviator-game-area">
-          <div className="history-bar">
-            {history.slice(0, 20).map(h => (
-              <span key={h.id} className={h.crash_multiplier > 1.99 ? "win" : "loss"}>
-                {h.crash_multiplier}x
-              </span>
-            ))}
-          </div>
-          <div className="aviator-display-area">
-            <canvas ref={canvasRef} className="aviator-canvas" />
-            <div className={`multiplier-display ${gameState}`}>
-              {gameState === "waiting" && `Starting in ${countdown}s...`}
-              {gameState === "crashed" && `💥 Flew Away @ ${multiplier.toFixed(2)}x`}
+      <div className="aviator-main-box">
+        {activeTab === "manual" ? (
+          <>
+            {/* Left side: bet + live bets */}
+            <div className="aviator-left">
+              <BetPanel
+                bet={bet}
+                setBet={setBet}
+                gameState={gameState}
+                placeBet={placeBet}
+                cancelBet={cancelBet}
+                cashOut={cashOut}
+                currentMultiplier={multiplier}
+                startAutoBet={startAutoBet}
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+              />
+              <div className="aviator-live-bets-panel">
+                <div className="live-bets-header">
+                  <h4>Live Bets</h4>
+                  <span className="total-bets">
+                    Total: {formatCurrency(liveBets.reduce((sum, b) => sum + (b.amount || 0), 0))}
+                  </span>
+                </div>
+                <div className="live-bets-scroll">
+                  <table>
+                    <thead>
+                      <tr><th>User</th><th>Bet</th><th>Multiplier</th><th>Payout</th></tr>
+                    </thead>
+                    <tbody>
+                      {liveBets.map(b => (
+                        <tr key={b.id}>
+                          <td>{b.name}</td>
+                          <td>{formatCurrency(b.amount)}</td>
+                          <td>{b.multiplier}</td>
+                          <td>{b.payout}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+
+            {/* Right side: crash game */}
+            <div className="aviator-right">
+              <div className="history-bar">
+                {history.slice(0, 20).map(h => (
+                  <span key={h.id} className={h.crash_multiplier > 1.99 ? "win" : "loss"}>
+                    {h.crash_multiplier}x
+                  </span>
+                ))}
+              </div>
+              <div className="aviator-display-area">
+                <canvas ref={canvasRef} className="aviator-canvas" />
+                <div className={`multiplier-display ${gameState}`}>
+                  {gameState === "waiting" && `Starting in ${countdown}s...`}
+                  {gameState === "crashed" && `💥 Flew Away @ ${multiplier.toFixed(2)}x`}
+                </div>
+              </div>
+            </div>
+          </>
+        ) : (
+          <>
+            {/* Auto mode layout */}
+            <div className="aviator-left">
+              <BetPanel
+                bet={bet}
+                setBet={setBet}
+                gameState={gameState}
+                placeBet={placeBet}
+                cancelBet={cancelBet}
+                cashOut={cashOut}
+                currentMultiplier={multiplier}
+                startAutoBet={startAutoBet}
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+              />
+            </div>
+            <div className="aviator-right">
+              <div className="history-bar">
+                {history.slice(0, 20).map(h => (
+                  <span key={h.id} className={h.crash_multiplier > 1.99 ? "win" : "loss"}>
+                    {h.crash_multiplier}x
+                  </span>
+                ))}
+              </div>
+              <div className="aviator-display-area">
+                <canvas ref={canvasRef} className="aviator-canvas" />
+                <div className={`multiplier-display ${gameState}`}>
+                  {gameState === "waiting" && `Starting in ${countdown}s...`}
+                  {gameState === "crashed" && `💥 Flew Away @ ${multiplier.toFixed(2)}x`}
+                </div>
+              </div>
+            </div>
+
+            {/* Live bets below the box */}
+            <div className="aviator-live-bets-panel full-width">
+              <div className="live-bets-header">
+                <h4>Live Bets</h4>
+                <span className="total-bets">
+                  Total: {formatCurrency(liveBets.reduce((sum, b) => sum + (b.amount || 0), 0))}
+                </span>
+              </div>
+              <div className="live-bets-scroll">
+                <table>
+                  <thead>
+                    <tr><th>User</th><th>Bet</th><th>Multiplier</th><th>Payout</th></tr>
+                  </thead>
+                  <tbody>
+                    {liveBets.map(b => (
+                      <tr key={b.id}>
+                        <td>{b.name}</td>
+                        <td>{formatCurrency(b.amount)}</td>
+                        <td>{b.multiplier}</td>
+                        <td>{b.payout}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </>
+        )}
       </div>
 
-      {/* --- How to Play --- */}
+      {/* --- Crash Game Description --- */}
       <div className="aviator-description">
+        <h3>About Crash</h3>
+        <p>
+          Crash is a multiplayer betting game where a multiplier starts at 1.00x and keeps rising. At a random moment,
+          the multiplier will crash, and the round ends instantly.
+        </p>
+
         <h3>How to Play</h3>
-        <p>Place your bet before the round starts. The multiplier begins at 1.00x and keeps rising. Cash out anytime before the crash to secure your winnings. If you don't cash out in time, you lose your bet!</p>
         <ul>
-          <li>Set your bet amount and cashout multiplier.</li>
-          <li>Watch the multiplier rise in real time.</li>
-          <li>Click Cash Out before the crash to win.</li>
-          <li>Autobet lets you automate your strategy with profit/loss limits.</li>
+          <li>Choose your bet amount before the round starts.</li>
+          <li>Watch the multiplier increase in real-time.</li>
+          <li>Click <b>Cash Out</b> before the crash to secure your winnings.</li>
+          <li>If the game crashes before you cash out, you lose your bet.</li>
+          <li>Use AutoBet to play multiple rounds automatically with profit/loss limits.</li>
         </ul>
       </div>
     </div>
