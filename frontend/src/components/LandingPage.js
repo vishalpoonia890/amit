@@ -2,14 +2,12 @@ import React, { useState } from 'react';
 import './LandingPage.css';
 import { 
     FidelityLogoIcon, BankVsInvestIcon, PassiveIncomeIcon, FinancialFreedomIcon, 
-    SmartInvestingIcon, LongTermGrowthIcon, DiversificationIcon, SpadeIcon
+    SmartInvestingIcon, LongTermGrowthIcon, DiversificationIcon, LoginIcon 
 } from './Icons';
-
-// ✅ You will need to add these images to your `src/assets` folder
 import solarPlanImage from '../assets/solar.png';
 import aviatorGameImage from '../assets/color.png';
 import inflationImage from '../assets/inflation.png';
-import heroBgImage from '../assets/ipbi.png'; // Replace with your promoter image
+import promoImage from '../assets/ipbi.png'; // The new top image
 
 const AccordionItem = ({ title, children, isOpen, onClick }) => (
     <div className="faq-item">
@@ -50,27 +48,16 @@ function LandingPage({ authView, setAuthView, loginFormData, registerFormData, h
     
     return (
         <div className="landing-page">
-            <header className="landing-header">
-                <div className="landing-logo">Investment<span>Plus</span></div>
-                <nav className="landing-nav">
-                    <a href="#plans" onClick={(e) => { e.preventDefault(); document.getElementById('plans').scrollIntoView({ behavior: 'smooth' }); }}>Plans</a>
-                    <a href="#faq" onClick={(e) => { e.preventDefault(); document.getElementById('faq').scrollIntoView({ behavior: 'smooth' }); }}>FAQs</a>
-                    <button onClick={() => scrollToAuth('login')} className="login-btn-nav">Login / Register</button>
-                </nav>
-            </header>
-
-            <section className="hero-section" style={{backgroundImage: `url(${heroBgImage})`}} onClick={() => scrollToAuth('register')}>
-                <div className="hero-overlay"></div>
-                <div className="hero-content">
-                    <h1 className="hero-title-animate">Shape Your Financial Future</h1>
-                    <p className="hero-subtitle-animate">Don't just save. Invest. Grow. Play. Your journey to financial independence starts with a single click.</p>
-                    <div className="hero-cta-animate">
-                        <span className="cta-button-text">Click Anywhere to Begin</span>
-                    </div>
-                </div>
-            </section>
+            <div className="top-image-container">
+                <img src={promoImage} alt="InvestmentPlus Promotion" />
+            </div>
 
             <main id="main-content" className="main-content">
+                <section className="hero-content-below-image">
+                     <h1>Are you worried about your money and your future?</h1>
+                    <p>Don't be. We are with you in shaping your financial situation for the better. With our investment products that provide daily income and exciting games that offer big wins, your journey to financial independence starts now.</p>
+                </section>
+
                 <section id="inflation" className="content-section">
                      <div className="content-image">
                         <img src={inflationImage} alt="Money losing value over time"/>
@@ -91,8 +78,8 @@ function LandingPage({ authView, setAuthView, loginFormData, registerFormData, h
                         </div>
                          <div className="sample-card">
                             <img src={aviatorGameImage} alt="Aviator Game"/>
-                            <h3>Aviator Game</h3>
-                            <p>Test your nerve in this thrilling crash game. Cash out before the plane flies away to multiply your bet!</p>
+                            <h3>Casino</h3>
+                            <p>Test your nerve in the thrilling games. Enjoy all casino games with 0 house edge.</p>
                         </div>
                     </div>
                 </section>
@@ -100,7 +87,7 @@ function LandingPage({ authView, setAuthView, loginFormData, registerFormData, h
                 <section id="auth" className="auth-section">
                     <div className="auth-container">
                         <div className="auth-form-wrapper">
-                            <div className="casino-icon"><SpadeIcon/></div>
+                            <div className="casino-icon"><LoginIcon/></div>
                             {authView === 'login' ? (
                                 <form onSubmit={handleLogin} className="auth-form">
                                     <h2>Welcome Back!</h2>
@@ -117,6 +104,10 @@ function LandingPage({ authView, setAuthView, loginFormData, registerFormData, h
                                     <div className="input-box"><input type="password" name="password" value={registerFormData.password} onChange={handleRegisterInputChange} required autoComplete="new-password"/><label>Password</label></div>
                                     <div className="input-box"><input type="password" name="confirmPassword" value={registerFormData.confirmPassword} onChange={handleRegisterInputChange} required autoComplete="new-password"/><label>Confirm Password</label></div>
                                     <div className="input-box"><input type="text" name="referralCode" value={registerFormData.referralCode} onChange={handleRegisterInputChange} autoComplete="off" /><label>Referral Code (Optional)</label></div>
+                                    <div className="terms-checkbox">
+                                        <input type="checkbox" id="terms" name="terms" required />
+                                        <label htmlFor="terms">I accept all the <a href="#terms" target="_blank">Terms and Conditions</a></label>
+                                    </div>
                                     <button className="cta-button" type="submit" disabled={loading}>{loading ? 'Registering...' : 'Register'}</button>
                                     <p className="auth-switch">Already have an account? <button type="button" onClick={() => setAuthView('login')}>Sign In</button></p>
                                 </form>
@@ -145,7 +136,7 @@ function LandingPage({ authView, setAuthView, loginFormData, registerFormData, h
                 
                 <footer className="landing-footer">
                     <p><strong>InvestmentPlus Solutions Pvt. Ltd.</strong></p>
-                    <p>12th Floor, Tower C, Tech Boulevard, Sector 127, Noida, Uttar Pradesh 201303, India</p>
+                    <p>12th Floor, Tower C, Tech Boulevard, Texas, USA</p>
                     <p className="disclaimer">*Disclaimer: Investments are subject to market risks. Please read all scheme-related documents carefully. Gaming involves an element of financial risk and may be addictive. Please play responsibly and at your own risk. InvestmentPlus is a privately operated platform and is not directly affiliated with or regulated by SEBI or RBI.</p>
                 </footer>
             </main>
