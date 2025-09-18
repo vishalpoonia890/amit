@@ -1,4 +1,4 @@
-import React, 'useState } from 'react';
+import React, {useState } from 'react';
 import './LandingPage.css';
 import { 
     FidelityLogoIcon, BankVsInvestIcon, PassiveIncomeIcon, FinancialFreedomIcon, 
