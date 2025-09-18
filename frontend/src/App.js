@@ -271,8 +271,7 @@ function App() {
     if (loading && !token) return <div className="loading-app"><h1>InvestmentPlus</h1><p>Loading...</p></div>;
     
     if (!token) {
-        return renderAuthForms();
-    }
+        
     return (
             <LandingPage
                 authView={authView}
