@@ -6,10 +6,10 @@ import {
 } from './Icons';
 
 // ✅ You will need to add these images to your `src/assets` folder
-import solarPlanImage from '../assets/solar-plan.png';
-import aviatorGameImage from '../assets/aviator-game.png';
-import inflationImage from '../assets/inflation-image.jpg';
-import heroBgImage from '../assets/hero-background.jpg'; // Replace with your promoter image
+import solarPlanImage from '../assets/solar.png';
+import aviatorGameImage from '../assets/color.png';
+import inflationImage from '../assets/inflation.png';
+import heroBgImage from '../assets/ipbi.png'; // Replace with your promoter image
 
 const AccordionItem = ({ title, children, isOpen, onClick }) => (
     <div className="faq-item">
