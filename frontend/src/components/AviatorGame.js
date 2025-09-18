@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
-import './AviatorGame.css'; // Using a new, dedicated CSS file
+import './AviatorGame.css';
 import { AutoCashOutIcon } from './Icons';
 
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
@@ -11,10 +11,11 @@ const cashoutSound = new Audio('/sounds/aviator-cashout.mp3');
 const crashSound = new Audio('/sounds/aviator-crash.mp3');
 takeoffSound.volume = 0.3;
 
-const formatCurrency = (amount) => new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(amount);
+const formatCurrency = (amount) => new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR" }).format(amount);
 
 // --- Reusable Bet Panel Component ---
 const BetPanel = ({ betId, gameState, placeBet, cancelBet, cashOut, bet, setBet, currentMultiplier }) => {
+    const [activeTab, setActiveTab] = useState('manual');
     const { amount, autoCashOut, hasBet, isQueued, cashedOut, cashOutMultiplier } = bet;
 
     const handleBetClick = () => {
@@ -39,29 +40,40 @@ const BetPanel = ({ betId, gameState, placeBet, cancelBet, cashOut, bet, setBet,
     return (
         <div className={`bet-panel ${hasBet || isQueued ? 'bet-placed' : ''}`}>
             <div className="bet-panel-tabs">
-                <button className="active">Manual</button>
-                <button>Auto</button>
+                <button onClick={() => setActiveTab('manual')} className={activeTab === 'manual' ? 'active' : ''}>Manual</button>
+                <button onClick={() => setActiveTab('auto')} className={activeTab === 'auto' ? 'active' : ''}>Auto</button>
             </div>
             <div className="bet-panel-body">
-                <div className="input-group">
-                    <label>Bet Amount</label>
-                    <div className="amount-input">
-                        <input type="number" value={amount} onChange={(e) => setBet(betId, 'amount', parseInt(e.target.value) || 0)} disabled={hasBet || isQueued} />
-                        <div className="amount-adjusters">
-                            <button onClick={() => setBet(betId, 'amount', Math.round(amount / 2))} disabled={hasBet || isQueued}>½</button>
-                            <button onClick={() => setBet(betId, 'amount', amount * 2)} disabled={hasBet || isQueued}>2x</button>
+                {activeTab === 'manual' ? (
+                    <>
+                        <div className="input-group">
+                            <label>Bet Amount</label>
+                            <div className="amount-input">
+                                <input type="number" value={amount} onChange={(e) => setBet(betId, 'amount', parseInt(e.target.value) || 0)} disabled={hasBet || isQueued} />
+                                <div className="amount-adjusters">
+                                    <button onClick={() => setBet(betId, 'amount', Math.round(amount / 2))} disabled={hasBet || isQueued}>½</button>
+                                    <button onClick={() => setBet(betId, 'amount', amount * 2)} disabled={hasBet || isQueued}>2x</button>
+                                </div>
+                            </div>
                         </div>
+                        <div className="input-group">
+                            <label>Cashout At</label>
+                            <div className="cashout-input">
+                                <input type="number" step="0.1" value={autoCashOut} onChange={(e) => setBet(betId, 'autoCashOut', parseFloat(e.target.value) || null)} placeholder="Auto" disabled={hasBet || isQueued} />
+                            </div>
+                        </div>
+                         <button className={`action-button ${buttonState.className}`} onClick={handleBetClick} disabled={buttonState.disabled}>{buttonState.text}</button>
+                    </>
+                ) : (
+                    <div className="auto-bet-options">
+                        <div className="auto-bet-input"><label>Number of Bets</label><input type="number" placeholder="∞" /></div>
+                        <div className="auto-bet-input"><label>On Win</label><input type="number" placeholder="Increase by 0%" /></div>
+                        <div className="auto-bet-input"><label>On Loss</label><input type="number" placeholder="Increase by 0%" /></div>
+                        <div className="auto-bet-input"><label>Stop on Profit</label><input type="number" placeholder="₹0.00" /></div>
+                        <div className="auto-bet-input"><label>Stop on Loss</label><input type="number" placeholder="₹0.00" /></div>
+                        <button className="action-button bet-btn">Start Autobet</button>
                     </div>
-                </div>
-                <div className="input-group">
-                    <label>Cashout At</label>
-                    <div className="cashout-input">
-                        <input type="number" step="0.1" value={autoCashOut} onChange={(e) => setBet(betId, 'autoCashOut', parseFloat(e.target.value) || null)} placeholder="Auto" disabled={hasBet || isQueued} />
-                    </div>
-                </div>
-                 <button className={`action-button ${buttonState.className}`} onClick={handleBetClick} disabled={buttonState.disabled}>
-                    {buttonState.text}
-                </button>
+                )}
             </div>
         </div>
     );
@@ -78,19 +90,22 @@ function AviatorGame({ token, onBack }) {
     const [roundId, setRoundId] = useState('');
 
     const [bet1, setBet1] = useState({ amount: 100, autoCashOut: 2.0, hasBet: false, isQueued: false, cashedOut: false, cashOutMultiplier: null });
+    const [bet2, setBet2] = useState({ amount: 100, autoCashOut: 2.0, hasBet: false, isQueued: false, cashedOut: false, cashOutMultiplier: null });
     
     const updateBetState = (betId, key, value) => {
-        if (betId === 1) setBet1(prev => ({...prev, [key]: value}));
+        const setter = betId === 1 ? setBet1 : setBet2;
+        setter(prev => ({...prev, [key]: value}));
     };
 
     const draw = useCallback((ctx, multiplier) => {
         const dpr = window.devicePixelRatio || 1;
         const rect = ctx.canvas.getBoundingClientRect();
-        ctx.canvas.width = rect.width * dpr;
-        ctx.canvas.height = rect.height * dpr;
-        ctx.scale(dpr, dpr);
-
-        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        if (ctx.canvas.width !== rect.width * dpr || ctx.canvas.height !== rect.height * dpr) {
+            ctx.canvas.width = rect.width * dpr;
+            ctx.canvas.height = rect.height * dpr;
+            ctx.scale(dpr, dpr);
+        }
+        ctx.clearRect(0, 0, rect.width, rect.height);
         
         const maxMultiplierVisual = 10;
         const progress = Math.min((multiplier - 1) / (maxMultiplierVisual - 1), 1);
@@ -156,6 +171,7 @@ function AviatorGame({ token, onBack }) {
                 if (data.roundId !== roundId) {
                     setRoundId(data.roundId);
                     setBet1(p => ({...p, hasBet: p.isQueued, isQueued: false, cashedOut: false, cashOutMultiplier: null}));
+                    setBet2(p => ({...p, hasBet: p.isQueued, isQueued: false, cashedOut: false, cashOutMultiplier: null}));
                 }
                 setCountdown(data.countdown);
 
@@ -199,6 +215,10 @@ function AviatorGame({ token, onBack }) {
             updateBetState(1, 'cashedOut', true);
             updateBetState(1, 'cashOutMultiplier', currentMultiplier);
         }
+        if (betId === 2 && !bet2.cashedOut) {
+            updateBetState(2, 'cashedOut', true);
+            updateBetState(2, 'cashOutMultiplier', currentMultiplier);
+        }
     };
     
     const commonProps = { gameState, placeBet, cancelBet, cashOut, currentMultiplier: multiplier };
@@ -231,6 +251,9 @@ function AviatorGame({ token, onBack }) {
                         </div>
                     </div>
                 </div>
+            </div>
+            <div className="aviator-controls-grid">
+                <BetPanel betId={2} {...{...commonProps, bet: bet2, setBet: updateBetState}} />
             </div>
         </div>
     );
