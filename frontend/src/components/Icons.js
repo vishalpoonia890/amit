@@ -50,11 +50,6 @@ export const SmartInvestingIcon = () => <svg xmlns="http://www.w3.org/2000/svg" 
 export const LongTermGrowthIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" /></svg>;
 export const DiversificationIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
 
-// --- Icons for Sell USDT Page ---
-export const BitcoinIcon = () => <span>💡</span>;
-export const TwentyDayIcon = () => <span>🛡️</span>;
-export const QuickDisbursalIcon = () => <span>⚡️</span>;
-
 // --- Icons for GameLobby ---
 export const SelectGameIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M9 9l10.5-3m0 6.553v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 11-.99-3.467l2.31-.66a2.25 2.25 0 001.632-2.163zm0 0V2.25L9 5.25v10.303m0 0v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 01-.99-3.467l2.31-.66A2.25 2.25 0 009 15.553z" /></svg>);
 export const PlaceBetIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V6.375m18 10.5-18-10.5" /></svg>);
@@ -62,15 +57,6 @@ export const WinBigIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" fill="n
 
 // --- Icon for Aviator Game ---
 export const AutoCashOutIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.82m5.84-2.56a12.022 12.022 0 00-5.84-2.56m0 0V3.34a12.022 12.022 0 00-5.84 2.56m5.84 2.56a6 6 0 015.84 7.38m-5.84-7.38a6 6 0 00-5.84 7.38m5.84-7.38L12 3.34m0 0l-2.25 2.25m2.25-2.25L14.25 5.6" /></svg>);
-
-// --- Crypto Icons ---
-export const BtcIcon = () => <svg fill="#F7931A" viewBox="0 0 24 24"><path d="M16.6 13.92c.49-.29.81-.83.81-1.42 0-.92-.75-1.67-1.67-1.67h-1.61v3.33h1.61c.45 0 .87-.17 1.18-.47l-.32-.37zm-1.6-4.17h2.15c.92 0 1.67.75 1.67 1.67s-.75 1.67-1.67 1.67h-2.15V9.75zm3.33 5h-2.15c-.45 0-.87.17-1.18.47l.32.37c.49.29.81.83.81 1.42 0 .92-.75 1.67-1.67 1.67h-2.15v-5h-1.06v5.62c0 .35-.28.63-.63.63H10.5c-.35 0-.63-.28-.63-.63V7.75c0-.35.28-.63.63-.63h3.75c.35 0 .63.28.63.63v1.07h1.61c1.47 0 2.65.96 2.65 2.15 0 .8-.5 1.5-1.21 1.85l1.43 1.67c.2.23.16.58-.07.78-.11.1-.24.15-.37.15-.17 0-.33-.08-.44-.22l-1.4-1.64z"/></svg>;
-export const EthIcon = () => <svg fill="#627EEA" viewBox="0 0 24 24"><path d="M12 1.75l-6.25 10.5 6.25 3.5 6.25-3.5L12 1.75zM12 17.25l-6.25-3.5 6.25 6.25 6.25-6.25-6.25 3.5z"/></svg>;
-export const SolIcon = () => <svg fill="#9945FF" viewBox="0 0 24 24"><path d="M4 10.45h4.86v3.1H4zM9.8 4h4.4v3.1h-4.4zM9.8 16.9h4.4v3.1h-4.4zM15.14 10.45H20v3.1h-4.86z"/></svg>;
-export const DogeIcon = () => <svg fill="#C2A633" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.68 15.15c-.32 0-.6-.11-.83-.29-.44-.35-.65-.9-.65-1.52V8.42c0-.62.21-1.17.65-1.52.23-.18.51-.29.83-.29.32 0 .6.11.83.29.44.35.65.9.65 1.52v6.92c0 .62-.21 1.17-.65 1.52-.23.18-.51.29-.83.29zm-4.32 0c-.32 0-.6-.11-.83-.29-.44-.35-.65-.9-.65-1.52V8.42c0-.62.21-1.17.65-1.52.23-.18.51-.29.83-.29s.6.11.83.29c.44.35.65.9.65 1.52v6.92c0 .62-.21 1.17-.65 1.52-.23.18-.51.29-.83.29z"/></svg>;
-export const UsdtIcon = () => <svg fill="#26A17B" viewBox="0 0 24 24"><path d="M12 2c5.52 0 10 4.48 10 10s-4.48 10-10 10S2 17.52 2 12 6.48 2 12 2zm4 6h-8v2h3v6h2v-6h3V8z"/></svg>;
-export const XrpIcon = () => <svg fill="#23292F" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1.18 4.29l1.18 1.18 1.18-1.18-1.18-1.18-1.18 1.18zM6.29 9.17l1.18 1.18 1.18-1.18-1.18-1.18-1.18 1.18zm8.24 0l1.18 1.18 1.18-1.18-1.18-1.18-1.18 1.18zm-4.12 2.96L9.23 15l-1.18-1.18 1.18-1.18 1.18 1.18zm5.29 0l-1.18 1.18-1.18-1.18 1.18-1.18 1.18 1.18zm-4.12 2.96l1.18 1.18 1.18-1.18-1.18-1.18-1.18 1.18z"/></svg>;
-export const AdaIcon = () => <svg fill="#0033AD" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1.03 4.28l5.03 2.9-5.03 2.9-5.03-2.9 5.03-2.9zm0 6.84l5.03 2.9-5.03 2.9-5.03-2.9 5.03-2.9z"/></svg>;
 
 // Landing Page Icons
 export const FidelityLogoIcon = () => (
