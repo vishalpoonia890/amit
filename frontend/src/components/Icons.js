@@ -90,5 +90,6 @@ export const LoginIcon = () => (
     </svg>
 );
 
+
 export default Icon;
 
