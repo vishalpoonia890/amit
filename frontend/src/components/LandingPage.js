@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, 'useState } from 'react';
 import './LandingPage.css';
 import { 
     FidelityLogoIcon, BankVsInvestIcon, PassiveIncomeIcon, FinancialFreedomIcon, 
@@ -7,7 +7,7 @@ import {
 import solarPlanImage from '../assets/solar.png';
 import aviatorGameImage from '../assets/color.png';
 import inflationImage from '../assets/inflation.png';
-import promoImage from '../assets/ipbi.png'; // The new top image
+import promoImage from '../assets/ipbi.png';
 
 const AccordionItem = ({ title, children, isOpen, onClick }) => (
     <div className="faq-item">
@@ -48,7 +48,7 @@ function LandingPage({ authView, setAuthView, loginFormData, registerFormData, h
     
     return (
         <div className="landing-page">
-            <div className="top-image-container">
+            <div className="top-image-container" onClick={() => scrollToAuth('register')}>
                 <img src={promoImage} alt="InvestmentPlus Promotion" />
             </div>
 
@@ -78,8 +78,8 @@ function LandingPage({ authView, setAuthView, loginFormData, registerFormData, h
                         </div>
                          <div className="sample-card">
                             <img src={aviatorGameImage} alt="Aviator Game"/>
-                            <h3>Casino</h3>
-                            <p>Test your nerve in the thrilling games. Enjoy all casino games with 0 house edge.</p>
+                            <h3>Aviator Game</h3>
+                            <p>Test your nerve in this thrilling crash game. Cash out before the plane flies away to multiply your bet!</p>
                         </div>
                     </div>
                 </section>
@@ -136,7 +136,7 @@ function LandingPage({ authView, setAuthView, loginFormData, registerFormData, h
                 
                 <footer className="landing-footer">
                     <p><strong>InvestmentPlus Solutions Pvt. Ltd.</strong></p>
-                    <p>12th Floor, Tower C, Tech Boulevard, Texas, USA</p>
+                    <p>12th Floor, Tower C, Tech Boulevard, Sector 127, Noida, Uttar Pradesh 201303, India</p>
                     <p className="disclaimer">*Disclaimer: Investments are subject to market risks. Please read all scheme-related documents carefully. Gaming involves an element of financial risk and may be addictive. Please play responsibly and at your own risk. InvestmentPlus is a privately operated platform and is not directly affiliated with or regulated by SEBI or RBI.</p>
                 </footer>
             </main>
