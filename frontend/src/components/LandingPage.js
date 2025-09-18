@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import './LandingPage.css';
 import { 
-    FidelityLogoIcon, BankVsInvestIcon, PassiveIncomeIcon, FinancialFreedomIcon, 
-    SmartInvestingIcon, LongTermGrowthIcon, DiversificationIcon, LoginIcon 
+    FidelityLogoIcon, LoginIcon 
 } from './Icons';
-import solarPlanImage from '../assets/solar.png';
-import aviatorGameImage from '../assets/color.png';
-import inflationImage from '../assets/inflation.png';
+// ✅ IMPORTANT: Make sure you have an 'assets' folder inside your 'src' folder
+// and that these images are placed inside it.
+import solarPlanImage from '../assets/solar-plan.png'; 
+import aviatorGameImage from '../assets/aviator-game.png';
+import inflationImage from '../assets/inflation-image.jpg';
 import promoImage from '../assets/ipbi.png';
 
 const AccordionItem = ({ title, children, isOpen, onClick }) => (
@@ -72,14 +73,8 @@ function LandingPage({ authView, setAuthView, loginFormData, registerFormData, h
         <div className="landing-page">
             {showPromo && <PromoModal onClose={() => setShowPromo(false)} onRegisterClick={() => { setShowPromo(false); scrollToAuth('register'); }} />}
             
-            <section className="hero-section" style={{backgroundImage: `url(${promoImage})`}} onClick={() => scrollToAuth('register')}>
-                <div className="hero-overlay"></div>
-                <div className="hero-content">
-                    <h1 className="hero-title-animate">Your Financial Future, Reimagined</h1>
-                    <div className="hero-cta-animate">
-                        <span className="cta-button-text">Click to Start Earning</span>
-                    </div>
-                </div>
+            <section className="hero-section" onClick={() => scrollToAuth('register')}>
+                <img src={promoImage} alt="InvestmentPlus Promotion" className="hero-image"/>
             </section>
 
             <main id="main-content" className="main-content">
@@ -128,7 +123,7 @@ function LandingPage({ authView, setAuthView, loginFormData, registerFormData, h
                                         <input type="checkbox" id="terms" name="terms" checked={termsAccepted} onChange={(e) => setTermsAccepted(e.target.checked)} />
                                         <label htmlFor="terms">I accept all the <a href="#terms" target="_blank">Terms and Conditions</a></label>
                                     </div>
-                                    <button className="cta-button" type="submit" disabled={loading}>{loading ? 'Registering...' : 'Register'}</button>
+                                    <button className="cta-button" type="submit" disabled={loading || !termsAccepted}>{loading ? 'Registering...' : 'Register'}</button>
                                     <p className="auth-switch">Already have an account? <button type="button" onClick={() => setAuthView('login')}>Sign In</button></p>
                                 </form>
                             )}
