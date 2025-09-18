@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react'; // ✅ FIX: Added useState to the import
 import './LandingPage.css';
-import { FidelityLogoIcon } from './Icons'; // New Icon for our partner
+import { FidelityLogoIcon } from './Icons';
 
 // --- Reusable Components for the Landing Page ---
 const AccordionItem = ({ title, children, isOpen, onClick }) => (
@@ -133,3 +133,4 @@ function LandingPage({ authView, setAuthView, loginFormData, registerFormData, h
 }
 
 export default LandingPage;
+
