@@ -6,7 +6,7 @@ import { FidelityLogoIcon, LoginIcon } from './Icons';
 import solarPlanImage from '../assets/solar.png';
 import aviatorGameImage from '../assets/color.png';
 import inflationImage from '../assets/inflation.png';
-import promoImage from '../assets/ipbi.png';
+import promoImage from '../assets/ipbia.png';
 
 const AccordionItem = ({ title, children, isOpen, onClick }) => (
     <div className="faq-item">
