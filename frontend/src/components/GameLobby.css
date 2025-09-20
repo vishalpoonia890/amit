@@ -47,20 +47,12 @@
     gap: 20px;
     box-shadow: 0 0 20px var(--primary-color-light);
 }
-.zero-edge-icon {
-    flex-shrink: 0;
-    color: var(--primary-color);
-}
-.zero-edge-icon svg {
-    width: 60px;
-    height: 60px;
-}
-.zero-edge-text h3 {
+.zero-edge-promo-card h3 {
     margin: 0 0 10px 0;
     color: var(--text-color);
     font-size: 1.2em;
 }
-.zero-edge-text p {
+.zero-edge-promo-card p {
     margin: 0;
     color: var(--text-color-light);
     font-size: 0.9em;
