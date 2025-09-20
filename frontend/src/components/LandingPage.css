@@ -70,6 +70,27 @@
     to { opacity: 1; transform: translateY(0); }
 }
 
+.stats-section {
+    display: flex;
+    justify-content: space-around;
+    background-color: #2d3748;
+    padding: 20px;
+}
+.stat-item {
+    text-align: center;
+}
+.stat-value {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    display: block;
+}
+.stat-label {
+    font-size: 0.9rem;
+    color: #a0aec0;
+}
+
+
 .hero-content-below-image {
     text-align: center;
     padding: 40px 20px;
@@ -113,6 +134,30 @@
 .sample-card img { width: 100%; height: 180px; object-fit: cover; }
 .sample-card h3 { margin: 15px; }
 .sample-card p { margin: 0 15px 15px; color: #a0aec0; font-size: 0.9em; }
+
+.casino-news-section {
+    padding: 60px 20px;
+    text-align: center;
+}
+.casino-news-section h2 {
+    font-size: 2.5rem;
+    margin-bottom: 40px;
+}
+.casino-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    max-width: 1000px;
+    margin: 0 auto 20px auto;
+}
+.casino-grid img {
+    width: 100%;
+    border-radius: 12px;
+    transition: transform 0.3s;
+}
+.casino-grid img:hover {
+    transform: scale(1.05);
+}
 
 .auth-section { padding: 80px 20px; background: linear-gradient(#1a202c, #171923); }
 .auth-container { max-width: 400px; margin: 0 auto; }
