@@ -220,4 +220,3 @@ function Deposit({ token, onBack, onDepositRequest }) {
 }
 
 export default Deposit;
-
