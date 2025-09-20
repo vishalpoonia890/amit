@@ -274,3 +274,28 @@
     margin-top: 0;
     color: var(--error-color);
 }
+.promo-banner {
+  background: #f5f5f5;
+  color: #333;
+  padding: 10px;
+  margin-bottom: 15px;
+  text-align: center;
+  font-weight: 500;
+  border-radius: 8px;
+}
+
+.qr-wrapper {
+  display: flex;
+  justify-content: center;
+  margin: 15px 0;
+}
+
+.qr-code {
+  max-width: 220px;
+  width: 100%;
+  height: auto;
+  border: 2px solid #ddd;
+  border-radius: 10px;
+  padding: 8px;
+  background: #fff;
+}
