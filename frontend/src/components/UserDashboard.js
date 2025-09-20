@@ -1,66 +1,54 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import './UserDashboard.css';
 import { 
-    DepositIcon, WithdrawIcon, RewardsIcon, SellUsdtIcon, 
-    TeamIcon, SupportIcon, WalletIcon, PromotionsIcon,
+    DepositIcon, WithdrawIcon, TeamIcon, SupportIcon, WalletIcon,
     SecurePlatformIcon, HighReturnsIcon, InstantPayoutsIcon,
     BankVsInvestIcon, PassiveIncomeIcon, FinancialFreedomIcon,
-    SmartInvestingIcon, LongTermGrowthIcon, DiversificationIcon,
-    Support247Icon, IntuitiveInterfaceIcon, CommunityRewardsIcon // New Icons
-} from './Icons';
+    SmartInvestingIcon, LongTermGrowthIcon, DiversificationIcon 
+} from './Icons'; // Assuming new icons are added to your Icons.js file
 
-const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
+// Sample plan data (as you would get from productsandplans.js)
+const samplePlans = [
+    { id: 101, name: 'iPhone 17', price: 480, dailyIncome: 75, durationDays: 10 },
+    { id: 201, name: 'Sun Harvest 100', price: 1500, dailyIncome: 180, durationDays: 20 },
+    { id: 301, name: 'AeroBlade Advantage', price: 10000, dailyIncome: 1100, durationDays: 45 },
+    { id: 401, name: 'Hash Rate Pro', price: 50000, dailyIncome: 5500, durationDays: 60 },
+];
 
-const Marquee = ({ items }) => (
-    <div className="marquee-container">
-        <div className="marquee-content">
-            {items.map((item, index) => (
-                <span key={index} className="marquee-item">
-                    🎉 Congrats to <strong>{item.name}</strong> on their withdrawal of ₹{item.amount.toLocaleString()}!
-                </span>
-            ))}
-            {items.map((item, index) => (
-                <span key={`dup-${index}`} className="marquee-item">
-                    🎉 Congrats to <strong>{item.name}</strong> on their withdrawal of ₹{item.amount.toLocaleString()}!
-                </span>
-            ))}
-        </div>
-    </div>
-);
+const investmentPartners = [
+    'https://placehold.co/150x50/ffffff/000000?text=Partner+1',
+    'https://placehold.co/150x50/ffffff/000000?text=Partner+2',
+    'https://placehold.co/150x50/ffffff/000000?text=Partner+3',
+    'https://placehold.co/150x50/ffffff/000000?text=Partner+4',
+];
+
 
 function UserDashboard({ onViewChange }) {
-    const [withdrawals, setWithdrawals] = useState([]);
+    const [totalPayout, setTotalPayout] = useState(10000000); // Start at 10 Crores
 
     useEffect(() => {
-        const fetchWithdrawals = async () => {
-            try {
-                const { data } = await axios.get(`${API_BASE_URL}/api/fake-withdrawals`);
-                if (data.withdrawals && data.withdrawals.length > 0) {
-                    setWithdrawals(data.withdrawals);
-                }
-            } catch (error) {
-                console.error("Could not fetch withdrawals for ticker:", error);
-            }
-        };
-        fetchWithdrawals();
+        // Simulate total payouts increasing over time
+        const interval = setInterval(() => {
+            setTotalPayout(prev => prev + Math.floor(Math.random() * (100000 - 50000) + 50000));
+        }, 3000);
+        return () => clearInterval(interval);
     }, []);
-
+    
     const quickActions = [
         { id: 'deposit', label: 'Deposit', icon: <DepositIcon />, view: 'deposit' },
         { id: 'withdraw', label: 'Withdraw', icon: <WithdrawIcon />, view: 'withdraw' },
-        { id: 'sell-usdt', label: 'Sell USDT', icon: <SellUsdtIcon />, view: 'sell-usdt' },
         { id: 'team', label: 'Team', icon: <TeamIcon />, view: 'team' },
-        { id: 'rewards', label: 'Rewards', icon: <RewardsIcon />, view: 'rewards' },
+        { id: 'daily-tasks', label: 'Daily Tasks', icon: <RewardsIcon />, view: 'rewards' },
+        { id: 'wallet', label: 'Wallet', icon: <WalletIcon />, view: 'wallet' },
         { id: 'support', label: 'Support', icon: <SupportIcon />, view: 'support' },
     ];
 
-    const blogPosts = [
-        { id: 1, title: 'Bank Savings vs. Smart Investing', text: 'Discover why letting your money work for you in investments can vastly outperform traditional savings.', icon: <BankVsInvestIcon /> },
+     const journeyContent = [
+        { id: 1, title: 'Bank Savings vs. Smart Investing', text: 'Discover why letting your money work for you can vastly outperform traditional savings.', icon: <BankVsInvestIcon /> },
         { id: 2, title: 'The Power of Passive Income', text: 'Learn how our platform helps you build steady, passive income streams that grow over time.', icon: <PassiveIncomeIcon /> },
         { id: 3, title: 'Start Your Independence Journey', text: 'Take the first step towards financial freedom. Our tools are designed for beginners and experts alike.', icon: <FinancialFreedomIcon /> },
         { id: 4, title: 'Smart Investing in a Digital Age', text: 'Explore how diversifying into high-growth digital assets can accelerate your wealth creation.', icon: <SmartInvestingIcon /> },
-        { id: 5, title: 'Long-Term Growth Strategies', text: 'See how consistent, strategic investments can lead to substantial long-term financial security.', icon: <LongTermGrowthIcon /> },
+        { id: 5, title: 'Long-Term Growth Strategies', text: 'See how consistent investments can lead to substantial long-term financial security.', icon: <LongTermGrowthIcon /> },
         { id: 6, title: 'The Art of Diversification', text: 'Understand why spreading your investments across different products minimizes risk and maximizes returns.', icon: <DiversificationIcon /> },
     ];
 
@@ -71,7 +59,7 @@ function UserDashboard({ onViewChange }) {
                 <p className="hero-subtitle">Your Premier Destination for Digital Asset Growth & Gaming</p>
             </div>
 
-            <div className="quick-actions-scroll-container">
+            <div className="quick-actions-section">
                 <div className="quick-actions-grid">
                     {quickActions.map(action => (
                         <div key={action.id} className="action-card-wrapper">
@@ -84,9 +72,43 @@ function UserDashboard({ onViewChange }) {
                 </div>
             </div>
             
-            {/* ✅ UPDATED: The "Why Choose Us" section is now fully implemented with more content */}
+            <div id="journey" className="dashboard-card journey-section">
+                <h4>Start Your Journey</h4>
+                <div className="plan-showcase-grid">
+                    {samplePlans.map(plan => (
+                        <div key={plan.id} className="plan-card-mini">
+                            <h5>{plan.name}</h5>
+                            <p>Earn {formatCurrency(plan.dailyIncome)} Daily</p>
+                        </div>
+                    ))}
+                </div>
+                <div className="blog-grid">
+                    {journeyContent.map(post => (
+                        <div key={post.id} className="blog-card">
+                            <div className="blog-card-icon">{post.icon}</div>
+                            <h5>{post.title}</h5>
+                            <p>{post.text}</p>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            <div className="dashboard-card partners-section">
+                <h4>Our Investment Partners</h4>
+                <div className="partners-logo-grid">
+                    {investmentPartners.map((src, index) => (
+                        <img key={index} src={src} alt={`Partner ${index + 1}`} />
+                    ))}
+                </div>
+            </div>
+
+            <div className="payout-ticker-card">
+                <h4>Total Payouts to Date</h4>
+                <p className="payout-amount">{formatCurrency(totalPayout)}</p>
+            </div>
+
             <div className="info-section">
-                 <div className="info-card">
+                <div className="info-card">
                     <div className="info-card-icon"><InstantPayoutsIcon /></div>
                     <h4>Instant Payouts</h4>
                     <p>Your winnings and earnings are credited to your withdrawable balance immediately.</p>
@@ -100,36 +122,6 @@ function UserDashboard({ onViewChange }) {
                     <div className="info-card-icon"><HighReturnsIcon /></div>
                     <h4>High Returns</h4>
                     <p>Our diverse investment plans and games are designed to maximize your earning potential.</p>
-                </div>
-                <div className="info-card">
-                    <div className="info-card-icon"><Support247Icon /></div>
-                    <h4>24/7 Support</h4>
-                    <p>Our dedicated support team is available around the clock to assist you with any questions.</p>
-                </div>
-                <div className="info-card">
-                    <div className="info-card-icon"><IntuitiveInterfaceIcon /></div>
-                    <h4>Intuitive Interface</h4>
-                    <p>Our platform is designed to be easy to navigate for both beginners and experts.</p>
-                </div>
-                <div className="info-card">
-                    <div className="info-card-icon"><CommunityRewardsIcon /></div>
-                    <h4>Community Rewards</h4>
-                    <p>Join a thriving community and participate in exclusive events to maximize your earnings.</p>
-                </div>
-            </div>
-            
-            <Marquee items={withdrawals} />
-
-            <div className="dashboard-card blog-section">
-                <h4>Start Your Financial Journey</h4>
-                <div className="blog-grid">
-                    {blogPosts.map(post => (
-                        <div key={post.id} className="blog-card">
-                            <div className="blog-card-icon">{post.icon}</div>
-                            <h5>{post.title}</h5>
-                            <p>{post.text}</p>
-                        </div>
-                    ))}
                 </div>
             </div>
             
