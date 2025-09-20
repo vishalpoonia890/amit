@@ -78,18 +78,13 @@ function LandingPage({ authView, setAuthView, loginFormData, registerFormData, h
         <div className="landing-page">
             {showPromo && <PromoModal onClose={() => setShowPromo(false)} onRegisterClick={() => { setShowPromo(false); scrollToAuth('register'); }} />}
             
-            <header className="landing-header">
-                <div className="landing-logo">Investment<span>Plus</span></div>
-                <nav className="landing-nav">
-                    <a href="#plans" onClick={(e) => { e.preventDefault(); document.getElementById('plans').scrollIntoView({ behavior: 'smooth' }); }}>Plans</a>
-                    <a href="#faq" onClick={(e) => { e.preventDefault(); document.getElementById('faq').scrollIntoView({ behavior: 'smooth' }); }}>FAQs</a>
-                    <button onClick={() => scrollToAuth('login')} className="login-btn-nav">Login / Register</button>
-                </nav>
-            </header>
-
-            <div className="top-image-container" onClick={() => scrollToAuth('register')}>
-                <img src={promoImage} alt="InvestmentPlus Promotion" />
-            </div>
+            <section 
+                className="hero-section" 
+                style={{backgroundImage: `url(${promoImage})`}} 
+                onClick={() => scrollToAuth('register')}
+            >
+                <div className="hero-overlay"></div>
+            </section>
 
             <main id="main-content" className="main-content">
                 <section className="hero-content-below-image">
