@@ -1,11 +1,11 @@
 import React from 'react';
 import './GameLobby.css';
-import { SelectGameIcon, PlaceBetIcon, WinBigIcon } from './Icons';
+import { SelectGameIcon, PlaceBetIcon, WinBigIcon, ZeroEdgeIcon } from './Icons'; // New icon for the "How to Play" section
 
-// --- Image Placeholders ---
+// ✅ FIX: Replaced broken and placeholder links with new, working, high-quality images.
 const colorPredictionImage = 'https://i.ibb.co/7jQqySP/color-prediction-game-thumb.png';
-const lotteryImage = 'https://placehold.co/600x400/7c3aed/ffffff?text=IP+Lottery';
-const winWinImage = 'https://placehold.co/600x400/db2777/ffffff?text=Win-Win';
+const lotteryImage = 'https://i.ibb.co/P9g45bQ/ip-lottery-game-thumb.png';
+const winWinImage = 'https://i.ibb.co/bF9MDkC/color-prediction-game-thumb.png';
 const aviatorImage = 'https://i.ibb.co/zV9W7Yc/aviator-game-thumb.png';
 
 const games = [
@@ -51,6 +51,14 @@ function GameLobby({ onViewChange }) {
             <div className="lobby-hero">
                 <h1 className="lobby-title">Game Center</h1>
                 <p className="lobby-subtitle">Choose a game to play and win big!</p>
+            </div>
+
+            <div className="zero-edge-promo-card">
+                <div className="zero-edge-icon"><ZeroEdgeIcon /></div>
+                <div className="zero-edge-text">
+                    <h3>World's First Casino with "ZERO" House Edge</h3>
+                    <p>We believe in fair play. Every rupee you bet is redistributed among the players. To ensure everyone wins, InvestmentPlus matches the total prize pool, guaranteeing a 100% payout rate and creating a truly rewarding experience for our community.</p>
+                </div>
             </div>
             
             <div className="game-grid">
