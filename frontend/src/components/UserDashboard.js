@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import './UserDashboard.css';
 import { 
     DepositIcon, WithdrawIcon, TeamIcon, RewardsIcon, WalletIcon, SupportIcon,
@@ -7,8 +6,11 @@ import {
     BankVsInvestIcon, PassiveIncomeIcon, FinancialFreedomIcon,
     SmartInvestingIcon, LongTermGrowthIcon, DiversificationIcon 
 } from './Icons';
-
-const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
+import casinoBgImage from '../assets/casino1.png'; // Assuming images are in src/assets
+import southPartner from '../assets/msme.png';
+import northPartner from '../assets/invest1.png';
+import dubaiPartner from '../assets/dubai.png';
+import singaporePartner from '../assets/singapore.png';
 
 // Sample plan data to showcase in the dashboard
 const samplePlans = [
@@ -19,10 +21,10 @@ const samplePlans = [
 ];
 
 const investmentPartners = [
-    'https://placehold.co/150x50/ffffff/000000?text=Partner+1',
-    'https://placehold.co/150x50/ffffff/000000?text=Partner+2',
-    'https://placehold.co/150x50/ffffff/000000?text=Partner+3',
-    'https://placehold.co/150x50/ffffff/000000?text=Partner+4',
+    { name: 'South Partner', logo: southPartner },
+    { name: 'North Partner', logo: northPartner },
+    { name: 'Dubai Partner', logo: dubaiPartner },
+    { name: 'Singapore Partner', logo: singaporePartner },
 ];
 
 const formatCurrency = (amount) => new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(amount);
@@ -63,7 +65,7 @@ function UserDashboard({ onViewChange }) {
                 <p className="hero-subtitle">Your Premier Destination for Digital Asset Growth & Gaming</p>
             </div>
 
-            <div className="quick-actions-section">
+            <div className="quick-actions-section" style={{backgroundImage: `url(${casinoBgImage})`}}>
                 <div className="quick-actions-grid">
                     {quickActions.map(action => (
                         <div key={action.id} className="action-card-wrapper">
@@ -100,8 +102,8 @@ function UserDashboard({ onViewChange }) {
             <div className="dashboard-card partners-section">
                 <h4>Our Investment Partners</h4>
                 <div className="partners-logo-grid">
-                    {investmentPartners.map((src, index) => (
-                        <img key={index} src={src} alt={`Partner ${index + 1}`} />
+                    {investmentPartners.map((partner, index) => (
+                        <img key={index} src={partner.logo} alt={partner.name} />
                     ))}
                 </div>
             </div>
