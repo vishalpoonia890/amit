@@ -1,8 +1,8 @@
 .game-lobby {
     padding: 20px;
     padding-bottom: 80px;
-    /* ✅ NEW: Dark, casino-style background gradient */
-    background: linear-gradient(180deg, #1a202c 0%, #2d3748 50%, #1a202c 100%);
+    /* ✅ NEW: Dark, casino-style background that adapts to themes */
+    background: linear-gradient(180deg, var(--bg-color) 0%, var(--card-bg-color) 100%);
     animation: fadeIn 0.5s ease-in-out;
 }
 
@@ -10,8 +10,9 @@
     text-align: center;
     padding: 40px 20px;
     margin: -20px -20px 30px -20px;
-    background: linear-gradient(rgba(26, 32, 44, 0.8), rgba(26, 32, 44, 0.8)), 
-                url('https://www.transparenttextures.com/patterns/clean-gray-paper.png');
+    /* ✅ NEW: Textured background for a premium feel */
+    background: linear-gradient(rgba(26, 32, 44, 0.8), var(--card-bg-color)), 
+                url('https://www.transparenttextures.com/patterns/dark-denim-3.png');
     border-bottom: 1px solid var(--border-color);
 }
 
@@ -34,16 +35,45 @@
     margin-top: 5px;
 }
 
+/* ✅ NEW: Styles for the "Zero House Edge" promo card */
+.zero-edge-promo-card {
+    background: linear-gradient(135deg, var(--primary-color-light), var(--card-bg-color));
+    border: 1px solid var(--primary-color);
+    border-radius: 12px;
+    padding: 25px;
+    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    box-shadow: 0 0 20px var(--primary-color-light);
+}
+.zero-edge-icon {
+    flex-shrink: 0;
+    color: var(--primary-color);
+}
+.zero-edge-icon svg {
+    width: 60px;
+    height: 60px;
+}
+.zero-edge-text h3 {
+    margin: 0 0 10px 0;
+    color: var(--text-color);
+    font-size: 1.2em;
+}
+.zero-edge-text p {
+    margin: 0;
+    color: var(--text-color-light);
+    font-size: 0.9em;
+    line-height: 1.6;
+}
+
 .game-grid {
     display: grid;
     grid-template-columns: 1fr;
     gap: 25px;
 }
-
 @media (min-width: 600px) {
-    .game-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
+    .game-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
 .game-card {
@@ -56,26 +86,14 @@
     border: 1px solid var(--border-color);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
-
 .game-card:hover {
     transform: translateY(-8px) scale(1.03);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
-.game-image-container {
-    overflow: hidden;
-}
-.game-image {
-    width: 100%;
-    height: 160px;
-    object-fit: cover;
-    display: block;
-    transition: transform 0.3s ease;
-}
-.game-card:hover .game-image {
-    transform: scale(1.1);
-}
-
+.game-image-container { overflow: hidden; }
+.game-image { width: 100%; height: 160px; object-fit: cover; display: block; transition: transform 0.3s ease; }
+.game-card:hover .game-image { transform: scale(1.1); }
 .game-info { padding: 20px; }
 .game-info h3 { margin: 0 0 8px 0; font-size: 1.3em; color: var(--text-color); }
 .game-info p { margin: 0; font-size: 0.9em; color: var(--text-color-light); }
@@ -87,45 +105,23 @@
 }
 
 .how-to-play-card, .partners-section {
-    background-color: transparent;
-    border-radius: 12px;
-    padding: 20px;
-    margin-top: 40px;
-    border: 1px solid var(--border-color);
+    background-color: transparent; border-radius: 12px;
+    padding: 20px; margin-top: 40px; border: 1px solid var(--border-color);
 }
 .how-to-play-card h3, .partners-section h3 {
-    margin-top: 0;
-    margin-bottom: 25px;
-    text-align: center;
-    color: var(--primary-color);
+    margin-top: 0; margin-bottom: 25px;
+    text-align: center; color: var(--primary-color);
 }
 
 .how-to-play-steps {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 25px;
-    text-align: center;
+    display: grid; grid-template-columns: 1fr; gap: 25px; text-align: center;
 }
-@media (min-width: 768px) {
-    .how-to-play-steps {
-        grid-template-columns: repeat(3, 1fr);
-    }
-}
-.step-item .step-icon {
-    width: 60px;
-    height: 60px;
-    margin: 0 auto 15px auto;
+@media (min-width: 768px) { .how-to-play-steps { grid-template-columns: repeat(3, 1fr); } }
+.step-icon {
+    width: 60px; height: 60px; margin: 0 auto 15px auto;
     background: linear-gradient(135deg, var(--primary-color), var(--primary-hover-color));
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    box-shadow: 0 0 15px var(--primary-color-light);
-}
-.step-item .step-icon svg {
-    width: 32px;
-    height: 32px;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    color: white; box-shadow: 0 0 15px var(--primary-color-light);
 }
 .step-item h4 { margin: 0 0 5px 0; font-size: 1.1em; color: var(--text-color); }
 .step-item p { margin: 0; font-size: 0.9em; color: var(--text-color-light); }
@@ -135,12 +131,8 @@
     gap: 15px; margin-top: 20px; filter: grayscale(1) brightness(1.5);
 }
 .partner-logo {
-    padding: 10px 20px;
-    font-weight: 600;
-    color: var(--text-color-light);
-    font-family: 'Arial', sans-serif;
-    font-style: italic;
-    opacity: 0.6;
+    padding: 10px 20px; font-weight: 600; color: var(--text-color-light);
+    font-family: 'Arial', sans-serif; font-style: italic; opacity: 0.6;
 }
 
 .game-footer {
