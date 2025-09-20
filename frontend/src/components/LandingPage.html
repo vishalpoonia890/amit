@@ -1,918 +1,755 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>InvestmentPlus</title><style>@import url(https://fonts.googleapis.com/css2?family=Lato&display=swap);
-@import url(https://fonts.googleapis.com/css2?family=Open+Sans&display=swap);
-@import url(https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined);
-@import url(https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css);
+import React from "react"
 
-*,
-:after,
-:before {
-  --tw-border-spacing-x: 0;
-  --tw-border-spacing-y: 0;
-  --tw-translate-x: 0;
-  --tw-translate-y: 0;
-  --tw-rotate: 0;
-  --tw-skew-x: 0;
-  --tw-skew-y: 0;
-  --tw-scale-x: 1;
-  --tw-scale-y: 1;
-  --tw-pan-x: ;
-  --tw-pan-y: ;
-  --tw-pinch-zoom: ;
-  --tw-scroll-snap-strictness: proximity;
-  --tw-gradient-from-position: ;
-  --tw-gradient-via-position: ;
-  --tw-gradient-to-position: ;
-  --tw-ordinal: ;
-  --tw-slashed-zero: ;
-  --tw-numeric-figure: ;
-  --tw-numeric-spacing: ;
-  --tw-numeric-fraction: ;
-  --tw-ring-inset: ;
-  --tw-ring-offset-width: 0px;
-  --tw-ring-offset-color: #fff;
-  --tw-ring-color: rgba(59, 130, 246, 0.5);
-  --tw-ring-offset-shadow: 0 0 #0000;
-  --tw-ring-shadow: 0 0 #0000;
-  --tw-shadow: 0 0 #0000;
-  --tw-shadow-colored: 0 0 #0000;
-  --tw-blur: ;
-  --tw-brightness: ;
-  --tw-contrast: ;
-  --tw-grayscale: ;
-  --tw-hue-rotate: ;
-  --tw-invert: ;
-  --tw-saturate: ;
-  --tw-sepia: ;
-  --tw-drop-shadow: ;
-  --tw-backdrop-blur: ;
-  --tw-backdrop-brightness: ;
-  --tw-backdrop-contrast: ;
-  --tw-backdrop-grayscale: ;
-  --tw-backdrop-hue-rotate: ;
-  --tw-backdrop-invert: ;
-  --tw-backdrop-opacity: ;
-  --tw-backdrop-saturate: ;
-  --tw-backdrop-sepia: ;
-  --tw-contain-size: ;
-  --tw-contain-layout: ;
-  --tw-contain-paint: ;
-  --tw-contain-style: ;
+import "./style.css"
+
+export const Component = () => {
+    return (
+        <div id="webcrumbs">
+            <div className="bg-gradient-to-b from-neutral-900 to-neutral-800 min-h-screen text-white">
+                {/* Header Section */}
+                <header className="container mx-auto py-6 px-4">
+                    <div className="flex justify-between items-center">
+                        <div className="flex items-center">
+                            <span className="text-primary-500 text-3xl mr-2">
+                                <i className="fa-solid fa-coins"></i>
+                            </span>
+                            <h1 className="text-2xl font-bold bg-gradient-to-r from-primary-400 to-primary-600 bg-clip-text text-transparent">
+                                IP
+                            </h1>
+                        </div>
+                        <nav className="hidden md:flex space-x-8">
+                            <a href="#investments" className="hover:text-primary-400 transition-colors duration-300">
+                                Investments
+                            </a>
+                            <a href="#casino" className="hover:text-primary-400 transition-colors duration-300">
+                                Casino
+                            </a>
+                            <a href="#about" className="hover:text-primary-400 transition-colors duration-300">
+                                About Us
+                            </a>
+                            <a href="#contact" className="hover:text-primary-400 transition-colors duration-300">
+                                Contact
+                            </a>
+                        </nav>
+                        <div className="flex space-x-4">
+                            <button className="px-4 py-2 rounded-lg bg-primary-600 hover:bg-primary-500 transition-colors duration-300">
+                                Sign In
+                            </button>
+                            <button className="px-4 py-2 rounded-lg border border-primary-600 hover:bg-primary-600/20 transition-colors duration-300">
+                                Register
+                            </button>
+                            <button className="md:hidden text-2xl">
+                                <span className="material-symbols-outlined">menu</span>
+                            </button>
+                        </div>
+                    </div>
+                </header>
+
+                {/* Hero Section */}
+                <section className="relative py-20 overflow-hidden">
+                    <div className="absolute inset-0 z-0 bg-neutral-900/70">
+                        <img
+                            title="black android smartphone on macbook pro"
+                            src="https://images.unsplash.com/photo-1620228885847-9eab2a1adddc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3MzkyNDZ8MHwxfHNlYXJjaHwxfHxpbnZlc3RtZW50JTIwYmFja2dyb3VuZHxlbnwwfHx8fDE3NTgzNTUyMDJ8MA&ixlib=rb-4.1.0&q=80&w=1080"
+                            alt="Investment Background"
+                            className="w-full h-full object-cover mix-blend-overlay"
+                            keywords="investment, money, finance, wealth"
+                        />
+                    </div>
+                    <div className="container mx-auto px-4 relative z-10">
+                        <div className="max-w-3xl">
+                            <h2 className="text-5xl font-bold mb-6">
+                                Diversify Your Portfolio with Smart Investments & Entertainment
+                            </h2>
+                            <p className="text-xl mb-8 text-neutral-200">
+                                Discover high-yield investment opportunities and premium casino entertainment on our
+                                secure platform.
+                            </p>
+                            <div className="flex flex-wrap gap-4">
+                                <button className="px-8 py-4 rounded-lg bg-primary-600 hover:bg-primary-500 transition-all duration-300 transform hover:scale-105 font-bold">
+                                    Start Investing
+                                </button>
+                                <button className="px-8 py-4 rounded-lg border-2 border-white hover:bg-white/10 transition-all duration-300 transform hover:scale-105 font-bold">
+                                    Explore Casino
+                                </button>
+                            </div>
+                            <div className="mt-12 flex items-center space-x-6">
+                                <div className="flex -space-x-4">
+                                    <img
+                                        src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3MzkyNDZ8MHwxfHNlYXJjaHwxfHx1c2VyfGVufDB8fHx8MTc1ODI5OTE1M3ww&ixlib=rb-4.1.0&q=80&w=1080"
+                                        alt="User"
+                                        className="w-12 h-12 rounded-full border-2 border-primary-500"
+                                    />
+                                    <img
+                                        src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3MzkyNDZ8MHwxfHNlYXJjaHwyfHx1c2VyfGVufDB8fHx8MTc1ODI5OTE1M3ww&ixlib=rb-4.1.0&q=80&w=1080"
+                                        alt="User"
+                                        className="w-12 h-12 rounded-full border-2 border-primary-500"
+                                    />
+                                    <img
+                                        src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3MzkyNDZ8MHwxfHNlYXJjaHwzfHx1c2VyfGVufDB8fHx8MTc1ODI5OTE1M3ww&ixlib=rb-4.1.0&q=80&w=1080"
+                                        alt="User"
+                                        className="w-12 h-12 rounded-full border-2 border-primary-500"
+                                    />
+                                </div>
+                                <p className="text-neutral-300">
+                                    Joined by <span className="text-primary-400 font-semibold">10,000+</span> investors
+                                    worldwide
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                {/* Investment Options Section */}
+                <section id="investments" className="py-20 bg-neutral-900">
+                    <div className="container mx-auto px-4">
+                        <div className="text-center mb-16">
+                            <h2 className="text-3xl md:text-4xl font-bold mb-4">Premium Investment Opportunities</h2>
+                            <p className="text-xl text-neutral-300 max-w-3xl mx-auto">
+                                Diversify your portfolio with our selection of high-yield, carefully vetted investment
+                                opportunities.
+                            </p>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                            {/* Solar Energy Card */}
+                            <div className="bg-neutral-800 rounded-xl overflow-hidden hover:shadow-lg hover:shadow-primary-500/20 transition-all duration-300 transform hover:-translate-y-2 group">
+                                <div className="h-60 overflow-hidden">
+                                    <img
+                                        src="https://images.unsplash.com/photo-1509391366360-2e959784a276"
+                                        alt="Solar Plant Investment"
+                                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                        keywords="solar panels, renewable energy, solar plant, green energy"
+                                    />
+                                </div>
+                                <div className="p-6">
+                                    <div className="flex justify-between items-center mb-4">
+                                        <span className="text-primary-400 font-semibold">Solar Energy</span>
+                                        <span className="bg-primary-500/20 text-primary-300 px-3 py-1 rounded-full text-sm">
+                                            12-15% ROI
+                                        </span>
+                                    </div>
+                                    <h3 className="text-xl font-bold mb-3">Solar Farm Investment Plan</h3>
+                                    <p className="text-neutral-300 mb-6">
+                                        Invest in large-scale solar energy projects with predictable returns and
+                                        environmental benefits.
+                                    </p>
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-neutral-400">Min. Investment: $1,000</span>
+                                        <button className="p-2 rounded-full bg-primary-600 hover:bg-primary-500 transition-colors duration-300">
+                                            <span className="material-symbols-outlined">arrow_forward</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Wind Energy Card */}
+                            <div className="bg-neutral-800 rounded-xl overflow-hidden hover:shadow-lg hover:shadow-primary-500/20 transition-all duration-300 transform hover:-translate-y-2 group">
+                                <div className="h-60 overflow-hidden">
+                                    <img
+                                        src="https://images.unsplash.com/photo-1548337138-e87d889cc369"
+                                        alt="Wind Mill Farm"
+                                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                        keywords="wind turbines, wind energy, wind mill, renewable energy"
+                                    />
+                                </div>
+                                <div className="p-6">
+                                    <div className="flex justify-between items-center mb-4">
+                                        <span className="text-primary-400 font-semibold">Wind Energy</span>
+                                        <span className="bg-primary-500/20 text-primary-300 px-3 py-1 rounded-full text-sm">
+                                            11-14% ROI
+                                        </span>
+                                    </div>
+                                    <h3 className="text-xl font-bold mb-3">Wind Farm Investment Plan</h3>
+                                    <p className="text-neutral-300 mb-6">
+                                        Participate in wind energy generation with steady returns and quarterly
+                                        dividends.
+                                    </p>
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-neutral-400">Min. Investment: $2,500</span>
+                                        <button className="p-2 rounded-full bg-primary-600 hover:bg-primary-500 transition-colors duration-300">
+                                            <span className="material-symbols-outlined">arrow_forward</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Crypto Mining Card */}
+                            <div className="bg-neutral-800 rounded-xl overflow-hidden hover:shadow-lg hover:shadow-primary-500/20 transition-all duration-300 transform hover:-translate-y-2 group">
+                                <div className="h-60 overflow-hidden">
+                                    <img
+                                        src="https://images.unsplash.com/photo-1516245834210-c4c142787335"
+                                        alt="Crypto Mining Facility"
+                                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                        keywords="cryptocurrency, bitcoin mining, crypto mining rigs, blockchain"
+                                    />
+                                </div>
+                                <div className="p-6">
+                                    <div className="flex justify-between items-center mb-4">
+                                        <span className="text-primary-400 font-semibold">Crypto Mining</span>
+                                        <span className="bg-primary-500/20 text-primary-300 px-3 py-1 rounded-full text-sm">
+                                            16-25% ROI
+                                        </span>
+                                    </div>
+                                    <h3 className="text-xl font-bold mb-3">Crypto Mining Operation</h3>
+                                    <p className="text-neutral-300 mb-6">
+                                        Invest in our state-of-the-art mining facilities with high potential returns and
+                                        flexible terms.
+                                    </p>
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-neutral-400">Min. Investment: $500</span>
+                                        <button className="p-2 rounded-full bg-primary-600 hover:bg-primary-500 transition-colors duration-300">
+                                            <span className="material-symbols-outlined">arrow_forward</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="mt-12 text-center">
+                            <button className="px-8 py-3 rounded-lg border border-primary-500 hover:bg-primary-600 transition-all duration-300 inline-flex items-center gap-2">
+                                <span>View All Investment Options</span>
+                                <span className="material-symbols-outlined">trending_up</span>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                {/* Casino Section */}
+                <section id="casino" className="py-20 bg-neutral-800 relative">
+                    <div className="absolute inset-0 opacity-10">
+                        <svg width="100%" height="100%">
+                            <pattern
+                                id="https://images.unsplash.com/photo-1484589065579-248aad0d8b13?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3MzkyNDZ8MHwxfHNlYXJjaHw3fHxhYnN0cmFjdHxlbnwwfHx8fDE3NTgyOTU3MjF8MA&ixlib=rb-4.1.0&q=80&w=1080"
+                                x="0"
+                                y="0"
+                                width="50"
+                                height="50"
+                                patternUnits="userSpaceOnUse"
+                                patternContentUnits="userSpaceOnUse"
+                            >
+                                <circle id="pattern-circle" cx="10" cy="10" r="2" fill="#f59e0b"></circle>
+                            </pattern>
+                            <rect
+                                id="rect"
+                                x="0"
+                                y="0"
+                                width="100%"
+                                height="100%"
+                                fill="url(https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3MzkyNDZ8MHwxfHNlYXJjaHwxfHxhYnN0cmFjdHxlbnwwfHx8fDE3NTgyOTU3MjF8MA&ixlib=rb-4.1.0&q=80&w=1080)"
+                            ></rect>
+                        </svg>
+                    </div>
+                    <div className="container mx-auto px-4 relative z-10">
+                        <div className="text-center mb-16">
+                            <h2 className="text-3xl md:text-4xl font-bold mb-4">Premium Casino Experience</h2>
+                            <p className="text-xl text-neutral-300 max-w-3xl mx-auto">
+                                Enjoy our wide selection of casino games with fair odds and instant payouts.
+                            </p>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            {/* Slot Games */}
+                            <div className="bg-neutral-900 rounded-xl overflow-hidden group cursor-pointer">
+                                <div className="h-48 overflow-hidden relative">
+                                    <img
+                                        src="https://images.unsplash.com/photo-1600170311833-c2cf5280ce49"
+                                        alt="Slot Games"
+                                        className="w-full h-full object-cover group-hover:scale-110 transition-all duration-500"
+                                        keywords="slot machine, casino, gambling, slots"
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-neutral-900 to-transparent opacity-70"></div>
+                                    <div className="absolute bottom-0 left-0 p-4">
+                                        <h3 className="text-xl font-bold">Slot Games</h3>
+                                    </div>
+                                </div>
+                                <div className="p-4">
+                                    <p className="text-neutral-300 text-sm mb-3">
+                                        Over 1,000 slot games from top providers with massive jackpots.
+                                    </p>
+                                    <button className="w-full py-2 rounded-lg bg-primary-600 hover:bg-primary-500 transition-colors duration-300 text-sm">
+                                        Play Now
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Table Games */}
+                            <div className="bg-neutral-900 rounded-xl overflow-hidden group cursor-pointer">
+                                <div className="h-48 overflow-hidden relative">
+                                    <img
+                                        src="https://images.unsplash.com/photo-1606167668584-78701c57f13d"
+                                        alt="Table Games"
+                                        className="w-full h-full object-cover group-hover:scale-110 transition-all duration-500"
+                                        keywords="roulette, blackjack, poker, casino table games"
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-neutral-900 to-transparent opacity-70"></div>
+                                    <div className="absolute bottom-0 left-0 p-4">
+                                        <h3 className="text-xl font-bold">Table Games</h3>
+                                    </div>
+                                </div>
+                                <div className="p-4">
+                                    <p className="text-neutral-300 text-sm mb-3">
+                                        Classic table games including Blackjack, Roulette, and Baccarat.
+                                    </p>
+                                    <button className="w-full py-2 rounded-lg bg-primary-600 hover:bg-primary-500 transition-colors duration-300 text-sm">
+                                        Play Now
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Live Casino */}
+                            <div className="bg-neutral-900 rounded-xl overflow-hidden group cursor-pointer">
+                                <div className="h-48 overflow-hidden relative">
+                                    <img
+                                        src="https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5"
+                                        alt="Live Casino"
+                                        className="w-full h-full object-cover group-hover:scale-110 transition-all duration-500"
+                                        keywords="live dealer, live casino, real dealers, casino streaming"
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-neutral-900 to-transparent opacity-70"></div>
+                                    <div className="absolute bottom-0 left-0 p-4">
+                                        <h3 className="text-xl font-bold">Live Casino</h3>
+                                    </div>
+                                </div>
+                                <div className="p-4">
+                                    <p className="text-neutral-300 text-sm mb-3">
+                                        Real-time gaming with professional dealers streamed in HD quality.
+                                    </p>
+                                    <button className="w-full py-2 rounded-lg bg-primary-600 hover:bg-primary-500 transition-colors duration-300 text-sm">
+                                        Play Now
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Sports Betting */}
+                            <div className="bg-neutral-900 rounded-xl overflow-hidden group cursor-pointer">
+                                <div className="h-48 overflow-hidden relative">
+                                    <img
+                                        src="https://images.unsplash.com/photo-1540747913346-19e32dc3e97e"
+                                        alt="Sports Betting"
+                                        className="w-full h-full object-cover group-hover:scale-110 transition-all duration-500"
+                                        keywords="sports betting, gambling, betting odds, sport wagers"
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-neutral-900 to-transparent opacity-70"></div>
+                                    <div className="absolute bottom-0 left-0 p-4">
+                                        <h3 className="text-xl font-bold">Sports Betting</h3>
+                                    </div>
+                                </div>
+                                <div className="p-4">
+                                    <p className="text-neutral-300 text-sm mb-3">
+                                        Bet on your favorite sports with competitive odds and live streaming.
+                                    </p>
+                                    <button className="w-full py-2 rounded-lg bg-primary-600 hover:bg-primary-500 transition-colors duration-300 text-sm">
+                                        Play Now
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="mt-12 bg-neutral-900/50 rounded-xl p-8">
+                            <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                                <div>
+                                    <h3 className="text-2xl font-bold mb-2">New Player Bonus</h3>
+                                    <p className="text-neutral-300">
+                                        Get a 100% match on your first deposit up to $1,000 + 100 free spins
+                                    </p>
+                                </div>
+                                <button className="px-8 py-3 rounded-lg bg-primary-600 hover:bg-primary-500 transition-all duration-300 font-bold whitespace-nowrap">
+                                    Claim Bonus
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                {/* Features Section */}
+                <section className="py-20 bg-neutral-900">
+                    <div className="container mx-auto px-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                            <div className="text-center p-6 bg-neutral-800 rounded-xl hover:bg-neutral-800/80 transition-colors duration-300">
+                                <div className="w-16 h-16 mx-auto bg-primary-500/20 rounded-full flex items-center justify-center mb-4">
+                                    <span className="material-symbols-outlined text-3xl text-primary-400">
+                                        security
+                                    </span>
+                                </div>
+                                <h3 className="text-xl font-bold mb-3">Secure Platform</h3>
+                                <p className="text-neutral-300">
+                                    Bank-level encryption and multi-factor authentication to protect your assets.
+                                </p>
+                            </div>
+
+                            <div className="text-center p-6 bg-neutral-800 rounded-xl hover:bg-neutral-800/80 transition-colors duration-300">
+                                <div className="w-16 h-16 mx-auto bg-primary-500/20 rounded-full flex items-center justify-center mb-4">
+                                    <span className="material-symbols-outlined text-3xl text-primary-400">
+                                        payments
+                                    </span>
+                                </div>
+                                <h3 className="text-xl font-bold mb-3">Fast Withdrawals</h3>
+                                <p className="text-neutral-300">
+                                    Process withdrawals quickly with multiple payment methods available.
+                                </p>
+                            </div>
+
+                            <div className="text-center p-6 bg-neutral-800 rounded-xl hover:bg-neutral-800/80 transition-colors duration-300">
+                                <div className="w-16 h-16 mx-auto bg-primary-500/20 rounded-full flex items-center justify-center mb-4">
+                                    <span className="material-symbols-outlined text-3xl text-primary-400">
+                                        support_agent
+                                    </span>
+                                </div>
+                                <h3 className="text-xl font-bold mb-3">24/7 Support</h3>
+                                <p className="text-neutral-300">
+                                    Our dedicated support team is available around the clock to assist you.
+                                </p>
+                            </div>
+
+                            <div className="text-center p-6 bg-neutral-800 rounded-xl hover:bg-neutral-800/80 transition-colors duration-300">
+                                <div className="w-16 h-16 mx-auto bg-primary-500/20 rounded-full flex items-center justify-center mb-4">
+                                    <span className="material-symbols-outlined text-3xl text-primary-400">
+                                        verified
+                                    </span>
+                                </div>
+                                <h3 className="text-xl font-bold mb-3">Licensed & Regulated</h3>
+                                <p className="text-neutral-300">
+                                    Fully compliant with all relevant regulations for your peace of mind.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                {/* Testimonials */}
+                <section className="py-20 bg-neutral-800">
+                    <div className="container mx-auto px-4">
+                        <div className="text-center mb-16">
+                            <h2 className="text-3xl md:text-4xl font-bold mb-4">What Our Users Say</h2>
+                            <p className="text-xl text-neutral-300 max-w-3xl mx-auto">
+                                Join thousands of satisfied investors and players on our platform.
+                            </p>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                            <div className="bg-neutral-900 p-8 rounded-xl">
+                                <div className="flex items-center mb-6">
+                                    <img
+                                        src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3MzkyNDZ8MHwxfHNlYXJjaHw0fHx1c2VyfGVufDB8fHx8MTc1ODI5OTE1M3ww&ixlib=rb-4.1.0&q=80&w=1080"
+                                        alt="User"
+                                        className="w-14 h-14 rounded-full mr-4"
+                                    />
+                                    <div>
+                                        <h4 className="font-bold">Michael Thompson</h4>
+                                        <p className="text-neutral-400 text-sm">Investor since 2021</p>
+                                    </div>
+                                </div>
+                                <p className="text-neutral-300 mb-4">
+                                    "The solar investment plan has given me consistent returns of 14% annually. The
+                                    platform is intuitive and the team is always responsive."
+                                </p>
+                                <div className="flex text-primary-400">
+                                    <span className="material-symbols-outlined">star</span>
+                                    <span className="material-symbols-outlined">star</span>
+                                    <span className="material-symbols-outlined">star</span>
+                                    <span className="material-symbols-outlined">star</span>
+                                    <span className="material-symbols-outlined">star</span>
+                                </div>
+                            </div>
+
+                            <div className="bg-neutral-900 p-8 rounded-xl">
+                                <div className="flex items-center mb-6">
+                                    <img
+                                        src="https://images.unsplash.com/photo-1639149888905-fb39731f2e6c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3MzkyNDZ8MHwxfHNlYXJjaHw1fHx1c2VyfGVufDB8fHx8MTc1ODI5OTE1M3ww&ixlib=rb-4.1.0&q=80&w=1080"
+                                        alt="User"
+                                        className="w-14 h-14 rounded-full mr-4"
+                                    />
+                                    <div>
+                                        <h4 className="font-bold">Sarah Johnson</h4>
+                                        <p className="text-neutral-400 text-sm">Investor & Player since 2020</p>
+                                    </div>
+                                </div>
+                                <p className="text-neutral-300 mb-4">
+                                    "I've diversified my portfolio with both wind energy investments and occasional
+                                    casino games. The withdrawals are super fast and the investment dashboards are
+                                    detailed."
+                                </p>
+                                <div className="flex text-primary-400">
+                                    <span className="material-symbols-outlined">star</span>
+                                    <span className="material-symbols-outlined">star</span>
+                                    <span className="material-symbols-outlined">star</span>
+                                    <span className="material-symbols-outlined">star</span>
+                                    <span className="material-symbols-outlined">star_half</span>
+                                </div>
+                            </div>
+
+                            <div className="bg-neutral-900 p-8 rounded-xl">
+                                <div className="flex items-center mb-6">
+                                    <img
+                                        src="https://images.unsplash.com/photo-1640951613773-54706e06851d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3MzkyNDZ8MHwxfHNlYXJjaHw2fHx1c2VyfGVufDB8fHx8MTc1ODI5OTE1M3ww&ixlib=rb-4.1.0&q=80&w=1080"
+                                        alt="User"
+                                        className="w-14 h-14 rounded-full mr-4"
+                                    />
+                                    <div>
+                                        <h4 className="font-bold">David Wilson</h4>
+                                        <p className="text-neutral-400 text-sm">Casino Player since 2022</p>
+                                    </div>
+                                </div>
+                                <p className="text-neutral-300 mb-4">
+                                    "The live casino experience is top-notch! Professional dealers, HD streaming, and
+                                    the bonuses are genuinely valuable. Best online casino I've tried."
+                                </p>
+                                <div className="flex text-primary-400">
+                                    <span className="material-symbols-outlined">star</span>
+                                    <span className="material-symbols-outlined">star</span>
+                                    <span className="material-symbols-outlined">star</span>
+                                    <span className="material-symbols-outlined">star</span>
+                                    <span className="material-symbols-outlined">star</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                {/* CTA Section */}
+                <section className="py-20 bg-neutral-900 relative overflow-hidden">
+                    <div className="absolute inset-0 opacity-20">
+                        <img
+                            src="https://images.unsplash.com/photo-1579621970795-87facc2f976d"
+                            alt="Background"
+                            className="w-full h-full object-cover"
+                            keywords="finance, investment, technology background"
+                        />
+                    </div>
+                    <div className="container mx-auto px-4 relative z-10">
+                        <div className="max-w-4xl mx-auto text-center">
+                            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+                                Start Your Investment & Entertainment Journey Today
+                            </h2>
+                            <p className="text-base md:text-xl text-neutral-300 mb-6 md:mb-8">
+                                Join our platform and experience the perfect balance of sustainable investments and
+                                premium entertainment.
+                            </p>
+                            <div className="flex flex-col sm:flex-row justify-center gap-4">
+                                <button className="px-8 py-4 rounded-lg bg-primary-600 hover:bg-primary-500 transition-all duration-300 transform hover:scale-105 font-bold">
+                                    Create Account
+                                </button>
+                                <button className="px-8 py-4 rounded-lg border-2 border-white hover:bg-white/10 transition-all duration-300 transform hover:scale-105 font-bold">
+                                    Learn More
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                {/* Footer */}
+                <footer className="bg-neutral-900 pt-16 pb-8">
+                    <div className="container mx-auto px-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+                            <div>
+                                <div className="flex items-center mb-6">
+                                    <span className="text-primary-500 text-3xl mr-2">
+                                        <i className="fa-solid fa-coins"></i>
+                                    </span>
+                                    <h3 className="text-2xl font-bold bg-gradient-to-r from-primary-400 to-primary-600 bg-clip-text text-transparent">
+                                        WealthVenture
+                                    </h3>
+                                </div>
+                                <p className="text-neutral-400 mb-6">
+                                    The premier platform for sustainable investments and premium casino entertainment.
+                                </p>
+                                <div className="flex space-x-4">
+                                    <a
+                                        href="#"
+                                        className="w-10 h-10 rounded-full bg-neutral-800 flex items-center justify-center hover:bg-primary-600 transition-colors duration-300"
+                                    >
+                                        <i className="fa-brands fa-facebook-f"></i>
+                                    </a>
+                                    <a
+                                        href="#"
+                                        className="w-10 h-10 rounded-full bg-neutral-800 flex items-center justify-center hover:bg-primary-600 transition-colors duration-300"
+                                    >
+                                        <i className="fa-brands fa-twitter"></i>
+                                    </a>
+                                    <a
+                                        href="#"
+                                        className="w-10 h-10 rounded-full bg-neutral-800 flex items-center justify-center hover:bg-primary-600 transition-colors duration-300"
+                                    >
+                                        <i className="fa-brands fa-instagram"></i>
+                                    </a>
+                                    <a
+                                        href="#"
+                                        className="w-10 h-10 rounded-full bg-neutral-800 flex items-center justify-center hover:bg-primary-600 transition-colors duration-300"
+                                    >
+                                        <i className="fa-brands fa-linkedin-in"></i>
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h4 className="text-xl font-bold mb-6">Investments</h4>
+                                <ul className="space-y-3">
+                                    <li>
+                                        <a
+                                            href="#"
+                                            className="text-neutral-400 hover:text-primary-400 transition-colors duration-300"
+                                        >
+                                            Solar Energy
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="#"
+                                            className="text-neutral-400 hover:text-primary-400 transition-colors duration-300"
+                                        >
+                                            Wind Farms
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="#"
+                                            className="text-neutral-400 hover:text-primary-400 transition-colors duration-300"
+                                        >
+                                            Crypto Mining
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="#"
+                                            className="text-neutral-400 hover:text-primary-400 transition-colors duration-300"
+                                        >
+                                            Real Estate
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="#"
+                                            className="text-neutral-400 hover:text-primary-400 transition-colors duration-300"
+                                        >
+                                            Diversified Portfolios
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <div>
+                                <h4 className="text-xl font-bold mb-6">Casino</h4>
+                                <ul className="space-y-3">
+                                    <li>
+                                        <a
+                                            href="#"
+                                            className="text-neutral-400 hover:text-primary-400 transition-colors duration-300"
+                                        >
+                                            Slot Games
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="#"
+                                            className="text-neutral-400 hover:text-primary-400 transition-colors duration-300"
+                                        >
+                                            Table Games
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="#"
+                                            className="text-neutral-400 hover:text-primary-400 transition-colors duration-300"
+                                        >
+                                            Live Casino
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="#"
+                                            className="text-neutral-400 hover:text-primary-400 transition-colors duration-300"
+                                        >
+                                            Sports Betting
+                                        </a>
+                                    </li>
+                                    :remove
+                                    <li></li>
+                                    <li>
+                                        <a
+                                            href="#"
+                                            className="text-neutral-400 hover:text-primary-400 transition-colors duration-300"
+                                        >
+                                            Promotions
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <div>
+                                <h4 className="text-xl font-bold mb-6">Support</h4>
+                                <ul className="space-y-3">
+                                    <li>
+                                        <a
+                                            href="#"
+                                            className="text-neutral-400 hover:text-primary-400 transition-colors duration-300"
+                                        >
+                                            FAQ
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="#"
+                                            className="text-neutral-400 hover:text-primary-400 transition-colors duration-300"
+                                        >
+                                            Contact Us
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="#"
+                                            className="text-neutral-400 hover:text-primary-400 transition-colors duration-300"
+                                        >
+                                            Responsible Gaming
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="#"
+                                            className="text-neutral-400 hover:text-primary-400 transition-colors duration-300"
+                                        >
+                                            Terms & Conditions
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="#"
+                                            className="text-neutral-400 hover:text-primary-400 transition-colors duration-300"
+                                        >
+                                            Privacy Policy
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div className="border-t border-neutral-800 pt-8">
+                            <div className="flex flex-col md:flex-row justify-between items-center">
+                                <p className="text-neutral-500 mb-4 md:mb-0">
+                                    © 2023 WealthVenture. All rights reserved.
+                                </p>
+                                <div className="flex items-center">
+                                    <img
+                                        src="https://img.icons8.com/color/48/000000/visa.png"
+                                        alt="Visa"
+                                        className="h-8 w-auto mx-1"
+                                    />
+                                    <img
+                                        src="https://img.icons8.com/color/48/000000/mastercard.png"
+                                        alt="Mastercard"
+                                        className="h-8 w-auto mx-1"
+                                    />
+                                    <img
+                                        src="https://img.icons8.com/color/48/000000/bitcoin--v1.png"
+                                        alt="Bitcoin"
+                                        className="h-8 w-auto mx-1"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </div>
+    )
 }
-::backdrop {
-  --tw-border-spacing-x: 0;
-  --tw-border-spacing-y: 0;
-  --tw-translate-x: 0;
-  --tw-translate-y: 0;
-  --tw-rotate: 0;
-  --tw-skew-x: 0;
-  --tw-skew-y: 0;
-  --tw-scale-x: 1;
-  --tw-scale-y: 1;
-  --tw-pan-x: ;
-  --tw-pan-y: ;
-  --tw-pinch-zoom: ;
-  --tw-scroll-snap-strictness: proximity;
-  --tw-gradient-from-position: ;
-  --tw-gradient-via-position: ;
-  --tw-gradient-to-position: ;
-  --tw-ordinal: ;
-  --tw-slashed-zero: ;
-  --tw-numeric-figure: ;
-  --tw-numeric-spacing: ;
-  --tw-numeric-fraction: ;
-  --tw-ring-inset: ;
-  --tw-ring-offset-width: 0px;
-  --tw-ring-offset-color: #fff;
-  --tw-ring-color: rgba(59, 130, 246, 0.5);
-  --tw-ring-offset-shadow: 0 0 #0000;
-  --tw-ring-shadow: 0 0 #0000;
-  --tw-shadow: 0 0 #0000;
-  --tw-shadow-colored: 0 0 #0000;
-  --tw-blur: ;
-  --tw-brightness: ;
-  --tw-contrast: ;
-  --tw-grayscale: ;
-  --tw-hue-rotate: ;
-  --tw-invert: ;
-  --tw-saturate: ;
-  --tw-sepia: ;
-  --tw-drop-shadow: ;
-  --tw-backdrop-blur: ;
-  --tw-backdrop-brightness: ;
-  --tw-backdrop-contrast: ;
-  --tw-backdrop-grayscale: ;
-  --tw-backdrop-hue-rotate: ;
-  --tw-backdrop-invert: ;
-  --tw-backdrop-opacity: ;
-  --tw-backdrop-saturate: ;
-  --tw-backdrop-sepia: ;
-  --tw-contain-size: ;
-  --tw-contain-layout: ;
-  --tw-contain-paint: ;
-  --tw-contain-style: ;
-} /*! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com*/
-*,
-:after,
-:before {
-  border: 0 solid #e5e7eb;
-  box-sizing: border-box;
-}
-:after,
-:before {
-  --tw-content: "";
-}
-:host,
-html {
-  line-height: 1.5;
-  -webkit-text-size-adjust: 100%;
-  font-family:
-    Open Sans,
-    ui-sans-serif,
-    system-ui,
-    sans-serif,
-    Apple Color Emoji,
-    Segoe UI Emoji,
-    Segoe UI Symbol,
-    Noto Color Emoji;
-  font-feature-settings: normal;
-  font-variation-settings: normal;
-  -moz-tab-size: 4;
-  tab-size: 4;
-  -webkit-tap-highlight-color: transparent;
-}
-body {
-  line-height: inherit;
-  margin: 0;
-}
-hr {
-  border-top-width: 1px;
-  color: inherit;
-  height: 0;
-}
-abbr:where([title]) {
-  text-decoration: underline dotted;
-}
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-size: inherit;
-  font-weight: inherit;
-}
-a {
-  color: inherit;
-  text-decoration: inherit;
-}
-b,
-strong {
-  font-weight: bolder;
-}
-code,
-kbd,
-pre,
-samp {
-  font-family:
-    ui-monospace,
-    SFMono-Regular,
-    Menlo,
-    Monaco,
-    Consolas,
-    Liberation Mono,
-    Courier New,
-    monospace;
-  font-feature-settings: normal;
-  font-size: 1em;
-  font-variation-settings: normal;
-}
-small {
-  font-size: 80%;
-}
-sub,
-sup {
-  font-size: 75%;
-  line-height: 0;
-  position: relative;
-  vertical-align: baseline;
-}
-sub {
-  bottom: -0.25em;
-}
-sup {
-  top: -0.5em;
-}
-table {
-  border-collapse: collapse;
-  border-color: inherit;
-  text-indent: 0;
-}
-button,
-input,
-optgroup,
-select,
-textarea {
-  color: inherit;
-  font-family: inherit;
-  font-feature-settings: inherit;
-  font-size: 100%;
-  font-variation-settings: inherit;
-  font-weight: inherit;
-  letter-spacing: inherit;
-  line-height: inherit;
-  margin: 0;
-  padding: 0;
-}
-button,
-select {
-  text-transform: none;
-}
-button,
-input:where([type="button"]),
-input:where([type="reset"]),
-input:where([type="submit"]) {
-  -webkit-appearance: button;
-  background-color: transparent;
-  background-image: none;
-}
-:-moz-focusring {
-  outline: auto;
-}
-:-moz-ui-invalid {
-  box-shadow: none;
-}
-progress {
-  vertical-align: baseline;
-}
-::-webkit-inner-spin-button,
-::-webkit-outer-spin-button {
-  height: auto;
-}
-[type="search"] {
-  -webkit-appearance: textfield;
-  outline-offset: -2px;
-}
-::-webkit-search-decoration {
-  -webkit-appearance: none;
-}
-::-webkit-file-upload-button {
-  -webkit-appearance: button;
-  font: inherit;
-}
-summary {
-  display: list-item;
-}
-blockquote,
-dd,
-dl,
-figure,
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-hr,
-p,
-pre {
-  margin: 0;
-}
-fieldset {
-  margin: 0;
-}
-fieldset,
-legend {
-  padding: 0;
-}
-menu,
-ol,
-ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-dialog {
-  padding: 0;
-}
-textarea {
-  resize: vertical;
-}
-input::placeholder,
-textarea::placeholder {
-  color: #9ca3af;
-  opacity: 1;
-}
-[role="button"],
-button {
-  cursor: pointer;
-}
-:disabled {
-  cursor: default;
-}
-audio,
-canvas,
-embed,
-iframe,
-img,
-object,
-svg,
-video {
-  display: block;
-  vertical-align: middle;
-}
-img,
-video {
-  height: auto;
-  max-width: 100%;
-}
-[hidden]:where(:not([hidden="until-found"])) {
-  display: none;
-}
-.container {
-  width: 100%;
-}
-@media (min-width: 640px) {
-  .container {
-    max-width: 640px;
-  }
-}
-@media (min-width: 768px) {
-  .container {
-    max-width: 768px;
-  }
-}
-@media (min-width: 1024px) {
-  .container {
-    max-width: 1024px;
-  }
-}
-@media (min-width: 1280px) {
-  .container {
-    max-width: 1280px;
-  }
-}
-@media (min-width: 1536px) {
-  .container {
-    max-width: 1536px;
-  }
-}
-#webcrumbs .absolute {
-  position: absolute;
-}
-#webcrumbs .relative {
-  position: relative;
-}
-#webcrumbs .inset-0 {
-  inset: 0;
-}
-#webcrumbs .bottom-0 {
-  bottom: 0;
-}
-#webcrumbs .left-0 {
-  left: 0;
-}
-#webcrumbs .z-0 {
-  z-index: 0;
-}
-#webcrumbs .z-10 {
-  z-index: 10;
-}
-#webcrumbs .mx-1 {
-  margin-left: 4px;
-  margin-right: 4px;
-}
-#webcrumbs .mx-auto {
-  margin-left: auto;
-  margin-right: auto;
-}
-#webcrumbs .mb-12 {
-  margin-bottom: 48px;
-}
-#webcrumbs .mb-16 {
-  margin-bottom: 64px;
-}
-#webcrumbs .mb-2 {
-  margin-bottom: 8px;
-}
-#webcrumbs .mb-3 {
-  margin-bottom: 12px;
-}
-#webcrumbs .mb-4 {
-  margin-bottom: 16px;
-}
-#webcrumbs .mb-6 {
-  margin-bottom: 24px;
-}
-#webcrumbs .mb-8 {
-  margin-bottom: 32px;
-}
-#webcrumbs .mr-2 {
-  margin-right: 8px;
-}
-#webcrumbs .mr-4 {
-  margin-right: 16px;
-}
-#webcrumbs .mt-12 {
-  margin-top: 48px;
-}
-#webcrumbs .flex {
-  display: flex;
-}
-#webcrumbs .inline-flex {
-  display: inline-flex;
-}
-#webcrumbs .grid {
-  display: grid;
-}
-#webcrumbs .hidden {
-  display: none;
-}
-#webcrumbs .h-10 {
-  height: 40px;
-}
-#webcrumbs .h-12 {
-  height: 48px;
-}
-#webcrumbs .h-14 {
-  height: 56px;
-}
-#webcrumbs .h-16 {
-  height: 64px;
-}
-#webcrumbs .h-48 {
-  height: 192px;
-}
-#webcrumbs .h-60 {
-  height: 240px;
-}
-#webcrumbs .h-8 {
-  height: 32px;
-}
-#webcrumbs .h-full {
-  height: 100%;
-}
-#webcrumbs .min-h-screen {
-  min-height: 100vh;
-}
-#webcrumbs .w-10 {
-  width: 40px;
-}
-#webcrumbs .w-12 {
-  width: 48px;
-}
-#webcrumbs .w-14 {
-  width: 56px;
-}
-#webcrumbs .w-16 {
-  width: 64px;
-}
-#webcrumbs .w-auto {
-  width: auto;
-}
-#webcrumbs .w-full {
-  width: 100%;
-}
-#webcrumbs .max-w-3xl {
-  max-width: 48rem;
-}
-#webcrumbs .max-w-4xl {
-  max-width: 56rem;
-}
-#webcrumbs .transform {
-  transform: translate(var(--tw-translate-x), var(--tw-translate-y))
-    rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y))
-    scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
-}
-#webcrumbs .cursor-pointer {
-  cursor: pointer;
-}
-#webcrumbs .grid-cols-1 {
-  grid-template-columns: repeat(1, minmax(0, 1fr));
-}
-#webcrumbs .flex-row {
-  flex-direction: row;
-}
-#webcrumbs .flex-col {
-  flex-direction: column;
-}
-#webcrumbs .flex-wrap {
-  flex-wrap: wrap;
-}
-#webcrumbs .items-center {
-  align-items: center;
-}
-#webcrumbs .justify-center {
-  justify-content: center;
-}
-#webcrumbs .justify-between {
-  justify-content: space-between;
-}
-#webcrumbs .gap-2 {
-  gap: 8px;
-}
-#webcrumbs .gap-4 {
-  gap: 16px;
-}
-#webcrumbs .gap-6 {
-  gap: 24px;
-}
-#webcrumbs .gap-8 {
-  gap: 32px;
-}
-#webcrumbs :is(.-space-x-4 > :not([hidden]) ~ :not([hidden])) {
-  --tw-space-x-reverse: 0;
-  margin-left: calc(-16px * (1 - var(--tw-space-x-reverse)));
-  margin-right: calc(-16px * var(--tw-space-x-reverse));
-}
-#webcrumbs :is(.space-x-4 > :not([hidden]) ~ :not([hidden])) {
-  --tw-space-x-reverse: 0;
-  margin-left: calc(16px * (1 - var(--tw-space-x-reverse)));
-  margin-right: calc(16px * var(--tw-space-x-reverse));
-}
-#webcrumbs :is(.space-x-6 > :not([hidden]) ~ :not([hidden])) {
-  --tw-space-x-reverse: 0;
-  margin-left: calc(24px * (1 - var(--tw-space-x-reverse)));
-  margin-right: calc(24px * var(--tw-space-x-reverse));
-}
-#webcrumbs :is(.space-x-8 > :not([hidden]) ~ :not([hidden])) {
-  --tw-space-x-reverse: 0;
-  margin-left: calc(32px * (1 - var(--tw-space-x-reverse)));
-  margin-right: calc(32px * var(--tw-space-x-reverse));
-}
-#webcrumbs :is(.space-y-3 > :not([hidden]) ~ :not([hidden])) {
-  --tw-space-y-reverse: 0;
-  margin-bottom: calc(12px * var(--tw-space-y-reverse));
-  margin-top: calc(12px * (1 - var(--tw-space-y-reverse)));
-}
-#webcrumbs .overflow-hidden {
-  overflow: hidden;
-}
-#webcrumbs .whitespace-nowrap {
-  white-space: nowrap;
-}
-#webcrumbs .rounded-full {
-  border-radius: 9999px;
-}
-#webcrumbs .rounded-lg {
-  border-radius: 24px;
-}
-#webcrumbs .rounded-xl {
-  border-radius: 36px;
-}
-#webcrumbs .border {
-  border-width: 1px;
-}
-#webcrumbs .border-2 {
-  border-width: 2px;
-}
-#webcrumbs .border-t {
-  border-top-width: 1px;
-}
-#webcrumbs .border-neutral-800 {
-  --tw-border-opacity: 1;
-  border-color: rgb(84 84 84 / var(--tw-border-opacity, 1));
-}
-#webcrumbs .border-primary-500 {
-  --tw-border-opacity: 1;
-  border-color: rgb(115 65 255 / var(--tw-border-opacity, 1));
-}
-#webcrumbs .border-primary-600 {
-  --tw-border-opacity: 1;
-  border-color: rgb(99 27 255 / var(--tw-border-opacity, 1));
-}
-#webcrumbs .border-white {
-  --tw-border-opacity: 1;
-  border-color: rgb(255 255 255 / var(--tw-border-opacity, 1));
-}
-#webcrumbs .bg-neutral-800 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(84 84 84 / var(--tw-bg-opacity, 1));
-}
-#webcrumbs .bg-neutral-900 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(70 70 70 / var(--tw-bg-opacity, 1));
-}
-#webcrumbs .bg-neutral-900\/50 {
-  background-color: rgba(70, 70, 70, 0.5);
-}
-#webcrumbs .bg-neutral-900\/70 {
-  background-color: rgba(70, 70, 70, 0.7);
-}
-#webcrumbs .bg-primary-500\/20 {
-  background-color: rgba(115, 65, 255, 0.2);
-}
-#webcrumbs .bg-primary-600 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(99 27 255 / var(--tw-bg-opacity, 1));
-}
-#webcrumbs .bg-gradient-to-b {
-  background-image: linear-gradient(to bottom, var(--tw-gradient-stops));
-}
-#webcrumbs .bg-gradient-to-r {
-  background-image: linear-gradient(to right, var(--tw-gradient-stops));
-}
-#webcrumbs .bg-gradient-to-t {
-  background-image: linear-gradient(to top, var(--tw-gradient-stops));
-}
-#webcrumbs .from-neutral-900 {
-  --tw-gradient-from: #464646 var(--tw-gradient-from-position);
-  --tw-gradient-to: rgba(70, 70, 70, 0) var(--tw-gradient-to-position);
-  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
-}
-#webcrumbs .from-primary-400 {
-  --tw-gradient-from: #9478ff var(--tw-gradient-from-position);
-  --tw-gradient-to: rgba(148, 120, 255, 0) var(--tw-gradient-to-position);
-  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
-}
-#webcrumbs .to-neutral-800 {
-  --tw-gradient-to: #545454 var(--tw-gradient-to-position);
-}
-#webcrumbs .to-primary-600 {
-  --tw-gradient-to: #631bff var(--tw-gradient-to-position);
-}
-#webcrumbs .to-transparent {
-  --tw-gradient-to: transparent var(--tw-gradient-to-position);
-}
-#webcrumbs .bg-clip-text {
-  background-clip: text;
-}
-#webcrumbs .object-cover {
-  object-fit: cover;
-}
-#webcrumbs .p-2 {
-  padding: 8px;
-}
-#webcrumbs .p-4 {
-  padding: 16px;
-}
-#webcrumbs .p-6 {
-  padding: 24px;
-}
-#webcrumbs .p-8 {
-  padding: 32px;
-}
-#webcrumbs .px-3 {
-  padding-left: 12px;
-  padding-right: 12px;
-}
-#webcrumbs .px-4 {
-  padding-left: 16px;
-  padding-right: 16px;
-}
-#webcrumbs .px-8 {
-  padding-left: 32px;
-  padding-right: 32px;
-}
-#webcrumbs .py-1 {
-  padding-bottom: 4px;
-  padding-top: 4px;
-}
-#webcrumbs .py-2 {
-  padding-bottom: 8px;
-  padding-top: 8px;
-}
-#webcrumbs .py-20 {
-  padding-bottom: 80px;
-  padding-top: 80px;
-}
-#webcrumbs .py-3 {
-  padding-bottom: 12px;
-  padding-top: 12px;
-}
-#webcrumbs .py-4 {
-  padding-bottom: 16px;
-  padding-top: 16px;
-}
-#webcrumbs .py-6 {
-  padding-bottom: 24px;
-  padding-top: 24px;
-}
-#webcrumbs .pb-8 {
-  padding-bottom: 32px;
-}
-#webcrumbs .pt-16 {
-  padding-top: 64px;
-}
-#webcrumbs .pt-8 {
-  padding-top: 32px;
-}
-#webcrumbs .text-center {
-  text-align: center;
-}
-#webcrumbs .text-2xl {
-  font-size: 24px;
-  line-height: 31.200000000000003px;
-}
-#webcrumbs .text-3xl {
-  font-size: 30px;
-  line-height: 36px;
-}
-#webcrumbs .text-4xl {
-  font-size: 36px;
-  line-height: 41.4px;
-}
-#webcrumbs .text-5xl {
-  font-size: 48px;
-  line-height: 52.800000000000004px;
-}
-#webcrumbs .text-base {
-  font-size: 16px;
-  line-height: 25.6px;
-}
-#webcrumbs .text-sm {
-  font-size: 14px;
-  line-height: 21px;
-}
-#webcrumbs .text-xl {
-  font-size: 20px;
-  line-height: 28px;
-}
-#webcrumbs .font-bold {
-  font-weight: 700;
-}
-#webcrumbs .font-semibold {
-  font-weight: 600;
-}
-#webcrumbs .text-neutral-200 {
-  --tw-text-opacity: 1;
-  color: rgb(224 224 224 / var(--tw-text-opacity, 1));
-}
-#webcrumbs .text-neutral-300 {
-  --tw-text-opacity: 1;
-  color: rgb(202 202 202 / var(--tw-text-opacity, 1));
-}
-#webcrumbs .text-neutral-400 {
-  --tw-text-opacity: 1;
-  color: rgb(177 177 177 / var(--tw-text-opacity, 1));
-}
-#webcrumbs .text-neutral-500 {
-  --tw-text-opacity: 1;
-  color: rgb(153 153 153 / var(--tw-text-opacity, 1));
-}
-#webcrumbs .text-primary-300 {
-  --tw-text-opacity: 1;
-  color: rgb(183 169 255 / var(--tw-text-opacity, 1));
-}
-#webcrumbs .text-primary-400 {
-  --tw-text-opacity: 1;
-  color: rgb(148 120 255 / var(--tw-text-opacity, 1));
-}
-#webcrumbs .text-primary-500 {
-  --tw-text-opacity: 1;
-  color: rgb(115 65 255 / var(--tw-text-opacity, 1));
-}
-#webcrumbs .text-transparent {
-  color: transparent;
-}
-#webcrumbs .text-white {
-  --tw-text-opacity: 1;
-  color: rgb(255 255 255 / var(--tw-text-opacity, 1));
-}
-#webcrumbs .opacity-10 {
-  opacity: 0.1;
-}
-#webcrumbs .opacity-20 {
-  opacity: 0.2;
-}
-#webcrumbs .opacity-70 {
-  opacity: 0.7;
-}
-#webcrumbs .mix-blend-overlay {
-  mix-blend-mode: overlay;
-}
-#webcrumbs .transition-all {
-  transition-duration: 0.15s;
-  transition-property: all;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-}
-#webcrumbs .transition-colors {
-  transition-duration: 0.15s;
-  transition-property:
-    color, background-color, border-color, text-decoration-color, fill, stroke;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-}
-#webcrumbs .transition-transform {
-  transition-duration: 0.15s;
-  transition-property: transform;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-}
-#webcrumbs .duration-300 {
-  transition-duration: 0.3s;
-}
-#webcrumbs .duration-500 {
-  transition-duration: 0.5s;
-}
-#webcrumbs {
-  font-family: Open Sans !important;
-  font-size: 16px !important;
-}
-#webcrumbs :is(.bg-neutral-800) {
-  color: hsla(0, 0%, 100%, 0.9) !important;
-}
-#webcrumbs :is(.bg-neutral-900) {
-  color: hsla(0, 0%, 100%, 0.9) !important;
-}
-#webcrumbs :is(.bg-primary-600) {
-  color: hsla(0, 0%, 100%, 0.9) !important;
-}
-#webcrumbs .hover\:-translate-y-2:hover {
-  --tw-translate-y: -8px;
-}
-#webcrumbs .hover\:-translate-y-2:hover,
-#webcrumbs .hover\:scale-105:hover {
-  transform: translate(var(--tw-translate-x), var(--tw-translate-y))
-    rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y))
-    scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
-}
-#webcrumbs .hover\:scale-105:hover {
-  --tw-scale-x: 1.05;
-  --tw-scale-y: 1.05;
-}
-#webcrumbs .hover\:bg-neutral-800\/80:hover {
-  background-color: rgba(84, 84, 84, 0.8);
-}
-#webcrumbs .hover\:bg-primary-500:hover {
-  --tw-bg-opacity: 1;
-  background-color: rgb(115 65 255 / var(--tw-bg-opacity, 1));
-}
-#webcrumbs .hover\:bg-primary-600:hover {
-  --tw-bg-opacity: 1;
-  background-color: rgb(99 27 255 / var(--tw-bg-opacity, 1));
-}
-#webcrumbs .hover\:bg-primary-600\/20:hover {
-  background-color: rgba(99, 27, 255, 0.2);
-}
-#webcrumbs .hover\:bg-white\/10:hover {
-  background-color: hsla(0, 0%, 100%, 0.1);
-}
-#webcrumbs .hover\:text-primary-400:hover {
-  --tw-text-opacity: 1;
-  color: rgb(148 120 255 / var(--tw-text-opacity, 1));
-}
-#webcrumbs .hover\:shadow-lg:hover {
-  --tw-shadow:
-    0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
-  --tw-shadow-colored:
-    0 10px 15px -3px var(--tw-shadow-color),
-    0 4px 6px -4px var(--tw-shadow-color);
-  box-shadow:
-    var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000),
-    var(--tw-shadow);
-}
-#webcrumbs .hover\:shadow-primary-500\/20:hover {
-  --tw-shadow-color: rgba(115, 65, 255, 0.2);
-  --tw-shadow: var(--tw-shadow-colored);
-}
-#webcrumbs :is(.group:hover .group-hover\:scale-110) {
-  --tw-scale-x: 1.1;
-  --tw-scale-y: 1.1;
-  transform: translate(var(--tw-translate-x), var(--tw-translate-y))
-    rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y))
-    scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
-}
-@media (min-width: 640px) {
-  #webcrumbs .sm\:flex-row {
-    flex-direction: row;
-  }
-}
-@media (min-width: 768px) {
-  #webcrumbs .md\:mb-0 {
-    margin-bottom: 0;
-  }
-  #webcrumbs .md\:mb-8 {
-    margin-bottom: 32px;
-  }
-  #webcrumbs .md\:flex {
-    display: flex;
-  }
-  #webcrumbs .md\:hidden {
-    display: none;
-  }
-  #webcrumbs .md\:grid-cols-2 {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  #webcrumbs .md\:flex-row {
-    flex-direction: row;
-  }
-  #webcrumbs .md\:text-4xl {
-    font-size: 36px;
-    line-height: 41.4px;
-  }
-  #webcrumbs .md\:text-5xl {
-    font-size: 48px;
-    line-height: 52.800000000000004px;
-  }
-  #webcrumbs .md\:text-xl {
-    font-size: 20px;
-    line-height: 28px;
-  }
-}
-@media (min-width: 1024px) {
-  #webcrumbs .lg\:grid-cols-3 {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-  #webcrumbs .lg\:grid-cols-4 {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-}
-</style><link rel="manifest" href="/manifest.json"><link rel="icon" href="https://cdn.webcrumbs.org/assets/images/landing/favicon.ico" /><link rel="apple-touch-icon" sizes="192x192" href="https://cdn.webcrumbs.org/assets/images/landing/logo192.png" /><link rel="apple-touch-icon" sizes="512x512" href="https://cdn.webcrumbs.org/assets/images/landing/logo512.png" /><meta name="theme-color" content="#ffffff"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="Webcrumbs"></head><body><div id="webcrumbs"><div class="bg-gradient-to-b from-neutral-900 to-neutral-800 min-h-screen text-white">  <header class="container mx-auto py-6 px-4"> <div class="flex justify-between items-center"> <div class="flex items-center"> <span class="text-primary-500 text-3xl mr-2"> <i class="fa-solid fa-coins"></i> </span> <h1 class="text-2xl font-bold bg-gradient-to-r from-primary-400 to-primary-600 bg-clip-text text-transparent">IP</h1> </div> <nav class="hidden md:flex space-x-8"> <a href="#investments" class="hover:text-primary-400 transition-colors duration-300">Investments</a> <a href="#casino" class="hover:text-primary-400 transition-colors duration-300">Casino</a> <a href="#about" class="hover:text-primary-400 transition-colors duration-300">About Us</a> <a href="#contact" class="hover:text-primary-400 transition-colors duration-300">Contact</a> </nav> <div class="flex space-x-4"> <button class="px-4 py-2 rounded-lg bg-primary-600 hover:bg-primary-500 transition-colors duration-300">Sign In</button> <button class="px-4 py-2 rounded-lg border border-primary-600 hover:bg-primary-600/20 transition-colors duration-300">Register</button> <button class="md:hidden text-2xl"> <span class="material-symbols-outlined">menu</span> </button> </div> </div> </header>  <section class="relative py-20 overflow-hidden"> <div class="absolute inset-0 z-0 bg-neutral-900/70"> <img title="black android smartphone on macbook pro" src="https://images.unsplash.com/photo-1620228885847-9eab2a1adddc?crop=entropy&amp;cs=tinysrgb&amp;fit=max&amp;fm=jpg&amp;ixid=M3w3MzkyNDZ8MHwxfHNlYXJjaHwxfHxpbnZlc3RtZW50JTIwYmFja2dyb3VuZHxlbnwwfHx8fDE3NTgzNTUyMDJ8MA&amp;ixlib=rb-4.1.0&amp;q=80&amp;w=1080" alt="Investment Background" class="w-full h-full object-cover mix-blend-overlay" keywords="investment, money, finance, wealth"/> </div> <div class="container mx-auto px-4 relative z-10"> <div class="max-w-3xl"> <h2 class="text-5xl font-bold mb-6">Diversify Your Portfolio with Smart Investments &amp; Entertainment</h2> <p class="text-xl mb-8 text-neutral-200">Discover high-yield investment opportunities and premium casino entertainment on our secure platform.</p> <div class="flex flex-wrap gap-4"> <button class="px-8 py-4 rounded-lg bg-primary-600 hover:bg-primary-500 transition-all duration-300 transform hover:scale-105 font-bold">Start Investing</button> <button class="px-8 py-4 rounded-lg border-2 border-white hover:bg-white/10 transition-all duration-300 transform hover:scale-105 font-bold">Explore Casino</button> </div> <div class="mt-12 flex items-center space-x-6"> <div class="flex -space-x-4"> <img src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?crop=entropy&amp;cs=tinysrgb&amp;fit=max&amp;fm=jpg&amp;ixid=M3w3MzkyNDZ8MHwxfHNlYXJjaHwxfHx1c2VyfGVufDB8fHx8MTc1ODI5OTE1M3ww&amp;ixlib=rb-4.1.0&amp;q=80&amp;w=1080" alt="User" class="w-12 h-12 rounded-full border-2 border-primary-500"/> <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?crop=entropy&amp;cs=tinysrgb&amp;fit=max&amp;fm=jpg&amp;ixid=M3w3MzkyNDZ8MHwxfHNlYXJjaHwyfHx1c2VyfGVufDB8fHx8MTc1ODI5OTE1M3ww&amp;ixlib=rb-4.1.0&amp;q=80&amp;w=1080" alt="User" class="w-12 h-12 rounded-full border-2 border-primary-500"/> <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?crop=entropy&amp;cs=tinysrgb&amp;fit=max&amp;fm=jpg&amp;ixid=M3w3MzkyNDZ8MHwxfHNlYXJjaHwzfHx1c2VyfGVufDB8fHx8MTc1ODI5OTE1M3ww&amp;ixlib=rb-4.1.0&amp;q=80&amp;w=1080" alt="User" class="w-12 h-12 rounded-full border-2 border-primary-500"/> </div> <p class="text-neutral-300">Joined by <span class="text-primary-400 font-semibold">10,000+</span> investors worldwide</p> </div> </div> </div> </section>  <section id="investments" class="py-20 bg-neutral-900"> <div class="container mx-auto px-4"> <div class="text-center mb-16"> <h2 class="text-3xl md:text-4xl font-bold mb-4">Premium Investment Opportunities</h2> <p class="text-xl text-neutral-300 max-w-3xl mx-auto">Diversify your portfolio with our selection of high-yield, carefully vetted investment opportunities.</p> </div> <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">  <div class="bg-neutral-800 rounded-xl overflow-hidden hover:shadow-lg hover:shadow-primary-500/20 transition-all duration-300 transform hover:-translate-y-2 group"> <div class="h-60 overflow-hidden"> <img src="https://images.unsplash.com/photo-1509391366360-2e959784a276" alt="Solar Plant Investment" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" keywords="solar panels, renewable energy, solar plant, green energy"/> </div> <div class="p-6"> <div class="flex justify-between items-center mb-4"> <span class="text-primary-400 font-semibold">Solar Energy</span> <span class="bg-primary-500/20 text-primary-300 px-3 py-1 rounded-full text-sm">12-15% ROI</span> </div> <h3 class="text-xl font-bold mb-3">Solar Farm Investment Plan</h3> <p class="text-neutral-300 mb-6">Invest in large-scale solar energy projects with predictable returns and environmental benefits.</p> <div class="flex justify-between items-center"> <span class="text-neutral-400">Min. Investment: $1,000</span> <button class="p-2 rounded-full bg-primary-600 hover:bg-primary-500 transition-colors duration-300"> <span class="material-symbols-outlined">arrow_forward</span> </button> </div> </div> </div>  <div class="bg-neutral-800 rounded-xl overflow-hidden hover:shadow-lg hover:shadow-primary-500/20 transition-all duration-300 transform hover:-translate-y-2 group"> <div class="h-60 overflow-hidden"> <img src="https://images.unsplash.com/photo-1548337138-e87d889cc369" alt="Wind Mill Farm" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" keywords="wind turbines, wind energy, wind mill, renewable energy"/> </div> <div class="p-6"> <div class="flex justify-between items-center mb-4"> <span class="text-primary-400 font-semibold">Wind Energy</span> <span class="bg-primary-500/20 text-primary-300 px-3 py-1 rounded-full text-sm">11-14% ROI</span> </div> <h3 class="text-xl font-bold mb-3">Wind Farm Investment Plan</h3> <p class="text-neutral-300 mb-6">Participate in wind energy generation with steady returns and quarterly dividends.</p> <div class="flex justify-between items-center"> <span class="text-neutral-400">Min. Investment: $2,500</span> <button class="p-2 rounded-full bg-primary-600 hover:bg-primary-500 transition-colors duration-300"> <span class="material-symbols-outlined">arrow_forward</span> </button> </div> </div> </div>  <div class="bg-neutral-800 rounded-xl overflow-hidden hover:shadow-lg hover:shadow-primary-500/20 transition-all duration-300 transform hover:-translate-y-2 group"> <div class="h-60 overflow-hidden"> <img src="https://images.unsplash.com/photo-1516245834210-c4c142787335" alt="Crypto Mining Facility" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" keywords="cryptocurrency, bitcoin mining, crypto mining rigs, blockchain"/> </div> <div class="p-6"> <div class="flex justify-between items-center mb-4"> <span class="text-primary-400 font-semibold">Crypto Mining</span> <span class="bg-primary-500/20 text-primary-300 px-3 py-1 rounded-full text-sm">16-25% ROI</span> </div> <h3 class="text-xl font-bold mb-3">Crypto Mining Operation</h3> <p class="text-neutral-300 mb-6">Invest in our state-of-the-art mining facilities with high potential returns and flexible terms.</p> <div class="flex justify-between items-center"> <span class="text-neutral-400">Min. Investment: $500</span> <button class="p-2 rounded-full bg-primary-600 hover:bg-primary-500 transition-colors duration-300"> <span class="material-symbols-outlined">arrow_forward</span> </button> </div> </div> </div> </div> <div class="mt-12 text-center"> <button class="px-8 py-3 rounded-lg border border-primary-500 hover:bg-primary-600 transition-all duration-300 inline-flex items-center gap-2"> <span>View All Investment Options</span> <span class="material-symbols-outlined">trending_up</span> </button> </div> </div> </section>  <section id="casino" class="py-20 bg-neutral-800 relative"> <div class="absolute inset-0 opacity-10"> <svg width="100%" height="100%"> <pattern id="https://images.unsplash.com/photo-1484589065579-248aad0d8b13?crop=entropy&amp;cs=tinysrgb&amp;fit=max&amp;fm=jpg&amp;ixid=M3w3MzkyNDZ8MHwxfHNlYXJjaHw3fHxhYnN0cmFjdHxlbnwwfHx8fDE3NTgyOTU3MjF8MA&amp;ixlib=rb-4.1.0&amp;q=80&amp;w=1080" x="0" y="0" width="50" height="50" patternUnits="userSpaceOnUse" patternContentUnits="userSpaceOnUse"> <circle id="pattern-circle" cx="10" cy="10" r="2" fill="#f59e0b"></circle> </pattern> <rect id="rect" x="0" y="0" width="100%" height="100%" fill="url(https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?crop=entropy&amp;cs=tinysrgb&amp;fit=max&amp;fm=jpg&amp;ixid=M3w3MzkyNDZ8MHwxfHNlYXJjaHwxfHxhYnN0cmFjdHxlbnwwfHx8fDE3NTgyOTU3MjF8MA&amp;ixlib=rb-4.1.0&amp;q=80&amp;w=1080)"></rect> </svg> </div> <div class="container mx-auto px-4 relative z-10"> <div class="text-center mb-16"> <h2 class="text-3xl md:text-4xl font-bold mb-4">Premium Casino Experience</h2> <p class="text-xl text-neutral-300 max-w-3xl mx-auto">Enjoy our wide selection of casino games with fair odds and instant payouts.</p> </div> <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">  <div class="bg-neutral-900 rounded-xl overflow-hidden group cursor-pointer"> <div class="h-48 overflow-hidden relative"> <img src="https://images.unsplash.com/photo-1600170311833-c2cf5280ce49" alt="Slot Games" class="w-full h-full object-cover group-hover:scale-110 transition-all duration-500" keywords="slot machine, casino, gambling, slots"/> <div class="absolute inset-0 bg-gradient-to-t from-neutral-900 to-transparent opacity-70"></div> <div class="absolute bottom-0 left-0 p-4"> <h3 class="text-xl font-bold">Slot Games</h3> </div> </div> <div class="p-4"> <p class="text-neutral-300 text-sm mb-3">Over 1,000 slot games from top providers with massive jackpots.</p> <button class="w-full py-2 rounded-lg bg-primary-600 hover:bg-primary-500 transition-colors duration-300 text-sm">Play Now</button> </div> </div>  <div class="bg-neutral-900 rounded-xl overflow-hidden group cursor-pointer"> <div class="h-48 overflow-hidden relative"> <img src="https://images.unsplash.com/photo-1606167668584-78701c57f13d" alt="Table Games" class="w-full h-full object-cover group-hover:scale-110 transition-all duration-500" keywords="roulette, blackjack, poker, casino table games"/> <div class="absolute inset-0 bg-gradient-to-t from-neutral-900 to-transparent opacity-70"></div> <div class="absolute bottom-0 left-0 p-4"> <h3 class="text-xl font-bold">Table Games</h3> </div> </div> <div class="p-4"> <p class="text-neutral-300 text-sm mb-3">Classic table games including Blackjack, Roulette, and Baccarat.</p> <button class="w-full py-2 rounded-lg bg-primary-600 hover:bg-primary-500 transition-colors duration-300 text-sm">Play Now</button> </div> </div>  <div class="bg-neutral-900 rounded-xl overflow-hidden group cursor-pointer"> <div class="h-48 overflow-hidden relative"> <img src="https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5" alt="Live Casino" class="w-full h-full object-cover group-hover:scale-110 transition-all duration-500" keywords="live dealer, live casino, real dealers, casino streaming"/> <div class="absolute inset-0 bg-gradient-to-t from-neutral-900 to-transparent opacity-70"></div> <div class="absolute bottom-0 left-0 p-4"> <h3 class="text-xl font-bold">Live Casino</h3> </div> </div> <div class="p-4"> <p class="text-neutral-300 text-sm mb-3">Real-time gaming with professional dealers streamed in HD quality.</p> <button class="w-full py-2 rounded-lg bg-primary-600 hover:bg-primary-500 transition-colors duration-300 text-sm">Play Now</button> </div> </div>  <div class="bg-neutral-900 rounded-xl overflow-hidden group cursor-pointer"> <div class="h-48 overflow-hidden relative"> <img src="https://images.unsplash.com/photo-1540747913346-19e32dc3e97e" alt="Sports Betting" class="w-full h-full object-cover group-hover:scale-110 transition-all duration-500" keywords="sports betting, gambling, betting odds, sport wagers"/> <div class="absolute inset-0 bg-gradient-to-t from-neutral-900 to-transparent opacity-70"></div> <div class="absolute bottom-0 left-0 p-4"> <h3 class="text-xl font-bold">Sports Betting</h3> </div> </div> <div class="p-4"> <p class="text-neutral-300 text-sm mb-3">Bet on your favorite sports with competitive odds and live streaming.</p> <button class="w-full py-2 rounded-lg bg-primary-600 hover:bg-primary-500 transition-colors duration-300 text-sm">Play Now</button> </div> </div> </div> <div class="mt-12 bg-neutral-900/50 rounded-xl p-8"> <div class="flex flex-col md:flex-row items-center justify-between gap-6"> <div> <h3 class="text-2xl font-bold mb-2">New Player Bonus</h3> <p class="text-neutral-300">Get a 100% match on your first deposit up to $1,000 + 100 free spins</p> </div> <button class="px-8 py-3 rounded-lg bg-primary-600 hover:bg-primary-500 transition-all duration-300 font-bold whitespace-nowrap">Claim Bonus</button> </div> </div> </div> </section>  <section class="py-20 bg-neutral-900"> <div class="container mx-auto px-4"> <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"> <div class="text-center p-6 bg-neutral-800 rounded-xl hover:bg-neutral-800/80 transition-colors duration-300"> <div class="w-16 h-16 mx-auto bg-primary-500/20 rounded-full flex items-center justify-center mb-4"> <span class="material-symbols-outlined text-3xl text-primary-400">security</span> </div> <h3 class="text-xl font-bold mb-3">Secure Platform</h3> <p class="text-neutral-300">Bank-level encryption and multi-factor authentication to protect your assets.</p> </div> <div class="text-center p-6 bg-neutral-800 rounded-xl hover:bg-neutral-800/80 transition-colors duration-300"> <div class="w-16 h-16 mx-auto bg-primary-500/20 rounded-full flex items-center justify-center mb-4"> <span class="material-symbols-outlined text-3xl text-primary-400">payments</span> </div> <h3 class="text-xl font-bold mb-3">Fast Withdrawals</h3> <p class="text-neutral-300">Process withdrawals quickly with multiple payment methods available.</p> </div> <div class="text-center p-6 bg-neutral-800 rounded-xl hover:bg-neutral-800/80 transition-colors duration-300"> <div class="w-16 h-16 mx-auto bg-primary-500/20 rounded-full flex items-center justify-center mb-4"> <span class="material-symbols-outlined text-3xl text-primary-400">support_agent</span> </div> <h3 class="text-xl font-bold mb-3">24/7 Support</h3> <p class="text-neutral-300">Our dedicated support team is available around the clock to assist you.</p> </div> <div class="text-center p-6 bg-neutral-800 rounded-xl hover:bg-neutral-800/80 transition-colors duration-300"> <div class="w-16 h-16 mx-auto bg-primary-500/20 rounded-full flex items-center justify-center mb-4"> <span class="material-symbols-outlined text-3xl text-primary-400">verified</span> </div> <h3 class="text-xl font-bold mb-3">Licensed &amp; Regulated</h3> <p class="text-neutral-300">Fully compliant with all relevant regulations for your peace of mind.</p> </div> </div> </div> </section>  <section class="py-20 bg-neutral-800"> <div class="container mx-auto px-4"> <div class="text-center mb-16"> <h2 class="text-3xl md:text-4xl font-bold mb-4">What Our Users Say</h2> <p class="text-xl text-neutral-300 max-w-3xl mx-auto">Join thousands of satisfied investors and players on our platform.</p> </div> <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"> <div class="bg-neutral-900 p-8 rounded-xl"> <div class="flex items-center mb-6"> <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?crop=entropy&amp;cs=tinysrgb&amp;fit=max&amp;fm=jpg&amp;ixid=M3w3MzkyNDZ8MHwxfHNlYXJjaHw0fHx1c2VyfGVufDB8fHx8MTc1ODI5OTE1M3ww&amp;ixlib=rb-4.1.0&amp;q=80&amp;w=1080" alt="User" class="w-14 h-14 rounded-full mr-4"/> <div> <h4 class="font-bold">Michael Thompson</h4> <p class="text-neutral-400 text-sm">Investor since 2021</p> </div> </div> <p class="text-neutral-300 mb-4">&quot;The solar investment plan has given me consistent returns of 14% annually. The platform is intuitive and the team is always responsive.&quot;</p> <div class="flex text-primary-400"> <span class="material-symbols-outlined">star</span> <span class="material-symbols-outlined">star</span> <span class="material-symbols-outlined">star</span> <span class="material-symbols-outlined">star</span> <span class="material-symbols-outlined">star</span> </div> </div> <div class="bg-neutral-900 p-8 rounded-xl"> <div class="flex items-center mb-6"> <img src="https://images.unsplash.com/photo-1639149888905-fb39731f2e6c?crop=entropy&amp;cs=tinysrgb&amp;fit=max&amp;fm=jpg&amp;ixid=M3w3MzkyNDZ8MHwxfHNlYXJjaHw1fHx1c2VyfGVufDB8fHx8MTc1ODI5OTE1M3ww&amp;ixlib=rb-4.1.0&amp;q=80&amp;w=1080" alt="User" class="w-14 h-14 rounded-full mr-4"/> <div> <h4 class="font-bold">Sarah Johnson</h4> <p class="text-neutral-400 text-sm">Investor &amp; Player since 2020</p> </div> </div> <p class="text-neutral-300 mb-4">&quot;I&#x27;ve diversified my portfolio with both wind energy investments and occasional casino games. The withdrawals are super fast and the investment dashboards are detailed.&quot;</p> <div class="flex text-primary-400"> <span class="material-symbols-outlined">star</span> <span class="material-symbols-outlined">star</span> <span class="material-symbols-outlined">star</span> <span class="material-symbols-outlined">star</span> <span class="material-symbols-outlined">star_half</span> </div> </div> <div class="bg-neutral-900 p-8 rounded-xl"> <div class="flex items-center mb-6"> <img src="https://images.unsplash.com/photo-1640951613773-54706e06851d?crop=entropy&amp;cs=tinysrgb&amp;fit=max&amp;fm=jpg&amp;ixid=M3w3MzkyNDZ8MHwxfHNlYXJjaHw2fHx1c2VyfGVufDB8fHx8MTc1ODI5OTE1M3ww&amp;ixlib=rb-4.1.0&amp;q=80&amp;w=1080" alt="User" class="w-14 h-14 rounded-full mr-4"/> <div> <h4 class="font-bold">David Wilson</h4> <p class="text-neutral-400 text-sm">Casino Player since 2022</p> </div> </div> <p class="text-neutral-300 mb-4">&quot;The live casino experience is top-notch! Professional dealers, HD streaming, and the bonuses are genuinely valuable. Best online casino I&#x27;ve tried.&quot;</p> <div class="flex text-primary-400"> <span class="material-symbols-outlined">star</span> <span class="material-symbols-outlined">star</span> <span class="material-symbols-outlined">star</span> <span class="material-symbols-outlined">star</span> <span class="material-symbols-outlined">star</span> </div> </div> </div> </div> </section>  <section class="py-20 bg-neutral-900 relative overflow-hidden"> <div class="absolute inset-0 opacity-20"> <img src="https://images.unsplash.com/photo-1579621970795-87facc2f976d" alt="Background" class="w-full h-full object-cover" keywords="finance, investment, technology background"/> </div> <div class="container mx-auto px-4 relative z-10"> <div class="max-w-4xl mx-auto text-center"> <h2 class="text-4xl md:text-5xl font-bold mb-6">Start Your Investment &amp; Entertainment Journey Today</h2> <p class="text-base md:text-xl text-neutral-300 mb-6 md:mb-8">Join our platform and experience the perfect balance of sustainable investments and premium entertainment.</p> <div class="flex flex-col sm:flex-row justify-center gap-4"> <button class="px-8 py-4 rounded-lg bg-primary-600 hover:bg-primary-500 transition-all duration-300 transform hover:scale-105 font-bold">Create Account</button> <button class="px-8 py-4 rounded-lg border-2 border-white hover:bg-white/10 transition-all duration-300 transform hover:scale-105 font-bold">Learn More</button> </div> </div> </div> </section>  <footer class="bg-neutral-900 pt-16 pb-8"> <div class="container mx-auto px-4"> <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12"> <div> <div class="flex items-center mb-6"> <span class="text-primary-500 text-3xl mr-2"> <i class="fa-solid fa-coins"></i> </span> <h3 class="text-2xl font-bold bg-gradient-to-r from-primary-400 to-primary-600 bg-clip-text text-transparent">WealthVenture</h3> </div> <p class="text-neutral-400 mb-6">The premier platform for sustainable investments and premium casino entertainment.</p> <div class="flex space-x-4"> <a href="#" class="w-10 h-10 rounded-full bg-neutral-800 flex items-center justify-center hover:bg-primary-600 transition-colors duration-300"> <i class="fa-brands fa-facebook-f"></i> </a> <a href="#" class="w-10 h-10 rounded-full bg-neutral-800 flex items-center justify-center hover:bg-primary-600 transition-colors duration-300"> <i class="fa-brands fa-twitter"></i> </a> <a href="#" class="w-10 h-10 rounded-full bg-neutral-800 flex items-center justify-center hover:bg-primary-600 transition-colors duration-300"> <i class="fa-brands fa-instagram"></i> </a> <a href="#" class="w-10 h-10 rounded-full bg-neutral-800 flex items-center justify-center hover:bg-primary-600 transition-colors duration-300"> <i class="fa-brands fa-linkedin-in"></i> </a> </div> </div> <div> <h4 class="text-xl font-bold mb-6">Investments</h4> <ul class="space-y-3"> <li><a href="#" class="text-neutral-400 hover:text-primary-400 transition-colors duration-300">Solar Energy</a></li> <li><a href="#" class="text-neutral-400 hover:text-primary-400 transition-colors duration-300">Wind Farms</a></li> <li><a href="#" class="text-neutral-400 hover:text-primary-400 transition-colors duration-300">Crypto Mining</a></li> <li><a href="#" class="text-neutral-400 hover:text-primary-400 transition-colors duration-300">Real Estate</a></li> <li><a href="#" class="text-neutral-400 hover:text-primary-400 transition-colors duration-300">Diversified Portfolios</a></li> </ul> </div> <div> <h4 class="text-xl font-bold mb-6">Casino</h4> <ul class="space-y-3"> <li><a href="#" class="text-neutral-400 hover:text-primary-400 transition-colors duration-300">Slot Games</a></li> <li><a href="#" class="text-neutral-400 hover:text-primary-400 transition-colors duration-300">Table Games</a></li> <li><a href="#" class="text-neutral-400 hover:text-primary-400 transition-colors duration-300">Live Casino</a></li> <li><a href="#" class="text-neutral-400 hover:text-primary-400 transition-colors duration-300">Sports Betting</a></li>:remove <li></li> <li><a href="#" class="text-neutral-400 hover:text-primary-400 transition-colors duration-300">Promotions</a></li> </ul> </div> <div> <h4 class="text-xl font-bold mb-6">Support</h4> <ul class="space-y-3"> <li><a href="#" class="text-neutral-400 hover:text-primary-400 transition-colors duration-300">FAQ</a></li> <li><a href="#" class="text-neutral-400 hover:text-primary-400 transition-colors duration-300">Contact Us</a></li> <li><a href="#" class="text-neutral-400 hover:text-primary-400 transition-colors duration-300">Responsible Gaming</a></li> <li><a href="#" class="text-neutral-400 hover:text-primary-400 transition-colors duration-300">Terms &amp; Conditions</a></li> <li><a href="#" class="text-neutral-400 hover:text-primary-400 transition-colors duration-300">Privacy Policy</a></li> </ul> </div> </div> <div class="border-t border-neutral-800 pt-8"> <div class="flex flex-col md:flex-row justify-between items-center"> <p class="text-neutral-500 mb-4 md:mb-0">© 2023 WealthVenture. All rights reserved.</p> <div class="flex items-center"> <img src="https://img.icons8.com/color/48/000000/visa.png" alt="Visa" class="h-8 w-auto mx-1"/> <img src="https://img.icons8.com/color/48/000000/mastercard.png" alt="Mastercard" class="h-8 w-auto mx-1"/> <img src="https://img.icons8.com/color/48/000000/bitcoin--v1.png" alt="Bitcoin" class="h-8 w-auto mx-1"/> </div></div></div></div></footer></div></div> </body></html>
