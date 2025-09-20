@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
+
+
+import React from 'react';
 import './UserDashboard.css';
 import { 
-    DepositIcon, WithdrawIcon, TeamIcon, RewardsIcon, WalletIcon, SupportIcon,
-    SecurePlatformIcon, HighReturnsIcon, InstantPayoutsIcon,
+    DepositIcon, WithdrawIcon, TeamIcon, SellUsdtIcon, SupportIcon, RewardsIcon,
+    SecurePlatformIcon, HighReturnsIcon, InstantPayoutsIcon, ExcitingGamesIcon,
     BankVsInvestIcon, PassiveIncomeIcon, FinancialFreedomIcon,
     SmartInvestingIcon, LongTermGrowthIcon, DiversificationIcon 
 } from './Icons';
@@ -11,6 +13,7 @@ import southPartner from '../assets/msme.png';
 import northPartner from '../assets/invest1.png';
 import dubaiPartner from '../assets/dubai.png';
 import singaporePartner from '../assets/singapore.png';
+import journeyImage from '../assets/ipbi.png';
 
 // Sample plan data to showcase in the dashboard
 const samplePlans = [
@@ -21,41 +24,29 @@ const samplePlans = [
 ];
 
 const investmentPartners = [
-    { name: 'South Partner', logo: southPartner },
-    { name: 'North Partner', logo: northPartner },
-    { name: 'Dubai Partner', logo: dubaiPartner },
-    { name: 'Singapore Partner', logo: singaporePartner },
+    { name: 'South India Ventures', logo: southPartner },
+    { name: 'Northern Capital Group', logo: northPartner },
+    { name: 'Dubai Future Investments', logo: dubaiPartner },
+    { name: 'Singapore Wealth Fund', logo: singaporePartner },
 ];
 
 const formatCurrency = (amount) => new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(amount);
 
 function UserDashboard({ onViewChange }) {
-    const [totalPayout, setTotalPayout] = useState(10000000); // Start at 1 Crore for visual effect
-
-    useEffect(() => {
-        // Simulate total payouts increasing over time
-        const interval = setInterval(() => {
-            setTotalPayout(prev => prev + Math.floor(Math.random() * (100000 - 50000) + 50000));
-        }, 3000);
-        return () => clearInterval(interval);
-    }, []);
     
     const quickActions = [
         { id: 'deposit', label: 'Deposit', icon: <DepositIcon />, view: 'deposit' },
         { id: 'withdraw', label: 'Withdraw', icon: <WithdrawIcon />, view: 'withdraw' },
-        { id: 'team', label: 'Team', icon: <TeamIcon />, view: 'team' },
+        { id: 'team', label: 'Team', icon: '👥', view: 'team' }, // Using emoji as requested
         { id: 'daily-tasks', label: 'Daily Tasks', icon: <RewardsIcon />, view: 'rewards' },
-        { id: 'wallet', label: 'Wallet', icon: <WalletIcon />, view: 'wallet' },
+        { id: 'sell-usdt', label: 'Sell USDT', icon: <SellUsdtIcon />, view: 'sell-usdt' },
         { id: 'support', label: 'Support', icon: <SupportIcon />, view: 'support' },
     ];
 
      const journeyContent = [
         { id: 1, title: 'Bank Savings vs. Smart Investing', text: 'Discover why letting your money work for you can vastly outperform traditional savings.', icon: <BankVsInvestIcon /> },
         { id: 2, title: 'The Power of Passive Income', text: 'Learn how our platform helps you build steady, passive income streams that grow over time.', icon: <PassiveIncomeIcon /> },
-        { id: 3, title: 'Start Your Independence Journey', text: 'Take the first step towards financial freedom. Our tools are designed for beginners and experts alike.', icon: <FinancialFreedomIcon /> },
-        { id: 4, title: 'Smart Investing in a Digital Age', text: 'Explore how diversifying into high-growth digital assets can accelerate your wealth creation.', icon: <SmartInvestingIcon /> },
-        { id: 5, title: 'Long-Term Growth Strategies', text: 'See how consistent investments can lead to substantial long-term financial security.', icon: <LongTermGrowthIcon /> },
-        { id: 6, title: 'The Art of Diversification', text: 'Understand why spreading your investments across different products minimizes risk and maximizes returns.', icon: <DiversificationIcon /> },
+        { id: 3, title: 'Start Your Independence Journey', text: 'Take the first step towards financial freedom with tools designed for everyone.', icon: <FinancialFreedomIcon /> },
     ];
 
     return (
@@ -88,46 +79,60 @@ function UserDashboard({ onViewChange }) {
                         </div>
                     ))}
                 </div>
-                <div className="blog-grid">
-                    {journeyContent.map(post => (
-                        <div key={post.id} className="blog-card">
-                            <div className="blog-card-icon">{post.icon}</div>
-                            <h5>{post.title}</h5>
-                            <p>{post.text}</p>
-                        </div>
-                    ))}
+                <div className="journey-content-wrapper">
+                    <img src={journeyImage} alt="Financial Journey" className="journey-image"/>
+                    <div className="blog-grid">
+                        {journeyContent.map(post => (
+                            <div key={post.id} className="blog-card">
+                                <div className="blog-card-icon">{post.icon}</div>
+                                <h5>{post.title}</h5>
+                                <p>{post.text}</p>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </div>
 
             <div className="dashboard-card partners-section">
                 <h4>Our Investment Partners</h4>
-                <div className="partners-logo-grid">
-                    {investmentPartners.map((partner, index) => (
-                        <img key={index} src={partner.logo} alt={partner.name} />
-                    ))}
+                <div className="partners-logo-container">
+                    <div className="partners-logo-grid">
+                        {investmentPartners.map((partner, index) => (
+                            <img key={index} src={partner.logo} alt={partner.name} title={partner.name} />
+                        ))}
+                        {/* Duplicate for seamless loop */}
+                        {investmentPartners.map((partner, index) => (
+                            <img key={`dup-${index}`} src={partner.logo} alt={partner.name} title={partner.name} />
+                        ))}
+                    </div>
                 </div>
             </div>
 
             <div className="payout-ticker-card">
                 <h4>Total Payouts to Date</h4>
-                <p className="payout-amount">{formatCurrency(totalPayout)}</p>
+                <p className="payout-amount">{formatCurrency(100000000)} +</p>
             </div>
 
             <div className="info-section">
                 <div className="info-card">
                     <div className="info-card-icon"><InstantPayoutsIcon /></div>
                     <h4>Instant Payouts</h4>
-                    <p>Your winnings and earnings are credited to your withdrawable balance immediately.</p>
+                    <p>Winnings and earnings are credited to your withdrawable balance immediately.</p>
                 </div>
                 <div className="info-card">
                     <div className="info-card-icon"><SecurePlatformIcon /></div>
-                    <h4>Secure Platform</h4>
+                    <h4>Secure Transactions</h4>
                     <p>We use state-of-the-art security to protect your data and transactions, 24/7.</p>
                 </div>
                 <div className="info-card">
                     <div className="info-card-icon"><HighReturnsIcon /></div>
                     <h4>High Returns</h4>
-                    <p>Our diverse investment plans and games are designed to maximize your earning potential.</p>
+                    <p>Our diverse investment plans and games are designed to maximize your potential.</p>
+                </div>
+                 <div className="info-card">
+                    <div className="info-card-icon"><ExcitingGamesIcon /></div>
+                    <h4>Exciting Games</h4>
+                    <p>Experience fair and engaging skill-based games designed for fun and profit.</p>
                 </div>
             </div>
             
@@ -147,4 +152,5 @@ function UserDashboard({ onViewChange }) {
 }
 
 export default UserDashboard;
+
 
