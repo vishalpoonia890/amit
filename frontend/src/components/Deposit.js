@@ -3,10 +3,14 @@ import axios from 'axios';
 import { createClient } from '@supabase/supabase-js';
 import './FormPages.css';
 
+// ✅ IMPORTANT: Make sure you have an 'assets' folder inside your 'src' folder
+// and that these images are placed inside it.
+import upiQrImage from '../assets/ptys.png';
+import usdtQrImage from '../assets/usdt.png';
+
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
 
 // IMPORTANT: You must add these variables to your frontend's .env file
-// In Create React App, they would be in a file named .env.local
 const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
 const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
@@ -15,13 +19,13 @@ function Deposit({ token, onBack, onDepositRequest }) {
     const [step, setStep] = useState(1);
     const [amount, setAmount] = useState('');
     const [utr, setUtr] = useState('');
-    const [paymentInfo, setPaymentInfo] = useState({ upi: {} });
+    const [paymentMethod, setPaymentMethod] = useState('UPI'); // 'UPI' or 'USDT'
+    const [paymentInfo, setPaymentInfo] = useState({ upi: {}, crypto: {} });
     const [maintenance, setMaintenance] = useState({ isDown: false, endsAt: null });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     
-    // New state for file upload
     const [screenshotFile, setScreenshotFile] = useState(null);
     const [filePreview, setFilePreview] = useState('');
 
@@ -31,7 +35,8 @@ function Deposit({ token, onBack, onDepositRequest }) {
             try {
                 const { data } = await axios.get(`${API_BASE_URL}/api/deposit-info`, { headers: { Authorization: `Bearer ${token}` } });
                 const upiData = data.methods.find(m => m.method_name === 'UPI') || {};
-                setPaymentInfo({ upi: upiData });
+                const cryptoData = data.methods.find(m => m.method_name === 'Crypto') || {};
+                setPaymentInfo({ upi: upiData, crypto: cryptoData });
                 
                 const status = data.status;
                 if (status.is_maintenance && new Date(status.maintenance_ends_at) > new Date()) {
@@ -50,7 +55,6 @@ function Deposit({ token, onBack, onDepositRequest }) {
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            // Basic validation for file type and size (optional but recommended)
             if (!file.type.startsWith('image/')) {
                 setError('Please upload a valid image file (jpg, png, webp).');
                 return;
@@ -67,8 +71,9 @@ function Deposit({ token, onBack, onDepositRequest }) {
 
     const handleDepositSubmit = async (e) => {
         e.preventDefault();
+        const transactionIdLabel = paymentMethod === 'UPI' ? 'UTR' : 'Txn Hash';
         if (!utr || utr.length < 12) {
-            setError("Please enter a valid 12-digit UTR number.");
+            setError(`Please enter a valid 12-character ${transactionIdLabel}.`);
             return;
         }
         if (!screenshotFile) {
@@ -79,26 +84,22 @@ function Deposit({ token, onBack, onDepositRequest }) {
         setError('');
 
         try {
-            // 1. Get the current user's ID for creating a unique folder path
             const userResponse = await supabase.auth.getUser();
             const userId = userResponse.data.user.id;
             const filePath = `${userId}/${Date.now()}_${screenshotFile.name}`;
 
-            // 2. Upload the screenshot to Supabase Storage
             const { data: uploadData, error: uploadError } = await supabase.storage
                 .from('payment-screenshots')
                 .upload(filePath, screenshotFile);
 
             if (uploadError) throw uploadError;
 
-            // 3. Get the public URL of the uploaded file
             const { data: urlData } = supabase.storage
                 .from('payment-screenshots')
                 .getPublicUrl(uploadData.path);
             
             const screenshotUrl = urlData.publicUrl;
 
-            // 4. Submit the recharge request to your server with all details
             await axios.post(
                 `${API_BASE_URL}/api/recharge`,
                 { amount: parseInt(amount), utr, screenshotUrl },
@@ -132,12 +133,19 @@ function Deposit({ token, onBack, onDepositRequest }) {
         );
     }
 
+    const currentPayment = paymentMethod === 'UPI' ? paymentInfo.upi : paymentInfo.crypto;
+    const qrImage = paymentMethod === 'UPI' ? upiQrImage : usdtQrImage;
+    const formatCurrency = (amount) => new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR" }).format(amount || 0);
+
     return (
         <div className="recharge-container">
+            <div className="promo-banner">
+                <span>✨ Get <strong>10% EXTRA</strong> on USDT Deposits! (1 USDT = 92 INR)</span>
+            </div>
             <div className="recharge-header">
                 <button onClick={onBack} className="secondary-button">←</button>
                 <h1>Wallet Recharge</h1>
-                <div></div> {/* Placeholder for alignment */}
+                <div></div>
             </div>
 
             {error && <div className="error-message">{error}</div>}
@@ -156,13 +164,7 @@ function Deposit({ token, onBack, onDepositRequest }) {
                 {step === 1 && (
                     <div className="recharge-step">
                         <h2>Enter Recharge Amount</h2>
-                        <input
-                            type="number"
-                            className="amount-input"
-                            placeholder="e.g., 500"
-                            value={amount}
-                            onChange={(e) => setAmount(e.target.value)}
-                        />
+                        <input type="number" className="amount-input" placeholder="e.g., 500" value={amount} onChange={(e) => setAmount(e.target.value)} />
                         <div className="form-buttons">
                             <button className="gradient-button" onClick={() => setStep(2)} disabled={!amount || parseInt(amount) < 100}>
                                 Proceed to Pay
@@ -174,11 +176,15 @@ function Deposit({ token, onBack, onDepositRequest }) {
                 {step === 2 && (
                     <div className="recharge-step">
                         <h2>Complete Payment</h2>
-                        <p>Scan the QR to pay <strong>₹{parseInt(amount).toLocaleString()}</strong></p>
-                        <img src={paymentInfo.upi.qr_code_url} alt="UPI QR Code" className="qr-code" />
+                        <div className="payment-method-tabs">
+                            <button className={`payment-tab ${paymentMethod === 'UPI' ? 'active' : ''}`} onClick={() => setPaymentMethod('UPI')}>UPI</button>
+                            <button className={`payment-tab ${paymentMethod === 'USDT' ? 'active' : ''}`} onClick={() => setPaymentMethod('USDT')}>USDT (TRC20)</button>
+                        </div>
+                        <p>Scan the QR to pay <strong>{paymentMethod === 'USDT' ? `${(amount / 92).toFixed(2)} USDT` : formatCurrency(amount)}</strong></p>
+                        <img src={qrImage} alt={`${paymentMethod} QR Code`} className="qr-code" />
                         <div className="upi-id-display">
-                            <span>{paymentInfo.upi.account_id}</span>
-                            <button className="copy-button" onClick={() => copyToClipboard(paymentInfo.upi.account_id)}>Copy</button>
+                            <span>{currentPayment.account_id}</span>
+                            <button className="copy-button" onClick={() => copyToClipboard(currentPayment.account_id)}>Copy</button>
                         </div>
                         <div className="form-buttons">
                             <button className="secondary-button" onClick={() => setStep(1)}>Back</button>
@@ -192,17 +198,14 @@ function Deposit({ token, onBack, onDepositRequest }) {
                         <h2>Confirm Your Payment</h2>
                         <input
                             type="text"
-                            placeholder="Enter 12-digit UTR"
+                            placeholder={paymentMethod === 'UPI' ? "Enter 12-digit UTR" : "Enter Transaction Hash (Txn Hash)"}
                             value={utr}
-                            onChange={(e) => setUtr(e.target.value.replace(/[^a-zA-Z0-9]/g, "").slice(0, 12))}
+                            onChange={(e) => setUtr(e.target.value)}
                             className="utr-input"
                         />
                         <div className="upload-area">
                             <label htmlFor="screenshot-upload">
-                                {filePreview ? 
-                                    <img src={filePreview} alt="Screenshot Preview" className="screenshot-preview"/> : 
-                                    "Click to Upload Screenshot"
-                                }
+                                {filePreview ? <img src={filePreview} alt="Screenshot Preview" className="screenshot-preview"/> : "Click to Upload Screenshot" }
                             </label>
                             <input id="screenshot-upload" type="file" accept="image/*" onChange={handleFileChange} />
                         </div>
@@ -220,3 +223,4 @@ function Deposit({ token, onBack, onDepositRequest }) {
 }
 
 export default Deposit;
+
