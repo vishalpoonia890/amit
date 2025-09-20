@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import './UserDashboard.css';
 import { 
-    DepositIcon, WithdrawIcon, TeamIcon, SupportIcon, WalletIcon,
+    DepositIcon, WithdrawIcon, TeamIcon, RewardsIcon, WalletIcon, SupportIcon,
     SecurePlatformIcon, HighReturnsIcon, InstantPayoutsIcon,
     BankVsInvestIcon, PassiveIncomeIcon, FinancialFreedomIcon,
     SmartInvestingIcon, LongTermGrowthIcon, DiversificationIcon 
-} from './Icons'; // Assuming new icons are added to your Icons.js file
+} from './Icons';
 
-// Sample plan data (as you would get from productsandplans.js)
+const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
+
+// Sample plan data to showcase in the dashboard
 const samplePlans = [
     { id: 101, name: 'iPhone 17', price: 480, dailyIncome: 75, durationDays: 10 },
     { id: 201, name: 'Sun Harvest 100', price: 1500, dailyIncome: 180, durationDays: 20 },
@@ -22,9 +25,10 @@ const investmentPartners = [
     'https://placehold.co/150x50/ffffff/000000?text=Partner+4',
 ];
 
+const formatCurrency = (amount) => new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(amount);
 
 function UserDashboard({ onViewChange }) {
-    const [totalPayout, setTotalPayout] = useState(10000000); // Start at 10 Crores
+    const [totalPayout, setTotalPayout] = useState(10000000); // Start at 1 Crore for visual effect
 
     useEffect(() => {
         // Simulate total payouts increasing over time
