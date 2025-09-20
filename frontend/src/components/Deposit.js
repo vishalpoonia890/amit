@@ -3,14 +3,13 @@ import axios from 'axios';
 import { createClient } from '@supabase/supabase-js';
 import './FormPages.css';
 
-// ✅ IMPORTANT: Make sure you have an 'assets' folder inside your 'src' folder
-// and that these images are placed inside it.
+// ✅ Make sure these exist in src/assets
 import upiQrImage from '../assets/ptys.jpg';
 import usdtQrImage from '../assets/usdt.jpg';
 
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
 
-// IMPORTANT: You must add these variables to your frontend's .env file
+// Supabase setup
 const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
 const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
@@ -19,13 +18,12 @@ function Deposit({ token, onBack, onDepositRequest }) {
     const [step, setStep] = useState(1);
     const [amount, setAmount] = useState('');
     const [utr, setUtr] = useState('');
-    const [paymentMethod, setPaymentMethod] = useState('UPI'); // 'UPI' or 'USDT'
+    const [paymentMethod, setPaymentMethod] = useState('UPI');
     const [paymentInfo, setPaymentInfo] = useState({ upi: {}, crypto: {} });
     const [maintenance, setMaintenance] = useState({ isDown: false, endsAt: null });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
-    
     const [screenshotFile, setScreenshotFile] = useState(null);
     const [filePreview, setFilePreview] = useState('');
 
@@ -33,14 +31,15 @@ function Deposit({ token, onBack, onDepositRequest }) {
         const fetchDepositInfo = async () => {
             setLoading(true);
             try {
-                const { data } = await axios.get(`${API_BASE_URL}/api/deposit-info`, { headers: { Authorization: `Bearer ${token}` } });
+                const { data } = await axios.get(`${API_BASE_URL}/api/deposit-info`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
                 const upiData = data.methods.find(m => m.method_name === 'UPI') || {};
                 const cryptoData = data.methods.find(m => m.method_name === 'Crypto') || {};
                 setPaymentInfo({ upi: upiData, crypto: cryptoData });
-                
-                const status = data.status;
-                if (status.is_maintenance && new Date(status.maintenance_ends_at) > new Date()) {
-                    setMaintenance({ isDown: true, endsAt: status.maintenance_ends_at });
+
+                if (data.status.is_maintenance && new Date(data.status.maintenance_ends_at) > new Date()) {
+                    setMaintenance({ isDown: true, endsAt: data.status.maintenance_ends_at });
                 }
             } catch (error) {
                 console.error("Failed to fetch deposit info:", error);
@@ -59,7 +58,7 @@ function Deposit({ token, onBack, onDepositRequest }) {
                 setError('Please upload a valid image file (jpg, png, webp).');
                 return;
             }
-            if (file.size > 5 * 1024 * 1024) { // 5MB limit
+            if (file.size > 5 * 1024 * 1024) {
                 setError('File is too large. Please upload an image under 5MB.');
                 return;
             }
@@ -97,7 +96,7 @@ function Deposit({ token, onBack, onDepositRequest }) {
             const { data: urlData } = supabase.storage
                 .from('payment-screenshots')
                 .getPublicUrl(uploadData.path);
-            
+
             const screenshotUrl = urlData.publicUrl;
 
             await axios.post(
@@ -105,7 +104,7 @@ function Deposit({ token, onBack, onDepositRequest }) {
                 { amount: parseInt(amount), utr, screenshotUrl },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
-            
+
             onDepositRequest(amount);
             setSuccess("Your deposit request has been submitted successfully!");
             setTimeout(() => onBack(), 2000);
@@ -117,7 +116,7 @@ function Deposit({ token, onBack, onDepositRequest }) {
             setLoading(false);
         }
     };
-    
+
     const copyToClipboard = (text) => {
         navigator.clipboard.writeText(text).then(() => alert('Copied to clipboard!'));
     };
@@ -139,9 +138,11 @@ function Deposit({ token, onBack, onDepositRequest }) {
 
     return (
         <div className="recharge-container">
+            {/* ✅ Promo Banner inside body */}
             <div className="promo-banner">
-                <span>✨ Get <strong>10% EXTRA</strong> on USDT Deposits! (1 USDT = 92 INR)</span>
+                <span>✨ Deposit USDT (TRC20) & Get <strong>10% EXTRA</strong>! | 1 USDT = 92 INR</span>
             </div>
+
             <div className="recharge-header">
                 <button onClick={onBack} className="secondary-button">←</button>
                 <h1>Wallet Recharge</h1>
@@ -154,7 +155,10 @@ function Deposit({ token, onBack, onDepositRequest }) {
             <div className="recharge-card">
                 <div className="recharge-steps">
                     {["Amount", "Pay", "Confirm"].map((label, i) => (
-                        <div key={label} className={`step ${step >= i + 1 ? "active" : ""} ${step > i + 1 ? "completed" : ""}`}>
+                        <div
+                            key={label}
+                            className={`step ${step >= i + 1 ? "active" : ""} ${step > i + 1 ? "completed" : ""}`}
+                        >
                             <div className="step-circle">{i + 1}</div>
                             <div className="step-label">{label}</div>
                         </div>
@@ -164,24 +168,54 @@ function Deposit({ token, onBack, onDepositRequest }) {
                 {step === 1 && (
                     <div className="recharge-step">
                         <h2>Enter Recharge Amount</h2>
-                        <input type="number" className="amount-input" placeholder="e.g., 500" value={amount} onChange={(e) => setAmount(e.target.value)} />
+                        <input
+                            type="number"
+                            className="amount-input"
+                            placeholder="e.g., 500"
+                            value={amount}
+                            onChange={(e) => setAmount(e.target.value)}
+                        />
                         <div className="form-buttons">
-                            <button className="gradient-button" onClick={() => setStep(2)} disabled={!amount || parseInt(amount) < 100}>
+                            <button
+                                className="gradient-button"
+                                onClick={() => setStep(2)}
+                                disabled={!amount || parseInt(amount) < 100}
+                            >
                                 Proceed to Pay
                             </button>
                         </div>
                     </div>
                 )}
-            
+
                 {step === 2 && (
                     <div className="recharge-step">
                         <h2>Complete Payment</h2>
                         <div className="payment-method-tabs">
-                            <button className={`payment-tab ${paymentMethod === 'UPI' ? 'active' : ''}`} onClick={() => setPaymentMethod('UPI')}>UPI</button>
-                            <button className={`payment-tab ${paymentMethod === 'USDT' ? 'active' : ''}`} onClick={() => setPaymentMethod('USDT')}>USDT (TRC20)</button>
+                            <button
+                                className={`payment-tab ${paymentMethod === 'UPI' ? 'active' : ''}`}
+                                onClick={() => setPaymentMethod('UPI')}
+                            >
+                                UPI
+                            </button>
+                            <button
+                                className={`payment-tab ${paymentMethod === 'USDT' ? 'active' : ''}`}
+                                onClick={() => setPaymentMethod('USDT')}
+                            >
+                                USDT (TRC20)
+                            </button>
                         </div>
-                        <p>Scan the QR to pay <strong>{paymentMethod === 'USDT' ? `${(amount / 92).toFixed(2)} USDT` : formatCurrency(amount)}</strong></p>
-                        <img src={qrImage} alt={`${paymentMethod} QR Code`} className="qr-code" />
+                        <p>
+                            Scan the QR to pay{" "}
+                            <strong>
+                                {paymentMethod === 'USDT'
+                                    ? `${(amount / 92).toFixed(2)} USDT`
+                                    : formatCurrency(amount)}
+                            </strong>
+                        </p>
+                        {/* ✅ Fixed QR image */}
+                        <div className="qr-wrapper">
+                            <img src={qrImage} alt={`${paymentMethod} QR`} className="qr-code" />
+                        </div>
                         <div className="upi-id-display">
                             <span>{currentPayment.account_id}</span>
                             <button className="copy-button" onClick={() => copyToClipboard(currentPayment.account_id)}>Copy</button>
@@ -198,14 +232,18 @@ function Deposit({ token, onBack, onDepositRequest }) {
                         <h2>Confirm Your Payment</h2>
                         <input
                             type="text"
-                            placeholder={paymentMethod === 'UPI' ? "Enter 12-digit UTR" : "Enter Transaction Hash (Txn Hash)"}
+                            placeholder={paymentMethod === 'UPI' ? "Enter 12-digit UTR" : "Enter Transaction Hash"}
                             value={utr}
                             onChange={(e) => setUtr(e.target.value)}
                             className="utr-input"
                         />
                         <div className="upload-area">
                             <label htmlFor="screenshot-upload">
-                                {filePreview ? <img src={filePreview} alt="Screenshot Preview" className="screenshot-preview"/> : "Click to Upload Screenshot" }
+                                {filePreview ? (
+                                    <img src={filePreview} alt="Screenshot Preview" className="screenshot-preview" />
+                                ) : (
+                                    "Click to Upload Screenshot"
+                                )}
                             </label>
                             <input id="screenshot-upload" type="file" accept="image/*" onChange={handleFileChange} />
                         </div>
@@ -223,4 +261,3 @@ function Deposit({ token, onBack, onDepositRequest }) {
 }
 
 export default Deposit;
-
