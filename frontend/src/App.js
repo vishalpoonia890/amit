@@ -23,7 +23,7 @@ import NotificationsDialog from './components/NotificationsDialog';
 import SellUsdt from './components/SellUsdt';
 import IpLottery from './components/IpLottery';
 import WinWinGame from './components/WinWinGame';
-import AviatorGame from './components/AviatorGame'; // ✅ ADDED: Import the Aviator game component
+import AviatorGame from './components/AviatorGame';
 import LandingPage from './components/LandingPage'; // The new landing page for logged-out users
 
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
@@ -31,7 +31,8 @@ const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
 function App() {
     // --- State Management ---
     const [token, setToken] = useState(localStorage.getItem('token') || null);
-    const [view, setView] = useState('dashboard');
+    // ✅ FIX: The view now persists on refresh by using localStorage
+    const [view, setView] = useState(localStorage.getItem('view') || 'dashboard');
     const [authView, setAuthView] = useState('login');
     const [userData, setUserData] = useState(null);
     const [financialSummary, setFinancialSummary] = useState(null);
@@ -44,6 +45,13 @@ function App() {
     const [userNotifications, setUserNotifications] = useState([]);
     const [promotions, setPromotions] = useState([]);
     const [showNotificationsDialog, setShowNotificationsDialog] = useState(false);
+
+    // ✅ FIX: Save the current view to localStorage whenever it changes
+    useEffect(() => {
+        if (token) {
+            localStorage.setItem('view', view);
+        }
+    }, [view, token]);
 
     // --- Core Functions ---
     const toggleTheme = () => {
@@ -63,10 +71,11 @@ function App() {
 
     const handleLogout = useCallback(() => {
         localStorage.removeItem('token');
+        localStorage.removeItem('view'); // Clear the saved view on logout
         setToken(null);
         setUserData(null);
         setFinancialSummary(null);
-        setView('landingpage');
+        // No need to setView here, the component will re-render and show the LandingPage
     }, []);
 
     const fetchAllUserData = useCallback(async (authToken) => {
@@ -96,7 +105,6 @@ function App() {
             fetchAllUserData(storedToken).then(() => setLoading(false));
         } else {
             setLoading(false);
-            setView('login');
         }
     }, [fetchAllUserData]);
 
@@ -106,7 +114,7 @@ function App() {
             return () => clearInterval(interval);
         }
     }, [token, fetchAllUserData]);
-    
+        
     // --- Notification Handlers ---
     const handleMarkAsRead = async (ids) => {
         try {
@@ -128,7 +136,7 @@ function App() {
     
     const unreadCount = userNotifications.filter(n => !n.is_read).length;
     
-    // --- Authentication and View Rendering ---
+    // --- Authentication Handlers (passed as props to LandingPage) ---
     const handleLogin = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -175,62 +183,6 @@ function App() {
     const handleDepositRequest = useCallback((amount) => showSnackbar(`₹${amount.toLocaleString()} deposit requested.`, 'info'), []);
     const handleWithdrawalRequest = useCallback((amount) => showSnackbar(`₹${amount.toLocaleString()} withdrawal requested.`, 'info'), []);
 
-    const renderAuthForms = () => (
-        <div className="auth-wrapper">
-             <div className="auth-container-simple">
-                 {authView === 'login' ? (
-                    <div className="form-box-simple">
-                        <h2>Login</h2>
-                        <form onSubmit={handleLogin}>
-                           <div className="input-box">
-                                <input type="tel" name="mobile" value={loginFormData.mobile} onChange={handleLoginInputChange} required autoComplete="tel"/>
-                                <label>Mobile Number</label>
-                            </div>
-                            <div className="input-box">
-                                <input type="password" name="password" value={loginFormData.password} onChange={handleLoginInputChange} required autoComplete="current-password"/>
-                                <label>Password</label>
-                            </div>
-                            <button className="btn" type="submit" disabled={loading}>{loading ? 'Logging in...' : 'Login'}</button>
-                            <div className="regi-link">
-                                <p>Don't have an account? <button type="button" onClick={() => setAuthView('register')}>Sign Up</button></p>
-                            </div>
-                        </form>
-                    </div>
-                ) : (
-                    <div className="form-box-simple">
-                        <h2>Register</h2>
-                        <form onSubmit={handleRegister}>
-                            <div className="input-box">
-                                <input type="text" name="username" value={registerFormData.username} onChange={handleRegisterInputChange} required autoComplete="username"/>
-                                <label>Username</label>
-                            </div>
-                            <div className="input-box">
-                                <input type="tel" name="mobile" value={registerFormData.mobile} onChange={handleRegisterInputChange} required autoComplete="tel"/>
-                                <label>Mobile Number</label>
-                            </div>
-                            <div className="input-box">
-                                <input type="password" name="password" value={registerFormData.password} onChange={handleRegisterInputChange} required autoComplete="new-password"/>
-                                <label>Password</label>
-                            </div>
-                             <div className="input-box">
-                                <input type="password" name="confirmPassword" value={registerFormData.confirmPassword} onChange={handleRegisterInputChange} required autoComplete="new-password"/>
-                                <label>Confirm Password</label>
-                            </div>
-                            <div className="input-box">
-                                <input type="text" name="referralCode" value={registerFormData.referralCode} onChange={handleRegisterInputChange} autoComplete="off"/>
-                                <label>Referral Code (Optional)</label>
-                            </div>
-                            <button className="btn" type="submit" disabled={loading}>{loading ? 'Registering...' : 'Register'}</button>
-                            <div className="regi-link">
-                                <p>Already have an account? <button type="button" onClick={() => setAuthView('login')}>Sign In</button></p>
-                            </div>
-                        </form>
-                    </div>
-                )}
-            </div>
-        </div>
-    );
-
     const renderMainView = () => {
         if (userData?.is_admin) {
             return <AdminPanel token={token} />;
@@ -271,8 +223,7 @@ function App() {
     if (loading && !token) return <div className="loading-app"><h1>InvestmentPlus</h1><p>Loading...</p></div>;
     
     if (!token) {
-        
-    return (
+        return (
             <LandingPage
                 authView={authView}
                 setAuthView={setAuthView}
