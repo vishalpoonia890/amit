@@ -1,12 +1,13 @@
 import React from 'react';
 import './GameLobby.css';
-import { SelectGameIcon, PlaceBetIcon, WinBigIcon, ZeroEdgeIcon } from './Icons'; // New icon for the "How to Play" section
+import { SelectGameIcon, PlaceBetIcon, WinBigIcon, ZeroEdgeIcon } from './Icons';
 
-// ✅ FIX: Replaced broken and placeholder links with new, working, high-quality images.
-const colorPredictionImage = 'https://i.ibb.co/7jQqySP/color-prediction-game-thumb.png';
-const lotteryImage = 'https://i.ibb.co/P9g45bQ/ip-lottery-game-thumb.png';
-const winWinImage = 'https://i.ibb.co/bF9MDkC/color-prediction-game-thumb.png';
-const aviatorImage = 'https://i.ibb.co/zV9W7Yc/aviator-game-thumb.png';
+// ✅ IMPORTANT: Make sure you have an 'assets' folder inside your 'src' folder
+// and that these images are placed inside it.
+import colorPredictionImage from '../assets/color.png';
+import lotteryImage from '../assets/lottery.png';
+import aviatorImage from '../assets/coming.png'; // Placeholder for coming soon
+import winWinImage from '../assets/winwin.png';   // Placeholder for exclusive game
 
 const games = [
     {
@@ -31,15 +32,16 @@ const games = [
         description: 'Cash out before the plane flies away. How high can you go?',
         image: aviatorImage,
         view: 'aviator',
-        isAvailable: true,
+        isAvailable: false, // Set to false to show "Coming Soon"
     },
     {
         id: 'win-win',
         name: 'Win-Win',
-        description: '100% rewards for everyone with a prize pool of 10 Lakh+!',
+        description: 'Exclusive game for our top investors. Guaranteed win for every top player!',
         image: winWinImage,
         view: 'win-win',
-        isAvailable: true,
+        isAvailable: false, // Set to false to show the custom overlay
+        isExclusive: true, // Custom flag for different overlay text
     },
 ];
 
@@ -54,11 +56,8 @@ function GameLobby({ onViewChange }) {
             </div>
 
             <div className="zero-edge-promo-card">
-                <div className="zero-edge-icon"><ZeroEdgeIcon /></div>
-                <div className="zero-edge-text">
-                    <h3>World's First Casino with "ZERO" House Edge</h3>
-                    <p>We believe in fair play. Every rupee you bet is redistributed among the players. To ensure everyone wins, InvestmentPlus matches the total prize pool, guaranteeing a 100% payout rate and creating a truly rewarding experience for our community.</p>
-                </div>
+                <h3>World's First Casino with "ZERO" House Edge</h3>
+                <p>We believe in fair play. Every rupee you bet is redistributed among the players. To ensure everyone wins, InvestmentPlus matches the total prize pool, guaranteeing a 100% payout rate and creating a truly rewarding experience for our community.</p>
             </div>
             
             <div className="game-grid">
@@ -75,7 +74,11 @@ function GameLobby({ onViewChange }) {
                             <h3>{game.name}</h3>
                             <p>{game.description}</p>
                         </div>
-                        {!game.isAvailable && <div className="coming-soon-overlay">Coming Soon</div>}
+                        {!game.isAvailable && (
+                            <div className="coming-soon-overlay">
+                                {game.isExclusive ? 'Exclusive Access' : 'Coming Soon!!'}
+                            </div>
+                        )}
                     </div>
                 ))}
             </div>
