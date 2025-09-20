@@ -6,7 +6,7 @@ import {
     BankVsInvestIcon, PassiveIncomeIcon, FinancialFreedomIcon,
     SmartInvestingIcon, LongTermGrowthIcon, DiversificationIcon 
 } from './Icons';
-import casinoBgImage from '../assets/casino1.png'; // Assuming images are in src/assets
+import casinoBgImage from '../assets/casino1.jpg'; // Assuming images are in src/assets
 import southPartner from '../assets/msme.png';
 import northPartner from '../assets/invest1.png';
 import dubaiPartner from '../assets/dubai.png';
