@@ -135,7 +135,7 @@ function Deposit({ token, onBack, onDepositRequest }) {
 
     const currentPayment = paymentMethod === 'UPI' ? paymentInfo.upi : paymentInfo.crypto;
     const qrImage = paymentMethod === 'UPI' ? upiQrImage : usdtQrImage;
-    const formatCurrency = (amount) => new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR" }).format(amount || 0);
+    const formatCurrency = (val) => new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR" }).format(val || 0);
 
     return (
         <div className="recharge-container">
