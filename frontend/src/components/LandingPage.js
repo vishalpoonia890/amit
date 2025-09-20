@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { motion } from "framer-motion";
 import "./LandingPage.css";
 
 function LandingPage() {
@@ -10,23 +9,13 @@ function LandingPage() {
   return (
     <div className="landing-container">
       {/* Hero Section */}
-      <section className="hero">
-        <motion.img
+      <section className="hero fade-in">
+        <img
           src="/assets/ipbi.png"
           alt="InvestmentPlus Hero"
           className="hero-img"
-          initial={{ opacity: 0, y: -50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1 }}
         />
-        <motion.h1
-          className="company-name"
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 1 }}
-        >
-          Welcome to InvestmentPlus
-        </motion.h1>
+        <h1 className="company-name">Welcome to InvestmentPlus</h1>
         <p className="tagline">
           Smart Investments & Casino Thrills – Grow Your Money Daily!
         </p>
@@ -37,53 +26,28 @@ function LandingPage() {
       </section>
 
       {/* Smart Investments Section */}
-      <section className="investments">
-        <motion.h2
-          initial={{ x: -100, opacity: 0 }}
-          whileInView={{ x: 0, opacity: 1 }}
-          transition={{ duration: 1 }}
-        >
-          Smart Investments
-        </motion.h2>
+      <section className="investments slide-up">
+        <h2>Smart Investments</h2>
         <p>
           Start your journey with as little as ₹300 and earn daily profits from
           <b> 2% to 15%</b>.
         </p>
-        <motion.div
-          className="investment-card"
+        <div
+          className="investment-card bounce-hover"
           onClick={() => setShowInvestmentDialog(true)}
-          whileHover={{ scale: 1.05 }}
         >
           <img src="/assets/solar.png" alt="Solar Investment" />
           <p>Click to Know More</p>
-        </motion.div>
+        </div>
       </section>
 
       {/* Casino Section */}
-      <section className="casino">
-        <motion.h2
-          initial={{ x: 100, opacity: 0 }}
-          whileInView={{ x: 0, opacity: 1 }}
-          transition={{ duration: 1 }}
-        >
-          Casino & Fun
-        </motion.h2>
+      <section className="casino fade-in">
+        <h2>Casino & Fun</h2>
         <div className="casino-content">
-          <motion.img
-            src="/assets/casino1.jpg"
-            alt="Casino Game"
-            whileHover={{ scale: 1.1 }}
-          />
-          <motion.img
-            src="/assets/casino2.jpg"
-            alt="Casino Slots"
-            whileHover={{ scale: 1.1 }}
-          />
-          <motion.img
-            src="/assets/casino3.jpg"
-            alt="Casino Chips"
-            whileHover={{ scale: 1.1 }}
-          />
+          <img src="/assets/casino1.jpg" alt="Casino Game" />
+          <img src="/assets/casino2.jpg" alt="Casino Slots" />
+          <img src="/assets/casino3.jpg" alt="Casino Chips" />
         </div>
         <p>
           Play responsibly and enjoy exciting games while growing your earnings.
@@ -91,13 +55,12 @@ function LandingPage() {
       </section>
 
       {/* Who We Are */}
-      <section className="about">
+      <section className="about slide-up">
         <h2>Who We Are?</h2>
         <p>
           InvestmentPlus is a trusted platform combining smart investments with
           entertainment. Our mission is to help people multiply their wealth
-          through innovative financial opportunities and fun gaming
-          experiences.
+          through innovative financial opportunities and fun gaming experiences.
         </p>
       </section>
 
