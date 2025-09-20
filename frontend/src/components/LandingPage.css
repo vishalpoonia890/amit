@@ -1,232 +1,222 @@
-body, h1, h2, h3, p {
+/* General Styles */
+body {
   margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-#webcrumbs {
   font-family: "Poppins", sans-serif;
-  background: radial-gradient(circle at top, #0f0f0f, #1a1a1a);
+  background: #0d0d0d;
   color: #fff;
-  overflow-x: hidden;
 }
 
-/* 🎰 Casino Theme */
-.casino-theme {
-  background-image: url("https://images.unsplash.com/photo-1538688525198-9b88f6f53126");
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
-}
-
-/* Header */
-.landing-header {
+.landing-container {
   text-align: center;
-  padding: 80px 20px;
-  background: rgba(0, 0, 0, 0.65);
 }
 
-.landing-header h1 {
-  font-size: 3rem;
+/* Hero Section */
+.hero {
+  background: linear-gradient(to bottom, #1a1a1a, #000);
+  padding: 60px 20px;
+  animation: fadeIn 2s ease-in;
+}
+
+.hero-img {
+  max-width: 90%;
+  height: auto;
   margin-bottom: 20px;
+}
+
+.company-name {
+  font-size: 2.5rem;
   color: gold;
+  text-shadow: 0 0 10px #ff0;
 }
 
-.landing-header p {
-  font-size: 1.3rem;
-  margin-bottom: 30px;
-  color: #eee;
+.tagline {
+  margin: 10px 0 20px;
+  font-size: 1.2rem;
+  color: #ccc;
 }
 
-.landing-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-}
-
-.btn-primary, .btn-secondary {
-  padding: 12px 22px;
-  border: none;
-  border-radius: 6px;
+.hero-buttons button {
+  margin: 10px;
+  padding: 12px 24px;
   font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #ffcc00, #ff6600);
+  color: #000;
+  font-weight: bold;
   cursor: pointer;
-  transition: 0.3s ease;
+  transition: transform 0.3s;
 }
 
-.btn-primary {
-  background: linear-gradient(90deg, #ffb400, #ff7200);
-  color: #fff;
+.hero-buttons button:hover {
+  transform: scale(1.1);
 }
 
-.btn-primary:hover {
+/* Investment Section */
+.investments {
+  padding: 50px 20px;
+  background: #111;
+}
+
+.investment-card {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 20px;
+  background: #222;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 0.3s;
+}
+
+.investment-card img {
+  max-width: 200px;
+  display: block;
+  margin: auto;
+}
+
+.investment-card:hover {
   transform: scale(1.05);
 }
 
-.btn-secondary {
-  background: #fff;
-  color: #222;
-}
-
-.btn-secondary:hover {
-  background: #ddd;
-}
-
-/* Hero */
-.hero-section {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  padding: 60px 20px;
-  align-items: center;
-}
-
-.hero-text {
-  flex: 1;
-  min-width: 280px;
-  padding: 20px;
-}
-
-.hero-text h2 {
-  font-size: 2.2rem;
-  margin-bottom: 15px;
-  color: gold;
-}
-
-.hero-text p {
-  font-size: 1.1rem;
-  color: #eee;
-}
-
-.hero-image img {
-  width: 400px;
-  border-radius: 12px;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.6);
-}
-
-/* Features */
-.features {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 25px;
+/* Casino Section */
+.casino {
   padding: 50px 20px;
+  background: #1a1a1a;
 }
 
-.feature-card {
-  background: rgba(0,0,0,0.7);
-  border: 2px solid gold;
+.casino-content {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.casino-content img {
+  max-width: 200px;
   border-radius: 12px;
-  padding: 20px;
-  width: 280px;
-  text-align: center;
-  transition: 0.3s;
+  transition: transform 0.3s;
 }
 
-.feature-card img {
-  width: 100%;
-  height: 150px;
-  object-fit: cover;
-  border-radius: 8px;
-  margin-bottom: 15px;
+.casino-content img:hover {
+  transform: scale(1.1);
 }
 
-.feature-card:hover {
-  transform: translateY(-8px) scale(1.03);
-  box-shadow: 0 6px 20px rgba(255, 215, 0, 0.6);
-}
-
-.feature-card h3 {
-  color: gold;
-  margin-bottom: 10px;
-}
-
-/* FAQ */
-.faq {
-  background: rgba(0,0,0,0.85);
+/* About Section */
+.about {
   padding: 50px 20px;
-  text-align: center;
+  background: #111;
 }
 
-.faq h2 {
-  color: gold;
-  margin-bottom: 25px;
-}
-
-.faq-item {
-  max-width: 600px;
-  margin: 0 auto 20px auto;
-  text-align: left;
-}
-
-.faq-item h3 {
-  color: #ffcc00;
-  margin-bottom: 5px;
+/* Footer */
+footer {
+  background: #000;
+  padding: 15px;
+  font-size: 0.9rem;
+  color: #aaa;
 }
 
 /* Modals */
-.modal-overlay {
+.modal-overlay,
+.dialog-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0,0,0,0.75);
+  background: rgba(0, 0, 0, 0.85);
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   z-index: 999;
 }
 
-.modal-content {
-  background: #1e1e1e;
-  color: #fff;
-  padding: 30px;
+.modal-box,
+.dialog-box {
+  background: #222;
+  padding: 25px;
+  border-radius: 12px;
   width: 90%;
   max-width: 400px;
-  border: 2px solid gold;
-  border-radius: 12px;
   text-align: center;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.6);
-  animation: slideDown 0.3s ease;
 }
 
-.modal-content input {
+.modal-box input,
+.dialog-box input {
+  display: block;
   width: 100%;
-  padding: 12px;
-  margin-bottom: 12px;
-  border: 1px solid #444;
+  padding: 10px;
+  margin: 8px 0;
   border-radius: 6px;
-  background: #2a2a2a;
-  color: #fff;
+  border: none;
+}
+
+.auth-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+}
+
+.auth-buttons button,
+.dialog-box button {
+  flex: 1;
+  margin: 5px;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  background: gold;
+  color: #000;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* Terms */
+.terms {
+  font-size: 0.85rem;
+  color: #bbb;
+  display: block;
+  margin-top: 10px;
+  text-align: left;
 }
 
 /* Animations */
-@keyframes slideDown {
-  from { transform: translateY(-30px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
-
-.animate-fade { animation: fadeIn 1.2s ease forwards; opacity: 0; }
 @keyframes fadeIn {
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
-.animate-slide { animation: slideUp 1.2s ease forwards; opacity: 0; }
+.fade-in {
+  animation: fadeIn 2s ease-in;
+}
+
 @keyframes slideUp {
-  from { transform: translateY(20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+  from {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
-.animate-bounce {
-  animation: bounce 2s infinite;
+.slide-up {
+  animation: slideUp 1.5s ease-in;
 }
+
+.bounce-hover:hover {
+  animation: bounce 0.6s;
+}
+
 @keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
-}
-
-.animate-zoom { animation: zoomIn 1.2s ease; }
-@keyframes zoomIn {
-  from { transform: scale(0.8); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
 }
