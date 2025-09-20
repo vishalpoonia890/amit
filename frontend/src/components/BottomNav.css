@@ -1,88 +1,66 @@
+/* --- Main Bottom Navigation Container --- */
 .bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  margin: 0 auto;
-  display: flex;
-  justify-content: space-around;
-  /* FIXED:  background-color is now a solid, non-transparent variable */
-  background-color: var(--header-footer-bg); 
-  border-top: 1px solid var(--border-color);
-  z-index: 1000;
-  height: 65px;
-  box-shadow: 0 -2px 10px var(--shadow-color);
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    width: 100%;
+    max-width: 600px; /* Ensures it matches the max-width of your app container */
+    margin: 0 auto;
+    background-color: var(--card-bg-color);
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000; /* Keeps it on top of other content */
 }
 
+/* --- Individual Navigation Items --- */
 .nav-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  flex-grow: 1;
-  background: none;
-  border: none;
-  color: var(--nav-text);
-  cursor: pointer;
-  padding: 5px 0;
-  transition: color 0.2s, background-color 0.2s;
-  position: relative;
-  text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    flex-grow: 1;
+    height: 100%;
+    color: var(--text-color-light);
+    cursor: pointer;
+    transition: color 0.2s ease-in-out;
+    padding: 5px 0;
+    font-family: 'Poppins', sans-serif;
 }
 
-/* Active state has a top border indicator */
-.nav-item.active {
-  color: var(--primary-color);
-  background-color: var(--nav-active-bg);
-}
-
-.nav-item.active::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 20%;
-  right: 20%;
-  height: 3px;
-  background-color: var(--primary-color);
-  border-radius: 0 0 3px 3px;
-}
-
-.nav-item:hover:not(.active) {
-  color: var(--primary-color);
-  background-color: var(--nav-active-bg);
-}
-
+/* --- Icon and Label Styling --- */
 .nav-icon {
-  font-size: 24px;
-  margin-bottom: 2px;
+    font-size: 1.5rem; /* Makes the emoji icons larger */
+    margin-bottom: 2px;
 }
 
 .nav-label {
-  font-size: 11px;
-  white-space: nowrap;
+    font-size: 0.7rem;
+    font-weight: 500;
 }
 
-/* --- Mobile Responsiveness for BottomNav --- */
-@media (max-width: 768px) {
-  .bottom-nav {
-    height: 60px;
-  }
-  .nav-icon {
-    font-size: 22px;
-  }
-  .nav-label {
-    font-size: 10px;
-  }
+/* --- Active State --- */
+.nav-item.active {
+    color: var(--primary-color);
 }
 
-@media (max-width: 480px) {
-  .bottom-nav {
-    height: 55px;
-  }
-  .nav-icon {
-    font-size: 20px;
-  }
-  .nav-label {
-    font-size: 9px;
-  }
+.nav-item.active .nav-label {
+    font-weight: 600; /* Makes the label of the active item bold */
+}
+
+/* --- Hover Effect (for desktop) --- */
+@media (hover: hover) {
+    .nav-item:hover {
+        color: var(--text-color);
+    }
+    
+    .nav-item.active:hover {
+        color: var(--primary-hover-color);
+    }
 }
