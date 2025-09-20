@@ -2,12 +2,15 @@ import React, { useState } from 'react';
 import './LandingPage.css';
 import { FidelityLogoIcon, LoginIcon } from './Icons';
 
-// ✅ IMPORTANT: Make sure you have an 'assets' folder inside your 'src' directory
+// ✅ IMPORTANT: Make sure you have an 'assets' folder inside your 'src' folder
 // and that these images are placed inside it.
 import solarPlanImage from '../assets/solar.png'; 
 import aviatorGameImage from '../assets/color.png';
 import inflationImage from '../assets/inflation.png';
 import promoImage from '../assets/ipbi.png';
+import casinoNews1 from '../assets/casino1.jpg';
+import casinoNews2 from '../assets/casino2.jpg';
+import casinoNews3 from '../assets/casino3.jpg';
 
 const AccordionItem = ({ title, children, isOpen, onClick }) => (
     <div className="faq-item">
@@ -84,6 +87,17 @@ function LandingPage({ authView, setAuthView, loginFormData, registerFormData, h
             </section>
 
             <main id="main-content" className="main-content">
+                <section className="stats-section">
+                    <div className="stat-item">
+                        <span className="stat-value">100000+</span>
+                        <span className="stat-label">Happy Investors</span>
+                    </div>
+                    <div className="stat-item">
+                        <span className="stat-value">₹50 Cr+</span>
+                        <span className="stat-label">Total Investments</span>
+                    </div>
+                </section>
+
                 <section className="hero-content-below-image">
                      <h2>Worried About Your Money?</h2>
                     <p>Don't be. We are with you in shaping your financial situation for the better. With our investment products that provide daily income and exciting games that offer big wins, your journey to financial independence starts now.</p>
@@ -103,6 +117,16 @@ function LandingPage({ authView, setAuthView, loginFormData, registerFormData, h
                         <div className="sample-card"><img src={solarPlanImage} alt="Solar Energy Plan"/><h3>Solar Energy Plans</h3><p>Invest in a green future and earn stable daily returns by funding large-scale solar projects.</p></div>
                          <div className="sample-card"><img src={aviatorGameImage} alt="Aviator Game"/><h3>Aviator Game</h3><p>Test your nerve in this thrilling crash game. Cash out before the plane flies away to multiply your bet!</p></div>
                     </div>
+                </section>
+                
+                 <section className="casino-news-section">
+                    <h2>Casino & Fun</h2>
+                    <div className="casino-grid">
+                        <img src={casinoNews1} alt="Casino Fun 1" />
+                        <img src={casinoNews2} alt="Casino Fun 2" />
+                        <img src={casinoNews3} alt="Casino Fun 3" />
+                    </div>
+                    <p>Play responsibly and enjoy exciting games while growing your earnings.</p>
                 </section>
                 
                 <section id="auth" className="auth-section">
