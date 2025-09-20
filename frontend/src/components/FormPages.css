@@ -6,20 +6,7 @@
     min-height: 100vh;
 }
 
-.promo-banner {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    background: linear-gradient(90deg, #8B5CF6, #EC4899);
-    color: white;
-    text-align: center;
-    padding: 8px;
-    font-size: 0.9em;
-    font-weight: 500;
-    z-index: 101; /* Above the header */
-    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-}
+
 
 .recharge-header {
     position: fixed;
@@ -282,6 +269,56 @@
   text-align: center;
   font-weight: 500;
   border-radius: 8px;
+}
+
+.qr-wrapper {
+  display: flex;
+  justify-content: center;
+  margin: 15px 0;
+}
+
+.qr-code {
+  max-width: 220px;
+  width: 100%;
+  height: auto;
+  border: 2px solid #ddd;
+  border-radius: 10px;
+  padding: 8px;
+  background: #fff;
+}
+
+.promo-banner {
+  background: #fff4e5;
+  color: #ff7a00;
+  padding: 10px;
+  margin: 10px 0 20px;
+  text-align: center;
+  font-weight: 600;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.quick-amounts {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 15px 0;
+}
+
+.quick-btn {
+  padding: 8px 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #f8f8f8;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.quick-btn:hover {
+  background: #ff7a00;
+  color: white;
+  border-color: #ff7a00;
 }
 
 .qr-wrapper {
