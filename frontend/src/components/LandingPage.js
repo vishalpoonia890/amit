@@ -7,7 +7,7 @@ import { FidelityLogoIcon, LoginIcon } from './Icons';
 import solarPlanImage from '../assets/solar.png'; 
 import aviatorGameImage from '../assets/color.png';
 import inflationImage from '../assets/inflation.png';
-import promoImage from '../assets/ipbi.png';
+import promoImage from '../assets/ipbia.png';
 import casinoNews1 from '../assets/casino1.jpg';
 import casinoNews2 from '../assets/casino2.jpg';
 import casinoNews3 from '../assets/casino3.jpg';
