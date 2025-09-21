@@ -28,6 +28,7 @@ import LandingPage from './components/LandingPage';
 
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
 
+// A dedicated loading screen component for registration
 const LoadingScreen = () => (
     <div className="loading-app">
         <h1 className="animated-logo">InvestmentPlus</h1>
@@ -57,6 +58,7 @@ function App() {
     const [showNotificationsDialog, setShowNotificationsDialog] = useState(false);
     const [initialCategory, setInitialCategory] = useState('all');
 
+    // Save the current view to localStorage whenever it changes while logged in
     useEffect(() => {
         if (token) {
             localStorage.setItem('view', view);
@@ -68,6 +70,7 @@ function App() {
         setInitialCategory(category);
     };
 
+    // --- Core Functions ---
     const toggleTheme = () => {
         const newTheme = theme === 'light' ? 'dark' : 'light';
         setTheme(newTheme);
@@ -130,7 +133,6 @@ function App() {
         }
     }, [token, fetchAllUserData]);
 
-    // ✅ FIX: Restored the missing notification handler functions and variable
     const handleMarkAsRead = async (ids) => {
         try {
             await axios.post(`${API_BASE_URL}/api/notifications/read`, { ids }, { headers: { Authorization: `Bearer ${token}` } });
@@ -151,7 +153,6 @@ function App() {
     
     const unreadCount = userNotifications.filter(n => !n.is_read).length;
     
-    // --- Authentication Handlers ---
     const handleLogin = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -240,10 +241,10 @@ function App() {
         <div className="App">
             <Snackbar message={snackbarNotification.message} type={snackbarNotification.type} show={snackbarNotification.show} onClose={() => setSnackbarNotification({ ...snackbarNotification, show: false })} />
             {showNotificationsDialog && (
-                <NotificationsDialog
-                    userNotifications={userNotifications}
-                    promotions={promotions}
-                    onClose={() => setShowNotificationsDialog(false)}
+                <NotificationsDialog 
+                    userNotifications={userNotifications} 
+                    promotions={promotions} 
+                    onClose={() => setShowNotificationsDialog(false)} 
                     onMarkAsRead={handleMarkAsRead}
                     onDeleteRead={handleDeleteRead}
                 />
