@@ -28,11 +28,14 @@ import LandingPage from './components/LandingPage';
 
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
 
+// A dedicated loading screen component for registration
 const LoadingScreen = () => (
     <div className="loading-app">
         <h1 className="animated-logo">InvestmentPlus</h1>
         <p>Please wait, your account creation is in progress...</p>
-        <div className="progress-bar"><div className="progress-bar-inner"></div></div>
+        <div className="progress-bar">
+            <div className="progress-bar-inner"></div>
+        </div>
     </div>
 );
 
@@ -55,6 +58,7 @@ function App() {
     const [showNotificationsDialog, setShowNotificationsDialog] = useState(false);
     const [initialCategory, setInitialCategory] = useState('all');
 
+    // Save the current view to localStorage whenever it changes while logged in
     useEffect(() => {
         if (token) {
             localStorage.setItem('view', view);
@@ -66,6 +70,7 @@ function App() {
         setInitialCategory(category);
     };
 
+    // --- Core Functions ---
     const toggleTheme = () => {
         const newTheme = theme === 'light' ? 'dark' : 'light';
         setTheme(newTheme);
@@ -174,6 +179,26 @@ function App() {
     const handleDepositRequest = useCallback((amount) => showSnackbar(`₹${amount.toLocaleString()} deposit requested.`, 'info'), []);
     const handleWithdrawalRequest = useCallback((amount) => showSnackbar(`₹${amount.toLocaleString()} withdrawal requested.`, 'info'), []);
 
+    const handleMarkAsRead = async (ids) => {
+        try {
+            await axios.post(`${API_BASE_URL}/api/notifications/read`, { ids }, { headers: { Authorization: `Bearer ${token}` } });
+            setUserNotifications(prev => prev.map(n => ids.includes(n.id) ? { ...n, is_read: true } : n));
+        } catch (error) {
+            console.error("Failed to mark notifications as read:", error);
+        }
+    };
+
+    const handleDeleteRead = async () => {
+        try {
+            await axios.post(`${API_BASE_URL}/api/notifications/delete-read`, {}, { headers: { Authorization: `Bearer ${token}` } });
+            setUserNotifications(prev => prev.filter(n => !n.is_read));
+        } catch (error) {
+            console.error("Failed to delete read notifications:", error);
+        }
+    };
+    
+    const unreadCount = userNotifications.filter(n => !n.is_read).length;
+
     const renderMainView = () => {
         if (userData?.is_admin) {
             return <AdminPanel token={token} />;
@@ -198,6 +223,10 @@ function App() {
                             initialCategory={initialCategory} 
                         />;
             case 'game': return <GameLobby onViewChange={handleViewChange} />; 
+            case 'color-prediction-game': return <GameView token={token} financialSummary={financialSummary} onBack={goBackToGameLobby} onBetPlaced={() => fetchAllUserData(token)} />;
+            case 'ip-lottery': return <IpLottery token={token} onBack={goBackToGameLobby} />;
+            case 'win-win': return <WinWinGame onBack={goBackToGameLobby} />;
+            case 'aviator': return <AviatorGame token={token} onBack={goBackToGameLobby} />;
             case 'account': return <AccountView userData={userData} financialSummary={financialSummary} onLogout={handleLogout} onViewChange={handleViewChange} token={token}/>;
             case 'deposit': return <Deposit token={token} userData={userData} onBack={goBackToDashboard} onDepositRequest={handleDepositRequest} />;
             case 'withdraw': return <Withdrawal token={token} financialSummary={financialSummary} onBack={goBackToDashboard} onWithdrawalRequest={handleWithdrawalRequest} />;
@@ -236,8 +265,10 @@ function App() {
 
     return (
         <div className="App">
+            <Snackbar message={snackbarNotification.message} type={snackbarNotification.type} show={snackbarNotification.show} onClose={() => setSnackbarNotification({ ...snackbarNotification, show: false })} />
+            {showNotificationsDialog && <NotificationsDialog userNotifications={userNotifications} promotions={promotions} onClose={() => setShowNotificationsDialog(false)} onMarkAsRead={handleMarkAsRead} onDeleteRead={handleDeleteRead} />}
             <div className="app-container">
-                <TopNav theme={theme} toggleTheme={toggleTheme} onLogout={handleLogout} financialSummary={financialSummary} unreadCount={0} onNotificationsClick={() => {}} />
+                <TopNav theme={theme} toggleTheme={toggleTheme} onLogout={handleLogout} financialSummary={financialSummary} unreadCount={unreadCount} onNotificationsClick={() => setShowNotificationsDialog(true)} />
                 <main className="main-content">{renderMainView()}</main>
                 {!userData?.is_admin && <BottomNav activeView={view} onViewChange={setView} />}
             </div>
