@@ -58,7 +58,7 @@ function App() {
     const [showNotificationsDialog, setShowNotificationsDialog] = useState(false);
     const [initialCategory, setInitialCategory] = useState('all');
 
-    // Save the current view to localStorage whenever it changes while logged in
+  // Save the current view to localStorage whenever it changes while logged in
     useEffect(() => {
         if (token) {
             localStorage.setItem('view', view);
@@ -133,6 +133,7 @@ function App() {
         }
     }, [token, fetchAllUserData]);
     
+    // ✅ THIS IS THE CORRECTED PART FOR LOGIN
     const handleLogin = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -151,6 +152,8 @@ function App() {
         }
     };
 
+
+     // ✅ THIS IS THE CORRECTED PART FOR REGISTRATION
     const handleRegister = async (e) => {
         e.preventDefault();
         setIsRegistering(true);
