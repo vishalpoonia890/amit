@@ -211,7 +211,11 @@ function App() {
             case 'win-win': return <WinWinGame onBack={() => handleViewChange('game')} />;
             case 'aviator': return <AviatorGame token={token} onBack={() => handleViewChange('game')} />;
             case 'account': return <AccountView userData={userData} financialSummary={financialSummary} onLogout={handleLogout} onViewChange={handleViewChange} token={token}/>;
-            default: return <UserDashboard onViewChange={handleViewChange} />;
+           // ✅ FIX: Added the missing cases for transaction and bet history
+            case 'transactions': return <TransactionHistory onBack={() => handleViewChange('account')} />;
+            case 'bet-history': return <BetHistory token={token} onBack={() => handleViewChange('account')} />;
+         
+default: return <UserDashboard onViewChange={handleViewChange} />;
         }
     };
 
