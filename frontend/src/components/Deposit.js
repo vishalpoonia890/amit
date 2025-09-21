@@ -1,21 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { createClient } from '@supabase/supabase-js';
 import './FormPages.css';
 
 // ✅ IMPORTANT: Make sure you have an 'assets' folder inside your 'src' folder
 // and that these images are placed inside it.
-import upiQrImage from '../assets/ptys.jpg';
-import usdtQrImage from '../assets/usdt.jpg';
+import upiQrImage from '../assets/ptys.png';
+import usdtQrImage from '../assets/usdt.png';
 
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
 
-// IMPORTANT: You must add these variables to your frontend's .env file
-const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
-const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
-function Deposit({ token, userData, onBack, onDepositRequest }) {
+function Deposit({ token, onBack, onDepositRequest }) {
     const [step, setStep] = useState(1);
     const [amount, setAmount] = useState('');
     const [utr, setUtr] = useState('');
@@ -82,32 +76,24 @@ function Deposit({ token, userData, onBack, onDepositRequest }) {
         setLoading(true);
         setError('');
 
+        // Create a FormData object to send the file and text data together
+        const formData = new FormData();
+        formData.append('amount', amount);
+        formData.append('utr', utr);
+        formData.append('screenshot', screenshotFile);
+
         try {
-            // ✅ FIX: Use the user ID from the 'userData' prop passed down from App.js
-            if (!userData || !userData.id) {
-                throw new Error("User data is not available. Please log in again.");
-            }
-            const userId = userData.id;
-            const filePath = `${userId}/${Date.now()}_${screenshotFile.name}`;
-
-            const { data: uploadData, error: uploadError } = await supabase.storage
-                .from('payment-screenshots')
-                .upload(filePath, screenshotFile);
-
-            if (uploadError) throw uploadError;
-
-            const { data: urlData } = supabase.storage
-                .from('payment-screenshots')
-                .getPublicUrl(uploadData.path);
-            
-            const screenshotUrl = urlData.publicUrl;
-
             await axios.post(
                 `${API_BASE_URL}/api/recharge`,
-                { amount: parseInt(amount), utr, screenshotUrl },
-                { headers: { Authorization: `Bearer ${token}` } }
+                formData,
+                { 
+                    headers: { 
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'multipart/form-data', // Important for file uploads
+                    } 
+                }
             );
-            
+
             onDepositRequest(amount);
             setSuccess("Your deposit request has been submitted successfully!");
             setTimeout(() => onBack(), 2000);
