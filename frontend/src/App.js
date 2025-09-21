@@ -31,7 +31,7 @@ const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
 // A dedicated loading screen component for registration
 const LoadingScreen = () => (
     <div className="loading-app">
-        <h1 className="animated-logo">MoneyPlus</h1>
+        <h1 className="animated-logo">InvestmentPlus</h1>
         <p>Please wait, your account creation is in progress...</p>
         <div className="progress-bar">
             <div className="progress-bar-inner"></div>
@@ -211,7 +211,9 @@ function App() {
 
         switch (view) {
             case 'dashboard': return <UserDashboard onViewChange={handleViewChange} />;
-            case 'plans': return <ProductsAndPlans token={token} allPlans={allPlans} userBalance={financialSummary ? financialSummary.balance + financialSummary.withdrawable_wallet : 0} onPurchaseComplete={() => fetchAllUserData(token)} initialCategory={initialCategory} />;
+            case 'plans':
+                const totalBalance = financialSummary ? Number(financialSummary.balance) + Number(financialSummary.withdrawable_wallet) : 0;
+                return <ProductsAndPlans token={token} allPlans={allPlans} userBalance={totalBalance} onPurchaseComplete={() => fetchAllUserData(token)} initialCategory={initialCategory} />;
             case 'game': return <GameLobby onViewChange={handleViewChange} />; 
             case 'color-prediction-game': return <GameView token={token} financialSummary={financialSummary} onBack={goBackToGameLobby} onBetPlaced={() => fetchAllUserData(token)} />;
             case 'ip-lottery': return <IpLottery token={token} onBack={goBackToGameLobby} />;
@@ -235,7 +237,7 @@ function App() {
         return <LoadingScreen />;
     }
     
-    if (loading) return <div className="loading-app"><h1>MoneyPlus</h1></div>;
+    if (loading) return <div className="loading-app"><h1>InvestmentPlus</h1></div>;
     
     if (!token) {
         return (
@@ -267,4 +269,5 @@ function App() {
 }
 
 export default App;
+
 
