@@ -20,7 +20,7 @@ function NewsView() {
           id: 1,
           title: "Global Markets Rally Amid Positive Economic Data",
           source: "Financial Times",
-          date: "2024-07-23",
+          date: "2025-09-21",
           imageUrl: "https://images.pexels.com/photos/356079/pexels-photo-356079.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
           summary: "Stock markets worldwide saw significant gains today as new reports indicated stronger-than-expected economic growth and cooling inflation."
         },
@@ -28,7 +28,7 @@ function NewsView() {
           id: 2,
           title: "Tech Giants Announce Record-Breaking Q2 Earnings",
           source: "Bloomberg",
-          date: "2024-07-22",
+          date: "2025-09-22",
           imageUrl: "https://images.pexels.com/photos/39284/macbook-folder-open-app-39284.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
           summary: "Major technology companies exceeded analyst expectations with robust earnings, driven by AI investments and cloud computing services."
         },
@@ -36,7 +36,7 @@ function NewsView() {
           id: 3,
           title: "New Investment Fund Targets Renewable Energy Startups",
           source: "Reuters",
-          date: "2024-07-21",
+          date: "2025-09-21",
           imageUrl: "https://images.pexels.com/photos/386009/pexels-photo-386009.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
           summary: "A consortium of institutional investors has launched a multi-billion dollar fund dedicated to fostering innovation in sustainable energy solutions."
         },
@@ -44,7 +44,7 @@ function NewsView() {
           id: 4,
           title: "Cryptocurrency Market Sees Volatility After Regulatory News",
           source: "CoinDesk",
-          date: "2024-07-20",
+          date: "2025-09-20",
           imageUrl: "https://images.pexels.com/photos/843700/pexels-photo-843700.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
           summary: "The crypto market experienced a sharp downturn followed by a quick recovery as global regulators hinted at stricter oversight."
         },
@@ -52,7 +52,7 @@ function NewsView() {
           id: 5,
           title: "Real Estate Sector Shows Signs of Recovery in Urban Areas",
           source: "The Economic Times",
-          date: "2024-07-19",
+          date: "2025-09-19",
           imageUrl: "https://images.pexels.com/photos/164522/pexels-photo-164522.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
           summary: "Property sales and new housing starts are picking up, indicating renewed confidence among buyers and developers in key metropolitan regions."
         },
