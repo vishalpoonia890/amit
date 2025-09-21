@@ -558,6 +558,7 @@ const handleAviatorSettingsUpdate = async (update) => {
                 <h2>Pending Deposits ({pendingDeposits.length})</h2>
                 <div className="table-container">
                     <table className="request-table">
+                        {/* ✅ UPDATED: Added "Screenshot" to the table header */}
                         <thead><tr><th>User ID</th><th>Amount</th><th>UTR/Hash</th><th>Screenshot</th><th>Date</th><th>Actions</th></tr></thead>
                         <tbody>
                             {pendingDeposits.map(d => (
@@ -565,9 +566,17 @@ const handleAviatorSettingsUpdate = async (update) => {
                                     <td>{d.user_id}</td>
                                     <td>{formatCurrency(d.amount)}</td>
                                     <td>{d.utr}</td>
-                                    <td><a href={d.screenshot_url} target="_blank" rel="noopener noreferrer" className="screenshot-link">View</a></td>
+                                    {/* ✅ UPDATED: Added a clickable link to view the screenshot */}
+                                    <td>
+                                        <a href={d.screenshot_url} target="_blank" rel="noopener noreferrer" className="screenshot-link">
+                                            View
+                                        </a>
+                                    </td>
                                     <td>{new Date(d.request_date).toLocaleString()}</td>
-                                    <td className="actions"><button className="approve-btn" onClick={() => handleAction('approve-deposit', d.id)}>Approve</button><button className="reject-btn" onClick={() => handleAction('reject-deposit', d.id)}>Reject</button></td>
+                                    <td className="actions">
+                                        <button className="approve-btn" onClick={() => handleAction('approve-deposit', d.id)}>Approve</button>
+                                        <button className="reject-btn" onClick={() => handleAction('reject-deposit', d.id)}>Reject</button>
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>
