@@ -37,7 +37,7 @@ const CountdownTimer = ({ targetDate, onEnd }) => {
         return () => clearTimeout(timer);
     });
     
-    if (!timeLeft) return "Claim";
+    if (!timeLeft) return "Claim Now";
 
     return `${String(timeLeft.hours).padStart(2, '0')}:${String(timeLeft.minutes).padStart(2, '0')}:${String(timeLeft.seconds).padStart(2, '0')}`;
 };
@@ -140,7 +140,7 @@ function AccountView({ userData, financialSummary, onLogout, onViewChange, token
                     {isClaiming ? 'Claiming...' : (
                         isOnCooldown 
                         ? <CountdownTimer targetDate={nextClaimTime} onEnd={() => setNextClaimTime(null)} /> 
-                        : `Claim (₹${financials.todaysIncome.toLocaleString()})`
+                        : `Claim (${formatCurrency(financials.todaysIncome)})`
                     )}
                 </button>
             </div>
