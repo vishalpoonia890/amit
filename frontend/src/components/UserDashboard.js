@@ -1,26 +1,23 @@
-
-
 import React from 'react';
 import './UserDashboard.css';
 import { 
     DepositIcon, WithdrawIcon, TeamIcon, SellUsdtIcon, SupportIcon, RewardsIcon,
     SecurePlatformIcon, HighReturnsIcon, InstantPayoutsIcon, ExcitingGamesIcon,
-    BankVsInvestIcon, PassiveIncomeIcon, FinancialFreedomIcon,
-    SmartInvestingIcon, LongTermGrowthIcon, DiversificationIcon 
+    BankVsInvestIcon, PassiveIncomeIcon, FinancialFreedomIcon
 } from './Icons';
-import casinoBgImage from '../assets/casino1.jpg'; // Assuming images are in src/assets
+import casinoBgImage from '../assets/ipbi.png'; // Assuming images are in src/assets
 import southPartner from '../assets/msme.png';
 import northPartner from '../assets/invest1.png';
 import dubaiPartner from '../assets/dubai.png';
 import singaporePartner from '../assets/singapore.png';
-import journeyImage from '../assets/ipbi.png';
+import journeyImage from '../assets/ipbia.png';
 
 // Sample plan data to showcase in the dashboard
 const samplePlans = [
-    { id: 101, name: 'iPhone 17', price: 480, dailyIncome: 75, durationDays: 10 },
-    { id: 201, name: 'Sun Harvest 100', price: 1500, dailyIncome: 180, durationDays: 20 },
-    { id: 301, name: 'AeroBlade Advantage', price: 10000, dailyIncome: 1100, durationDays: 45 },
-    { id: 401, name: 'Hash Rate Pro', price: 50000, dailyIncome: 5500, durationDays: 60 },
+    { id: 101, name: 'iPhone 17', price: 480, dailyIncome: 75, image: 'https://placehold.co/600x400/3498db/ffffff?text=iPhone+17' },
+    { id: 201, name: 'Sun Harvest 100', price: 1500, dailyIncome: 180, image: 'https://placehold.co/600x400/f1c40f/ffffff?text=Sun+Harvest' },
+    { id: 301, name: 'AeroBlade Advantage', price: 10000, dailyIncome: 1100, image: 'https://placehold.co/600x400/9b59b6/ffffff?text=AeroBlade' },
+    { id: 401, name: 'Hash Rate Pro', price: 50000, dailyIncome: 5500, image: 'https://placehold.co/600x400/e74c3c/ffffff?text=Hash+Rate' },
 ];
 
 const investmentPartners = [
@@ -37,7 +34,7 @@ function UserDashboard({ onViewChange }) {
     const quickActions = [
         { id: 'deposit', label: 'Deposit', icon: <DepositIcon />, view: 'deposit' },
         { id: 'withdraw', label: 'Withdraw', icon: <WithdrawIcon />, view: 'withdraw' },
-        { id: 'team', label: 'Team', icon: '👥', view: 'team' }, // Using emoji as requested
+        { id: 'team', label: 'Team', icon: '👥', view: 'team' },
         { id: 'daily-tasks', label: 'Daily Tasks', icon: <RewardsIcon />, view: 'rewards' },
         { id: 'sell-usdt', label: 'Sell USDT', icon: <SellUsdtIcon />, view: 'sell-usdt' },
         { id: 'support', label: 'Support', icon: <SupportIcon />, view: 'support' },
@@ -74,6 +71,7 @@ function UserDashboard({ onViewChange }) {
                 <div className="plan-showcase-grid">
                     {samplePlans.map(plan => (
                         <div key={plan.id} className="plan-card-mini">
+                             <img src={plan.image} alt={plan.name} className="plan-mini-image"/>
                             <h5>{plan.name}</h5>
                             <p>Earn {formatCurrency(plan.dailyIncome)} Daily</p>
                         </div>
@@ -152,5 +150,4 @@ function UserDashboard({ onViewChange }) {
 }
 
 export default UserDashboard;
-
 
