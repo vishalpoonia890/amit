@@ -28,7 +28,6 @@ import LandingPage from './components/LandingPage';
 
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
 
-// A dedicated loading screen component for registration
 const LoadingScreen = () => (
     <div className="loading-app">
         <h1 className="animated-logo">InvestmentPlus</h1>
@@ -58,7 +57,6 @@ function App() {
     const [showNotificationsDialog, setShowNotificationsDialog] = useState(false);
     const [initialCategory, setInitialCategory] = useState('all');
 
-    // Save the current view to localStorage whenever it changes while logged in
     useEffect(() => {
         if (token) {
             localStorage.setItem('view', view);
@@ -70,7 +68,6 @@ function App() {
         setInitialCategory(category);
     };
 
-    // --- Core Functions ---
     const toggleTheme = () => {
         const newTheme = theme === 'light' ? 'dark' : 'light';
         setTheme(newTheme);
@@ -132,6 +129,27 @@ function App() {
             return () => clearInterval(interval);
         }
     }, [token, fetchAllUserData]);
+
+    // ✅ FIX: Restored the missing notification handler functions and variable
+    const handleMarkAsRead = async (ids) => {
+        try {
+            await axios.post(`${API_BASE_URL}/api/notifications/read`, { ids }, { headers: { Authorization: `Bearer ${token}` } });
+            setUserNotifications(prev => prev.map(n => ids.includes(n.id) ? { ...n, is_read: true } : n));
+        } catch (error) {
+            console.error("Failed to mark notifications as read:", error);
+        }
+    };
+
+    const handleDeleteRead = async () => {
+        try {
+            await axios.post(`${API_BASE_URL}/api/notifications/delete-read`, {}, { headers: { Authorization: `Bearer ${token}` } });
+            setUserNotifications(prev => prev.filter(n => !n.is_read));
+        } catch (error) {
+            console.error("Failed to delete read notifications:", error);
+        }
+    };
+    
+    const unreadCount = userNotifications.filter(n => !n.is_read).length;
     
     // --- Authentication Handlers ---
     const handleLogin = async (e) => {
@@ -186,7 +204,7 @@ function App() {
         switch (view) {
             case 'dashboard': return <UserDashboard onViewChange={handleViewChange} />;
             case 'plans': return <ProductsAndPlans token={token} allPlans={allPlans} onPurchaseComplete={() => fetchAllUserData(token)} initialCategory={initialCategory} />;
-            case 'game': return <GameLobby onViewChange={handleViewChange} />;
+            case 'game': return <GameLobby onViewChange={handleViewChange} />; 
             case 'color-prediction-game': return <GameView token={token} financialSummary={financialSummary} onBack={() => handleViewChange('game')} onBetPlaced={() => fetchAllUserData(token)} />;
             case 'ip-lottery': return <IpLottery token={token} onBack={() => handleViewChange('game')} />;
             case 'win-win': return <WinWinGame onBack={() => handleViewChange('game')} />;
@@ -199,7 +217,8 @@ function App() {
     if (isRegistering) {
         return <LoadingScreen />;
     }
-    if (loading) return <div className="loading-app"><h1>InvestmentPlus</h1><p>Loading...</p></div>;
+    
+    if (loading) return <div className="loading-app"><h1>InvestmentPlus</h1></div>;
     
     if (!token) {
         return (
@@ -219,12 +238,7 @@ function App() {
 
     return (
         <div className="App">
-            <Snackbar
-                message={snackbarNotification.message}
-                type={snackbarNotification.type}
-                show={snackbarNotification.show}
-                onClose={() => setSnackbarNotification({ ...snackbarNotification, show: false })}
-            />
+            <Snackbar message={snackbarNotification.message} type={snackbarNotification.type} show={snackbarNotification.show} onClose={() => setSnackbarNotification({ ...snackbarNotification, show: false })} />
             {showNotificationsDialog && (
                 <NotificationsDialog
                     userNotifications={userNotifications}
@@ -235,13 +249,13 @@ function App() {
                 />
             )}
             <div className="app-container">
-                <TopNav
-                    theme={theme}
-                    toggleTheme={toggleTheme}
-                    onLogout={handleLogout}
-                    financialSummary={financialSummary}
-                    unreadCount={unreadCount}
-                    onNotificationsClick={() => setShowNotificationsDialog(true)}
+                <TopNav 
+                    theme={theme} 
+                    toggleTheme={toggleTheme} 
+                    onLogout={handleLogout} 
+                    financialSummary={financialSummary} 
+                    unreadCount={unreadCount} 
+                    onNotificationsClick={() => setShowNotificationsDialog(true)} 
                 />
                 <main className="main-content">{renderMainView()}</main>
                 {!userData?.is_admin && <BottomNav activeView={view} onViewChange={setView} />}
