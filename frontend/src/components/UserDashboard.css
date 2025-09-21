@@ -100,6 +100,12 @@
 .plan-card-mini {
     background-color: var(--bg-color); padding: 10px;
     border-radius: 8px; border: 1px solid var(--border-color); text-align: center;
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+}
+.plan-card-mini:hover {
+    transform: translateY(-5px);
+    border-color: var(--primary-color);
 }
 .plan-mini-image {
     width: 100%;
@@ -161,18 +167,40 @@
 }
 
 .info-section {
-    display: grid; grid-template-columns: 1fr; gap: 15px;
+    display: grid;
+    grid-template-columns: 1fr; /* This creates the single column layout */
+    gap: 15px;
     margin: 20px;
 }
-@media (min-width: 768px) { .info-section { grid-template-columns: 1fr; } }
 .info-card {
-    background-color: var(--card-bg-color); border-radius: 12px;
-    padding: 20px; text-align: center; border: 1px solid var(--border-color);
+    background-color: var(--card-bg-color);
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid var(--border-color);
+    display: flex; /* Using flexbox for better alignment */
+    align-items: center;
+    gap: 20px;
+    text-align: left;
 }
-.info-card-icon { color: var(--primary-color); margin-bottom: 10px; }
-.info-card-icon svg { width: 48px; height: 48px; margin: 0 auto; }
-.info-card h4 { margin: 0 0 5px 0; font-size: 1.1em; color: var(--text-color); }
-.info-card p { margin: 0; font-size: 0.9em; color: var(--text-color-light); }
+.info-card-icon {
+    color: var(--primary-color);
+    flex-shrink: 0; /* Prevents the icon from shrinking */
+}
+.info-card-icon svg {
+    width: 40px;
+    height: 40px;
+}
+.info-card h4 {
+    margin: 0 0 5px 0;
+    font-size: 1.1em;
+    color: var(--text-color);
+}
+.info-card p {
+    margin: 0;
+    font-size: 0.9em;
+    color: var(--text-color-light);
+    line-height: 1.5;
+}
 
 .dashboard-footer {
     margin-top: 40px; text-align: center; font-size: 0.75rem;
@@ -185,5 +213,4 @@
     border-radius: 5px; border: 1px solid var(--border-color);
 }
 .footer-disclaimer { font-size: 0.7rem; }
-
 
