@@ -57,7 +57,7 @@ function GameLobby({ onViewChange }) {
 
             <div className="zero-edge-promo-card">
                 <h3>World's First Casino with "ZERO" House Edge</h3>
-                <p>We believe in fair play. Every rupee you bet is redistributed among the players. To ensure everyone wins, InvestmentPlus matches the total prize pool, guaranteeing a 100% payout rate and creating a truly rewarding experience for our community.</p>
+                <p>We believe in fair play. Every rupee you bet is redistributed among the players. To ensure everyone wins, MoneyPlus matches the total prize pool, guaranteeing a 100% payout rate and creating a truly rewarding experience for our community.</p>
             </div>
             
             <div className="game-grid">
@@ -114,9 +114,9 @@ function GameLobby({ onViewChange }) {
             </div>
 
             <footer className="game-footer">
-                <p>© 2025 InvestmentPlus.com | All Rights Reserved.</p>
-                <p>InvestmentPlus is owned and operated by IP Gaming Solutions N.V., registration number: 145353, registered address: Seru Loraweg 17 B, Curaçao. Payment agent companies are IP Finance Limited and IP Tech Limited. Contact us at support@investmentplus.com.</p>
-                <p>InvestmentPlus is committed to responsible gambling, for more information visit Gamblingtherapy.org</p>
+                <p>© 2025 MoneyPlus.com | All Rights Reserved.</p>
+                <p>MoneyPlus is owned and operated by IP Gaming Solutions N.V., registration number: 145353, registered address: Seru Loraweg 17 B, Curaçao. Payment agent companies are IP Finance Limited and IP Tech Limited. Contact us at support@moneyplus.com.</p>
+                <p>MoneyPlus is committed to responsible gambling, for more information visit Gamblingtherapy.org</p>
             </footer>
         </div>
     );
