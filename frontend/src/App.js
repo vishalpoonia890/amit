@@ -24,19 +24,30 @@ import SellUsdt from './components/SellUsdt';
 import IpLottery from './components/IpLottery';
 import WinWinGame from './components/WinWinGame';
 import AviatorGame from './components/AviatorGame';
-import LandingPage from './components/LandingPage'; // The new landing page for logged-out users
+import LandingPage from './components/LandingPage';
 
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
+
+// A dedicated loading screen component for registration
+const LoadingScreen = () => (
+    <div className="loading-app">
+        <h1 className="animated-logo">InvestmentPlus</h1>
+        <p>Please wait, your account creation is in progress...</p>
+        <div className="progress-bar">
+            <div className="progress-bar-inner"></div>
+        </div>
+    </div>
+);
 
 function App() {
     // --- State Management ---
     const [token, setToken] = useState(localStorage.getItem('token') || null);
-    // ✅ FIX: The view now persists on refresh by using localStorage
     const [view, setView] = useState(localStorage.getItem('view') || 'dashboard');
     const [authView, setAuthView] = useState('login');
     const [userData, setUserData] = useState(null);
     const [financialSummary, setFinancialSummary] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [isRegistering, setIsRegistering] = useState(false);
     const [snackbarNotification, setSnackbarNotification] = useState({ show: false, message: '', type: 'info' });
     const [loginFormData, setLoginFormData] = useState({ mobile: '', password: '' });
     const [registerFormData, setRegisterFormData] = useState({ username: '', mobile: '', password: '', confirmPassword: '', referralCode: '' });
@@ -45,13 +56,19 @@ function App() {
     const [userNotifications, setUserNotifications] = useState([]);
     const [promotions, setPromotions] = useState([]);
     const [showNotificationsDialog, setShowNotificationsDialog] = useState(false);
+    const [initialCategory, setInitialCategory] = useState('all');
 
-    // ✅ FIX: Save the current view to localStorage whenever it changes
+    // Save the current view to localStorage whenever it changes while logged in
     useEffect(() => {
         if (token) {
             localStorage.setItem('view', view);
         }
     }, [view, token]);
+
+    const handleViewChange = (newView, category = 'all') => {
+        setView(newView);
+        setInitialCategory(category);
+    };
 
     // --- Core Functions ---
     const toggleTheme = () => {
@@ -71,11 +88,10 @@ function App() {
 
     const handleLogout = useCallback(() => {
         localStorage.removeItem('token');
-        localStorage.removeItem('view'); // Clear the saved view on logout
+        localStorage.removeItem('view');
         setToken(null);
         setUserData(null);
         setFinancialSummary(null);
-        // No need to setView here, the component will re-render and show the LandingPage
     }, []);
 
     const fetchAllUserData = useCallback(async (authToken) => {
@@ -117,18 +133,7 @@ function App() {
         }
     }, [token, fetchAllUserData]);
     
-    // --- Notification Handlers ---
-    const handleMarkAsRead = async (ids) => {
-        // ... (implementation is correct and remains the same)
-    };
-
-    const handleDeleteRead = async () => {
-        // ... (implementation is correct and remains the same)
-    };
-    
-    const unreadCount = userNotifications.filter(n => !n.is_read).length;
-    
-    // --- Authentication Handlers (passed as props to LandingPage) ---
+    // --- Authentication Handlers ---
     const handleLogin = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -149,10 +154,10 @@ function App() {
 
     const handleRegister = async (e) => {
         e.preventDefault();
-        setLoading(true);
+        setIsRegistering(true);
         if (registerFormData.password !== registerFormData.confirmPassword) {
             showSnackbar("Passwords do not match.", 'error');
-            setLoading(false);
+            setIsRegistering(false);
             return;
         }
         try {
@@ -166,52 +171,34 @@ function App() {
         } catch (err) {
             showSnackbar(err.response?.data?.error || "Registration failed.", 'error');
         } finally {
-            setLoading(false);
+            setIsRegistering(false);
         }
     };
 
     const handleLoginInputChange = (e) => setLoginFormData({ ...loginFormData, [e.target.name]: e.target.value });
     const handleRegisterInputChange = (e) => setRegisterFormData({ ...registerFormData, [e.target.name]: e.target.value });
-    const handleDepositRequest = useCallback((amount) => showSnackbar(`₹${amount.toLocaleString()} deposit requested.`, 'info'), []);
-    const handleWithdrawalRequest = useCallback((amount) => showSnackbar(`₹${amount.toLocaleString()} withdrawal requested.`, 'info'), []);
-
+    
     const renderMainView = () => {
         if (userData?.is_admin) {
             return <AdminPanel token={token} />;
         }
-
-        const goBackToDashboard = () => setView('dashboard');
-        const goBackToAccount = () => setView('account');
-        const goBackToGameLobby = () => setView('game');
-
+        
         switch (view) {
-            case 'dashboard': return <UserDashboard onViewChange={setView} />;
-            case 'plans':
-                const totalBalance = financialSummary ? parseFloat(financialSummary.balance) + parseFloat(financialSummary.withdrawable_wallet) : 0;
-                return <ProductsAndPlans token={token} userBalance={totalBalance} allPlans={allPlans} loading={loading} onPurchaseComplete={() => fetchAllUserData(token)} />;
-            
-            case 'game': return <GameLobby onViewChange={setView} />; 
-            case 'color-prediction-game': return <GameView token={token} financialSummary={financialSummary} onBack={goBackToGameLobby} onBetPlaced={() => fetchAllUserData(token)} />;
-            case 'ip-lottery': return <IpLottery token={token} onBack={goBackToGameLobby} />;
-            case 'win-win': return <WinWinGame onBack={goBackToGameLobby} />;
-            case 'aviator': return <AviatorGame token={token} onBack={goBackToGameLobby} financialSummary={financialSummary} />;
-
-            case 'news': return <NewsView />;
-            case 'account': return <AccountView userData={userData} financialSummary={financialSummary} onLogout={handleLogout} onViewChange={setView} token={token}/>;
-            case 'rewards': return <Rewards onBack={goBackToDashboard} />;
-            case 'sell-usdt': return <SellUsdt onBack={goBackToDashboard} />;
-            case 'team': return <Team token={token} onBack={goBackToDashboard} />;
-            case 'support': return <Support onBack={goBackToDashboard} />;
-            case 'wallet': return <Wallet financialSummary={financialSummary} onBack={goBackToDashboard} />;
-            case 'deposit': return <Deposit token={token} onBack={goBackToDashboard} onDepositRequest={handleDepositRequest} />;
-            case 'withdraw': return <Withdrawal token={token} financialSummary={financialSummary} onBack={goBackToDashboard} onWithdrawalRequest={handleWithdrawalRequest} />;
-            case 'promotions': return <Promotions onBack={goBackToDashboard} />;
-            case 'bet-history': return <BetHistory token={token} onBack={goBackToAccount} />;
-            case 'transactions': return <TransactionHistory onBack={goBackToAccount} />;
-            default: return <UserDashboard onViewChange={setView} />;
+            case 'dashboard': return <UserDashboard onViewChange={handleViewChange} />;
+            case 'plans': return <ProductsAndPlans token={token} allPlans={allPlans} onPurchaseComplete={() => fetchAllUserData(token)} initialCategory={initialCategory} />;
+            case 'game': return <GameLobby onViewChange={handleViewChange} />;
+            case 'color-prediction-game': return <GameView token={token} financialSummary={financialSummary} onBack={() => handleViewChange('game')} onBetPlaced={() => fetchAllUserData(token)} />;
+            case 'ip-lottery': return <IpLottery token={token} onBack={() => handleViewChange('game')} />;
+            case 'win-win': return <WinWinGame onBack={() => handleViewChange('game')} />;
+            case 'aviator': return <AviatorGame token={token} onBack={() => handleViewChange('game')} />;
+            case 'account': return <AccountView userData={userData} financialSummary={financialSummary} onLogout={handleLogout} onViewChange={handleViewChange} token={token}/>;
+            default: return <UserDashboard onViewChange={handleViewChange} />;
         }
     };
 
+    if (isRegistering) {
+        return <LoadingScreen />;
+    }
     if (loading) return <div className="loading-app"><h1>InvestmentPlus</h1><p>Loading...</p></div>;
     
     if (!token) {
