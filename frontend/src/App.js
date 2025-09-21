@@ -31,7 +31,7 @@ const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
 // A dedicated loading screen component for registration
 const LoadingScreen = () => (
     <div className="loading-app">
-        <h1 className="animated-logo">InvestmentPlus</h1>
+        <h1 className="animated-logo">MoneyPlus</h1>
         <p>Please wait, your account creation is in progress...</p>
         <div className="progress-bar">
             <div className="progress-bar-inner"></div>
@@ -58,6 +58,7 @@ function App() {
     const [showNotificationsDialog, setShowNotificationsDialog] = useState(false);
     const [initialCategory, setInitialCategory] = useState('all');
 
+    // ✅ THIS IS THE CORRECTED PART FOR SESSION MANAGEMENT
     // Save the current view to localStorage whenever it changes while logged in
     useEffect(() => {
         if (token) {
@@ -210,16 +211,15 @@ function App() {
 
         switch (view) {
             case 'dashboard': return <UserDashboard onViewChange={handleViewChange} />;
-            case 'plans': return <ProductsAndPlans token={token} allPlans={allPlans} onPurchaseComplete={() => fetchAllUserData(token)} initialCategory={initialCategory} />;
+            case 'plans': return <ProductsAndPlans token={token} allPlans={allPlans} userBalance={financialSummary ? financialSummary.balance + financialSummary.withdrawable_wallet : 0} onPurchaseComplete={() => fetchAllUserData(token)} initialCategory={initialCategory} />;
             case 'game': return <GameLobby onViewChange={handleViewChange} />; 
             case 'color-prediction-game': return <GameView token={token} financialSummary={financialSummary} onBack={goBackToGameLobby} onBetPlaced={() => fetchAllUserData(token)} />;
             case 'ip-lottery': return <IpLottery token={token} onBack={goBackToGameLobby} />;
             case 'win-win': return <WinWinGame onBack={goBackToGameLobby} />;
             case 'aviator': return <AviatorGame token={token} onBack={goBackToGameLobby} />;
             case 'account': return <AccountView userData={userData} financialSummary={financialSummary} onLogout={handleLogout} onViewChange={handleViewChange} token={token}/>;
-            // ✅ FIX: Pass userData prop to the Deposit component to fix the crash
             case 'deposit': return <Deposit token={token} userData={userData} onBack={goBackToDashboard} onDepositRequest={handleDepositRequest} />;
-             case 'withdraw': return <Withdrawal token={token} financialSummary={financialSummary} onBack={goBackToDashboard} onWithdrawalRequest={handleWithdrawalRequest} />;
+            case 'withdraw': return <Withdrawal token={token} financialSummary={financialSummary} onBack={goBackToDashboard} onWithdrawalRequest={handleWithdrawalRequest} />;
             case 'team': return <Team token={token} onBack={goBackToDashboard} />;
             case 'rewards': return <Rewards onBack={goBackToDashboard} />;
             case 'sell-usdt': return <SellUsdt onBack={goBackToDashboard} />;
@@ -235,7 +235,7 @@ function App() {
         return <LoadingScreen />;
     }
     
-    if (loading) return <div className="loading-app"><h1>InvestmentPlus</h1></div>;
+    if (loading) return <div className="loading-app"><h1>MoneyPlus</h1></div>;
     
     if (!token) {
         return (
