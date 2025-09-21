@@ -45,7 +45,7 @@ const PromoModal = ({ onClose, onRegisterClick }) => (
     <div className="promo-modal-overlay" onClick={onClose}>
         <div className="promo-modal" onClick={e => e.stopPropagation()}>
             <button className="close-modal-btn" onClick={onClose}>&times;</button>
-            <h3>Welcome to InvestmentPlus!</h3>
+            <h3>Welcome to MoneyPlus!</h3>
             <p className="bonus-highlight">Register now to get an instant <strong>₹50 Bonus</strong> and up to a <strong>300% Deposit Bonus</strong> on your first investment!</p>
             <button className="cta-button" onClick={onRegisterClick}>Register Now</button>
         </div>
@@ -76,7 +76,7 @@ function LandingPage({ authView, setAuthView, loginFormData, registerFormData, h
             {showPromo && <PromoModal onClose={() => setShowPromo(false)} onRegisterClick={() => { setShowPromo(false); scrollToAuth('register'); }} />}
             
             <section className="hero-section" onClick={() => scrollToAuth('register')}>
-                <img src={promoImage} alt="InvestmentPlus Promotion" className="hero-image"/>
+                <img src={promoImage} alt="MoneyPlus Promotion" className="hero-image"/>
                 <div className="hero-overlay"></div>
                 <div className="hero-content">
                     <h1 className="hero-title-animate">Your Financial Future, Reimagined</h1>
@@ -143,7 +143,7 @@ function LandingPage({ authView, setAuthView, loginFormData, registerFormData, h
                                 </form>
                             ) : (
                                  <form onSubmit={handleRegisterSubmit} className="auth-form">
-                                    <h2>Join InvestmentPlus</h2>
+                                    <h2>Join MoneyPlus</h2>
                                      <div className="input-box"><input type="text" name="username" value={registerFormData.username} onChange={handleRegisterInputChange} required autoComplete="username"/><label>Username</label></div>
                                     <div className="input-box"><input type="tel" name="mobile" value={registerFormData.mobile} onChange={handleRegisterInputChange} required autoComplete="tel"/><label>Mobile Number</label></div>
                                     <div className="input-box"><input type="password" name="password" value={registerFormData.password} onChange={handleRegisterInputChange} required autoComplete="new-password"/><label>Password</label></div>
@@ -168,15 +168,15 @@ function LandingPage({ authView, setAuthView, loginFormData, registerFormData, h
 
                 <section id="about" className="content-section">
                     <h2>Who Are We?</h2>
-                    <p>InvestmentPlus is a premier platform dedicated to democratizing wealth creation. We believe that everyone, regardless of their financial background, deserves the opportunity to build a secure and prosperous future. By combining expertly managed, high-yield investment products with fair and engaging skill-based games, we provide a unique and powerful ecosystem for our members to grow their capital and achieve their financial goals.</p>
+                    <p>MoneyPlus is a premier platform dedicated to democratizing wealth creation. We believe that everyone, regardless of their financial background, deserves the opportunity to build a secure and prosperous future. By combining expertly managed, high-yield investment products with fair and engaging skill-based games, we provide a unique and powerful ecosystem for our members to grow their capital and achieve their financial goals.</p>
                     <div className="trust-section"><div className="trust-badge">SEBI Compliant*</div><div className="trust-badge">Follows RBI Guidelines*</div></div>
                     <div className="partner-section"><span>Backed By</span><FidelityLogoIcon /></div>
                 </section>
                 
                 <footer className="landing-footer">
-                    <p><strong>InvestmentPlus Solutions Pvt. Ltd.</strong></p>
-                    <p>12th Floor, Tower C, Tech Boulevard, Sector 127, Noida, Uttar Pradesh 201303, India</p>
-                    <p className="disclaimer">*Disclaimer: Investments are subject to market risks. Please read all scheme-related documents carefully. Gaming involves an element of financial risk and may be addictive. Please play responsibly and at your own risk. InvestmentPlus is a privately operated platform and is not directly affiliated with or regulated by SEBI or RBI.</p>
+                    <p><strong>MoneyPlus Solutions Pvt. Ltd.</strong></p>
+                    <p>12th Floor, Tower C, Tech Boulevard, Texas, USA</p>
+                    <p className="disclaimer">*Disclaimer: Investments are subject to market risks. Please read all scheme-related documents carefully. Gaming involves an element of financial risk and may be addictive. Please play responsibly and at your own risk. MoneyPlus is a privately operated platform and is not directly affiliated with or regulated by SEBI or RBI.</p>
                 </footer>
             </main>
         </div>
