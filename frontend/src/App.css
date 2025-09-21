@@ -122,6 +122,11 @@ body.light-theme {
     to { transform: translateX(100%); }
 }
 
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
 /* --- Authentication Forms (from original file, now unused but kept for reference) --- */
 .auth-wrapper {
     display: flex;
