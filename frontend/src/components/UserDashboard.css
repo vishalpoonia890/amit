@@ -161,10 +161,10 @@
 }
 
 .info-section {
-    display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;
+    display: grid; grid-template-columns: 1fr; gap: 15px;
     margin: 20px;
 }
-@media (min-width: 768px) { .info-section { grid-template-columns: repeat(4, 1fr); } }
+@media (min-width: 768px) { .info-section { grid-template-columns: 1fr; } }
 .info-card {
     background-color: var(--card-bg-color); border-radius: 12px;
     padding: 20px; text-align: center; border: 1px solid var(--border-color);
@@ -185,4 +185,5 @@
     border-radius: 5px; border: 1px solid var(--border-color);
 }
 .footer-disclaimer { font-size: 0.7rem; }
+
 
