@@ -1,15 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { createClient } from '@supabase/supabase-js';
 import './FormPages.css';
 
 // ✅ IMPORTANT: Make sure you have an 'assets' folder inside your 'src' folder
 // and that these images are placed inside it.
-import upiQrImage from '../assets/ptys.jpg';
-import usdtQrImage from '../assets/usdt.jpg';
+import upiQrImage from '../assets/ptys.png';
+import usdtQrImage from '../assets/usdt.png';
 
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
 
-function Deposit({ token, onBack, onDepositRequest }) {
+// IMPORTANT: You must add these variables to your frontend's .env file
+const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
+const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+function Deposit({ token, userData, onBack, onDepositRequest }) {
     const [step, setStep] = useState(1);
     const [amount, setAmount] = useState('');
     const [utr, setUtr] = useState('');
@@ -69,31 +75,40 @@ function Deposit({ token, onBack, onDepositRequest }) {
             setError(`Please enter a valid 12-character ${transactionIdLabel}.`);
             return;
         }
-        if (!screenshotFile) {
-            setError("Please upload a screenshot of your payment.");
-            return;
-        }
         setLoading(true);
         setError('');
 
-        // Create a FormData object to send the file and text data together
-        const formData = new FormData();
-        formData.append('amount', amount);
-        formData.append('utr', utr);
-        formData.append('screenshot', screenshotFile);
+        let screenshotUrl = null; // Default to null
 
         try {
+            // ✅ UPDATED: Only upload a screenshot if one has been selected
+            if (screenshotFile) {
+                if (!userData || !userData.id) {
+                    throw new Error("User data is not available. Please log in again.");
+                }
+                const userId = userData.id;
+                const filePath = `${userId}/${Date.now()}_${screenshotFile.name}`;
+
+                const { data: uploadData, error: uploadError } = await supabase.storage
+                    .from('payment-screenshots')
+                    .upload(filePath, screenshotFile);
+
+                if (uploadError) throw uploadError;
+
+                const { data: urlData } = supabase.storage
+                    .from('payment-screenshots')
+                    .getPublicUrl(uploadData.path);
+                
+                screenshotUrl = urlData.publicUrl;
+            }
+
+            // Submit the request, with screenshotUrl being either the URL or null
             await axios.post(
                 `${API_BASE_URL}/api/recharge`,
-                formData,
-                { 
-                    headers: { 
-                        Authorization: `Bearer ${token}`,
-                        'Content-Type': 'multipart/form-data', // Important for file uploads
-                    } 
-                }
+                { amount: parseInt(amount), utr, screenshotUrl },
+                { headers: { Authorization: `Bearer ${token}` } }
             );
-
+            
             onDepositRequest(amount);
             setSuccess("Your deposit request has been submitted successfully!");
             setTimeout(() => onBack(), 2000);
@@ -216,13 +231,13 @@ function Deposit({ token, onBack, onDepositRequest }) {
                         />
                         <div className="upload-area">
                             <label htmlFor="screenshot-upload">
-                                {filePreview ? <img src={filePreview} alt="Screenshot Preview" className="screenshot-preview" /> : "Click to Upload Screenshot"}
+                                {filePreview ? <img src={filePreview} alt="Screenshot Preview" className="screenshot-preview" /> : "Upload Screenshot (Optional)"}
                             </label>
                             <input id="screenshot-upload" type="file" accept="image/*" onChange={handleFileChange} />
                         </div>
                         <div className="form-buttons">
                             <button type="button" className="secondary-button" onClick={() => setStep(2)}>Back</button>
-                            <button type="submit" className="gradient-button" disabled={loading || !utr || !screenshotFile}>
+                            <button type="submit" className="gradient-button" disabled={loading || !utr}>
                                 {loading ? "Submitting..." : "Submit Request"}
                             </button>
                         </div>
