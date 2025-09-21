@@ -49,7 +49,7 @@ function UserDashboard({ onViewChange }) {
     return (
         <div className="user-dashboard">
             <div className="dashboard-hero">
-                <h1 className="hero-title">Welcome to InvestmentPlus</h1>
+                <h1 className="hero-title">Welcome to MoneyPlus</h1>
                 <p className="hero-subtitle">Your Premier Destination for Digital Asset Growth & Gaming</p>
             </div>
 
@@ -135,15 +135,15 @@ function UserDashboard({ onViewChange }) {
             </div>
             
             <footer className="dashboard-footer">
-                <div className="footer-logo">InvestmentPlus</div>
+                <div className="footer-logo">MoneyPlus</div>
                 <div className="footer-regulatory">
                     <span>SEBI Compliant*</span>
                     <span>Follows RBI Guidelines*</span>
                 </div>
                 <p className="footer-disclaimer">
-                    *Disclaimer: InvestmentPlus is a privately operated platform. While we adhere to the highest standards of financial conduct and security inspired by regulatory bodies, we are not directly affiliated with, endorsed, or regulated by SEBI or RBI. All investments carry risks.
+                    *Disclaimer: MoneyPlus is a privately operated platform. While we adhere to the highest standards of financial conduct and security inspired by regulatory bodies, we are not directly affiliated with, endorsed, or regulated by SEBI or RBI. All investments carry risks.
                 </p>
-                <p>© 2025 InvestmentPlus.com | All Rights Reserved.</p>
+                <p>© 2025 MoneyPlus.com | All Rights Reserved.</p>
             </footer>
         </div>
     );
