@@ -5,8 +5,8 @@ import './FormPages.css';
 
 // ✅ IMPORTANT: Make sure you have an 'assets' folder inside your 'src' folder
 // and that these images are placed inside it.
-import upiQrImage from '../assets/ptys.png';
-import usdtQrImage from '../assets/usdt.png';
+import upiQrImage from '../assets/ptys.jpg';
+import usdtQrImage from '../assets/usdt.jpg';
 
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
 
