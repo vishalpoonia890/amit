@@ -31,7 +31,7 @@ const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
 // A dedicated loading screen component for registration
 const LoadingScreen = () => (
     <div className="loading-app">
-        <h1 className="animated-logo">FutureZ</h1>
+        <h1 className="animated-logo">InvestmentPlus</h1>
         <p>Please wait, your account creation is in progress...</p>
         <div className="progress-bar">
             <div className="progress-bar-inner"></div>
@@ -58,7 +58,7 @@ function App() {
     const [showNotificationsDialog, setShowNotificationsDialog] = useState(false);
     const [initialCategory, setInitialCategory] = useState('all');
 
-  // Save the current view to localStorage whenever it changes while logged in
+    // Save the current view to localStorage whenever it changes while logged in
     useEffect(() => {
         if (token) {
             localStorage.setItem('view', view);
@@ -133,7 +133,6 @@ function App() {
         }
     }, [token, fetchAllUserData]);
     
-    // ✅ THIS IS THE CORRECTED PART FOR LOGIN
     const handleLogin = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -152,8 +151,6 @@ function App() {
         }
     };
 
-
-     // ✅ THIS IS THE CORRECTED PART FOR REGISTRATION
     const handleRegister = async (e) => {
         e.preventDefault();
         setIsRegistering(true);
@@ -237,7 +234,7 @@ function App() {
         return <LoadingScreen />;
     }
     
-    if (loading) return <div className="loading-app"><h1>FutureZ</h1></div>;
+    if (loading) return <div className="loading-app"><h1>InvestmentPlus</h1></div>;
     
     if (!token) {
         return (
