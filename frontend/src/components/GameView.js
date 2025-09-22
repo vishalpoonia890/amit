@@ -25,7 +25,9 @@ function GameView({ token, financialSummary, onViewChange, onBetPlaced, ws, real
     const [userRoundResult, setUserRoundResult] = useState(null);
     const [showFinalCountdown, setShowFinalCountdown] = useState(false);
 
+    // This hook processes the real-time data as it comes in from App.js.
     useEffect(() => {
+        // When the component first mounts, get the initial game history
         if (loading) {
             axios.get(`${API_BASE_URL}/api/game-state`, { headers: { Authorization: `Bearer ${token}` } })
                 .then(res => {
@@ -34,7 +36,7 @@ function GameView({ token, financialSummary, onViewChange, onBetPlaced, ws, real
         }
 
         if (realtimeData) {
-            setLoading(false);
+            setLoading(false); // Stop loading once we get the first message
 
             if (realtimeData.type === 'ROUND_RESULT') {
                 setGameHistory(realtimeData.results);
@@ -95,6 +97,7 @@ function GameView({ token, financialSummary, onViewChange, onBetPlaced, ws, real
     };
     
     // --- Render Logic ---
+    // ✅ FIX: Changed this condition to rely only on `loading`.
     if (loading) return <div className="loading-spinner">Connecting to Game...</div>;
 
     const totalBalance = (financialSummary?.balance || 0) + (financialSummary?.withdrawable_wallet || 0);
@@ -147,7 +150,6 @@ function GameView({ token, financialSummary, onViewChange, onBetPlaced, ws, real
                         <tr><th>Period</th><th>Number</th><th>Result</th></tr>
                     </thead>
                     <tbody>
-                        {/* ✅ THE FIX IS HERE: Changed `gameState.results` to `gameHistory` */}
                         {gameHistory.map(res => (
                             <tr key={res.game_period}>
                                 <td>{res.game_period}</td>
@@ -159,9 +161,9 @@ function GameView({ token, financialSummary, onViewChange, onBetPlaced, ws, real
                 </table>
             </div>
 
-            {/* Betting Modal */}
+            {/* Modals */}
             {showBetModal && (
-                <div className="modal-overlay">
+                 <div className="modal-overlay">
                     <div className="bet-modal">
                         <h3 className={`bet-title ${betDetails.type === 'color' ? betDetails.value.toLowerCase() : ''}`}>Bet on {betDetails.value}</h3>
                         <div className="modal-content">
@@ -182,10 +184,9 @@ function GameView({ token, financialSummary, onViewChange, onBetPlaced, ws, real
                             <button className="confirm-btn" onClick={handlePlaceBet}>Confirm</button>
                         </div>
                     </div>
-                </div>
+                 </div>
             )}
             
-            {/* Final Countdown Popup */}
             {showFinalCountdown && (
                 <div className="modal-overlay countdown-overlay">
                     <div className="countdown-popup">
@@ -194,7 +195,6 @@ function GameView({ token, financialSummary, onViewChange, onBetPlaced, ws, real
                 </div>
             )}
 
-            {/* Personalized Result Popup */}
             {userRoundResult && (
                 <div className="modal-overlay">
                     <div className={`result-modal ${userRoundResult.status}`}>
