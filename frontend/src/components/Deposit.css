@@ -309,3 +309,27 @@
     color: var(--secondary-color);
     margin: 0 0 10px 0;
 }
+
+/* Add this new style to Deposit.css */
+
+.back-button {
+    background-color: var(--bg-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    width: 44px;  /* Set a fixed width */
+    height: 44px; /* Set a fixed height */
+    border-radius: 50%; /* Make it a circle */
+    font-size: 1.5em;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0; /* Prevent the button from shrinking */
+}
+
+.back-button:hover {
+    background-color: var(--border-color);
+    border-color: var(--primary-color);
+}
