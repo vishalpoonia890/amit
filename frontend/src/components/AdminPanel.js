@@ -54,6 +54,7 @@ function AdminPanel({ token }) {
     const [manualNumA, setManualNumA] = useState('');
     const [manualNumB, setManualNumB] = useState('');
     const [currentLotteryRoundId, setCurrentLotteryRoundId] = useState('');
+     const [lotteryProfitPreference, setLotteryProfitPreference] = useState('max_profit');
 
     const [aviatorLiveBets, setAviatorLiveBets] = useState([]);
     const [aviatorAnalysis, setAviatorAnalysis] = useState([]);
