@@ -307,3 +307,6 @@
 .result-modal > button {
     display: none; 
 }
+.result-modal > button:not(.close-modal-btn) {
+    display: none; 
+}
