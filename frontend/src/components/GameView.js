@@ -22,7 +22,10 @@ function GameView({ token, financialSummary, onViewChange, onBetPlaced, ws, real
     const [betAmount, setBetAmount] = useState(10);
     const [userRoundResult, setUserRoundResult] = useState(null);
     const [showFinalCountdown, setShowFinalCountdown] = useState(false);
-
+// ✅ NEW: Function to scroll smoothly to the rules section
+    const scrollToRules = () => {
+        document.getElementById('game-rules-section').scrollIntoView({ behavior: 'smooth' });
+    };
     // This effect fetches the initial game history ONCE when the component mounts.
     useEffect(() => {
         axios.get(`${API_BASE_URL}/api/game-state`, { headers: { Authorization: `Bearer ${token}` } })
@@ -118,8 +121,11 @@ useEffect(() => {
                 <p>Available balance</p>
                 <h3>₹{totalBalance.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
                 <div className="balance-actions">
+                    {/* This button correctly navigates to the Deposit view */}
                     <button onClick={() => onViewChange('deposit')}>Recharge</button>
-                    <button className="rules-btn">Read Rules</button>
+                    {/* ✅ CHANGED: This button now scrolls to the rules */}
+                    <button className="rules-btn" onClick={scrollToRules}>Read Rules</button>
+               
                 </div>
             </div>
 
@@ -236,6 +242,18 @@ useEffect(() => {
                     </div>
                 </div>
             )}
+
+                 {/* ✅ NEW: Rules Section */}
+            <div id="game-rules-section" className="game-rules-section">
+                <h3>Game Rules & Payouts</h3>
+                <ul>
+                    <li>If you bet on <strong>Green</strong> and the result is 2, 4, 6, or 8, you get <strong>2x</strong> your bet. If the result is 5, you get <strong>1.5x</strong>.</li>
+                    <li>If you bet on <strong>Red</strong> and the result is 1, 3, 7, or 9, you get <strong>2x</strong> your bet. If the result is 0, you get <strong>1.5x</strong>.</li>
+                    <li>If you bet on <strong>Violet</strong> and the result is 0 or 5, you get <strong>4.5x</strong> your bet.</li>
+                    <li>If you bet on a specific <strong>Number</strong> from 0-9 and it matches the result, you get <strong>9x</strong> your bet.</li>
+                    <li>A fee of 2% is deducted from all winnings.</li>
+                </ul>
+            </div>
         </div>
     );
 }
