@@ -108,7 +108,7 @@ function UserDashboard({ onViewChange }) {
 
             <div className="payout-ticker-card">
                 <h4>Total Payouts to Date</h4>
-                <p className="payout-amount">{formatCurrency(100000000)} +</p>
+                <p className="payout-amount">{formatCurrency(10Cr)} +</p>
             </div>
 
             <div className="info-section">
