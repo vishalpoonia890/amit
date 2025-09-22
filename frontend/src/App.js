@@ -241,6 +241,8 @@ function App() {
             }
             // ADD THIS NEW CASE
         case 'daily-tasks': return <DailyTasks token={token} onBack={goBackToDashboard} />;
+case 'news': 
+                return <NewsView onBack={goBackToDashboard} />;
 
             case 'game':
                 return <GameLobby onViewChange={handleViewChange} />; 
