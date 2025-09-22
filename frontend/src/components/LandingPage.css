@@ -114,7 +114,6 @@ p {
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
 }
 
-/* ✅ FIX: Added styles to control the icon size */
 .casino-icon {
     width: 60px;
     height: 60px;
@@ -264,7 +263,6 @@ p {
     color: #a4a5a7;
 }
 
-/* ✅ FIX: Made grids responsive */
 .sample-grid, .casino-grid {
     display: grid;
     grid-template-columns: 1fr; /* Single column on mobile */
@@ -362,7 +360,44 @@ p {
     font-weight: 700;
 }
 
-/* ✅ FIX: Added media queries for larger screens */
+/* --- ✅ FIX: Inflation Image Section Styles --- */
+.content-section {
+    display: flex;
+    flex-direction: column; /* Stack on mobile by default */
+    align-items: center;
+    gap: 30px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.content-image {
+    flex: 1;
+    max-width: 400px;
+    width: 100%;
+}
+
+.content-image img {
+    width: 100%; /* Make image responsive */
+    height: auto; /* Maintain aspect ratio */
+    border-radius: 12px;
+}
+
+.content-text {
+    flex: 1;
+    text-align: center; /* Center text on mobile */
+}
+
+@media (min-width: 768px) {
+    .content-section {
+        flex-direction: row; /* Side-by-side on larger screens */
+    }
+    .content-text {
+        text-align: left; /* Align text to the left on larger screens */
+    }
+}
+
+
+/* --- Media Queries for Larger Screens --- */
 @media (min-width: 600px) {
     .sample-grid {
         grid-template-columns: 1fr 1fr;
