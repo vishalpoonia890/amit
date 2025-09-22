@@ -80,7 +80,10 @@ function App() {
         };
 
         websocket.onmessage = (event) => {
+            // ✅ ADD THIS LINE to see exactly what the server is sending you.
+    console.log("MESSAGE RECEIVED:", event.data); 
             const data = JSON.parse(event.data);
+            
             // We update the state with whatever data the server sends.
             setRealtimeGameData(data);
         };
