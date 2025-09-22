@@ -253,3 +253,41 @@
     0% { transform: scale(0.5); opacity: 0; }
     100% { transform: scale(1); opacity: 1; }
 }
+
+/* --- ✅ MOBILE RESPONSIVE STYLES --- */
+@media (max-width: 480px) {
+    .withdrawal-page {
+        padding: 15px 10px 70px 10px;
+    }
+
+    .withdrawal-container {
+        gap: 15px;
+    }
+
+    .withdrawal-title {
+        font-size: 1.8rem;
+    }
+
+    .withdrawal-subtitle {
+        font-size: 0.9rem;
+    }
+
+    .balance-card {
+        padding: 15px 20px;
+    }
+
+    .balance-card strong {
+        font-size: 1.9rem;
+    }
+
+    .withdrawal-form-card {
+        padding: 20px;
+    }
+
+    .method-btn {
+        padding: 12px 5px;
+        gap: 5px;
+        font-size: 0.8rem;
+    }
+}
+
