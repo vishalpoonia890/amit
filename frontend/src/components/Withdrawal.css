@@ -113,6 +113,7 @@
 
 .form-group input {
     width: 100%;
+    box-sizing: border-box; /* Ensures padding doesn't add to width */
     padding: 12px;
     padding-left: 35px; /* Space for currency symbol */
     border: 1px solid #e2e8f0;
@@ -263,6 +264,11 @@
     .withdrawal-container {
         gap: 15px;
     }
+    
+    /* ✅ FIX: Added margin to separate back button from title */
+    .back-button {
+        margin-bottom: 15px;
+    }
 
     .withdrawal-title {
         font-size: 1.8rem;
@@ -284,10 +290,31 @@
         padding: 20px;
     }
 
+    /* ✅ FIX: Reduced input field size */
+    .form-group input {
+        font-size: 0.95rem;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        padding-left: 30px;
+    }
+    .form-group input:not(#amount) {
+        padding-left: 12px;
+    }
+    .currency-symbol {
+        font-size: 1rem;
+        left: 12px;
+    }
+
     .method-btn {
         padding: 12px 5px;
         gap: 5px;
         font-size: 0.8rem;
+    }
+
+    /* ✅ FIX: Reduced submit button size */
+    .submit-button {
+        padding: 14px;
+        font-size: 1rem;
     }
 }
 
