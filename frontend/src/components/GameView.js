@@ -25,9 +25,7 @@ function GameView({ token, financialSummary, onViewChange, onBetPlaced, ws, real
     const [userRoundResult, setUserRoundResult] = useState(null);
     const [showFinalCountdown, setShowFinalCountdown] = useState(false);
 
-    // This useEffect hook processes the real-time data as it comes in from App.js.
     useEffect(() => {
-        // When the component first mounts, get the initial game history
         if (loading) {
             axios.get(`${API_BASE_URL}/api/game-state`, { headers: { Authorization: `Bearer ${token}` } })
                 .then(res => {
@@ -36,9 +34,8 @@ function GameView({ token, financialSummary, onViewChange, onBetPlaced, ws, real
         }
 
         if (realtimeData) {
-            setLoading(false); // Stop loading once we get the first message
+            setLoading(false);
 
-            // When the server sends new results, update the history
             if (realtimeData.type === 'ROUND_RESULT') {
                 setGameHistory(realtimeData.results);
                 
@@ -55,12 +52,11 @@ function GameView({ token, financialSummary, onViewChange, onBetPlaced, ws, real
                     });
             }
 
-            // Update the countdown popup visibility from the timer update
             if (realtimeData.type === 'TIMER_UPDATE') {
                 setShowFinalCountdown(realtimeData.timeLeft <= 5 && realtimeData.timeLeft > 0);
             }
         }
-    }, [realtimeData, token, loading]); // This effect runs every time new data arrives.
+    }, [realtimeData, token, loading]);
 
 
     // --- Event Handlers ---
@@ -103,7 +99,6 @@ function GameView({ token, financialSummary, onViewChange, onBetPlaced, ws, real
 
     const totalBalance = (financialSummary?.balance || 0) + (financialSummary?.withdrawable_wallet || 0);
 
-    // ✅ FIX: Use the new `realtimeData` prop for the timer and period display.
     const timeLeft = realtimeData?.timeLeft ?? 0;
     const currentPeriod = realtimeData?.current_period ?? '...';
     const minutes = Math.floor(timeLeft / 60);
@@ -124,12 +119,10 @@ function GameView({ token, financialSummary, onViewChange, onBetPlaced, ws, real
                 <div className="game-info">
                     <div className="period-info">
                         <h4>Period</h4>
-                        {/* ✅ FIX: Displaying the live period */}
                         <p>{currentPeriod}</p>
                     </div>
                     <div className="countdown-info">
                         <h4>Count Down</h4>
-                         {/* ✅ FIX: Displaying the live timer */}
                         <p>{String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}</p>
                     </div>
                 </div>
@@ -154,6 +147,7 @@ function GameView({ token, financialSummary, onViewChange, onBetPlaced, ws, real
                         <tr><th>Period</th><th>Number</th><th>Result</th></tr>
                     </thead>
                     <tbody>
+                        {/* ✅ THE FIX IS HERE: Changed `gameState.results` to `gameHistory` */}
                         {gameHistory.map(res => (
                             <tr key={res.game_period}>
                                 <td>{res.game_period}</td>
@@ -164,7 +158,6 @@ function GameView({ token, financialSummary, onViewChange, onBetPlaced, ws, real
                     </tbody>
                 </table>
             </div>
-
 
             {/* Betting Modal */}
             {showBetModal && (
@@ -192,16 +185,16 @@ function GameView({ token, financialSummary, onViewChange, onBetPlaced, ws, real
                 </div>
             )}
             
-            {/* ✅ NEW: Final Countdown Popup */}
+            {/* Final Countdown Popup */}
             {showFinalCountdown && (
                 <div className="modal-overlay countdown-overlay">
                     <div className="countdown-popup">
-                        {gameState.time_left}
+                        {timeLeft}
                     </div>
                 </div>
             )}
 
-            {/* ✅ NEW: Personalized Result Popup */}
+            {/* Personalized Result Popup */}
             {userRoundResult && (
                 <div className="modal-overlay">
                     <div className={`result-modal ${userRoundResult.status}`}>
