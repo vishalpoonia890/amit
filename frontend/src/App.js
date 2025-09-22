@@ -26,6 +26,8 @@ import AviatorGame from './components/AviatorGame';
 import LandingPage from './components/LandingPage';
 // In App.js, near the other component imports
 import DailyTasks from './components/DailyTasks';
+import NewsView from './components/NewsView'; // Import the new component
+
 
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
 
