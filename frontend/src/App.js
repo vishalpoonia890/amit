@@ -325,6 +325,8 @@ function App() {
                     // Pass the new props down
                     ws={ws} 
                     realtimeData={realtimeGameData} 
+                        // ✅ ADD THIS LINE BACK
+        onViewChange={handleViewChange} 
                 />;
                 
          case 'ip-lottery': return <IpLottery token={token} onBack={goBackToGameLobby} />;
