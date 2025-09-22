@@ -210,22 +210,20 @@ function App() {
 
         switch (view) {
             case 'dashboard': return <UserDashboard onViewChange={handleViewChange} />;
-            case 'plans':
-                // ✅ FIX: This calculation is now more robust. It ensures that both wallet balances
-                // are treated as numbers and safely defaults to 0 if they don't exist,
-                // which fixes the "insufficient balance" bug.
-                const balance = financialSummary ? Number(financialSummary.balance) || 0 : 0;
-                const withdrawable = financialSummary ? Number(financialSummary.withdrawable_wallet) || 0 : 0;
-                const totalBalance = balance + withdrawable;
+            case 'plans': {
+                const balance = financialSummary ? Number(financialSummary.balance) || 0 : 0;
+                const withdrawable = financialSummary ? Number(financialSummary.withdrawable_wallet) || 0 : 0;
+                const totalBalance = balance + withdrawable;
 
-                return <ProductsAndPlans 
-                            token={token} 
-                            userBalance={totalBalance} 
-                            allPlans={allPlans} 
-                            loading={loading} 
-                            onPurchaseComplete={() => fetchAllUserData(token)} 
-                            initialCategory={initialCategory} 
-                        />;
+                return <ProductsAndPlans 
+                    token={token} 
+                    userBalance={totalBalance} 
+                    allPlans={allPlans} 
+                    loading={loading} 
+                    onPurchaseComplete={() => fetchAllUserData(token)} 
+                    initialCategory={initialCategory} 
+                />;
+            
             case 'game': return <GameLobby onViewChange={handleViewChange} />; 
             case 'color-prediction-game': return <GameView token={token} financialSummary={financialSummary} onBack={goBackToGameLobby} onBetPlaced={() => fetchAllUserData(token)} />;
             case 'ip-lottery': return <IpLottery token={token} onBack={goBackToGameLobby} />;
