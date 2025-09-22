@@ -25,18 +25,25 @@ function GameView({ token, financialSummary, onViewChange, onBetPlaced, ws, real
     const [userRoundResult, setUserRoundResult] = useState(null);
     const [showFinalCountdown, setShowFinalCountdown] = useState(false);
 
-    // This hook processes the real-time data as it comes in from App.js.
+    // ✅ FIXED useEffect Hook
     useEffect(() => {
-        // When the component first mounts, get the initial game history
-        if (loading) {
-            axios.get(`${API_BASE_URL}/api/game-state`, { headers: { Authorization: `Bearer ${token}` } })
-                .then(res => {
-                    setGameHistory(res.data.results || []);
-                });
-        }
+        // Step 1: Fetch the initial game history only ONCE when the component mounts.
+        axios.get(`${API_BASE_URL}/api/game-state`, { headers: { Authorization: `Bearer ${token}` } })
+            .then(res => {
+                setGameHistory(res.data.results || []);
+                // We don't setLoading(false) here. We wait for the first WebSocket message.
+            })
+            .catch(err => console.error("Failed to fetch initial history:", err));
 
+    }, [token]); // <-- This now only depends on `token` and runs once.
+
+    useEffect(() => {
+        // Step 2: Listen for all real-time updates from the server.
         if (realtimeData) {
-            setLoading(false); // Stop loading once we get the first message
+            // The first message from the server will stop the loading screen.
+            if (loading) {
+                setLoading(false);
+            }
 
             if (realtimeData.type === 'ROUND_RESULT') {
                 setGameHistory(realtimeData.results);
@@ -97,7 +104,6 @@ function GameView({ token, financialSummary, onViewChange, onBetPlaced, ws, real
     };
     
     // --- Render Logic ---
-    // ✅ FIX: Changed this condition to rely only on `loading`.
     if (loading) return <div className="loading-spinner">Connecting to Game...</div>;
 
     const totalBalance = (financialSummary?.balance || 0) + (financialSummary?.withdrawable_wallet || 0);
