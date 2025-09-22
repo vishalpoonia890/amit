@@ -1,227 +1,227 @@
 /* --- Core App Layout & Theme Variables --- */
 :root {
-    --primary-color: #4F46E5;
-    --primary-hover-color: #6366F1;
-    --primary-color-light: #C7D2FE;
-    --secondary-color: #F59E0B;
-    --secondary-color-light: #FEF3C7;
-    --success-color: #10B981;
-    --success-color-light: #A7F3D0;
-    --error-color: #EF4444;
-    --error-color-light: #FECACA;
-    --text-color: #F9FAFB;
-    --text-color-light: #9CA3AF;
-    --bg-color: #111827;
-    --card-bg-color: #1F2937;
-    --border-color: #374151;
-    --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-    --card-hover-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --primary-color: #4F46E5;
+    --primary-hover-color: #6366F1;
+    --primary-color-light: #C7D2FE;
+    --secondary-color: #F59E0B;
+    --secondary-color-light: #FEF3C7;
+    --success-color: #10B981;
+    --success-color-light: #A7F3D0;
+    --error-color: #EF4444;
+    --error-color-light: #FECACA;
+    --text-color: #F9FAFB;
+    --text-color-light: #9CA3AF;
+    --bg-color: #111827;
+    --card-bg-color: #1F2937;
+    --border-color: #374151;
+    --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    --card-hover-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
 body {
-    margin: 0;
-    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    transition: background-color 0.3s, color 0.3s;
+    margin: 0;
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.3s, color 0.3s;
 }
 
 body.dark-theme {
-    --text-color: #F9FAFB;
-    --text-color-light: #9CA3AF;
-    --bg-color: #111827;
-    --card-bg-color: #1F2937;
-    --border-color: #374151;
-    background-color: var(--bg-color);
-    color: var(--text-color);
+    --text-color: #F9FAFB;
+    --text-color-light: #9CA3AF;
+    --bg-color: #111827;
+    --card-bg-color: #1F2937;
+    --border-color: #374151;
+    background-color: var(--bg-color);
+    color: var(--text-color);
 }
 
 body.light-theme {
-    --primary-color: #4F46E5;
-    --primary-hover-color: #6366F1;
-    --text-color: #111827;
-    --text-color-light: #6B7280;
-    --bg-color: #F9FAFB;
-    --card-bg-color: #FFFFFF;
-    --border-color: #E5E7EB;
-    background-color: var(--bg-color);
-    color: var(--text-color);
+    --primary-color: #4F46E5;
+    --primary-hover-color: #6366F1;
+    --text-color: #111827;
+    --text-color-light: #6B7280;
+    --bg-color: #F9FAFB;
+    --card-bg-color: #FFFFFF;
+    --border-color: #E5E7EB;
+    background-color: var(--bg-color);
+    color: var(--text-color);
 }
 
 
 .App {
-    text-align: center;
+    text-align: center;
 }
 
 .app-container {
-    max-width: 600px;
-    margin: 0 auto;
-    position: relative;
+    max-width: 600px;
+    margin: 0 auto;
+    position: relative;
 }
 
+/* ✅ FIX: Increased top and bottom padding to prevent overlap with nav bars */
 .main-content {
-    padding-top: 60px; /* Space for TopNav */
-    padding-bottom: 60px; /* Space for BottomNav */
+    padding-top: 80px; /* Increased space for TopNav */
+    padding-bottom: 80px; /* Increased space for BottomNav */
 }
 
 /* --- Loading Screens --- */
 .loading-app {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background-color: var(--bg-color);
-    color: var(--text-color);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: var(--bg-color);
+    color: var(--text-color);
 }
 
 .loading-app h1 {
-    font-size: 2.5rem;
-    font-weight: bold;
+    font-size: 2.5rem;
+    font-weight: bold;
 }
 
 .animated-logo {
-    background: linear-gradient(90deg, var(--primary-color), #EC4899, var(--primary-color));
-    background-size: 200% 200%;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: gradient-animation 4s ease infinite;
+    background: linear-gradient(90deg, var(--primary-color), #EC4899, var(--primary-color));
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradient-animation 4s ease infinite;
 }
 @keyframes gradient-animation {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
 
 .loading-app p {
-    margin-top: 10px;
-    font-size: 1rem;
-    color: var(--text-color-light);
+    margin-top: 10px;
+    font-size: 1rem;
+    color: var(--text-color-light);
 }
 
 .progress-bar {
-    width: 80%;
-    max-width: 300px;
-    height: 8px;
-    background-color: var(--border-color);
-    border-radius: 4px;
-    margin-top: 20px;
-    overflow: hidden;
+    width: 80%;
+    max-width: 300px;
+    height: 8px;
+    background-color: var(--border-color);
+    border-radius: 4px;
+    margin-top: 20px;
+    overflow: hidden;
 }
 .progress-bar-inner {
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, var(--primary-color), #EC4899);
-    border-radius: 4px;
-    animation: progress-animation 2s infinite linear;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary-color), #EC4899);
+    border-radius: 4px;
+    animation: progress-animation 2s infinite linear;
 }
 @keyframes progress-animation {
-    from { transform: translateX(-100%); }
-    to { transform: translateX(100%); }
+    from { transform: translateX(-100%); }
+    to { transform: translateX(100%); }
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
 /* --- Authentication Forms (from original file, now unused but kept for reference) --- */
 .auth-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    background-color: var(--bg-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: var(--bg-color);
 }
 
 .auth-container-simple {
-    width: 100%;
-    max-width: 400px;
-    padding: 20px;
+    width: 100%;
+    max-width: 400px;
+    padding: 20px;
 }
 
 .form-box-simple {
-    background-color: var(--card-bg-color);
-    border-radius: 12px;
-    padding: 30px;
-    box-shadow: var(--card-shadow);
+    background-color: var(--card-bg-color);
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: var(--card-shadow);
 }
 
 .form-box-simple h2 {
-    margin-bottom: 20px;
-    font-size: 1.8em;
-    color: var(--text-color);
+    margin-bottom: 20px;
+    font-size: 1.8em;
+    color: var(--text-color);
 }
 
 .input-box {
-    position: relative;
-    margin-bottom: 30px;
+    position: relative;
+    margin-bottom: 30px;
 }
 .input-box input {
-    width: 100%;
-    padding: 10px 5px;
-    background: transparent;
-    border: none;
-    border-bottom: 2px solid var(--border-color);
-    outline: none;
-    color: var(--text-color);
-    font-size: 1em;
+    width: 100%;
+    padding: 10px 5px;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid var(--border-color);
+    outline: none;
+    color: var(--text-color);
+    font-size: 1em;
 }
 .input-box label {
-    position: absolute;
-    top: 10px;
-    left: 5px;
-    color: var(--text-color-light);
-    transition: 0.3s;
-    pointer-events: none;
+    position: absolute;
+    top: 10px;
+    left: 5px;
+    color: var(--text-color-light);
+    transition: 0.3s;
+    pointer-events: none;
 }
 .input-box input:focus ~ label,
 .input-box input:valid ~ label {
-    top: -15px;
-    font-size: 0.8em;
-    color: var(--primary-color);
+    top: -15px;
+    font-size: 0.8em;
+    color: var(--primary-color);
 }
 .input-box input:focus {
-    border-bottom-color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
 }
 
 .btn {
-    width: 100%;
-    padding: 12px;
-    border-radius: 8px;
-    border: none;
-    background-color: var(--primary-color);
-    color: white;
-    font-size: 1.1em;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.2s;
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    background-color: var(--primary-color);
+    color: white;
+    font-size: 1.1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
 }
 .btn:hover {
-    background-color: var(--primary-hover-color);
+    background-color: var(--primary-hover-color);
 }
 .btn:disabled {
-    background-color: #555;
-    cursor: not-allowed;
+    background-color: #555;
+    cursor: not-allowed;
 }
 
 .regi-link {
-    margin-top: 20px;
-    font-size: 0.9em;
-    color: var(--text-color-light);
+    margin-top: 20px;
+    font-size: 0.9em;
+    color: var(--text-color-light);
 }
 .regi-link button {
-    background: none;
-    border: none;
-    color: var(--primary-color);
-    font-weight: 600;
-    cursor: pointer;
+    background: none;
+    border: none;
+    color: var(--primary-color);
+    font-weight: 600;
+    cursor: pointer;
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
-
