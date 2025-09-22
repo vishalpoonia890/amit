@@ -98,7 +98,7 @@ p {
 
 /* --- Auth Section --- */
 .auth-section {
-    background: #101012 url('../assets/casino-bg.png') no-repeat center center;
+    background-color: #101012;
     background-size: cover;
     padding: 80px 15px;
 }
@@ -343,3 +343,4 @@ p {
     color: #d4af37;
     font-weight: 700;
 }
+
