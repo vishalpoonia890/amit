@@ -1,6 +1,6 @@
 // src/components/GameView.js
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './GameView.css';
 
@@ -17,71 +17,24 @@ const getNumberColorClass = (num) => {
 
 function GameView({ token, financialSummary, onViewChange, onBetPlaced, ws, realtimeData }) {
     // --- State Management ---
-    const [gameState, setGameState] = useState(null);
-    const [isUnderMaintenance, setIsUnderMaintenance] = useState(false);
-    const [gameHistory, setGameHistory] = useState([]); 
     const [loading, setLoading] = useState(true);
+    const [gameHistory, setGameHistory] = useState([]);
     const [showBetModal, setShowBetModal] = useState(false);
     const [betDetails, setBetDetails] = useState({ type: '', value: '' });
     const [betAmount, setBetAmount] = useState(10);
-    
-    // ✅ NEW States for popups and result tracking
-    const [userRoundResult, setUserRoundResult] = useState(null); // Stores win/loss info
-    const [lastCheckedPeriod, setLastCheckedPeriod] = useState(null); // Prevents re-fetching results
-    const [showFinalCountdown, setShowFinalCountdown] = useState(false); // Controls 5-sec countdown popup
+    const [userRoundResult, setUserRoundResult] = useState(null);
+    const [showFinalCountdown, setShowFinalCountdown] = useState(false);
 
-    // // --- Data Fetching ---
-    // const fetchGameState = useCallback(async () => {
-    //     try {
-    //         const { data } = await axios.get(`${API_BASE_URL}/api/game-state`, { headers: { Authorization: `Bearer ${token}` } });
-            
-    //         if (data.maintenance) {
-    //             setIsUnderMaintenance(true);
-    //             setGameState(null);
-    //         } else {
-    //             setIsUnderMaintenance(false);
-                
-    //             // ✅ LOGIC: When a new round starts, check the result of the previous round for the user.
-    //             if (gameState && data.current_period !== gameState.current_period && lastCheckedPeriod !== gameState.current_period) {
-    //                 setLastCheckedPeriod(gameState.current_period);
-    //                 try {
-    //                     const resultRes = await axios.get(`${API_BASE_URL}/api/my-bet-result/${gameState.current_period}`, { headers: { Authorization: `Bearer ${token}` } });
-    //                     if (resultRes.data.status !== 'did_not_play') {
-    //                         // Set the result data, which will trigger the result modal
-    //                         setUserRoundResult({ 
-    //                             ...resultRes.data, 
-    //                             period: gameState.current_period, 
-    //                             number: data.results[0].result_number 
-    //                         });
-    //                     }
-    //                 } catch (err) {
-    //                     console.error("Could not fetch user's round result:", err);
-    //                 }
-    //             }
-                
-    //             setGameState(data);
-
-    //             // ✅ LOGIC: Show the final countdown popup only in the last 5 seconds
-    //             setShowFinalCountdown(data.time_left <= 5 && data.time_left > 0);
-    //         }
-    //     } catch (error) {
-    //         console.error("Error fetching game state:", error);
-    //         setIsUnderMaintenance(true);
-    //     } finally {
-    //         setLoading(false);
-    //     }
-    // }, [token, gameState, lastCheckedPeriod]);
-
-    // useEffect(() => {
-    //     fetchGameState();
-    //     const interval = setInterval(fetchGameState, 2000);
-    //     return () => clearInterval(interval);
-    // }, [fetchGameState]);
-
-
-    //// ✅ NEW useEffect: This hook processes the real-time data as it comes in from App.js.
+    // This useEffect hook processes the real-time data as it comes in from App.js.
     useEffect(() => {
-        // Check if we have received any data yet
+        // When the component first mounts, get the initial game history
+        if (loading) {
+            axios.get(`${API_BASE_URL}/api/game-state`, { headers: { Authorization: `Bearer ${token}` } })
+                .then(res => {
+                    setGameHistory(res.data.results || []);
+                });
+        }
+
         if (realtimeData) {
             setLoading(false); // Stop loading once we get the first message
 
@@ -89,7 +42,6 @@ function GameView({ token, financialSummary, onViewChange, onBetPlaced, ws, real
             if (realtimeData.type === 'ROUND_RESULT') {
                 setGameHistory(realtimeData.results);
                 
-                // Check the user's personal result for the round that just ended
                 const lastPeriod = realtimeData.results[0].game_period;
                 axios.get(`${API_BASE_URL}/api/my-bet-result/${lastPeriod}`, { headers: { Authorization: `Bearer ${token}` } })
                     .then(res => {
@@ -103,77 +55,62 @@ function GameView({ token, financialSummary, onViewChange, onBetPlaced, ws, real
                     });
             }
 
-            // Update the countdown popup visibility
+            // Update the countdown popup visibility from the timer update
             if (realtimeData.type === 'TIMER_UPDATE') {
                 setShowFinalCountdown(realtimeData.timeLeft <= 5 && realtimeData.timeLeft > 0);
             }
-
         }
-    }, [realtimeData, token]); // This effect runs every time new data arrives.
+    }, [realtimeData, token, loading]); // This effect runs every time new data arrives.
 
 
     // --- Event Handlers ---
     const handleOpenBetModal = (type, value) => {
-        if (!gameState.can_bet) {
-            alert("Betting has closed for the current round. Please wait for the next one.");
+        if (realtimeData && !realtimeData.can_bet) {
+            alert("Betting has closed for the current round.");
             return;
         }
         setBetDetails({ type, value });
         setShowBetModal(true);
     };
 
-    // ✅ MODIFIED: handlePlaceBet now uses WebSockets
     const handlePlaceBet = async () => {
         if (betAmount < 10) {
             alert("Minimum bet is ₹10.");
             return;
         }
-
-        // Check if the WebSocket connection is open and ready
         if (!ws || ws.readyState !== WebSocket.OPEN) {
             alert("Connection error. Please refresh the page.");
             return;
         }
 
-        // Send the bet message to the server
         const betMessage = {
-            game: 'color-prediction', // Important for the server's router
+            game: 'color-prediction',
             action: 'bet',
             payload: {
                 amount: betAmount,
                 bet_on: betDetails.value,
-                token: token // Send token for authentication on the backend
+                token: token
             }
         };
         ws.send(JSON.stringify(betMessage));
-
         alert('Bet placed successfully!');
         setShowBetModal(false);
-        onBetPlaced(); // Refresh user balance
+        onBetPlaced();
     };
-
     
     // --- Render Logic ---
-    if (loading) return <div className="loading-spinner">Loading Game...</div>;
-
-    if (isUnderMaintenance) {
-        return (
-            <div className="game-view maintenance-mode">
-                <h3>Game Under Maintenance</h3>
-                <p>We are improving the game experience. Please check back later.</p>
-            </div>
-        );
-    }
-    
-    if (!gameState) return <div className="loading-spinner">Connecting to game...</div>;
+    if (loading) return <div className="loading-spinner">Connecting to Game...</div>;
 
     const totalBalance = (financialSummary?.balance || 0) + (financialSummary?.withdrawable_wallet || 0);
-    const minutes = Math.floor(gameState.time_left / 60);
-    const seconds = gameState.time_left % 60;
+
+    // ✅ FIX: Use the new `realtimeData` prop for the timer and period display.
+    const timeLeft = realtimeData?.timeLeft ?? 0;
+    const currentPeriod = realtimeData?.current_period ?? '...';
+    const minutes = Math.floor(timeLeft / 60);
+    const seconds = timeLeft % 60;
 
     return (
         <div className="game-view">
-            {/* Balance and Actions */}
             <div className="game-balance-card">
                 <p>Available balance</p>
                 <h3>₹{totalBalance.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
@@ -183,15 +120,16 @@ function GameView({ token, financialSummary, onViewChange, onBetPlaced, ws, real
                 </div>
             </div>
 
-            {/* Game Content */}
             <div className="game-main-content">
                 <div className="game-info">
                     <div className="period-info">
                         <h4>Period</h4>
-                        <p>{gameState.current_period}</p>
+                        {/* ✅ FIX: Displaying the live period */}
+                        <p>{currentPeriod}</p>
                     </div>
                     <div className="countdown-info">
                         <h4>Count Down</h4>
+                         {/* ✅ FIX: Displaying the live timer */}
                         <p>{String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}</p>
                     </div>
                 </div>
@@ -209,7 +147,6 @@ function GameView({ token, financialSummary, onViewChange, onBetPlaced, ws, real
                 </div>
             </div>
 
-            {/* Game History Table */}
             <div className="game-history">
                 <h4>Parity Record</h4>
                 <table className="history-table">
@@ -217,7 +154,7 @@ function GameView({ token, financialSummary, onViewChange, onBetPlaced, ws, real
                         <tr><th>Period</th><th>Number</th><th>Result</th></tr>
                     </thead>
                     <tbody>
-                        {gameState.results?.map(res => (
+                        {gameHistory.map(res => (
                             <tr key={res.game_period}>
                                 <td>{res.game_period}</td>
                                 <td>{res.result_number}</td>
@@ -227,6 +164,7 @@ function GameView({ token, financialSummary, onViewChange, onBetPlaced, ws, real
                     </tbody>
                 </table>
             </div>
+
 
             {/* Betting Modal */}
             {showBetModal && (
