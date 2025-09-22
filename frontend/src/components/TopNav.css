@@ -1,10 +1,14 @@
 .top-nav {
     position: fixed;
     top: 0;
-    left: 0;
-    right: 0;
-    width: 100%;
     height: 60px;
+    
+    /* ✅ FIX: These properties ensure the nav bar is centered and matches the width of your app's content container. */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 600px; /* This should match the max-width of .app-container */
+
     display: flex;
     align-items: center;
     justify-content: space-between;
