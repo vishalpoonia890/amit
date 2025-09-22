@@ -149,7 +149,7 @@ function Deposit({ token, userData, onBack, onDepositRequest }) {
                 ✨ Deposit USDT (TRC20) & Get <strong>10% EXTRA</strong>! | 1 USDT = 92 INR
             </div>
             <div className="recharge-header">
-                <button onClick={onBack} className="secondary-button">←</button>
+                <button onClick={onBack} className="back-button">←</button>
                 <h1>Wallet Recharge</h1>
                 <div></div>
             </div>
