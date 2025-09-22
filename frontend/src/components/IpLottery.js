@@ -1,21 +1,19 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import axios from 'axios';
 import './GamePages.css'; // Shared stylesheet
 
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
 
-// --- Helper Function to get the current hourly draw ---
-const getDrawTimes = () => {
+// --- Helper Function to get the current and next hourly draw ---
+const getHourlyDrawTimes = () => {
     const now = new Date();
-    // The start time is the beginning of the current hour.
     const startTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), 0, 0, 0);
-    // The end time is exactly one hour after the start time.
     const endTime = new Date(startTime.getTime() + 60 * 60 * 1000);
 
-    const year = startTime.getFullYear();
-    const month = String(startTime.getMonth() + 1).padStart(2, '0');
-    const day = String(startTime.getDate()).padStart(2, '0');
-    const hour = String(startTime.getHours()).padStart(2, '0');
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hour = String(now.getHours()).padStart(2, '0');
     const roundId = `${year}${month}${day}-${hour}`;
 
     return {
@@ -32,21 +30,24 @@ const Countdown = ({ endTime, onEnd }) => {
         const difference = +new Date(endTime) - +new Date();
         if (difference <= 0) {
             onEnd();
+            // Use a brief timeout to allow the onEnd function to trigger state updates
+            setTimeout(() => window.location.reload(), 3000);
             return "DRAWING NOW";
         }
         const minutes = Math.floor((difference / 1000 / 60) % 60);
         const seconds = Math.floor((difference / 1000) % 60);
-        return `00:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
     }, [endTime, onEnd]);
 
     const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
 
     useEffect(() => {
-        const timer = setTimeout(() => {
+        const timer = setInterval(() => {
             setTimeLeft(calculateTimeLeft());
         }, 1000);
-        return () => clearTimeout(timer);
-    });
+        return () => clearInterval(timer);
+    }, [calculateTimeLeft]);
+
 
     return <span>{timeLeft}</span>;
 };
@@ -61,6 +62,15 @@ const ResultModal = ({ result, onClose }) => (
     </div>
 );
 
+// --- Mock Data for New Sections ---
+const luckyWins = [
+    { id: 1, name: 'Rahul S.', amount: 250000 }, { id: 2, name: 'Priya K.', amount: 65000 },
+    { id: 3, name: 'Amit V.', amount: 75000 }, { id: 4, name: 'Kamal', amount: 50000},
+];
+const topWins = [
+    { id: 1, name: 'Vikas M.', amount: 1250000 }, { id: 2, name: 'Anjali P.', amount: 950000 },
+    { id: 3, name: 'Sandeep R.', amount: 780000 },
+];
 
 function IpLottery({ token, onBack }) {
     const [round, setRound] = useState(null);
@@ -70,47 +80,86 @@ function IpLottery({ token, onBack }) {
     const [activeSlot, setActiveSlot] = useState('A');
     const [betAmount, setBetAmount] = useState(10);
     const [history, setHistory] = useState([]);
-    const [liveStats, setLiveStats] = useState({ players: 0, pool: 0 });
     const [showResultModal, setShowResultModal] = useState(null);
     
+    const [basePlayers, setBasePlayers] = useState(0);
+    const [actualPoolAmount, setActualPoolAmount] = useState(0); // This holds the real bet amount from the server
+    const [isBettingClosed, setIsBettingClosed] = useState(false); // New state for betting window
+    const [error, setError] = useState('');
+    
+    const liveStats = useMemo(() => {
+        if (!round) return { players: 0, pool: 0 };
+        const totalDuration = round.endTime.getTime() - round.startTime.getTime();
+        const elapsedTime = Date.now() - round.startTime.getTime();
+        const progress = Math.max(0, Math.min(elapsedTime / totalDuration, 1));
+        
+        const players = basePlayers + Math.floor(progress * (basePlayers * 0.5));
+        
+        // ✅ NEW POOL LOGIC: A visual pool that grows to 10L, plus the actual bets from users.
+        const visualBasePool = 1000000 * progress;
+        const pool = visualBasePool + actualPoolAmount;
+
+        return { players, pool };
+    }, [round, basePlayers, actualPoolAmount]);
+
     const fetchInitialState = useCallback(async (currentRoundId) => {
+        setError('');
         try {
             const [historyRes, liveStatsRes] = await Promise.all([
                 axios.get(`${API_BASE_URL}/api/lottery/history`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/lottery/live-stats/${currentRoundId}`, { headers: { Authorization: `Bearer ${token}` } })
             ]);
-            setHistory(historyRes.data.history || []);
-            setLiveStats({
-                players: liveStatsRes.data.base_player_count || 100,
-                pool: liveStatsRes.data.total_pool_amount || 50000
-            });
+            setHistory(historyRes.data.history);
+            setBasePlayers(liveStatsRes.data.base_player_count);
+            setActualPoolAmount(liveStatsRes.data.total_pool_amount); // Store the real bet amount
         } catch (error) {
             console.error("Failed to fetch lottery state/history:", error);
-            // Set default stats on error to prevent crash
-            setLiveStats({ players: 100, pool: 50000 });
+            setError("Could not connect to the game server. Please check your connection and try again.");
         }
     }, [token]);
 
     useEffect(() => {
-        const nextDraw = getDrawTimes();
+        const nextDraw = getHourlyDrawTimes();
         setRound({ roundId: nextDraw.id, endTime: nextDraw.endTime, startTime: nextDraw.startTime });
-        fetchInitialState(nextDraw.id);
         
-        // Set up an interval to refresh live stats periodically
-        const interval = setInterval(() => fetchInitialState(nextDraw.id), 20000); // Refresh every 20 seconds
-        return () => clearInterval(interval);
+        const fetchAndSetInterval = async () => {
+            await fetchInitialState(nextDraw.id);
+        };
 
+        fetchAndSetInterval();
+        const interval = setInterval(fetchAndSetInterval, 30000);
+
+        return () => clearInterval(interval);
     }, [fetchInitialState]);
+
+    // ✅ NEW EFFECT: Manages the betting window timer
+    useEffect(() => {
+        if (!round) return;
+
+        const checkBettingWindow = () => {
+            const timeLeft = round.endTime.getTime() - Date.now();
+            // Check if less than 5 minutes (300,000 milliseconds) remain
+            if (timeLeft < 5 * 60 * 1000) {
+                setIsBettingClosed(true);
+            } else {
+                setIsBettingClosed(false);
+            }
+        };
+
+        checkBettingWindow(); // Check immediately
+        const interval = setInterval(checkBettingWindow, 1000); // Re-check every second
+
+        return () => clearInterval(interval);
+    }, [round]);
     
     const handleNumberSelect = (num) => {
-        if (selectionMode === 'double') {
-            if (activeSlot === 'A') { 
-                setSelectedNumA(num); 
-                setActiveSlot('B'); 
-            } else if (activeSlot === 'B') { 
-                setSelectedNumB(num); 
-                setActiveSlot(null); 
-            }
+        if (selectionMode === 'single') {
+            setSelectedNumA(num);
+            setSelectedNumB(null);
+            setActiveSlot(null);
+        } else {
+            if (activeSlot === 'A') { setSelectedNumA(num); setActiveSlot('B'); } 
+            else if (activeSlot === 'B') { setSelectedNumB(num); setActiveSlot(null); }
         }
     };
     
@@ -121,31 +170,32 @@ function IpLottery({ token, onBack }) {
     };
 
     const handleBet = async () => {
+        // ✅ NEW CHECK: Prevents betting in the last 5 minutes
+        if (isBettingClosed) {
+            alert("The betting window is now closed for this round. Good luck in the next draw!");
+            return;
+        }
+
+        const isSingleBetValid = selectionMode === 'single' && selectedNumA !== null;
         const isDoubleBetValid = selectionMode === 'double' && selectedNumA !== null && selectedNumB !== null;
-        if (!isDoubleBetValid) { 
-            alert("Please select your two numbers."); 
-            return; 
-        }
-        if (betAmount < 10) { 
-            alert("Minimum bet amount is ₹10."); 
-            return; 
-        }
+        if (!isSingleBetValid && !isDoubleBetValid) { alert("Please make your number selection(s)."); return; }
+        if (betAmount < 10) { alert("Minimum bet amount is ₹10."); return; }
         
         try {
             await axios.post(`${API_BASE_URL}/api/lottery/bet`, {
                 roundId: round.roundId,
                 betAmount,
                 selectedNumA,
-                selectedNumB
+                selectedNumB: selectionMode === 'single' ? null : selectedNumB
             }, { headers: { Authorization: `Bearer ${token}` } });
             alert('Your bet has been placed! The result will be announced after the draw.');
-            fetchInitialState(round.roundId); // Refresh stats after betting
         } catch (error) {
             alert(error.response?.data?.error || "Failed to place bet.");
         }
     };
     
     const handleDrawEnd = useCallback(async () => {
+        if (!round) return;
         try {
             const res = await axios.get(`${API_BASE_URL}/api/lottery/my-bet-result/${round.roundId}`, { headers: { Authorization: `Bearer ${token}` } });
             setShowResultModal(res.data);
@@ -153,6 +203,10 @@ function IpLottery({ token, onBack }) {
             console.error("Failed to fetch bet result", error);
         }
     }, [round, token]);
+    
+    if (error) {
+        return <div className="game-error-message">{error}</div>;
+    }
     
     if (!round) {
         return <div className="loading-spinner">Loading Lottery...</div>;
@@ -171,17 +225,23 @@ function IpLottery({ token, onBack }) {
 
             <div className="live-pool-card">
                 <div className="pool-stat"><span>Current Players</span><strong>{liveStats.players.toLocaleString('en-IN')}</strong></div>
-                <div className="pool-stat"><span>Total Pool Amount</span><strong>₹{liveStats.pool.toLocaleString('en-IN')}</strong></div>
+                <div className="pool-stat"><span>Total Pool Amount</span><strong>₹{liveStats.pool.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</strong></div>
             </div>
 
             <div className="lottery-card">
                 <div className="selection-header">
-                    <h3>Select Two Numbers (25x Jackpot)</h3>
+                    <h3>Select Your Numbers</h3>
                     <button onClick={clearSelection} className="clear-selection-btn">Clear</button>
+                </div>
+                <div className="toggle-switch">
+                    <button className={selectionMode === 'single' ? 'active' : ''} onClick={() => { setSelectionMode('single'); clearSelection(); }}>Single (2.5x)</button>
+                    <button className={selectionMode === 'double' ? 'active' : ''} onClick={() => { setSelectionMode('double'); clearSelection();}}>Double (25x)</button>
                 </div>
                 <div className="selection-slots">
                     <div className={`slot ${activeSlot === 'A' ? 'active' : ''}`} onClick={() => setActiveSlot('A')}>{selectedNumA ?? '?'}</div>
-                    <div className={`slot ${activeSlot === 'B' ? 'active' : ''}`} onClick={() => setActiveSlot('B')}>{selectedNumB ?? '?'}</div>
+                    {selectionMode === 'double' && (
+                        <div className={`slot ${activeSlot === 'B' ? 'active' : ''}`} onClick={() => setActiveSlot('B')}>{selectedNumB ?? '?'}</div>
+                    )}
                 </div>
                 <div className="number-grid">
                     {Array.from({ length: 10 }, (_, i) => i).map(num => (
@@ -191,15 +251,23 @@ function IpLottery({ token, onBack }) {
             </div>
             
             <div className="lottery-card bet-controls">
-                <h3>Place Your Bet (Min: ₹10)</h3>
+                <h3>Place Your Bet</h3>
+                {/* ✅ NEW: Message for when betting is closed */}
+                {isBettingClosed && (
+                    <div className="betting-closed-message">
+                        Betting is closed for the final 5 minutes.
+                    </div>
+                )}
                 <div className="quick-bet-buttons">
-                    {[10, 50, 100, 500].map(amount => <button key={amount} onClick={() => setBetAmount(amount)}>₹{amount}</button>)}
+                    {[10, 50, 100, 500].map(amount => <button key={amount} onClick={() => setBetAmount(amount)} disabled={isBettingClosed}>₹{amount}</button>)}
                 </div>
                 <div className="bet-input-group">
                     <span>₹</span>
-                    <input type="number" value={betAmount} onChange={(e) => setBetAmount(parseInt(e.target.value) || 0)} min="10"/>
+                    <input type="number" value={betAmount} onChange={(e) => setBetAmount(parseInt(e.target.value) || 0)} min="10" disabled={isBettingClosed}/>
                 </div>
-                <button className="action-button" onClick={handleBet}>Confirm Bet</button>
+                <button className="action-button" onClick={handleBet} disabled={isBettingClosed}>
+                    {isBettingClosed ? 'Betting Closed' : 'Confirm Bet'}
+                </button>
             </div>
 
             <div className="history-card">
@@ -212,7 +280,7 @@ function IpLottery({ token, onBack }) {
                         <tbody>
                             {history.slice(0, 20).map(item => (
                                 <tr key={item.round_id}>
-                                    <td>...{item.round_id.slice(-5)}</td>
+                                    <td>{item.round_id.slice(-5)}</td>
                                     <td><span className="winning-num">{item.winning_num_a}</span><span className="winning-num">{item.winning_num_b}</span></td>
                                     <td>{item.winner_count}</td>
                                     <td>{item.sample_winner_name || '--'}</td>
@@ -223,13 +291,23 @@ function IpLottery({ token, onBack }) {
                 </div>
             </div>
 
+            <div className="winners-grid">
+                <div className="winners-card">
+                    <h4>🍀 Lucky Wins</h4>
+                    {luckyWins.map(win => <div key={win.id} className="winner-row"><span>{win.name}</span><strong>₹{win.amount.toLocaleString()}</strong></div>)}
+                </div>
+                <div className="winners-card">
+                    <h4>🏆 Top Wins</h4>
+                    {topWins.map(win => <div key={win.id} className="winner-row"><span>{win.name}</span><strong>₹{win.amount.toLocaleString()}</strong></div>)}
+                </div>
+            </div>
+
             <div className="rules-card">
-                <h4>About The Hourly Lottery</h4>
+                <h4>About This Game</h4>
                 <ul>
-                    <li><strong>Hourly Draws:</strong> A new chance to win every single hour, 24/7!</li>
-                    <li><strong>Aim for the Jackpot:</strong> Match two numbers to win the massive 25x prize.</li>
-                    <li><strong>Instant Payouts:</strong> Winnings are credited directly to your withdrawable balance the moment a round ends.</li>
-                    <li><strong>Fair & Transparent:</strong> Our system is designed for excitement and fairness, with results determined by betting patterns.</li>
+                    <li><strong>Hourly Draws:</strong> Your chance to win big is always just around the corner, with draws happening every hour!</li>
+                    <li><strong>Strategic Payouts:</strong> Go for a reliable 2.5x win by matching just one number, or aim for the massive 25x jackpot by picking two!</li>
+                    <li><strong>Instant Payouts:</strong> Winnings are credited directly to your withdrawable balance the moment a round ends. No waiting, no delays.</li>
                 </ul>
             </div>
         </div>
