@@ -187,28 +187,20 @@ function ProductsAndPlans({ token, userBalance, onPurchaseComplete, allPlans = [
     const [confirmingPlanId, setConfirmingPlanId] = useState(null);
     const [resultModal, setResultModal] = useState({ show: false, success: false, message: '' });
 
-    const handlePurchase = async (plan) => {
-        console.log("--- Purchase Attempt Initiated ---");
-        console.log("Balance available in component:", userBalance);
-        console.log("Price of selected plan:", plan.price);
-        
-        if (userBalance < plan.price) {
-            console.error("Stopping purchase: Frontend check indicates insufficient balance.");
-        }
-
+const handlePurchase = async (plan) => {
         setPurchaseLoading(true);
         try {
+            // ✅ FIX: Changed 'plan.plan_name' to 'plan.name' to match the actual data object.
             const purchasePayload = { 
                 id: plan.id, 
                 price: plan.price, 
-                name: plan.plan_name, 
+                name: plan.name, // This line is corrected
                 durationDays: plan.duration_days 
             };
-            console.log("Sending payload to server:", purchasePayload);
-
+            
             await axios.post(`${API_BASE_URL}/api/purchase-plan`, purchasePayload, { headers: { Authorization: `Bearer ${token}` } });
             
-            setResultModal({ show: true, success: true, message: `You have successfully invested in ${plan.plan_name}.` });
+            setResultModal({ show: true, success: true, message: `You have successfully invested in ${plan.name}.` });
         } catch (error) {
             console.error("Server responded with an error:", error.response?.data || error.message);
             setResultModal({ show: true, success: false, message: error.response?.data?.error || 'An unknown error occurred.' });
