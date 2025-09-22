@@ -37,15 +37,18 @@ function GameView({ token, financialSummary, onViewChange, onBetPlaced, ws, real
 
     }, [token]); // <-- This now only depends on `token` and runs once.
 
-    useEffect(() => {
-        // Step 2: Listen for all real-time updates from the server.
-        if (realtimeData) {
-            // The first message from the server will stop the loading screen.
-            if (loading) {
-                setLoading(false);
-            }
+    // In GameView.js
 
-            if (realtimeData.type === 'ROUND_RESULT') {
+useEffect(() => {
+    // Step 2: Listen for all real-time updates from the server.
+    if (realtimeData) {
+        if (loading) {
+            setLoading(false);
+        }
+
+        if (realtimeData.type === 'ROUND_RESULT') {
+            // ✅ ADDED: Defensive check to make sure results exist
+            if (realtimeData.results && realtimeData.results.length > 0) {
                 setGameHistory(realtimeData.results);
                 
                 const lastPeriod = realtimeData.results[0].game_period;
@@ -60,12 +63,14 @@ function GameView({ token, financialSummary, onViewChange, onBetPlaced, ws, real
                         }
                     });
             }
-
-            if (realtimeData.type === 'TIMER_UPDATE') {
-                setShowFinalCountdown(realtimeData.timeLeft <= 5 && realtimeData.timeLeft > 0);
-            }
         }
-    }, [realtimeData, token, loading]);
+
+        if (realtimeData.type === 'TIMER_UPDATE') {
+            setShowFinalCountdown(realtimeData.timeLeft <= 5 && realtimeData.timeLeft > 0);
+        }
+    }
+}, [realtimeData, token, loading]);
+          
 
 
     // --- Event Handlers ---
