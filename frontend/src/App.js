@@ -24,6 +24,8 @@ import IpLottery from './components/IpLottery';
 import WinWinGame from './components/WinWinGame';
 import AviatorGame from './components/AviatorGame';
 import LandingPage from './components/LandingPage';
+// In App.js, near the other component imports
+import DailyTasks from './components/DailyTasks';
 
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
 
@@ -225,7 +227,9 @@ function App() {
                     initialCategory={initialCategory} 
                 />;
             }
-            
+            // ADD THIS NEW CASE
+        case 'daily-tasks': return <DailyTasks onBack={goBackToDashboard} />;
+
             case 'game':
                 return <GameLobby onViewChange={handleViewChange} />; 
             case 'color-prediction-game':
