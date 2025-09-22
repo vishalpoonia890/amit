@@ -304,9 +304,8 @@
 .result-number-display.violet { background: linear-gradient(135deg, #9c27b0, #7b1fa2); }
 
 /* Hide the old generic button if it exists */
-.result-modal > button {
-    display: none; 
-}
+
+
 .result-modal > button:not(.close-modal-btn) {
     display: none; 
 }
