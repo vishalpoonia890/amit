@@ -152,28 +152,38 @@ function App() {
         }
     };
 
-    const handleRegister = async (e) => {
-        e.preventDefault();
-        setIsRegistering(true);
-        if (registerFormData.password !== registerFormData.confirmPassword) {
-            showSnackbar("Passwords do not match.", 'error');
-            setIsRegistering(false);
-            return;
-        }
-        try {
-            const response = await axios.post(`${API_BASE_URL}/api/register`, registerFormData);
-            const newToken = response.data.token;
-            localStorage.setItem('token', newToken);
-            setToken(newToken);
-            await fetchAllUserData(newToken);
-            setView('dashboard');
-            showSnackbar('Registration successful!', 'success');
-        } catch (err) {
-            showSnackbar(err.response?.data?.error || "Registration failed.", 'error');
-        } finally {
-            setIsRegistering(false);
-        }
-    };
+    // ✅ THIS IS THE UPDATED FUNCTION
+    const handleRegister = async (e) => {
+        e.preventDefault();
+        setIsRegistering(true);
+        if (registerFormData.password !== registerFormData.confirmPassword) {
+            showSnackbar("Passwords do not match.", 'error');
+            setIsRegistering(false);
+            return;
+        }
+        try {
+            const response = await axios.post(`${API_BASE_URL}/api/register`, registerFormData);
+            const { token: newToken, user: newUser } = response.data;
+
+            // --- PERFORMANCE FIX ---
+            // 1. Set the token and basic user data immediately from the registration response.
+            localStorage.setItem('token', newToken);
+            setToken(newToken);
+            setUserData(newUser); // This makes the app feel instant.
+
+            // 2. Switch to the dashboard view right away.
+            setView('dashboard');
+            showSnackbar('Registration successful! Welcome.', 'success');
+            
+            // Note: The slow `await fetchAllUserData(newToken)` call has been removed.
+            // The main useEffect hook will now handle fetching the rest of the data in the background.
+
+        } catch (err) {
+            showSnackbar(err.response?.data?.error || "Registration failed.", 'error');
+        } finally {
+            setIsRegistering(false);
+        }
+    };
 
     const handleLoginInputChange = (e) => setLoginFormData({ ...loginFormData, [e.target.name]: e.target.value });
     const handleRegisterInputChange = (e) => setRegisterFormData({ ...registerFormData, [e.target.name]: e.target.value });
