@@ -75,22 +75,23 @@ function AdminPanel({ token }) {
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+ const getLotteryRoundId = () => {
+        const now = new Date();
+        const nowIST = new Date(now.getTime() + (5.5 * 60 * 60 * 1000));
+        const year = nowIST.getUTCFullYear();
+        const month = String(nowIST.getUTCMonth() + 1).padStart(2, '0');
+        const day = String(nowIST.getUTCDate()).padStart(2, '0');
+        const hour = String(nowIST.getUTCHours()).padStart(2, '0');
+        return `${year}${month}${day}-${hour}`;
+    };
 
     const fetchData = useCallback(async (isInitialLoad = false) => {
         if (isInitialLoad) setLoading(true);
         setError('');
         try {
-            const now = new Date(new Date().getTime() + (5.5 * 60 * 60 * 1000));
-            const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
-            const drawHours = [8, 12, 16, 20];
-            let nextDrawHour = drawHours[drawHours.length - 1];
-            for (const hour of drawHours) {
-                const drawTime = new Date(today);
-                drawTime.setUTCHours(hour, 0, 0, 0);
-                if (now < drawTime) { nextDrawHour = hour; break; }
-            }
-            const roundId = `${today.toISOString().slice(0, 10)}-${nextDrawHour}`;
+            const roundId = getLotteryRoundId();
             setCurrentLotteryRoundId(roundId);
+    
 
             const [depositsRes, withdrawalsRes, gameStatusRes, statsRes, betsRes, analysisRes, incomeRes, platformStatsRes, lotteryAnalysisRes, overallGameStatsRes, aviatorBetsRes, aviatorAnalysisRes] = await Promise.all([
                 axios.get(`${API_BASE_URL}/api/admin/recharges/pending`, { headers: { Authorization: `Bearer ${token}` } }),
@@ -453,24 +454,31 @@ const handleAviatorSettingsUpdate = async (update) => {
             </div>
 
             <div className="admin-section">
-                <h2>Live Round Analysis (Lottery)</h2>
-                <div className="analysis-table-container">
-                    <table className="analysis-table">
-                         <thead><tr><th>Winning Pair</th><th>Total Bets On Pair</th><th>Total Payout</th><th>Admin P/L</th></tr></thead>
-                        <tbody>
-                            {lotteryAnalysis.map(outcome => (
-                                <tr key={`${outcome.a}-${outcome.b}`} className={outcome.netResult >= 0 ? 'positive' : 'negative'}>
-                                    <td>{`{${outcome.a}, ${outcome.b}}`}</td>
-                                    <td>{formatCurrency(outcome.totalBetOnPair)}</td>
-                                    <td>{formatCurrency(outcome.payout)}</td>
-                                    <td>{formatCurrency(outcome.netResult)}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                <h2>Lottery Management (Current Round: {currentLotteryRoundId})</h2>
+                <div className="control-group">
+                    <label>Profit Preference</label>
+                    <div className="toggle-switch">
+                        <button onClick={() => handleGameStatusUpdate({ lottery_profit_preference: 'max_profit' })} className={lotteryProfitPreference === 'max_profit' ? 'active' : ''}>Max Profit</button>
+                        <button onClick={() => handleGameStatusUpdate({ lottery_profit_preference: 'zero_profit' })} className={lotteryProfitPreference === 'zero_profit' ? 'active' : ''}>Zero Profit (User Fun)</button>
+                    </div>
                 </div>
+                <h4>Live Round Analysis</h4>
+                 <div className="analysis-table-container">
+                    <table className="analysis-table">
+                         <thead><tr><th>Outcome</th><th>Total Bet On</th><th>Potential Payout</th><th>Admin P/L</th></tr></thead>
+                         <tbody>
+                            {lotteryAnalysis.slice(0, 3).map(outcome => (
+                                 <tr key={`${outcome.a}-${outcome.b}`} className={outcome.netResult >= 0 ? 'positive' : 'negative'}>
+                                     <td>{`{${outcome.a}, ${outcome.b}}`}</td>
+                                     <td>{formatCurrency(outcome.totalBetOnPair)}</td>
+                                     <td>{formatCurrency(outcome.payout)}</td>
+                                     <td>{formatCurrency(outcome.netResult)}</td>
+                                 </tr>
+                             ))}
+                         </tbody>
+                     </table>
+                 </div>
             </div>
-
             <div className="admin-section server-actions">
                 <h2>User & Platform Management</h2>
                 <div className="action-group">
