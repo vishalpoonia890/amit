@@ -5,9 +5,8 @@ import './App.css';
 // --- COMPONENT IMPORTS ---
 import UserDashboard from './components/UserDashboard';
 import ProductsAndPlans from './components/ProductsAndPlans';
-import NewsView from './components/NewsView';
 import Team from './components/Team';
-import { Wallet, Promotions, Rewards, Support } from './components/PlaceholderViews';
+import { Wallet, Rewards, Support } from './components/PlaceholderViews';
 import AdminPanel from './components/AdminPanel';
 import BottomNav from './components/BottomNav';
 import Snackbar from './components/Snackbar';
@@ -209,37 +208,56 @@ function App() {
         const goBackToGameLobby = () => handleViewChange('game');
 
         switch (view) {
-            case 'dashboard': return <UserDashboard onViewChange={handleViewChange} />;
+            case 'dashboard':
+                return <UserDashboard onViewChange={handleViewChange} />;
+            
             case 'plans': {
-                const balance = financialSummary ? Number(financialSummary.balance) || 0 : 0;
-                const withdrawable = financialSummary ? Number(financialSummary.withdrawable_wallet) || 0 : 0;
-                const totalBalance = balance + withdrawable;
+                const balance = financialSummary ? Number(financialSummary.balance) || 0 : 0;
+                const withdrawable = financialSummary ? Number(financialSummary.withdrawable_wallet) || 0 : 0;
+                const totalBalance = balance + withdrawable;
 
-                return <ProductsAndPlans 
-                    token={token} 
-                    userBalance={totalBalance} 
-                    allPlans={allPlans} 
-                    loading={loading} 
-                    onPurchaseComplete={() => fetchAllUserData(token)} 
-                    initialCategory={initialCategory} 
-                />;
+                return <ProductsAndPlans 
+                    token={token} 
+                    userBalance={totalBalance} 
+                    allPlans={allPlans} 
+                    loading={loading} 
+                    onPurchaseComplete={() => fetchAllUserData(token)} 
+                    initialCategory={initialCategory} 
+                />;
             }
-            case 'game': return <GameLobby onViewChange={handleViewChange} />; 
-            case 'color-prediction-game': return <GameView token={token} financialSummary={financialSummary} onBack={goBackToGameLobby} onBetPlaced={() => fetchAllUserData(token)} />;
-            case 'ip-lottery': return <IpLottery token={token} onBack={goBackToGameLobby} />;
-            case 'win-win': return <WinWinGame onBack={goBackToGameLobby} />;
-            case 'aviator': return <AviatorGame token={token} onBack={goBackToGameLobby} />;
-            case 'account': return <AccountView userData={userData} financialSummary={financialSummary} onLogout={handleLogout} onViewChange={handleViewChange} token={token}/>;
-            case 'deposit': return <Deposit token={token} userData={userData} onBack={goBackToDashboard} onDepositRequest={handleDepositRequest} />;
-            case 'withdraw': return <Withdrawal token={token} financialSummary={financialSummary} onBack={goBackToDashboard} onWithdrawalRequest={handleWithdrawalRequest} />;
-            case 'team': return <Team token={token} onBack={goBackToDashboard} />;
-            case 'rewards': return <Rewards onBack={goBackToDashboard} />;
-            case 'sell-usdt': return <SellUsdt onBack={goBackToDashboard} />;
-            case 'support': return <Support onBack={goBackToDashboard} />;
-            case 'wallet': return <Wallet financialSummary={financialSummary} onBack={goBackToDashboard} />;
-            case 'transactions': return <TransactionHistory onBack={goBackToAccount} />;
-            case 'bet-history': return <BetHistory token={token} onBack={goBackToAccount} />;
-            default: return <UserDashboard onViewChange={handleViewChange} />;
+            
+            case 'game':
+                return <GameLobby onViewChange={handleViewChange} />; 
+            case 'color-prediction-game':
+                return <GameView token={token} financialSummary={financialSummary} onBack={goBackToGameLobby} onBetPlaced={() => fetchAllUserData(token)} />;
+            case 'ip-lottery':
+                return <IpLottery token={token} onBack={goBackToGameLobby} />;
+            case 'win-win':
+                return <WinWinGame onBack={goBackToGameLobby} />;
+            case 'aviator':
+                return <AviatorGame token={token} onBack={goBackToGameLobby} />;
+            case 'account':
+                return <AccountView userData={userData} financialSummary={financialSummary} onLogout={handleLogout} onViewChange={handleViewChange} token={token}/>;
+            case 'deposit':
+                return <Deposit token={token} userData={userData} onBack={goBackToDashboard} onDepositRequest={handleDepositRequest} />;
+            case 'withdraw':
+                return <Withdrawal token={token} financialSummary={financialSummary} onBack={goBackToDashboard} onWithdrawalRequest={handleWithdrawalRequest} />;
+            case 'team':
+                return <Team token={token} onBack={goBackToDashboard} />;
+            case 'rewards':
+                return <Rewards onBack={goBackToDashboard} />;
+            case 'sell-usdt':
+                return <SellUsdt onBack={goBackToDashboard} />;
+            case 'support':
+                return <Support onBack={goBackToDashboard} />;
+            case 'wallet':
+                return <Wallet financialSummary={financialSummary} onBack={goBackToDashboard} />;
+            case 'transactions':
+                return <TransactionHistory token={token} onBack={goBackToAccount} />;
+            case 'bet-history':
+                return <BetHistory token={token} onBack={goBackToAccount} />;
+            default:
+                return <UserDashboard onViewChange={handleViewChange} />;
         }
     };
 
@@ -247,7 +265,9 @@ function App() {
         return <LoadingScreen />;
     }
     
-    if (loading) return <div className="loading-app"><h1>InvestmentPlus</h1></div>;
+    if (loading) {
+        return <div className="loading-app"><h1>InvestmentPlus</h1></div>;
+    }
     
     if (!token) {
         return (
@@ -279,5 +299,3 @@ function App() {
 }
 
 export default App;
-
-
