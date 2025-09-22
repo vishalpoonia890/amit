@@ -91,44 +91,75 @@ function App() {
         setFinancialSummary(null);
     }, []);
 
-    const fetchAllUserData = useCallback(async (authToken) => {
+    // ✅ PERFORMANCE FIX: Split data fetching into logical groups
+    const fetchEssentialData = useCallback(async (authToken) => {
         if (!authToken) return;
         try {
-            const [dataRes, summaryRes, plansRes, notifRes] = await Promise.all([
+            const [dataRes, summaryRes] = await Promise.all([
                 axios.get(`${API_BASE_URL}/api/data`, { headers: { Authorization: `Bearer ${authToken}` } }),
-                axios.get(`${API_BASE_URL}/api/financial-summary`, { headers: { Authorization: `Bearer ${authToken}` } }),
-                axios.get(`${API_BASE_URL}/api/product-plans`, { headers: { Authorization: `Bearer ${authToken}` } }),
-                axios.get(`${API_BASE_URL}/api/notifications`, { headers: { Authorization: `Bearer ${authToken}` } })
+                axios.get(`${API_BASE_URL}/api/financial-summary`, { headers: { Authorization: `Bearer ${authToken}` } })
             ]);
             setUserData(dataRes.data.user);
             setFinancialSummary(summaryRes.data);
-            setAllPlans(plansRes.data.plans || []);
-            setUserNotifications(notifRes.data.userNotifications || []);
-            setPromotions(notifRes.data.promotions || []);
         } catch (err) {
-            console.error("Failed to fetch user data, likely an invalid session:", err);
+            console.error("Failed to fetch essential user data:", err);
             if (err.response && err.response.status === 403) {
                  handleLogout();
             }
         }
     }, [handleLogout]);
 
+    const fetchStaticData = useCallback(async (authToken) => {
+        if (!authToken) return;
+        try {
+            const plansRes = await axios.get(`${API_BASE_URL}/api/product-plans`, { headers: { Authorization: `Bearer ${authToken}` } });
+            setAllPlans(plansRes.data.plans || []);
+        } catch (err) {
+            console.error("Failed to fetch static data:", err);
+        }
+    }, []);
+    
+    const fetchDynamicData = useCallback(async (authToken) => {
+        if (!authToken) return;
+        try {
+            // Only fetch notifications and financial data, which change often.
+            const [summaryRes, notifRes] = await Promise.all([
+                axios.get(`${API_BASE_URL}/api/financial-summary`, { headers: { Authorization: `Bearer ${authToken}` } }),
+                axios.get(`${API_BASE_URL}/api/notifications`, { headers: { Authorization: `Bearer ${authToken}` } })
+            ]);
+            setFinancialSummary(summaryRes.data);
+            setUserNotifications(notifRes.data.userNotifications || []);
+            setPromotions(notifRes.data.promotions || []);
+        } catch (err) {
+            console.error("Failed to fetch dynamic data:", err);
+        }
+    }, []);
+
+
+    // ✅ PERFORMANCE FIX: Fetch data more intelligently on initial load.
     useEffect(() => {
         const storedToken = localStorage.getItem('token');
         if (storedToken) {
             setToken(storedToken);
-            fetchAllUserData(storedToken).finally(() => setLoading(false));
+            // Fetch everything on the first load to populate the app
+            Promise.all([
+                fetchEssentialData(storedToken),
+                fetchStaticData(storedToken),
+                fetchDynamicData(storedToken)
+            ]).finally(() => setLoading(false));
         } else {
             setLoading(false);
         }
-    }, [fetchAllUserData]);
+    }, [fetchEssentialData, fetchStaticData, fetchDynamicData]);
 
+    // ✅ PERFORMANCE FIX: Refresh only dynamic data on a longer interval.
     useEffect(() => {
         if (token) {
-            const interval = setInterval(() => fetchAllUserData(token), 30000);
+            // Refresh every 2 minutes instead of 30 seconds
+            const interval = setInterval(() => fetchDynamicData(token), 120000); 
             return () => clearInterval(interval);
         }
-    }, [token, fetchAllUserData]);
+    }, [token, fetchDynamicData]);
     
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -138,7 +169,12 @@ function App() {
             const newToken = response.data.token;
             localStorage.setItem('token', newToken);
             setToken(newToken);
-            await fetchAllUserData(newToken);
+            // Fetch all data again on a fresh login
+            await Promise.all([
+                fetchEssentialData(newToken),
+                fetchStaticData(newToken),
+                fetchDynamicData(newToken)
+            ]);
             setView('dashboard');
             showSnackbar('Login successful!', 'success');
         } catch (err) {
@@ -221,7 +257,7 @@ function App() {
                     userBalance={totalBalance} 
                     allPlans={allPlans} 
                     loading={loading} 
-                    onPurchaseComplete={() => fetchAllUserData(token)} 
+                    onPurchaseComplete={() => fetchDynamicData(token)} // Only fetch dynamic data after purchase
                     initialCategory={initialCategory} 
                 />;
             }
@@ -230,7 +266,7 @@ function App() {
             case 'news': 
                 return <NewsView onBack={goBackToDashboard} />;
             case 'game': return <GameLobby onViewChange={handleViewChange} />; 
-            case 'color-prediction-game': return <GameView token={token} financialSummary={financialSummary} onBack={goBackToGameLobby} onBetPlaced={() => fetchAllUserData(token)} />;
+            case 'color-prediction-game': return <GameView token={token} financialSummary={financialSummary} onBack={goBackToGameLobby} onBetPlaced={() => fetchDynamicData(token)} />; // Only fetch dynamic
             case 'ip-lottery': return <IpLottery token={token} onBack={goBackToGameLobby} />;
             case 'win-win': return <WinWinGame onBack={goBackToGameLobby} />;
             case 'aviator': return <AviatorGame token={token} onBack={goBackToGameLobby} />;
@@ -274,7 +310,6 @@ function App() {
 
     return (
         <div className="App">
-            {/* ✅ FIX: This style block ensures the main content area has enough space for the fixed top and bottom navigation bars. */}
             <style>{`
               .main-content {
                 padding-top: 80px;
