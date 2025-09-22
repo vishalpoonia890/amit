@@ -35,7 +35,7 @@ function UserDashboard({ onViewChange }) {
         { id: 'deposit', label: 'Deposit', icon: <DepositIcon />, view: 'deposit' },
         { id: 'withdraw', label: 'Withdraw', icon: <WithdrawIcon />, view: 'withdraw' },
         { id: 'team', label: 'Team', icon: '👥', view: 'team' },
-        { id: 'daily-tasks', label: 'Daily Tasks', icon: <RewardsIcon />, view: 'rewards' },
+       { id: 'daily-tasks', label: 'Daily Tasks', icon: <RewardsIcon />, view: 'daily-tasks' },
         { id: 'sell-usdt', label: 'Sell USDT', icon: <SellUsdtIcon />, view: 'sell-usdt' },
         { id: 'support', label: 'Support', icon: <SupportIcon />, view: 'support' },
     ];
