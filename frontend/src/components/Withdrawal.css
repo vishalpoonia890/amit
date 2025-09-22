@@ -1,0 +1,255 @@
+/* --- Main Page Container --- */
+.withdrawal-page {
+    font-family: 'Poppins', sans-serif;
+    background: #f0f2f5;
+    min-height: 100vh;
+    padding: 20px 15px 80px 15px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.withdrawal-container {
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* --- Header --- */
+.withdrawal-header {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.withdrawal-title {
+    font-size: 2rem;
+    color: #1a202c;
+    margin: 0;
+}
+
+.withdrawal-subtitle {
+    font-size: 1rem;
+    color: #4a5568;
+    margin-top: 5px;
+}
+
+/* --- Back Button --- */
+.back-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    border: none;
+    color: #4a5568;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    align-self: flex-start;
+    padding: 5px;
+    transition: color 0.2s ease;
+}
+
+.back-button:hover {
+    color: #1a202c;
+}
+
+/* --- Balance Card --- */
+.balance-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px 25px;
+    border-radius: 16px;
+    text-align: center;
+    box-shadow: 0 10px 20px rgba(118, 75, 162, 0.2);
+}
+
+.balance-card span {
+    display: block;
+    font-size: 1rem;
+    opacity: 0.8;
+}
+
+.balance-card strong {
+    display: block;
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-top: 5px;
+}
+
+/* --- Form Styling --- */
+.withdrawal-form-card {
+    background: #ffffff;
+    padding: 25px;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label, .method-label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #4a5568;
+    margin-bottom: 8px;
+}
+
+.amount-input-wrapper {
+    position: relative;
+}
+
+.currency-symbol {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.1rem;
+    color: #718096;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px;
+    padding-left: 35px; /* Space for currency symbol */
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 1rem;
+    color: #1a202c;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+/* Adjust padding for non-amount inputs */
+.form-group input:not(#amount) {
+    padding-left: 15px;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
+/* --- Method Selector --- */
+.method-selector {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.method-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 15px 10px;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    background-color: #f7fafc;
+    color: #4a5568;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.method-btn:hover {
+    border-color: #cbd5e0;
+    background-color: #ffffff;
+}
+
+.method-btn.active {
+    border-color: #667eea;
+    background-color: #f0f2ff;
+    color: #667eea;
+    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.1);
+}
+
+.method-btn svg {
+    transition: transform 0.2s;
+}
+
+.method-btn.active svg {
+    transform: scale(1.1);
+}
+
+.method-details {
+    margin-top: 10px;
+}
+
+/* --- Submit Button --- */
+.submit-button {
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(118, 75, 162, 0.3);
+}
+
+.submit-button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(118, 75, 162, 0.4);
+}
+
+.submit-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* --- Info Box --- */
+.withdrawal-info {
+    text-align: center;
+    font-size: 0.85rem;
+    color: #718096;
+    padding: 0 10px;
+}
+
+/* --- Success Message --- */
+.success-message {
+    text-align: center;
+    padding: 40px 20px;
+    background-color: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.success-icon {
+    width: 60px;
+    height: 60px;
+    color: #34d399; /* Green */
+    stroke-width: 2;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    margin-bottom: 20px;
+    animation: scale-up 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.success-message h3 {
+    font-size: 1.8rem;
+    color: #1a202c;
+    margin: 0 0 10px 0;
+}
+
+.success-message p {
+    color: #4a5568;
+    max-width: 300px;
+    margin: 0 auto;
+}
+
+@keyframes scale-up {
+    0% { transform: scale(0.5); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
