@@ -18,6 +18,20 @@
 .category-tabs-container {
     width: 100%;
     overflow: hidden; /* Hides the scrollbar area */
+    position: relative; /* ✅ FIX: Added position relative for the gradient overlay */
+}
+
+/* ✅ FIX: Added a pseudo-element to create a fade-out effect, indicating more content */
+.category-tabs-container::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 50px;
+    background: linear-gradient(to left, var(--bg-color, #f0f2f5), transparent);
+    pointer-events: none;
+    z-index: 2;
 }
 
 .category-tabs {
@@ -28,11 +42,12 @@
     margin-bottom: -15px; /* Visually pushes the scrollbar out of view */
     -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
     scrollbar-width: none; /* Hides scrollbar for Firefox */
+    padding-right: 30px; /* ✅ FIX: Added padding so the last tab is visible behind the fade */
 }
 
 /* Hides scrollbar for Chrome, Safari, and Opera */
 .category-tabs::-webkit-scrollbar {
-    display: none; 
+    display: none;
 }
 
 .category-tab {
@@ -318,4 +333,3 @@
     text-align: center;
     margin-top: 8px;
 }
-
