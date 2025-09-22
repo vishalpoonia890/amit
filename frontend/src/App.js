@@ -28,6 +28,7 @@ import LandingPage from './components/LandingPage';
 
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
 
+// A dedicated loading screen component for registration
 const LoadingScreen = () => (
     <div className="loading-app">
         <h1 className="animated-logo">InvestmentPlus</h1>
@@ -57,6 +58,7 @@ function App() {
     const [showNotificationsDialog, setShowNotificationsDialog] = useState(false);
     const [initialCategory, setInitialCategory] = useState('all');
 
+    // Save the current view to localStorage whenever it changes while logged in
     useEffect(() => {
         if (token) {
             localStorage.setItem('view', view);
@@ -68,6 +70,7 @@ function App() {
         setInitialCategory(category);
     };
 
+    // --- Core Functions ---
     const toggleTheme = () => {
         const newTheme = theme === 'light' ? 'dark' : 'light';
         setTheme(newTheme);
@@ -208,9 +211,13 @@ function App() {
         switch (view) {
             case 'dashboard': return <UserDashboard onViewChange={handleViewChange} />;
             case 'plans':
-                const totalBalance = financialSummary 
-                    ? Number(financialSummary.balance) + Number(financialSummary.withdrawable_wallet) 
-                    : 0;
+                // ✅ FIX: This calculation is now more robust. It ensures that both wallet balances
+                // are treated as numbers and safely defaults to 0 if they don't exist,
+                // which fixes the "insufficient balance" bug.
+                const balance = financialSummary ? Number(financialSummary.balance) || 0 : 0;
+                const withdrawable = financialSummary ? Number(financialSummary.withdrawable_wallet) || 0 : 0;
+                const totalBalance = balance + withdrawable;
+
                 return <ProductsAndPlans 
                             token={token} 
                             userBalance={totalBalance} 
@@ -274,4 +281,5 @@ function App() {
 }
 
 export default App;
+
 
