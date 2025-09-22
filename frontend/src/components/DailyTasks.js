@@ -1,167 +1,168 @@
-import React, { useState } from 'react';
-import axios from 'axios'; // Make sure to import axios
-import './DailyTasks.css';
+import React, { useState, useEffect, useCallback } from 'react';
+import axios from 'axios';
+import './DailyTasks.css'; // Assuming you have a CSS file for styling
 
 // --- Import image assets ---
-import iphone17ProImage from '../assets/103.png';
-import iphone17ProMaxImage from '../assets/104.png';
-import iphone17Image from '../assets/101.png';
+import referralImage from '../assets/103.png';
+import investmentImage from '../assets/104.png';
+import gamingImage from '../assets/101.png';
 
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
 
-// --- Helper component for the progress bar ---
-const ProgressBar = ({ current, target }) => {
-    const percentage = Math.min((current / target) * 100, 100);
+const imageMap = {
+    'assets/103.png': referralImage,
+    'assets/104.png': investmentImage,
+    'assets/101.png': gamingImage,
+};
+
+// --- Helper Components ---
+const TaskCard = ({ task, onClaim, isLoading }) => {
+    const progress = Math.min((task.current_progress / task.target_value) * 100, 100);
+    const isCompleted = task.status === 'completed';
+
     return (
-        <div className="progress-bar-container">
-            <div 
-                className="progress-bar-fill" 
-                style={{ width: `${percentage}%` }}
-            />
-            <span className="progress-bar-text">{`${Math.floor(current).toLocaleString()} / ${target.toLocaleString()}`}</span>
+        <div className={`task-card ${isCompleted ? 'completed' : ''}`}>
+            {task.image_asset && <img src={imageMap[task.image_asset]} alt={task.title} className="task-image" />}
+            <div className="task-content">
+                <h3 className="task-title">{task.title}</h3>
+                <p className="task-description">{task.description}</p>
+                <div className="progress-bar-container">
+                    <div className="progress-bar" style={{ width: `${progress}%` }}></div>
+                </div>
+                <div className="progress-text">
+                    {`${Math.floor(task.current_progress)} / ${task.target_value}`}
+                </div>
+                <div className="reward-info">
+                    Reward: 
+                    <strong>
+                        {task.reward_amount > 0 ? ` ₹${task.reward_amount.toLocaleString()}` : ''}
+                        {task.reward_amount > 0 && task.reward_description ? ' + ' : ''}
+                        {task.reward_description || ''}
+                    </strong>
+                </div>
+                <button 
+                    className="claim-button" 
+                    onClick={() => onClaim(task.task_id)} 
+                    disabled={!isCompleted || isLoading}
+                >
+                    {isLoading ? 'Claiming...' : (task.status === 'claimed' ? 'Claimed' : (isCompleted ? 'Claim Reward' : 'In Progress'))}
+                </button>
+            </div>
         </div>
     );
 };
 
-// --- Main DailyTasks Component ---
-function DailyTasks({ token }) { // The component now accepts the user's auth token
-    // In a real app, this data would come from an API
-    const [taskProgress, setTaskProgress] = useState({
-        totalDeposits: 7500,
-        successfulReferrals: 12,
-        ordersPlaced: 6,
-        orderValue: 62000,
-        betsPlaced: 120,
-        betValue: 1500,
-    });
+// --- Main Component ---
+function DailyTasks({ token, userData, onBack }) {
+    const [tasks, setTasks] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
     const [suggestion, setSuggestion] = useState('');
-    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [claimingId, setClaimingId] = useState(null);
 
-    // --- Task Definitions ---
-    const taskTiers = {
-        deposit: [
-            { target: 10000, reward: "₹1,000 Bonus" },
-            { target: 50000, reward: "₹10,000 Bonus" },
-            { target: 100000, reward: "₹20,000 Bonus" },
-        ],
-        referral: [
-            { target: 10, reward: "₹500 Bonus" },
-            { target: 20, reward: "₹2,000 Bonus" },
-            { target: 50, reward: "₹10,000 Bonus" },
-            { target: 100, reward: "₹20,000 Bonus" },
-            { target: 500, reward: "iPhone 17 Pro + AppleCare", image: iphone17ProImage },
-        ],
-        orders: [
-            { target: 5, reward: "₹1,000 Bonus" },
-            { target: 10, reward: "₹10,000 Bonus", condition: "Order value > ₹50,000" },
-            { target: 20, reward: "iPhone 17 Pro Max", image: iphone17ProMaxImage, condition: "Order value > ₹5,00,000" },
-        ],
-        gaming: [
-            { target: 10, reward: "₹20 Bonus", condition: "Bet value > ₹100" },
-            { target: 100, reward: "₹200 Bonus", condition: "Bet value > ₹1,000" },
-            { target: 1000, reward: "₹2,000 + Chance to win iPhone 17", image: iphone17Image, condition: "Bet value > ₹10,000" },
-        ],
-    };
-
-    const getActiveTask = (category, progress) => {
-        const tiers = taskTiers[category];
-        for (const task of tiers) {
-            if (progress < task.target) {
-                return task;
-            }
+    const fetchTasks = useCallback(async () => {
+        if (!userData) return;
+        try {
+            const response = await axios.get(`${API_BASE_URL}/api/tasks`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setTasks(response.data);
+            setLoading(false);
+        } catch (err) {
+            console.error("Failed to fetch tasks:", err);
+            setError('Could not load tasks. Please try again later.');
+            setLoading(false);
         }
-        return { ...tiers[tiers.length - 1], completed: true };
+    }, [token, userData]);
+
+    useEffect(() => {
+        fetchTasks();
+    }, [fetchTasks]);
+
+    const handleClaim = async (taskId) => {
+        setClaimingId(taskId);
+        try {
+            const response = await axios.post(`${API_BASE_URL}/api/tasks/claim`, 
+                { taskId },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            alert(response.data.message); // Or use a snackbar
+            fetchTasks(); // Refresh tasks to show the new state
+        } catch (err) {
+            console.error("Failed to claim task:", err);
+            alert(err.response?.data?.error || 'Failed to claim reward.');
+        } finally {
+            setClaimingId(null);
+        }
     };
 
     const handleSuggestionSubmit = async (e) => {
         e.preventDefault();
-        if (!suggestion.trim() || isSubmitting || !token) return;
-
-        setIsSubmitting(true);
+        if (!suggestion.trim()) {
+            alert("Please enter a suggestion.");
+            return;
+        }
         try {
-            // This now sends the suggestion to your backend endpoint
-            await axios.post(
-                `${API_BASE_URL}/api/submit-suggestion`, 
-                { suggestion: suggestion.trim() },
-                { headers: { Authorization: `Bearer ${token}` } } // Authenticate the request
+            await axios.post(`${API_BASE_URL}/api/suggestions`, 
+                { suggestion_text: suggestion },
+                { headers: { Authorization: `Bearer ${token}` } }
             );
             alert("Thank you! Your suggestion has been submitted.");
             setSuggestion('');
-        } catch (error) {
-            console.error("Failed to submit suggestion:", error);
-            alert("Sorry, we couldn't submit your suggestion. Please try again.");
-        } finally {
-            setIsSubmitting(false);
+        } catch (err) {
+            console.error("Failed to submit suggestion:", err);
+            alert("Could not submit your suggestion at this time.");
         }
     };
 
-    const renderTaskCard = (category, progress, title, icon) => {
-        const activeTask = getActiveTask(category, progress);
-        const isCompleted = progress >= activeTask.target || activeTask.completed;
+    const groupedTasks = tasks.reduce((acc, task) => {
+        acc[task.category] = acc[task.category] || [];
+        acc[task.category].push(task);
+        return acc;
+    }, {});
 
-        return (
-            <div className="task-card">
-                <div className="task-card-header">
-                    <span className="task-icon">{icon}</span>
-                    <h3>{title}</h3>
-                </div>
-                {activeTask.image && <img src={activeTask.image} alt={activeTask.reward} className="task-image" />}
-                <div className="task-card-body">
-                    <p className="task-reward">
-                        <span>Reward:</span> {activeTask.reward}
-                    </p>
-                    <p className="task-description">
-                        Target: {activeTask.target.toLocaleString()} 
-                        {category === 'referral' && ' successful referrals'}
-                        {category === 'orders' && ' orders placed'}
-                        {category === 'gaming' && ' bets placed'}
-                        {category === 'deposit' && ' total deposit'}
-                    </p>
-                    {activeTask.condition && <p className="task-condition">{activeTask.condition}</p>}
-
-                    {!activeTask.completed ? (
-                        <>
-                            <ProgressBar current={progress} target={activeTask.target} />
-                            <button className="claim-btn" disabled={!isCompleted}>
-                                {isCompleted ? 'Claim Reward' : 'In Progress'}
-                            </button>
-                        </>
-                    ) : (
-                         <button className="claim-btn completed-btn" disabled>All Tasks Completed</button>
-                    )}
+    const renderContent = () => {
+        if (loading) return <div className="loading-spinner">Loading Tasks...</div>;
+        if (error) return <p className="error-message">{error}</p>;
+        
+        return Object.entries(groupedTasks).map(([category, tasksInCategory]) => (
+            <div key={category} className="task-category-section">
+                <h2 className="category-title">{category} Goals</h2>
+                <div className="tasks-grid">
+                    {tasksInCategory.map(task => (
+                        <TaskCard 
+                            key={task.task_id} 
+                            task={task} 
+                            onClaim={handleClaim}
+                            isLoading={claimingId === task.task_id}
+                        />
+                    ))}
                 </div>
             </div>
-        );
+        ));
     };
 
     return (
-        <div className="tasks-page">
+        <div className="daily-tasks-page">
             <div className="tasks-header">
-                <h1>The Winner's Circle</h1>
-                <p>Complete Your Quests, Claim Your Crowns! Every Task You Conquer Unlocks a Richer Reward.</p>
-            </div>
-
-            <div className="tasks-grid">
-                {renderTaskCard('deposit', taskProgress.totalDeposits, 'Deposit Challenge', '💰')}
-                {renderTaskCard('referral', taskProgress.successfulReferrals, 'Referral Royalty', '👑')}
-                {renderTaskCard('orders', taskProgress.ordersPlaced, 'Investment Streak', '📈')}
-                {renderTaskCard('gaming', taskProgress.betsPlaced, 'Gaming Gladiator', '🎲')}
+                <button className="back-button" onClick={onBack}>← Back</button>
+                <h1>Your Mission Hub</h1>
+                <p>Unlock achievements, complete tasks, and earn massive rewards!</p>
             </div>
             
-            <div className="suggestion-box">
-                <h3>Want a New Game? Suggest It!</h3>
-                <p>Tell us what games you want to see on MoneyPlus. Your ideas could become our next big hit!</p>
-                <form onSubmit={handleSuggestionSubmit}>
-                    <textarea 
+            {renderContent()}
+
+            <div className="suggestion-box-section">
+                <h2 className="category-title">Suggest a New Game</h2>
+                <p>Have an idea for a fun new game? Let us know! If we build it, you'll get a special bonus.</p>
+                <form onSubmit={handleSuggestionSubmit} className="suggestion-form">
+                    <textarea
                         value={suggestion}
                         onChange={(e) => setSuggestion(e.target.value)}
-                        placeholder="Describe the game you'd love to play..."
+                        placeholder="Describe your game idea here..."
                         rows="4"
-                        required
                     />
-                    <button type="submit" disabled={isSubmitting}>
-                        {isSubmitting ? 'Submitting...' : 'Send Suggestion'}
-                    </button>
+                    <button type="submit">Submit Idea</button>
                 </form>
             </div>
         </div>
