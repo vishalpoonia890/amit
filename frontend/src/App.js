@@ -28,6 +28,9 @@ import DailyTasks from './components/DailyTasks';
 import NewsView from './components/NewsView';
 
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
+// ✅ NEW: WebSocket URL. This uses wss:// for your secure production site.
+const WEBSOCKET_URL = 'wss://investmentpro-nu7s.onrender.com';
+
 
 const LoadingScreen = () => (
     <div className="loading-app">
@@ -56,7 +59,49 @@ function App() {
     const [promotions, setPromotions] = useState([]);
     const [showNotificationsDialog, setShowNotificationsDialog] = useState(false);
     const [initialCategory, setInitialCategory] = useState('all');
+// ✅ NEW STATE: This will hold the live game data received from the WebSocket.
+    const [realtimeGameData, setRealtimeGameData] = useState(null);
+    const [ws, setWs] = useState(null); // Holds the WebSocket instance
 
+     // ✅ NEW useEffect: This hook manages the WebSocket connection.
+    useEffect(() => {
+        if (!token) {
+            // If the user is not logged in, don't connect.
+            if (ws) ws.close();
+            return;
+        }
+
+        // Connect to the WebSocket server.
+        const websocket = new WebSocket(WEBSOCKET_URL);
+
+        websocket.onopen = () => {
+            console.log('WebSocket Connected');
+            setWs(websocket);
+        };
+
+        websocket.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            // We update the state with whatever data the server sends.
+            setRealtimeGameData(data);
+        };
+
+        websocket.onclose = () => {
+            console.log('WebSocket Disconnected');
+            setWs(null);
+        };
+
+        websocket.onerror = (error) => {
+            console.error('WebSocket Error:', error);
+        };
+
+        // Cleanup function: This will be called when the component unmounts or the token changes.
+        return () => {
+            websocket.close();
+        };
+    }, [token]); // This effect re-runs if the user logs in or out.
+
+
+    //previous use effects 
     useEffect(() => {
         if (token) {
             localStorage.setItem('view', view);
@@ -266,8 +311,20 @@ function App() {
             case 'news': 
                 return <NewsView onBack={goBackToDashboard} />;
             case 'game': return <GameLobby onViewChange={handleViewChange} />; 
-            case 'color-prediction-game': return <GameView token={token} financialSummary={financialSummary} onBack={goBackToGameLobby} onBetPlaced={() => fetchDynamicData(token)} />; // Only fetch dynamic
-            case 'ip-lottery': return <IpLottery token={token} onBack={goBackToGameLobby} />;
+                
+           // ✅ MODIFIED: We now pass the WebSocket instance and real-time data to GameView.
+            case 'color-prediction-game': 
+                return <GameView 
+                    token={token}
+                    financialSummary={financialSummary}
+                    onBetPlaced={() => fetchDynamicData(token)}
+                    
+                    // Pass the new props down
+                    ws={ws} 
+                    realtimeData={realtimeGameData} 
+                />;
+                
+         case 'ip-lottery': return <IpLottery token={token} onBack={goBackToGameLobby} />;
             case 'win-win': return <WinWinGame onBack={goBackToGameLobby} />;
             case 'aviator': return <AviatorGame token={token} onBack={goBackToGameLobby} />;
             case 'account': return <AccountView userData={userData} financialSummary={financialSummary} onLogout={handleLogout} onViewChange={handleViewChange} token={token}/>;
