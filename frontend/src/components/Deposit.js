@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { createClient } from '@supabase/supabase-js';
-import './FormPages.css';
+import './Deposit.css';
 
 // ✅ IMPORTANT: Make sure you have an 'assets' folder inside your 'src' folder
 // and that these images are placed inside it.
@@ -142,6 +142,8 @@ function Deposit({ token, userData, onBack, onDepositRequest }) {
     const quickAmounts = [300, 500, 1000, 5000];
 
     return (
+        // ✅ 1. ADD THIS WRAPPER DIV. This is the main fix.
+        <div className="deposit-page-container"> 
         <div className="recharge-container">
             <div className="promo-banner">
                 ✨ Deposit USDT (TRC20) & Get <strong>10% EXTRA</strong>! | 1 USDT = 92 INR
@@ -245,6 +247,7 @@ function Deposit({ token, userData, onBack, onDepositRequest }) {
                 )}
             </div>
         </div>
+</div>
     );
 }
 
