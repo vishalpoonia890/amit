@@ -33,39 +33,38 @@ function GameView({ token, financialSummary, onViewChange, onBetPlaced, ws, real
     }, [token]);
 
     // This effect listens for all real-time updates from the server via WebSockets.
-    useEffect(() => {
-        if (realtimeData) {
-            // Stop the loading screen on the first message from the server.
-            if (loading) {
-                setLoading(false);
-            }
+  // In GameView.js, replace the second useEffect
 
-            // When a round ends, the server sends the final results.
-            if (realtimeData.type === 'ROUND_RESULT') {
-                if (realtimeData.results && realtimeData.results.length > 0) {
-                    setGameHistory(realtimeData.results);
-                    
-                    const lastPeriod = realtimeData.results[0].game_period;
-                    // Check the user's personal result for the completed round.
-                    axios.get(`${API_BASE_URL}/api/my-bet-result/${lastPeriod}`, { headers: { Authorization: `Bearer ${token}` } })
-                        .then(res => {
-                            // Set the result to trigger the win/loss/no-bet popup.
-                            setUserRoundResult({ 
-                                status: res.data.status,
-                                payout: res.data.payout,
-                                period: lastPeriod, 
-                                number: realtimeData.results[0].result_number 
-                            });
+useEffect(() => {
+    if (realtimeData) {
+        if (loading) {
+            setLoading(false);
+        }
+
+        if (realtimeData.type === 'ROUND_RESULT') {
+            if (realtimeData.results && realtimeData.results.length > 0) {
+                setGameHistory(realtimeData.results);
+                
+                const lastPeriod = realtimeData.results[0].game_period;
+                axios.get(`${API_BASE_URL}/api/my-bet-result/${lastPeriod}`, { headers: { Authorization: `Bearer ${token}` } })
+                    .then(res => {
+                        setUserRoundResult({ 
+                            status: res.data.status, 
+                            payout: res.data.payout,
+                            period: lastPeriod, 
+                            number: realtimeData.results[0].result_number 
                         });
-                }
-            }
-
-            // The server sends a timer update every second.
-            if (realtimeData.type === 'TIMER_UPDATE') {
-                setShowFinalCountdown(realtimeData.timeLeft <= 5 && realtimeData.timeLeft > 0);
+                    })
+                    .catch(err => console.error("Error fetching my-bet-result:", err)); // Added error catching
             }
         }
-    }, [realtimeData, token, loading]);
+
+        if (realtimeData.type === 'TIMER_UPDATE') {
+            setShowFinalCountdown(realtimeData.timeLeft <= 5 && realtimeData.timeLeft > 0);
+        }
+    }
+}, [realtimeData, token, loading]);
+            
 
 
     // --- Event Handlers ---
