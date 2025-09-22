@@ -1,242 +1,318 @@
-import React, { useState } from 'react';
-import './LandingPage.css';
-import { FidelityLogoIcon, LoginIcon } from './Icons';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import axios from 'axios';
+import './GamePages.css'; // Shared stylesheet
 
-// Asset imports
-import solarPlanImage from '../assets/solar.png'; 
-import aviatorGameImage from '../assets/color.png';
-import inflationImage from '../assets/inflation.png';
-import promoImage from '../assets/ipbia.png';
-import casinoNews1 from '../assets/casino1.jpg';
-import casinoNews2 from '../assets/casino2.jpg';
-import casinoNews3 from '../assets/casino3.jpg';
+const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
 
-// --- SVG Icons for Password Toggle ---
-const EyeIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-);
+// --- Helper Function to get the current and next hourly draw ---
+const getHourlyDrawTimes = () => {
+    const now = new Date();
+    const startTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), 0, 0, 0);
+    const endTime = new Date(startTime.getTime() + 60 * 60 * 1000);
 
-const EyeOffIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
-);
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hour = String(now.getHours()).padStart(2, '0');
+    const roundId = `${year}${month}${day}-${hour}`;
 
-
-const AccordionItem = ({ title, children, isOpen, onClick }) => (
-    <div className="faq-item">
-        <button className="faq-header" onClick={onClick}>
-            <span>{title}</span>
-            <span className="faq-icon">{isOpen ? '−' : '+'}</span>
-        </button>
-        {isOpen && <div className="faq-content">{children}</div>}
-    </div>
-);
-
-const FAQ = () => {
-    const [openIndex, setOpenIndex] = useState(null);
-    const faqs = [
-        { q: "Is my investment safe?", a: "Yes, security is our top priority. We employ advanced encryption and security protocols to protect your funds and personal information." },
-        { q: "How quickly can I withdraw my winnings?", a: "Withdrawals are processed swiftly. Most requests are completed within 40 minutes, ensuring you have quick access to your earnings." },
-        { q: "How does the referral system work?", a: "Our referral system allows you to earn a commission when someone signs up with your link and makes a deposit (Level 1), and a smaller commission from their referrals (Level 2)." },
-    ];
-
-    return (
-        <div className="faq-section">
-            {faqs.map((faq, index) => (
-                <AccordionItem key={index} title={faq.q} isOpen={openIndex === index} onClick={() => setOpenIndex(openIndex === index ? null : index)}>
-                    <p>{faq.a}</p>
-                </AccordionItem>
-            ))}
-        </div>
-    );
+    return {
+        endTime: endTime,
+        startTime: startTime,
+        id: roundId
+    };
 };
 
-const PromoModal = ({ onClose, onRegisterClick }) => (
-    <div className="promo-modal-overlay" onClick={onClose}>
-        <div className="promo-modal" onClick={e => e.stopPropagation()}>
-            <button className="close-modal-btn" onClick={onClose}>&times;</button>
-            <h3>Welcome to MoneyPlus!</h3>
-            <p className="bonus-highlight">Register now to get an instant <strong>₹50 Bonus</strong> and up to a <strong>300% Deposit Bonus</strong> on your first investment!</p>
-            <button className="cta-button" onClick={onRegisterClick}>Register Now</button>
+
+// --- Reusable Components ---
+const Countdown = ({ endTime, onEnd }) => {
+    const calculateTimeLeft = useCallback(() => {
+        const difference = +new Date(endTime) - +new Date();
+        if (difference <= 0) {
+            onEnd();
+            // Use a brief timeout to allow the onEnd function to trigger state updates
+            setTimeout(() => window.location.reload(), 3000);
+            return "DRAWING NOW";
+        }
+        const minutes = Math.floor((difference / 1000 / 60) % 60);
+        const seconds = Math.floor((difference / 1000) % 60);
+        return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    }, [endTime, onEnd]);
+
+    const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
+
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setTimeLeft(calculateTimeLeft());
+        }, 1000);
+        return () => clearInterval(timer);
+    }, [calculateTimeLeft]);
+
+
+    return <span>{timeLeft}</span>;
+};
+
+const ResultModal = ({ result, onClose }) => (
+    <div className="modal-overlay">
+        <div className="modal-content result-modal">
+            <h2>{result.title}</h2>
+            <p>{result.message}</p>
+            <button onClick={onClose}>OK</button>
         </div>
     </div>
 );
 
-function LandingPage({ authView, setAuthView, loginFormData, registerFormData, handleLoginInputChange, handleRegisterInputChange, handleLogin, handleRegister, loading }) {
+// --- Mock Data for New Sections ---
+const luckyWins = [
+    { id: 1, name: 'Rahul S.', amount: 250000 }, { id: 2, name: 'Priya K.', amount: 65000 },
+    { id: 3, name: 'Amit V.', amount: 75000 }, { id: 4, name: 'Kamal', amount: 50000},
+];
+const topWins = [
+    { id: 1, name: 'Vikas M.', amount: 1250000 }, { id: 2, name: 'Anjali P.', amount: 950000 },
+    { id: 3, name: 'Sandeep R.', amount: 780000 },
+];
+
+function IpLottery({ token, onBack }) {
+    const [round, setRound] = useState(null);
+    const [selectionMode, setSelectionMode] = useState('double');
+    const [selectedNumA, setSelectedNumA] = useState(null);
+    const [selectedNumB, setSelectedNumB] = useState(null);
+    const [activeSlot, setActiveSlot] = useState('A');
+    const [betAmount, setBetAmount] = useState(10);
+    const [history, setHistory] = useState([]);
+    const [showResultModal, setShowResultModal] = useState(null);
     
-    const [termsAccepted, setTermsAccepted] = useState(false);
-    const [showPromo, setShowPromo] = useState(true);
+    const [basePlayers, setBasePlayers] = useState(0);
+    const [actualPoolAmount, setActualPoolAmount] = useState(0); // This holds the real bet amount from the server
+    const [isBettingClosed, setIsBettingClosed] = useState(false); // New state for betting window
+    const [error, setError] = useState('');
     
-    // --- State for password visibility ---
-    const [showLoginPassword, setShowLoginPassword] = useState(false);
-    const [showRegisterPassword, setShowRegisterPassword] = useState(false);
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const liveStats = useMemo(() => {
+        if (!round) return { players: 0, pool: 0 };
+        const totalDuration = round.endTime.getTime() - round.startTime.getTime();
+        const elapsedTime = Date.now() - round.startTime.getTime();
+        const progress = Math.max(0, Math.min(elapsedTime / totalDuration, 1));
+        
+        const players = basePlayers + Math.floor(progress * (basePlayers * 0.5));
+        
+        // ✅ NEW POOL LOGIC: A visual pool that grows to 10L, plus the actual bets from users.
+        const visualBasePool = 1000000 * progress;
+        const pool = visualBasePool + actualPoolAmount;
+
+        return { players, pool };
+    }, [round, basePlayers, actualPoolAmount]);
+
+    const fetchInitialState = useCallback(async (currentRoundId) => {
+        setError('');
+        try {
+            const [historyRes, liveStatsRes] = await Promise.all([
+                axios.get(`${API_BASE_URL}/api/lottery/history`, { headers: { Authorization: `Bearer ${token}` } }),
+                axios.get(`${API_BASE_URL}/api/lottery/live-stats/${currentRoundId}`, { headers: { Authorization: `Bearer ${token}` } })
+            ]);
+            setHistory(historyRes.data.history);
+            setBasePlayers(liveStatsRes.data.base_player_count);
+            setActualPoolAmount(liveStatsRes.data.total_pool_amount); // Store the real bet amount
+        } catch (error) {
+            console.error("Failed to fetch lottery state/history:", error);
+            setError("Could not connect to the game server. Please check your connection and try again.");
+        }
+    }, [token]);
+
+    useEffect(() => {
+        const nextDraw = getHourlyDrawTimes();
+        setRound({ roundId: nextDraw.id, endTime: nextDraw.endTime, startTime: nextDraw.startTime });
+        
+        const fetchAndSetInterval = async () => {
+            await fetchInitialState(nextDraw.id);
+        };
+
+        fetchAndSetInterval();
+        const interval = setInterval(fetchAndSetInterval, 30000);
+
+        return () => clearInterval(interval);
+    }, [fetchInitialState]);
+
+    // ✅ NEW EFFECT: Manages the betting window timer
+    useEffect(() => {
+        if (!round) return;
+
+        const checkBettingWindow = () => {
+            const timeLeft = round.endTime.getTime() - Date.now();
+            // Check if less than 5 minutes (300,000 milliseconds) remain
+            if (timeLeft < 5 * 60 * 1000) {
+                setIsBettingClosed(true);
+            } else {
+                setIsBettingClosed(false);
+            }
+        };
+
+        checkBettingWindow(); // Check immediately
+        const interval = setInterval(checkBettingWindow, 1000); // Re-check every second
+
+        return () => clearInterval(interval);
+    }, [round]);
     
-    const scrollToAuth = (view) => {
-        setAuthView(view);
-        document.getElementById('auth').scrollIntoView({ behavior: 'smooth' });
+    const handleNumberSelect = (num) => {
+        if (selectionMode === 'single') {
+            setSelectedNumA(num);
+            setSelectedNumB(null);
+            setActiveSlot(null);
+        } else {
+            if (activeSlot === 'A') { setSelectedNumA(num); setActiveSlot('B'); } 
+            else if (activeSlot === 'B') { setSelectedNumB(num); setActiveSlot(null); }
+        }
+    };
+    
+    const clearSelection = () => {
+        setSelectedNumA(null);
+        setSelectedNumB(null);
+        setActiveSlot('A');
     };
 
-    const handleRegisterSubmit = (e) => {
-        e.preventDefault();
-        if (!termsAccepted) {
-            alert("You must accept the terms and conditions to register.");
+    const handleBet = async () => {
+        // ✅ NEW CHECK: Prevents betting in the last 5 minutes
+        if (isBettingClosed) {
+            alert("The betting window is now closed for this round. Good luck in the next draw!");
             return;
         }
-        handleRegister(e);
+
+        const isSingleBetValid = selectionMode === 'single' && selectedNumA !== null;
+        const isDoubleBetValid = selectionMode === 'double' && selectedNumA !== null && selectedNumB !== null;
+        if (!isSingleBetValid && !isDoubleBetValid) { alert("Please make your number selection(s)."); return; }
+        if (betAmount < 10) { alert("Minimum bet amount is ₹10."); return; }
+        
+        try {
+            await axios.post(`${API_BASE_URL}/api/lottery/bet`, {
+                roundId: round.roundId,
+                betAmount,
+                selectedNumA,
+                selectedNumB: selectionMode === 'single' ? null : selectedNumB
+            }, { headers: { Authorization: `Bearer ${token}` } });
+            alert('Your bet has been placed! The result will be announced after the draw.');
+        } catch (error) {
+            alert(error.response?.data?.error || "Failed to place bet.");
+        }
     };
     
+    const handleDrawEnd = useCallback(async () => {
+        if (!round) return;
+        try {
+            const res = await axios.get(`${API_BASE_URL}/api/lottery/my-bet-result/${round.roundId}`, { headers: { Authorization: `Bearer ${token}` } });
+            setShowResultModal(res.data);
+        } catch (error) {
+            console.error("Failed to fetch bet result", error);
+        }
+    }, [round, token]);
+    
+    if (error) {
+        return <div className="game-error-message">{error}</div>;
+    }
+    
+    if (!round) {
+        return <div className="loading-spinner">Loading Lottery...</div>;
+    }
+
     return (
-        <div className="landing-page">
-            {showPromo && <PromoModal onClose={() => setShowPromo(false)} onRegisterClick={() => { setShowPromo(false); scrollToAuth('register'); }} />}
+        <div className="game-page-container lottery-theme">
+            {showResultModal && <ResultModal result={showResultModal} onClose={() => { setShowResultModal(null); window.location.reload(); }} />}
             
-            <section className="hero-section" onClick={() => scrollToAuth('register')}>
-                <img src={promoImage} alt="MoneyPlus Promotion" className="hero-image"/>
-                <div className="hero-overlay"></div>
-                <div className="hero-content">
-                    <h1 className="hero-title-animate">Your Financial Future, Reimagined</h1>
-                    <div className="hero-cta-animate">
-                        <span className="cta-button-text">Click to Start Earning</span>
-                    </div>
+            <button className="back-button" onClick={onBack}>← Back to Lobby</button>
+            <div className="game-header">
+                <h1>IP Lottery</h1>
+                <p>Next Draw In:</p>
+                <div className="round-timer"><Countdown endTime={round.endTime} onEnd={handleDrawEnd}/></div>
+            </div>
+
+            <div className="live-pool-card">
+                <div className="pool-stat"><span>Current Players</span><strong>{liveStats.players.toLocaleString('en-IN')}</strong></div>
+                <div className="pool-stat"><span>Total Pool Amount</span><strong>₹{liveStats.pool.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</strong></div>
+            </div>
+
+            <div className="lottery-card">
+                <div className="selection-header">
+                    <h3>Select Your Numbers</h3>
+                    <button onClick={clearSelection} className="clear-selection-btn">Clear</button>
                 </div>
-            </section>
+                <div className="toggle-switch">
+                    <button className={selectionMode === 'single' ? 'active' : ''} onClick={() => { setSelectionMode('single'); clearSelection(); }}>Single (2.5x)</button>
+                    <button className={selectionMode === 'double' ? 'active' : ''} onClick={() => { setSelectionMode('double'); clearSelection();}}>Double (25x)</button>
+                </div>
+                <div className="selection-slots">
+                    <div className={`slot ${activeSlot === 'A' ? 'active' : ''}`} onClick={() => setActiveSlot('A')}>{selectedNumA ?? '?'}</div>
+                    {selectionMode === 'double' && (
+                        <div className={`slot ${activeSlot === 'B' ? 'active' : ''}`} onClick={() => setActiveSlot('B')}>{selectedNumB ?? '?'}</div>
+                    )}
+                </div>
+                <div className="number-grid">
+                    {Array.from({ length: 10 }, (_, i) => i).map(num => (
+                        <button key={num} className={`num-button ${(selectedNumA === num || selectedNumB === num) ? 'selected' : ''}`} onClick={() => handleNumberSelect(num)}>{num}</button>
+                    ))}
+                </div>
+            </div>
+            
+            <div className="lottery-card bet-controls">
+                <h3>Place Your Bet</h3>
+                {/* ✅ NEW: Message for when betting is closed */}
+                {isBettingClosed && (
+                    <div className="betting-closed-message">
+                        Betting is closed for the final 5 minutes.
+                    </div>
+                )}
+                <div className="quick-bet-buttons">
+                    {[10, 50, 100, 500].map(amount => <button key={amount} onClick={() => setBetAmount(amount)} disabled={isBettingClosed}>₹{amount}</button>)}
+                </div>
+                <div className="bet-input-group">
+                    <span>₹</span>
+                    <input type="number" value={betAmount} onChange={(e) => setBetAmount(parseInt(e.target.value) || 0)} min="10" disabled={isBettingClosed}/>
+                </div>
+                <button className="action-button" onClick={handleBet} disabled={isBettingClosed}>
+                    {isBettingClosed ? 'Betting Closed' : 'Confirm Bet'}
+                </button>
+            </div>
 
-            <main id="main-content" className="main-content">
-                <section className="stats-section">
-                    <div className="stat-item">
-                        <span className="stat-value">100000+</span>
-                        <span className="stat-label">Happy Investors</span>
-                    </div>
-                    <div className="stat-item">
-                        <span className="stat-value">₹50 Cr+</span>
-                        <span className="stat-label">Total Investments</span>
-                    </div>
-                </section>
+            <div className="history-card">
+                <h4>Recent Results</h4>
+                <div className="history-table-container">
+                    <table>
+                        <thead>
+                            <tr><th>Round</th><th>Result</th><th>Winners</th><th>Top Winner</th></tr>
+                        </thead>
+                        <tbody>
+                            {history.slice(0, 20).map(item => (
+                                <tr key={item.round_id}>
+                                    <td>{item.round_id.slice(-5)}</td>
+                                    <td><span className="winning-num">{item.winning_num_a}</span><span className="winning-num">{item.winning_num_b}</span></td>
+                                    <td>{item.winner_count}</td>
+                                    <td>{item.sample_winner_name || '--'}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
-                <section className="hero-content-below-image">
-                        <h2>Worried About Your Money?</h2>
-                    <p>Don't be. We are with you in shaping your financial situation for the better. With our investment products that provide daily income and exciting games that offer big wins, your journey to financial independence starts now.</p>
-                </section>
+            <div className="winners-grid">
+                <div className="winners-card">
+                    <h4>🍀 Lucky Wins</h4>
+                    {luckyWins.map(win => <div key={win.id} className="winner-row"><span>{win.name}</span><strong>₹{win.amount.toLocaleString()}</strong></div>)}
+                </div>
+                <div className="winners-card">
+                    <h4>🏆 Top Wins</h4>
+                    {topWins.map(win => <div key={win.id} className="winner-row"><span>{win.name}</span><strong>₹{win.amount.toLocaleString()}</strong></div>)}
+                </div>
+            </div>
 
-                <section id="inflation" className="content-section">
-                       <div className="content-image"><img src={inflationImage} alt="Money losing value"/></div>
-                    <div className="content-text">
-                        <h2>Don't Let Inflation Eat Your Savings</h2>
-                        <p>Every day, the money in your bank account is losing purchasing power. To truly grow your wealth and secure your future, your money needs to work for you and grow faster than inflation.</p>
-                    </div>
-                </section>
-                
-                <section id="plans" className="sample-section dark-bg">
-                    <h2>Our Investment Products</h2>
-                    <div className="sample-grid">
-                        <div className="sample-card"><img src={solarPlanImage} alt="Solar Energy Plan"/><h3>Solar Energy Plans</h3><p>Invest in a green future and earn stable daily returns by funding large-scale solar projects.</p></div>
-                         <div className="sample-card"><img src={aviatorGameImage} alt="Aviator Game"/><h3>Aviator Game</h3><p>Test your nerve in this thrilling crash game. Cash out before the plane flies away to multiply your bet!</p></div>
-                    </div>
-                </section>
-                
-                 <section className="casino-news-section">
-                    <h2>Casino & Fun</h2>
-                    <div className="casino-grid">
-                        <img src={casinoNews1} alt="Casino Fun 1" />
-                        <img src={casinoNews2} alt="Casino Fun 2" />
-                        <img src={casinoNews3} alt="Casino Fun 3" />
-                    </div>
-                    <p>Play responsibly and enjoy exciting games while growing your earnings.</p>
-                </section>
-                
-                <section id="auth" className="auth-section">
-                    <div className="auth-container">
-                        <div className="auth-form-wrapper">
-                            <div className="casino-icon"><LoginIcon/></div>
-                            {authView === 'login' ? (
-                                <form onSubmit={handleLogin} className="auth-form">
-                                    <h2>Welcome Back!</h2>
-                                    <div className="input-box"><input type="tel" name="mobile" value={loginFormData.mobile} onChange={handleLoginInputChange} required autoComplete="tel"/><label>Mobile Number</label></div>
-                                    {/* --- LOGIN PASSWORD INPUT (UPDATED) --- */}
-                                    <div className="input-box">
-                                        <input 
-                                            type={showLoginPassword ? 'text' : 'password'} 
-                                            name="password" 
-                                            value={loginFormData.password} 
-                                            onChange={handleLoginInputChange} 
-                                            required 
-                                            autoComplete="current-password"
-                                        />
-                                        <label>Password</label>
-                                        <button type="button" className="password-toggle-btn" onClick={() => setShowLoginPassword(!showLoginPassword)}>
-                                            {showLoginPassword ? <EyeOffIcon /> : <EyeIcon />}
-                                        </button>
-                                    </div>
-                                    <button className="cta-button" type="submit" disabled={loading}>{loading ? 'Logging in...' : 'Login'}</button>
-                                    <p className="auth-switch">Don't have an account? <button type="button" onClick={() => setAuthView('register')}>Sign Up</button></p>
-                                </form>
-                            ) : (
-                                 <form onSubmit={handleRegisterSubmit} className="auth-form">
-                                    <h2>Join MoneyPlus</h2>
-                                     <div className="input-box"><input type="text" name="username" value={registerFormData.username} onChange={handleRegisterInputChange} required autoComplete="username"/><label>Username</label></div>
-                                    <div className="input-box"><input type="tel" name="mobile" value={registerFormData.mobile} onChange={handleRegisterInputChange} required autoComplete="tel"/><label>Mobile Number</label></div>
-                                    {/* --- REGISTER PASSWORD INPUT (UPDATED) --- */}
-                                    <div className="input-box">
-                                        <input 
-                                            type={showRegisterPassword ? 'text' : 'password'} 
-                                            name="password" 
-                                            value={registerFormData.password} 
-                                            onChange={handleRegisterInputChange} 
-                                            required 
-                                            autoComplete="new-password"
-                                        />
-                                        <label>Password</label>
-                                        <button type="button" className="password-toggle-btn" onClick={() => setShowRegisterPassword(!showRegisterPassword)}>
-                                            {showRegisterPassword ? <EyeOffIcon /> : <EyeIcon />}
-                                        </button>
-                                    </div>
-                                    {/* --- CONFIRM PASSWORD INPUT (UPDATED) --- */}
-                                    <div className="input-box">
-                                        <input 
-                                            type={showConfirmPassword ? 'text' : 'password'} 
-                                            name="confirmPassword" 
-                                            value={registerFormData.confirmPassword} 
-                                            onChange={handleRegisterInputChange} 
-                                            required 
-                                            autoComplete="new-password"
-                                        />
-                                        <label>Confirm Password</label>
-                                        <button type="button" className="password-toggle-btn" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
-                                            {showConfirmPassword ? <EyeOffIcon /> : <EyeIcon />}
-                                        </button>
-                                    </div>
-                                    <div className="input-box"><input type="text" name="referralCode" value={registerFormData.referralCode} onChange={handleRegisterInputChange} autoComplete="off" /><label>Referral Code (Optional)</label></div>
-                                    <div className="terms-checkbox">
-                                        <input type="checkbox" id="terms" name="terms" checked={termsAccepted} onChange={(e) => setTermsAccepted(e.target.checked)} />
-                                        <label htmlFor="terms">I accept all the <a href="#terms" target="_blank">Terms and Conditions</a></label>
-                                    </div>
-                                    <button className="cta-button" type="submit" disabled={loading || !termsAccepted}>{loading ? 'Registering...' : 'Register'}</button>
-                                    <p className="auth-switch">Already have an account? <button type="button" onClick={() => setAuthView('login')}>Sign In</button></p>
-                                </form>
-                            )}
-                        </div>
-                    </div>
-                </section>
-
-                <section id="faq" className="content-section dark-bg">
-                    <h2>Frequently Asked Questions</h2>
-                    <FAQ />
-                </section>
-
-                <section id="about" className="content-section">
-                    <h2>Who Are We?</h2>
-                    <p>MoneyPlus is a premier platform dedicated to democratizing wealth creation. We believe that everyone, regardless of their financial background, deserves the opportunity to build a secure and prosperous future. By combining expertly managed, high-yield investment products with fair and engaging skill-based games, we provide a unique and powerful ecosystem for our members to grow their capital and achieve their financial goals.</p>
-                    <div className="trust-section"><div className="trust-badge">SEBI Compliant*</div><div className="trust-badge">Follows RBI Guidelines*</div></div>
-                    <div className="partner-section"><span>Backed By</span><FidelityLogoIcon /></div>
-                </section>
-                
-                <footer className="landing-footer">
-                    <p><strong>MoneyPlus Solutions Pvt. Ltd.</strong></p>
-                    <p>12th Floor, Tower C, Tech Boulevard, Texas, USA</p>
-                    <p className="disclaimer">*Disclaimer: Investments are subject to market risks. Please read all scheme-related documents carefully. Gaming involves an element of financial risk and may be addictive. Please play responsibly and at your own risk. MoneyPlus is a privately operated platform and is not directly affiliated with or regulated by SEBI or RBI.</p>
-                </footer>
-            </main>
+            <div className="rules-card">
+                <h4>About This Game</h4>
+                <ul>
+                    <li><strong>Hourly Draws:</strong> Your chance to win big is always just around the corner, with draws happening every hour!</li>
+                    <li><strong>Strategic Payouts:</strong> Go for a reliable 2.5x win by matching just one number, or aim for the massive 25x jackpot by picking two!</li>
+                    <li><strong>Instant Payouts:</strong> Winnings are credited directly to your withdrawable balance the moment a round ends. No waiting, no delays.</li>
+                </ul>
+            </div>
         </div>
     );
 }
 
-export default LandingPage;
+export default IpLottery;
+
