@@ -260,3 +260,50 @@
     50% { transform: scale(1.2); opacity: 0.7; }
     100% { transform: scale(1); opacity: 1; }
 }
+
+
+/* Add this to the end of GameView.css */
+
+.game-rules-section {
+    margin-top: 25px;
+    padding: 20px;
+    background-color: var(--card-bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    text-align: left;
+}
+
+.game-rules-section h3 {
+    text-align: center;
+    color: var(--primary-color);
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 1.3em;
+}
+
+.game-rules-section ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.game-rules-section li {
+    color: var(--text-color-light);
+    line-height: 1.7;
+    margin-bottom: 12px;
+    padding-left: 25px;
+    position: relative;
+}
+
+.game-rules-section li::before {
+    content: '◈';
+    color: var(--primary-color);
+    position: absolute;
+    left: 0;
+    top: 2px;
+    font-size: 1.1em;
+}
+
+.game-rules-section strong {
+    color: var(--text-color);
+    font-weight: 600;
+}
