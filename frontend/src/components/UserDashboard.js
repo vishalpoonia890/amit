@@ -35,16 +35,28 @@ function UserDashboard({ onViewChange }) {
         { id: 'deposit', label: 'Deposit', icon: <DepositIcon />, view: 'deposit' },
         { id: 'withdraw', label: 'Withdraw', icon: <WithdrawIcon />, view: 'withdraw' },
         { id: 'team', label: 'Team', icon: '👥', view: 'team' },
-       { id: 'daily-tasks', label: 'Daily Tasks', icon: <RewardsIcon />, view: 'daily-tasks' },
+        { id: 'daily-tasks', label: 'Daily Tasks', icon: <RewardsIcon />, view: 'daily-tasks' },
         { id: 'sell-usdt', label: 'Sell USDT', icon: <SellUsdtIcon />, view: 'sell-usdt' },
         { id: 'support', label: 'Support', icon: <SupportIcon />, view: 'support' },
     ];
 
-     const journeyContent = [
+      const journeyContent = [
         { id: 1, title: 'Bank Savings vs. Smart Investing', text: 'Discover why letting your money work for you can vastly outperform traditional savings.', icon: <BankVsInvestIcon /> },
         { id: 2, title: 'The Power of Passive Income', text: 'Learn how our platform helps you build steady, passive income streams that grow over time.', icon: <PassiveIncomeIcon /> },
         { id: 3, title: 'Start Your Independence Journey', text: 'Take the first step towards financial freedom with tools designed for everyone.', icon: <FinancialFreedomIcon /> },
     ];
+
+    // ✅ NEW: This handler will navigate to the plans page with the correct category pre-selected.
+    const handlePlanClick = (plan) => {
+        let category = 'New'; // Default category
+        const planIdPrefix = plan.id.toString().substring(0, 1);
+
+        if (planIdPrefix === '2') category = 'Solar Energy';
+        else if (planIdPrefix === '3') category = 'Wind Mill';
+        else if (planIdPrefix === '4') category = 'Crypto Mining';
+        
+        onViewChange('plans', category);
+    };
 
     return (
         <div className="user-dashboard">
@@ -70,7 +82,8 @@ function UserDashboard({ onViewChange }) {
                 <h4>Start Your Journey</h4>
                 <div className="plan-showcase-grid">
                     {samplePlans.map(plan => (
-                        <div key={plan.id} className="plan-card-mini">
+                        // ✅ FIX: Added the onClick handler to each sample plan card.
+                        <div key={plan.id} className="plan-card-mini" onClick={() => handlePlanClick(plan)}>
                              <img src={plan.image} alt={plan.name} className="plan-mini-image"/>
                             <h5>{plan.name}</h5>
                             <p>Earn {formatCurrency(plan.dailyIncome)} Daily</p>
@@ -108,7 +121,7 @@ function UserDashboard({ onViewChange }) {
 
             <div className="payout-ticker-card">
                 <h4>Total Payouts to Date</h4>
-                <p className="payout-amount">{formatCurrency(10)} Cr+</p>
+                <p className="payout-amount">{formatCurrency(100000000)} Cr+</p>
             </div>
 
             <div className="info-section">
@@ -150,4 +163,3 @@ function UserDashboard({ onViewChange }) {
 }
 
 export default UserDashboard;
-
