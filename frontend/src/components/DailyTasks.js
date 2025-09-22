@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import axios from 'axios'; // Make sure to import axios
 import './DailyTasks.css';
 
 // --- Import image assets ---
 import iphone17ProImage from '../assets/103.png';
 import iphone17ProMaxImage from '../assets/104.png';
 import iphone17Image from '../assets/101.png';
+
+const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
 
 // --- Helper component for the progress bar ---
 const ProgressBar = ({ current, target }) => {
@@ -21,7 +24,7 @@ const ProgressBar = ({ current, target }) => {
 };
 
 // --- Main DailyTasks Component ---
-function DailyTasks({ onBack }) {
+function DailyTasks({ token }) { // The component now accepts the user's auth token
     // In a real app, this data would come from an API
     const [taskProgress, setTaskProgress] = useState({
         totalDeposits: 7500,
@@ -35,7 +38,6 @@ function DailyTasks({ onBack }) {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     // --- Task Definitions ---
-    // This structure makes it easy to manage tasks and their tiers
     const taskTiers = {
         deposit: [
             { target: 10000, reward: "₹1,000 Bonus" },
@@ -68,23 +70,29 @@ function DailyTasks({ onBack }) {
                 return task;
             }
         }
-        return { ...tiers[tiers.length - 1], completed: true }; // All tasks in this category are done
+        return { ...tiers[tiers.length - 1], completed: true };
     };
 
     const handleSuggestionSubmit = async (e) => {
         e.preventDefault();
-        if (!suggestion.trim() || isSubmitting) return;
+        if (!suggestion.trim() || isSubmitting || !token) return;
 
         setIsSubmitting(true);
-        // In a real app, you would send this to your Supabase backend
-        console.log("Submitting suggestion to Supabase:", suggestion);
-        
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1000)); 
-        
-        alert("Thank you! Your suggestion has been submitted.");
-        setSuggestion('');
-        setIsSubmitting(false);
+        try {
+            // This now sends the suggestion to your backend endpoint
+            await axios.post(
+                `${API_BASE_URL}/api/submit-suggestion`, 
+                { suggestion: suggestion.trim() },
+                { headers: { Authorization: `Bearer ${token}` } } // Authenticate the request
+            );
+            alert("Thank you! Your suggestion has been submitted.");
+            setSuggestion('');
+        } catch (error) {
+            console.error("Failed to submit suggestion:", error);
+            alert("Sorry, we couldn't submit your suggestion. Please try again.");
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     const renderTaskCard = (category, progress, title, icon) => {
@@ -161,3 +169,4 @@ function DailyTasks({ onBack }) {
 }
 
 export default DailyTasks;
+
