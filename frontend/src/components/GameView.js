@@ -15,7 +15,7 @@ const getNumberColorClass = (num) => {
     return '';
 };
 
-function GameView({ token, financialSummary, onViewChange, onBetPlaced }) {
+function GameView({ token, financialSummary, onViewChange, onBetPlaced, ws, realtimeData }) {
     // --- State Management ---
     const [gameState, setGameState] = useState(null);
     const [isUnderMaintenance, setIsUnderMaintenance] = useState(false);
@@ -29,53 +29,87 @@ function GameView({ token, financialSummary, onViewChange, onBetPlaced }) {
     const [lastCheckedPeriod, setLastCheckedPeriod] = useState(null); // Prevents re-fetching results
     const [showFinalCountdown, setShowFinalCountdown] = useState(false); // Controls 5-sec countdown popup
 
-    // --- Data Fetching ---
-    const fetchGameState = useCallback(async () => {
-        try {
-            const { data } = await axios.get(`${API_BASE_URL}/api/game-state`, { headers: { Authorization: `Bearer ${token}` } });
+    // // --- Data Fetching ---
+    // const fetchGameState = useCallback(async () => {
+    //     try {
+    //         const { data } = await axios.get(`${API_BASE_URL}/api/game-state`, { headers: { Authorization: `Bearer ${token}` } });
             
-            if (data.maintenance) {
-                setIsUnderMaintenance(true);
-                setGameState(null);
-            } else {
-                setIsUnderMaintenance(false);
+    //         if (data.maintenance) {
+    //             setIsUnderMaintenance(true);
+    //             setGameState(null);
+    //         } else {
+    //             setIsUnderMaintenance(false);
                 
-                // ✅ LOGIC: When a new round starts, check the result of the previous round for the user.
-                if (gameState && data.current_period !== gameState.current_period && lastCheckedPeriod !== gameState.current_period) {
-                    setLastCheckedPeriod(gameState.current_period);
-                    try {
-                        const resultRes = await axios.get(`${API_BASE_URL}/api/my-bet-result/${gameState.current_period}`, { headers: { Authorization: `Bearer ${token}` } });
-                        if (resultRes.data.status !== 'did_not_play') {
-                            // Set the result data, which will trigger the result modal
+    //             // ✅ LOGIC: When a new round starts, check the result of the previous round for the user.
+    //             if (gameState && data.current_period !== gameState.current_period && lastCheckedPeriod !== gameState.current_period) {
+    //                 setLastCheckedPeriod(gameState.current_period);
+    //                 try {
+    //                     const resultRes = await axios.get(`${API_BASE_URL}/api/my-bet-result/${gameState.current_period}`, { headers: { Authorization: `Bearer ${token}` } });
+    //                     if (resultRes.data.status !== 'did_not_play') {
+    //                         // Set the result data, which will trigger the result modal
+    //                         setUserRoundResult({ 
+    //                             ...resultRes.data, 
+    //                             period: gameState.current_period, 
+    //                             number: data.results[0].result_number 
+    //                         });
+    //                     }
+    //                 } catch (err) {
+    //                     console.error("Could not fetch user's round result:", err);
+    //                 }
+    //             }
+                
+    //             setGameState(data);
+
+    //             // ✅ LOGIC: Show the final countdown popup only in the last 5 seconds
+    //             setShowFinalCountdown(data.time_left <= 5 && data.time_left > 0);
+    //         }
+    //     } catch (error) {
+    //         console.error("Error fetching game state:", error);
+    //         setIsUnderMaintenance(true);
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // }, [token, gameState, lastCheckedPeriod]);
+
+    // useEffect(() => {
+    //     fetchGameState();
+    //     const interval = setInterval(fetchGameState, 2000);
+    //     return () => clearInterval(interval);
+    // }, [fetchGameState]);
+
+
+    //// ✅ NEW useEffect: This hook processes the real-time data as it comes in from App.js.
+    useEffect(() => {
+        // Check if we have received any data yet
+        if (realtimeData) {
+            setLoading(false); // Stop loading once we get the first message
+
+            // When the server sends new results, update the history
+            if (realtimeData.type === 'ROUND_RESULT') {
+                setGameHistory(realtimeData.results);
+                
+                // Check the user's personal result for the round that just ended
+                const lastPeriod = realtimeData.results[0].game_period;
+                axios.get(`${API_BASE_URL}/api/my-bet-result/${lastPeriod}`, { headers: { Authorization: `Bearer ${token}` } })
+                    .then(res => {
+                        if (res.data.status !== 'did_not_play') {
                             setUserRoundResult({ 
-                                ...resultRes.data, 
-                                period: gameState.current_period, 
-                                number: data.results[0].result_number 
+                                ...res.data, 
+                                period: lastPeriod, 
+                                number: realtimeData.results[0].result_number 
                             });
                         }
-                    } catch (err) {
-                        console.error("Could not fetch user's round result:", err);
-                    }
-                }
-                
-                setGameState(data);
-
-                // ✅ LOGIC: Show the final countdown popup only in the last 5 seconds
-                setShowFinalCountdown(data.time_left <= 5 && data.time_left > 0);
+                    });
             }
-        } catch (error) {
-            console.error("Error fetching game state:", error);
-            setIsUnderMaintenance(true);
-        } finally {
-            setLoading(false);
-        }
-    }, [token, gameState, lastCheckedPeriod]);
 
-    useEffect(() => {
-        fetchGameState();
-        const interval = setInterval(fetchGameState, 2000);
-        return () => clearInterval(interval);
-    }, [fetchGameState]);
+            // Update the countdown popup visibility
+            if (realtimeData.type === 'TIMER_UPDATE') {
+                setShowFinalCountdown(realtimeData.timeLeft <= 5 && realtimeData.timeLeft > 0);
+            }
+
+        }
+    }, [realtimeData, token]); // This effect runs every time new data arrives.
+
 
     // --- Event Handlers ---
     const handleOpenBetModal = (type, value) => {
@@ -87,24 +121,37 @@ function GameView({ token, financialSummary, onViewChange, onBetPlaced }) {
         setShowBetModal(true);
     };
 
+    // ✅ MODIFIED: handlePlaceBet now uses WebSockets
     const handlePlaceBet = async () => {
         if (betAmount < 10) {
             alert("Minimum bet is ₹10.");
             return;
         }
-        try {
-            await axios.post(`${API_BASE_URL}/api/bet`, 
-                { amount: betAmount, bet_on: betDetails.value },
-                { headers: { Authorization: `Bearer ${token}` } }
-            );
-            alert('Bet placed successfully!');
-            setShowBetModal(false);
-            onBetPlaced(); 
-        } catch (err) {
-            alert(err.response?.data?.error || "Failed to place bet.");
+
+        // Check if the WebSocket connection is open and ready
+        if (!ws || ws.readyState !== WebSocket.OPEN) {
+            alert("Connection error. Please refresh the page.");
+            return;
         }
+
+        // Send the bet message to the server
+        const betMessage = {
+            game: 'color-prediction', // Important for the server's router
+            action: 'bet',
+            payload: {
+                amount: betAmount,
+                bet_on: betDetails.value,
+                token: token // Send token for authentication on the backend
+            }
+        };
+        ws.send(JSON.stringify(betMessage));
+
+        alert('Bet placed successfully!');
+        setShowBetModal(false);
+        onBetPlaced(); // Refresh user balance
     };
 
+    
     // --- Render Logic ---
     if (loading) return <div className="loading-spinner">Loading Game...</div>;
 
