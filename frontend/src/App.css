@@ -61,9 +61,10 @@ body.light-theme {
     position: relative;
 }
 
+/* ✅ FIX: Increased padding to prevent overlap with fixed navigation bars */
 .main-content {
-    padding-top: 80px; /* Space for TopNav */
-    padding-bottom: 80px; /* Space for BottomNav */
+    padding-top: 100px; /* Increased space for TopNav */
+    padding-bottom: 90px; /* Increased space for BottomNav */
 }
 
 /* --- Loading Screens --- */
