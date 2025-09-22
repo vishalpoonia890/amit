@@ -1,0 +1,267 @@
+/* --- Main Page Styling --- */
+.tasks-page {
+    padding: 20px 15px 80px 15px; /* Add bottom padding to avoid overlap with nav */
+    background: #1a0f2e; /* Dark purple casino background */
+    background-image: 
+        radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 80% 90%, rgba(255, 215, 0, 0.07) 0%, transparent 30%);
+    min-height: 100vh;
+    color: #f0f0f0;
+    font-family: 'Poppins', sans-serif;
+}
+
+.tasks-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.tasks-header h1 {
+    font-family: 'Cinzel Decorative', cursive; /* A regal, casino-style font */
+    font-size: 2.5rem;
+    color: #ffd700; /* Gold color */
+    text-shadow: 0 0 5px #ffd700, 0 0 15px #ff8c00;
+    margin: 0;
+}
+
+.tasks-header p {
+    font-size: 1rem;
+    color: #c9c3d5;
+    max-width: 600px;
+    margin: 10px auto 0;
+}
+
+/* --- Tasks Grid Layout --- */
+.tasks-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 25px;
+}
+
+/* --- Task Card Styling --- */
+.task-card {
+    background: linear-gradient(145deg, #2a1a4a, #1c1033);
+    border-radius: 16px;
+    border: 1px solid #4a3a6a;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.task-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6), 0 0 20px #c471ed;
+}
+
+.task-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 15px;
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.task-icon {
+    font-size: 1.8rem;
+}
+
+.task-card-header h3 {
+    margin: 0;
+    font-size: 1.4rem;
+    color: #f5d7ff;
+}
+
+.task-image {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-bottom: 1px solid #4a3a6a;
+}
+
+.task-card-body {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.task-reward {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #ffd700;
+    margin: 0;
+}
+
+.task-reward span {
+    color: #c9c3d5;
+    font-weight: 400;
+}
+
+.task-description, .task-condition {
+    font-size: 0.95rem;
+    color: #c9c3d5;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.task-condition {
+    font-style: italic;
+    font-size: 0.85rem;
+    color: #a9a3b5;
+    background-color: rgba(0,0,0,0.2);
+    padding: 5px 10px;
+    border-radius: 8px;
+}
+
+/* --- Progress Bar Styling --- */
+.progress-bar-container {
+    width: 100%;
+    height: 30px;
+    background-color: #1c1033;
+    border-radius: 15px;
+    border: 1px solid #4a3a6a;
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #8e2de2, #4a00e0);
+    border-radius: 15px;
+    box-shadow: 0 0 10px #8e2de2, 0 0 15px #4a00e0;
+    transition: width 0.5s ease-in-out;
+}
+
+.progress-bar-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+/* --- Button Styling --- */
+.claim-btn {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.claim-btn:disabled:not(.completed-btn) {
+    background-color: #3c2a5a;
+    color: #7a6a9a;
+    cursor: not-allowed;
+}
+
+.claim-btn:not(:disabled) {
+    background: linear-gradient(90deg, #ffd700, #fcae1e);
+    color: #333;
+    box-shadow: 0 4px 15px rgba(252, 174, 30, 0.4);
+}
+
+.claim-btn:not(:disabled):hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(252, 174, 30, 0.6);
+}
+
+.completed-btn {
+    background: #1a936f;
+    color: #e8f5e9;
+    cursor: default;
+}
+
+
+/* --- Suggestion Box --- */
+.suggestion-box {
+    margin-top: 40px;
+    padding: 25px;
+    background: linear-gradient(145deg, #2a1a4a, #1c1033);
+    border: 1px solid #4a3a6a;
+    border-radius: 16px;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.suggestion-box h3 {
+    font-size: 1.5rem;
+    color: #f5d7ff;
+    margin: 0 0 10px 0;
+}
+
+.suggestion-box p {
+    color: #c9c3d5;
+    margin-bottom: 20px;
+}
+
+.suggestion-box textarea {
+    width: 100%;
+    padding: 12px;
+    background-color: #1c1033;
+    border: 1px solid #4a3a6a;
+    border-radius: 8px;
+    color: #f0f0f0;
+    font-family: 'Poppins', sans-serif;
+    resize: vertical;
+    margin-bottom: 15px;
+}
+
+.suggestion-box button {
+    width: 100%;
+    padding: 12px 20px;
+    border-radius: 12px;
+    border: none;
+    background: linear-gradient(90deg, #c471ed, #f64f59);
+    color: white;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.suggestion-box button:hover:not(:disabled) {
+    transform: scale(1.03);
+    box-shadow: 0 4px 20px rgba(246, 79, 89, 0.5);
+}
+
+.suggestion-box button:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+
+/* --- Responsive Design --- */
+@media (min-width: 768px) {
+    .tasks-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .tasks-header h1 {
+        font-size: 3rem;
+    }
+
+     .suggestion-box button,
+     .suggestion-box textarea {
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+     }
+}
+
+@media (min-width: 1024px) {
+    .tasks-page {
+        padding: 40px;
+    }
+    .tasks-grid {
+        grid-template-columns: repeat(2, 1fr); /* You can change this to 4 if you prefer */
+    }
+}
