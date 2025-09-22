@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import './LandingPage.css';
 import { FidelityLogoIcon, LoginIcon } from './Icons';
 
-// ✅ IMPORTANT: Make sure you have an 'assets' folder inside your 'src' folder
-// and that these images are placed inside it.
+// Asset imports
 import solarPlanImage from '../assets/solar.png'; 
 import aviatorGameImage from '../assets/color.png';
 import inflationImage from '../assets/inflation.png';
@@ -11,6 +10,16 @@ import promoImage from '../assets/ipbia.png';
 import casinoNews1 from '../assets/casino1.jpg';
 import casinoNews2 from '../assets/casino2.jpg';
 import casinoNews3 from '../assets/casino3.jpg';
+
+// --- SVG Icons for Password Toggle ---
+const EyeIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+);
+
+const EyeOffIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+);
+
 
 const AccordionItem = ({ title, children, isOpen, onClick }) => (
     <div className="faq-item">
@@ -57,6 +66,11 @@ function LandingPage({ authView, setAuthView, loginFormData, registerFormData, h
     const [termsAccepted, setTermsAccepted] = useState(false);
     const [showPromo, setShowPromo] = useState(true);
     
+    // --- State for password visibility ---
+    const [showLoginPassword, setShowLoginPassword] = useState(false);
+    const [showRegisterPassword, setShowRegisterPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    
     const scrollToAuth = (view) => {
         setAuthView(view);
         document.getElementById('auth').scrollIntoView({ behavior: 'smooth' });
@@ -99,12 +113,12 @@ function LandingPage({ authView, setAuthView, loginFormData, registerFormData, h
                 </section>
 
                 <section className="hero-content-below-image">
-                     <h2>Worried About Your Money?</h2>
+                        <h2>Worried About Your Money?</h2>
                     <p>Don't be. We are with you in shaping your financial situation for the better. With our investment products that provide daily income and exciting games that offer big wins, your journey to financial independence starts now.</p>
                 </section>
 
                 <section id="inflation" className="content-section">
-                     <div className="content-image"><img src={inflationImage} alt="Money losing value"/></div>
+                       <div className="content-image"><img src={inflationImage} alt="Money losing value"/></div>
                     <div className="content-text">
                         <h2>Don't Let Inflation Eat Your Savings</h2>
                         <p>Every day, the money in your bank account is losing purchasing power. To truly grow your wealth and secure your future, your money needs to work for you and grow faster than inflation.</p>
@@ -137,7 +151,21 @@ function LandingPage({ authView, setAuthView, loginFormData, registerFormData, h
                                 <form onSubmit={handleLogin} className="auth-form">
                                     <h2>Welcome Back!</h2>
                                     <div className="input-box"><input type="tel" name="mobile" value={loginFormData.mobile} onChange={handleLoginInputChange} required autoComplete="tel"/><label>Mobile Number</label></div>
-                                    <div className="input-box"><input type="password" name="password" value={loginFormData.password} onChange={handleLoginInputChange} required autoComplete="current-password"/><label>Password</label></div>
+                                    {/* --- LOGIN PASSWORD INPUT (UPDATED) --- */}
+                                    <div className="input-box">
+                                        <input 
+                                            type={showLoginPassword ? 'text' : 'password'} 
+                                            name="password" 
+                                            value={loginFormData.password} 
+                                            onChange={handleLoginInputChange} 
+                                            required 
+                                            autoComplete="current-password"
+                                        />
+                                        <label>Password</label>
+                                        <button type="button" className="password-toggle-btn" onClick={() => setShowLoginPassword(!showLoginPassword)}>
+                                            {showLoginPassword ? <EyeOffIcon /> : <EyeIcon />}
+                                        </button>
+                                    </div>
                                     <button className="cta-button" type="submit" disabled={loading}>{loading ? 'Logging in...' : 'Login'}</button>
                                     <p className="auth-switch">Don't have an account? <button type="button" onClick={() => setAuthView('register')}>Sign Up</button></p>
                                 </form>
@@ -146,8 +174,36 @@ function LandingPage({ authView, setAuthView, loginFormData, registerFormData, h
                                     <h2>Join MoneyPlus</h2>
                                      <div className="input-box"><input type="text" name="username" value={registerFormData.username} onChange={handleRegisterInputChange} required autoComplete="username"/><label>Username</label></div>
                                     <div className="input-box"><input type="tel" name="mobile" value={registerFormData.mobile} onChange={handleRegisterInputChange} required autoComplete="tel"/><label>Mobile Number</label></div>
-                                    <div className="input-box"><input type="password" name="password" value={registerFormData.password} onChange={handleRegisterInputChange} required autoComplete="new-password"/><label>Password</label></div>
-                                    <div className="input-box"><input type="password" name="confirmPassword" value={registerFormData.confirmPassword} onChange={handleRegisterInputChange} required autoComplete="new-password"/><label>Confirm Password</label></div>
+                                    {/* --- REGISTER PASSWORD INPUT (UPDATED) --- */}
+                                    <div className="input-box">
+                                        <input 
+                                            type={showRegisterPassword ? 'text' : 'password'} 
+                                            name="password" 
+                                            value={registerFormData.password} 
+                                            onChange={handleRegisterInputChange} 
+                                            required 
+                                            autoComplete="new-password"
+                                        />
+                                        <label>Password</label>
+                                        <button type="button" className="password-toggle-btn" onClick={() => setShowRegisterPassword(!showRegisterPassword)}>
+                                            {showRegisterPassword ? <EyeOffIcon /> : <EyeIcon />}
+                                        </button>
+                                    </div>
+                                    {/* --- CONFIRM PASSWORD INPUT (UPDATED) --- */}
+                                    <div className="input-box">
+                                        <input 
+                                            type={showConfirmPassword ? 'text' : 'password'} 
+                                            name="confirmPassword" 
+                                            value={registerFormData.confirmPassword} 
+                                            onChange={handleRegisterInputChange} 
+                                            required 
+                                            autoComplete="new-password"
+                                        />
+                                        <label>Confirm Password</label>
+                                        <button type="button" className="password-toggle-btn" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
+                                            {showConfirmPassword ? <EyeOffIcon /> : <EyeIcon />}
+                                        </button>
+                                    </div>
                                     <div className="input-box"><input type="text" name="referralCode" value={registerFormData.referralCode} onChange={handleRegisterInputChange} autoComplete="off" /><label>Referral Code (Optional)</label></div>
                                     <div className="terms-checkbox">
                                         <input type="checkbox" id="terms" name="terms" checked={termsAccepted} onChange={(e) => setTermsAccepted(e.target.checked)} />
@@ -184,4 +240,3 @@ function LandingPage({ authView, setAuthView, loginFormData, registerFormData, h
 }
 
 export default LandingPage;
-
