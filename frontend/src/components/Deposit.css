@@ -1,0 +1,311 @@
+/* src/components/Deposit.css */
+
+/* ✅ THIS IS THE FIX: This container adds the necessary space at the top */
+.deposit-page-container {
+    padding: 15px;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.recharge-container {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.promo-banner {
+    background: linear-gradient(90deg, var(--secondary-color), #ffc107);
+    color: #1a1a1a;
+    font-size: 0.9em;
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+    margin-bottom: 20px;
+    font-weight: 500;
+}
+
+.recharge-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.recharge-header h1 {
+    font-size: 1.5em;
+    margin: 0;
+    color: var(--text-color);
+}
+
+.recharge-card {
+    background-color: var(--card-bg-color);
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--card-shadow);
+}
+
+/* Step Indicator */
+.recharge-steps {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+    position: relative;
+}
+
+.recharge-steps::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 15%;
+    right: 15%;
+    height: 2px;
+    background-color: var(--border-color);
+    transform: translateY(-50%);
+    z-index: 1;
+}
+
+.step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 2;
+    background-color: var(--card-bg-color);
+    padding: 0 10px;
+}
+
+.step-circle {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--border-color);
+    color: var(--text-color-light);
+    font-weight: bold;
+    margin-bottom: 8px;
+    transition: all 0.3s ease;
+}
+
+.step-label {
+    font-size: 0.8em;
+    color: var(--text-color-light);
+    transition: all 0.3s ease;
+}
+
+.step.active .step-circle {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.step.active .step-label {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.step.completed .step-circle {
+    background-color: var(--success-color);
+    border-color: var(--success-color);
+    color: white;
+}
+
+/* Form Elements */
+.recharge-step h2 {
+    text-align: center;
+    margin: 0 0 20px 0;
+    font-size: 1.3em;
+}
+
+.amount-input, .utr-input {
+    width: 100%;
+    padding: 15px;
+    font-size: 1.2em;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    text-align: center;
+    margin-bottom: 15px;
+    box-sizing: border-box;
+}
+
+.quick-amounts {
+    display: flex;
+    justify-content: space-around;
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+.quick-btn {
+    flex-grow: 1;
+    padding: 10px;
+    border-radius: 8px;
+    background-color: var(--bg-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.quick-btn:hover {
+    background-color: var(--border-color);
+    border-color: var(--primary-color);
+}
+
+/* Payment Method Tabs */
+.payment-method-tabs {
+    display: flex;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+}
+.payment-tab {
+    flex: 1;
+    padding: 12px;
+    background-color: var(--bg-color);
+    color: var(--text-color-light);
+    border: none;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: 500;
+}
+.payment-tab.active {
+    background-color: var(--primary-color);
+    color: white;
+}
+.payment-tab:first-child {
+    border-right: 1px solid var(--border-color);
+}
+
+/* QR Code and Address */
+.qr-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 15px;
+}
+.qr-code {
+    max-width: 200px;
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    border: 3px solid var(--border-color);
+}
+.upi-id-display {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: var(--bg-color);
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    margin-bottom: 25px;
+}
+.upi-id-display span {
+    font-weight: 600;
+    word-break: break-all;
+}
+.copy-button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+/* Upload Area */
+.upload-area {
+    margin: 20px 0;
+}
+.upload-area label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 120px;
+    border: 2px dashed var(--border-color);
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--text-color-light);
+    transition: all 0.2s ease;
+}
+.upload-area label:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+.upload-area input[type="file"] {
+    display: none;
+}
+.screenshot-preview {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 6px;
+}
+
+/* General Buttons */
+.form-buttons {
+    display: flex;
+    gap: 15px;
+}
+
+.gradient-button, .secondary-button {
+    flex-grow: 1;
+    padding: 15px;
+    font-size: 1.1em;
+    font-weight: 600;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.gradient-button {
+    background: linear-gradient(90deg, var(--primary-color), var(--primary-hover-color));
+    color: white;
+}
+.gradient-button:disabled {
+    background: #555;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.secondary-button {
+    background-color: var(--bg-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+}
+.secondary-button:hover {
+    border-color: var(--text-color);
+}
+
+/* Message Styles */
+.error-message, .success-message {
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 500;
+}
+.error-message {
+    background-color: var(--error-color-light);
+    color: var(--error-color);
+    border: 1px solid var(--error-color);
+}
+.success-message {
+    background-color: var(--success-color-light);
+    color: var(--success-color);
+    border: 1px solid var(--success-color);
+}
+
+/* Maintenance Notice */
+.maintenance-notice {
+    padding: 40px 20px;
+    text-align: center;
+    background-color: var(--card-bg-color);
+    border-radius: 12px;
+}
+.maintenance-notice h3 {
+    color: var(--secondary-color);
+    margin: 0 0 10px 0;
+}
