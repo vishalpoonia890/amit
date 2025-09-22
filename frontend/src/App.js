@@ -91,6 +91,7 @@ function App() {
         setFinancialSummary(null);
     }, []);
 
+    // ✅ PERFORMANCE FIX: Split data fetching into logical groups
     const fetchEssentialData = useCallback(async (authToken) => {
         if (!authToken) return;
         try {
@@ -121,6 +122,7 @@ function App() {
     const fetchDynamicData = useCallback(async (authToken) => {
         if (!authToken) return;
         try {
+            // Only fetch notifications and financial data, which change often.
             const [summaryRes, notifRes] = await Promise.all([
                 axios.get(`${API_BASE_URL}/api/financial-summary`, { headers: { Authorization: `Bearer ${authToken}` } }),
                 axios.get(`${API_BASE_URL}/api/notifications`, { headers: { Authorization: `Bearer ${authToken}` } })
@@ -134,10 +136,12 @@ function App() {
     }, []);
 
 
+    // ✅ PERFORMANCE FIX: Fetch data more intelligently on initial load.
     useEffect(() => {
         const storedToken = localStorage.getItem('token');
         if (storedToken) {
             setToken(storedToken);
+            // Fetch everything on the first load to populate the app
             Promise.all([
                 fetchEssentialData(storedToken),
                 fetchStaticData(storedToken),
@@ -148,8 +152,10 @@ function App() {
         }
     }, [fetchEssentialData, fetchStaticData, fetchDynamicData]);
 
+    // ✅ PERFORMANCE FIX: Refresh only dynamic data on a longer interval.
     useEffect(() => {
         if (token) {
+            // Refresh every 2 minutes instead of 30 seconds
             const interval = setInterval(() => fetchDynamicData(token), 120000); 
             return () => clearInterval(interval);
         }
@@ -163,6 +169,7 @@ function App() {
             const newToken = response.data.token;
             localStorage.setItem('token', newToken);
             setToken(newToken);
+            // Fetch all data again on a fresh login
             await Promise.all([
                 fetchEssentialData(newToken),
                 fetchStaticData(newToken),
@@ -250,18 +257,16 @@ function App() {
                     userBalance={totalBalance} 
                     allPlans={allPlans} 
                     loading={loading} 
-                    onPurchaseComplete={() => fetchDynamicData(token)}
+                    onPurchaseComplete={() => fetchDynamicData(token)} // Only fetch dynamic data after purchase
                     initialCategory={initialCategory} 
                 />;
             }
-            // ✅ FIX: Added the missing userData prop to ensure the component works correctly.
             case 'daily-tasks': 
                 return <DailyTasks token={token} userData={userData} onBack={goBackToDashboard} />;
-            // ✅ FIX: Ensured the 'news' case is present and correct.
             case 'news': 
                 return <NewsView onBack={goBackToDashboard} />;
             case 'game': return <GameLobby onViewChange={handleViewChange} />; 
-            case 'color-prediction-game': return <GameView token={token} financialSummary={financialSummary} onBack={goBackToGameLobby} onBetPlaced={() => fetchDynamicData(token)} />;
+            case 'color-prediction-game': return <GameView token={token} financialSummary={financialSummary} onBack={goBackToGameLobby} onBetPlaced={() => fetchDynamicData(token)} />; // Only fetch dynamic
             case 'ip-lottery': return <IpLottery token={token} onBack={goBackToGameLobby} />;
             case 'win-win': return <WinWinGame onBack={goBackToGameLobby} />;
             case 'aviator': return <AviatorGame token={token} onBack={goBackToGameLobby} />;
@@ -316,12 +321,10 @@ function App() {
             <div className="app-container">
                 <TopNav theme={theme} toggleTheme={toggleTheme} onLogout={handleLogout} financialSummary={financialSummary} unreadCount={unreadCount} onNotificationsClick={() => setShowNotificationsDialog(true)} />
                 <main className="main-content">{renderMainView()}</main>
-                {/* ✅ FIX: Pass the correct handler function to the BottomNav */}
-                {!userData?.is_admin && <BottomNav activeView={view} onViewChange={handleViewChange} />}
+                {!userData?.is_admin && <BottomNav activeView={view} onViewChange={setView} />}
             </div>
         </div>
     );
 }
 
 export default App;
-
