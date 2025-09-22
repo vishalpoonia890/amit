@@ -1,315 +1,345 @@
-/*------------------ BASE STYLES ------------------*/
+/* --- General Landing Page Styles --- */
 .landing-page {
-    background-color: #1a202c;
-    color: #e2e8f0;
-    font-family: 'Segoe UI', sans-serif;
+    background-color: #1a1a1d;
+    color: #f5f5f5;
+    font-family: 'Poppins', sans-serif;
 }
 
-.hero-section {
-    width: 100%;
-    min-height: 70vh;
-    overflow: hidden;
-    cursor: pointer;
-    position: relative;
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    padding-bottom: 5vh;
+.main-content {
+    padding: 0 15px;
 }
+
+section {
+    padding: 60px 0;
+    text-align: center;
+}
+
+h2 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    color: #c5c6c7;
+}
+
+p {
+    font-size: 1.1rem;
+    line-height: 1.7;
+    color: #a4a5a7;
+    max-width: 800px;
+    margin: 0 auto 20px auto;
+}
+
+.dark-bg {
+    background-color: #101012;
+}
+
+/* --- Hero Section --- */
+.hero-section {
+    position: relative;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    cursor: pointer;
+}
+
 .hero-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
     position: absolute;
     top: 0;
     left: 0;
-    z-index: 1;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
+
 .hero-overlay {
     position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: linear-gradient(to top, rgba(26, 32, 44, 0.95) 10%, rgba(26, 32, 44, 0.3) 100%);
-    z-index: 2;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
 }
+
 .hero-content {
     position: relative;
-    z-index: 3;
-    padding: 20px;
-    text-align: center;
-    color: white;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    z-index: 2;
 }
+
 .hero-title-animate {
-    font-size: clamp(2rem, 6vw, 3rem);
-    text-shadow: 0 0 10px rgba(0,0,0,0.5);
-    animation: fade-in-up 1s ease-out;
+    font-size: 3rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 20px;
+    animation: slide-in 1s ease-out forwards;
 }
+
 .hero-cta-animate {
-    animation: fade-in-up 1s ease-out 0.6s;
-    animation-fill-mode: backwards;
-    margin-top: 15px;
-}
-.cta-button-text {
-    border: 2px solid var(--primary-color);
-    padding: 10px 20px;
+    display: inline-block;
+    padding: 15px 35px;
+    background: linear-gradient(45deg, #d4af37, #f7d06e);
+    color: #101012;
     border-radius: 50px;
-    font-weight: bold;
-    color: white;
-    animation: pulse-border 2s infinite;
-    text-align: center;
-}
-@keyframes pulse-border {
-    0% { box-shadow: 0 0 0 0 var(--primary-color); }
-    70% { box-shadow: 0 0 0 10px rgba(79, 70, 229, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0); }
+    font-weight: 600;
+    text-transform: uppercase;
+    animation: pop-in 1s ease-out 0.5s forwards;
+    opacity: 0;
 }
 
-.main-content { animation: fade-in-up 1s ease-out; }
-@keyframes fade-in-up { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-.stats-section {
-    display: flex;
-    justify-content: space-around;
-    background-color: #2d3748;
-    padding: 20px;
-    flex-wrap: wrap;
-}
-.stat-item { text-align: center; margin: 10px 0; }
-.stat-value { font-size: 1.8rem; font-weight: bold; color: var(--primary-color); display: block; }
-.stat-label { font-size: 0.9rem; color: #a0aec0; }
-
-.hero-content-below-image {
-    text-align: center;
-    padding: 40px 20px;
-}
-.hero-content-below-image h2 {
-    font-size: clamp(1.5rem, 5vw, 2.5rem);
-    margin-bottom: 15px;
-    color: white;
-}
-.hero-content-below-image p {
-    font-size: 1rem;
-    color: #cbd5e0;
-    max-width: 600px;
-    margin: 0 auto;
+@keyframes slide-in {
+    from { transform: translateY(50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
 }
 
-.content-section {
-    padding: 40px 20px;
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 30px;
-    align-items: center;
-    max-width: 1000px;
-    margin: 0 auto;
+@keyframes pop-in {
+    from { transform: scale(0.5); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
 }
-@media (min-width: 768px) {
-    .content-section { grid-template-columns: 1fr 1fr; }
-    .content-section:nth-of-type(even) .content-image { order: 2; }
-}
-.content-section.dark-bg { background-color: #171923; }
-.content-image img { width: 100%; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); height: auto; }
-.content-text h2 { font-size: 2rem; margin-bottom: 15px; color: var(--primary-color); }
-.content-text p { color: #a0aec0; line-height: 1.7; }
 
-.sample-section {
-    text-align: center;
-    padding: 60px 20px;
-}
-.sample-section h2 { font-size: 2.5rem; margin-bottom: 40px; }
-.sample-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 30px;
-    max-width: 800px;
-    margin: 0 auto;
-}
-@media (min-width: 768px) { .sample-grid { grid-template-columns: 1fr 1fr; } }
-.sample-card {
-    background: #2d3748;
-    border-radius: 12px;
-    overflow: hidden;
-    transition: transform 0.3s;
-}
-.sample-card:hover { transform: scale(1.05); }
-.sample-card img { width: 100%; height: auto; object-fit: cover; }
-.sample-card h3 { margin: 15px; }
-.sample-card p { margin: 0 15px 15px; color: #a0aec0; font-size: 0.9em; }
-
-.casino-news-section {
-    padding: 60px 20px;
-    text-align: center;
-}
-.casino-news-section h2 { font-size: 2.2rem; margin-bottom: 30px; }
-.casino-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
-    max-width: 1000px;
-    margin: 0 auto 20px auto;
-}
-.casino-grid img {
-    width: 100%;
-    border-radius: 12px;
-    transition: transform 0.3s;
-}
-.casino-grid img:hover { transform: scale(1.05); }
-
+/* --- Auth Section --- */
 .auth-section {
-    padding: 60px 20px;
-    background: linear-gradient(#1a202c, #171923);
+    background: #101012 url('../assets/casino-bg.png') no-repeat center center;
+    background-size: cover;
+    padding: 80px 15px;
 }
-.auth-container { width: 100%; max-width: 400px; margin: 0 auto; }
-.auth-form-wrapper {
-    background: #2d3748;
-    border-radius: 20px;
-    box-shadow: 0 0 25px rgba(236, 72, 153, 0.3), 0 0 15px rgba(139, 92, 246, 0.3);
-    border: 1px solid #4a5568;
+
+.auth-container {
+    max-width: 400px;
+    margin: auto;
+    background: rgba(26, 26, 29, 0.85);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 40px;
+    border: 1px solid #333;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.auth-form h2 {
+    color: #d4af37;
+    margin-bottom: 30px;
+}
+
+.input-box {
     position: relative;
-    width: 100%;
+    margin-bottom: 30px;
 }
-.casino-icon {
-    position: absolute;
-    top: -30px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 60px;
-    height: 60px;
-    background: linear-gradient(135deg, #8B5CF6, #EC4899);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 0 20px #d946ef;
-}
-.casino-icon svg { color: white; width: 32px; height: 32px; }
-.auth-form { padding: 40px 20px 30px 20px; }
-.auth-form h2 { text-align: center; margin-bottom: 25px; font-weight: 300; font-size: 1.6rem; }
-.input-box { position: relative; margin-bottom: 25px; }
+
 .input-box input {
     width: 100%;
-    padding: 10px 5px;
+    padding: 10px 10px 10px 5px;
     background: transparent;
     border: none;
-    border-bottom: 2px solid #4a5568;
-    color: white;
-    font-size: 1em;
+    border-bottom: 2px solid #555;
     outline: none;
+    color: white;
+    font-size: 1rem;
+    transition: 0.3s;
 }
+
 .input-box label {
     position: absolute;
     top: 10px;
     left: 5px;
-    color: #a0aec0;
-    transition: 0.3s;
+    color: #888;
     pointer-events: none;
+    transition: 0.3s;
 }
+
 .input-box input:focus ~ label,
 .input-box input:valid ~ label {
-    top: -15px;
-    font-size: 0.8em;
-    color: #d946ef;
+    top: -18px;
+    left: 0;
+    color: #d4af37;
+    font-size: 0.8rem;
 }
-.input-box input:focus { border-bottom-color: #d946ef; }
-.auth-switch { text-align: center; margin-top: 20px; font-size: 0.9em; }
-.auth-switch button { background: none; border: none; color: #d946ef; cursor: pointer; font-weight: bold; }
+
+/* --- Password Toggle Button Styles --- */
+.password-toggle-btn {
+    position: absolute;
+    top: 50%;
+    right: 5px;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #888;
+    z-index: 2; /* Ensure it's above the input's focus border */
+}
+
+.password-toggle-btn:hover {
+    color: #d4af37;
+}
+
+/* Add padding to the input to prevent text from overlapping the button */
+.input-box input[type="password"],
+.input-box input[type="text"] {
+    padding-right: 40px;
+}
 
 .cta-button {
-    background: linear-gradient(90deg, #8B5CF6, #EC4899);
-    color: white;
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(45deg, #d4af37, #f7d06e);
     border: none;
-    padding: 15px 20px;
     border-radius: 8px;
-    font-size: 1rem;
+    color: #101012;
+    font-size: 1.1rem;
     font-weight: bold;
     cursor: pointer;
-    width: 100%;
-    box-shadow: 0 4px 15px rgba(192, 132, 252, 0.4);
+    transition: 0.3s;
 }
-.cta-button:disabled { background: #555; cursor: not-allowed; box-shadow: none; }
+
+.cta-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.cta-button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
+}
+
+.auth-switch {
+    margin-top: 20px;
+    font-size: 0.9rem;
+}
+
+.auth-switch button {
+    background: none;
+    border: none;
+    color: #d4af37;
+    font-weight: bold;
+    cursor: pointer;
+}
+
 .terms-checkbox {
     display: flex;
-    flex-wrap: wrap;
     align-items: center;
-    margin: 20px 0;
-    font-size: 0.85em;
-    color: #a0aec0;
+    margin-bottom: 20px;
+    font-size: 0.8rem;
 }
-.terms-checkbox input { margin-right: 10px; accent-color: #EC4899; }
-.terms-checkbox a { color: #d946ef; text-decoration: none; }
-.terms-checkbox a:hover { text-decoration: underline; }
 
+.terms-checkbox input {
+    margin-right: 10px;
+}
+
+.terms-checkbox a {
+    color: #d4af37;
+    text-decoration: none;
+}
+/* Other sections... */
+.stats-section {
+    display: flex;
+    justify-content: space-around;
+    background-color: #101012;
+}
+.stat-item {
+    display: flex;
+    flex-direction: column;
+}
+.stat-value {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #d4af37;
+}
+.stat-label {
+    font-size: 1rem;
+    color: #a4a5a7;
+}
+.sample-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    max-width: 900px;
+    margin: auto;
+}
+.sample-card {
+    background: #1a1a1d;
+    padding: 20px;
+    border-radius: 10px;
+}
+.sample-card img {
+    max-width: 100%;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+.sample-card h3 {
+    color: #d4af37;
+}
+
+/* FAQ Styles */
+.faq-section {
+    max-width: 800px;
+    margin: auto;
+}
+.faq-item {
+    background: #1a1a1d;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    border: 1px solid #333;
+}
+.faq-header {
+    width: 100%;
+    padding: 20px;
+    background: transparent;
+    border: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #f5f5f5;
+    font-size: 1.1rem;
+    cursor: pointer;
+}
+.faq-icon {
+    font-size: 1.5rem;
+    color: #d4af37;
+}
+.faq-content {
+    padding: 0 20px 20px 20px;
+    text-align: left;
+}
+/* Modal Styles */
 .promo-modal-overlay {
     position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background-color: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(5px);
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.8);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 1000;
-    padding: 10px;
 }
 .promo-modal {
-    background: linear-gradient(145deg, #3a2d5e, #21283c);
-    border: 1px solid #4a5568;
-    color: white;
-    padding: 25px 20px;
+    background: #1a1a1d;
+    padding: 40px;
     border-radius: 15px;
     text-align: center;
-    width: 100%;
-    max-width: 380px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-    animation: fade-in-up 0.5s ease-out;
+    border: 1px solid #d4af37;
+    max-width: 450px;
+    margin: 20px;
     position: relative;
 }
 .close-modal-btn {
     position: absolute;
     top: 10px;
-    right: 10px;
+    right: 15px;
     background: none;
     border: none;
-    font-size: 1.5rem;
-    color: #a0aec0;
+    color: #888;
+    font-size: 2rem;
     cursor: pointer;
 }
-.promo-modal h3 { font-size: 1.5rem; margin: 0 0 10px; color: #fbcfe8; }
-.promo-modal .bonus-highlight { font-size: 1rem; line-height: 1.5; margin-bottom: 20px; }
-.promo-modal .bonus-highlight strong { color: #fbcfe8; }
-
-.faq-section, .trust-section, .partner-section, .landing-footer { max-width: 800px; margin: 0 auto; }
-.faq-item { border-bottom: 1px solid #2d3748; }
-.faq-header {
-    width: 100%;
-    background: none;
-    border: none;
-    padding: 15px 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    text-align: left;
-    font-size: 1rem;
-    font-weight: 600;
-    color: #e2e8f0;
-    cursor: pointer;
+.bonus-highlight {
+    font-size: 1.2rem;
+    margin: 20px 0 30px 0;
 }
-.faq-icon { font-size: 1.3rem; color: var(--primary-color); }
-.faq-content { padding: 0 0 15px; color: #a0aec0; line-height: 1.5; }
-.trust-section { display: flex; justify-content: center; gap: 15px; margin-top: 25px; flex-wrap: wrap; }
-.trust-badge { background: #2d3748; padding: 6px 12px; border-radius: 8px; border: 1px solid #4a5568; font-weight: 500; font-size: 0.9em; }
-.partner-section { text-align: center; margin-top: 25px; color: #a0aec0; }
-.partner-section span { display: block; margin-bottom: 10px; }
-.partner-section svg { height: 35px; color: #a0aec0; }
-
-.landing-footer {
-    text-align: center;
-    padding: 30px 15px;
-    background-color: #000;
-    color: #777;
+.bonus-highlight strong {
+    color: #d4af37;
+    font-weight: 700;
 }
-.landing-footer p { margin: 5px 0; }
-.disclaimer { font-size: 0.75em; margin: 10px auto 0 auto; line-height: 1.3; }
