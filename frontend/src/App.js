@@ -24,14 +24,11 @@ import IpLottery from './components/IpLottery';
 import WinWinGame from './components/WinWinGame';
 import AviatorGame from './components/AviatorGame';
 import LandingPage from './components/LandingPage';
-// In App.js, near the other component imports
 import DailyTasks from './components/DailyTasks';
-import NewsView from './components/NewsView'; // Import the new component
-
+import NewsView from './components/NewsView';
 
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
 
-// A dedicated loading screen component for registration
 const LoadingScreen = () => (
     <div className="loading-app">
         <h1 className="animated-logo">MoneyPlus</h1>
@@ -43,7 +40,6 @@ const LoadingScreen = () => (
 );
 
 function App() {
-    // --- State Management ---
     const [token, setToken] = useState(localStorage.getItem('token') || null);
     const [view, setView] = useState(localStorage.getItem('view') || 'dashboard');
     const [authView, setAuthView] = useState('login');
@@ -61,7 +57,6 @@ function App() {
     const [showNotificationsDialog, setShowNotificationsDialog] = useState(false);
     const [initialCategory, setInitialCategory] = useState('all');
 
-    // Save the current view to localStorage whenever it changes while logged in
     useEffect(() => {
         if (token) {
             localStorage.setItem('view', view);
@@ -73,7 +68,6 @@ function App() {
         setInitialCategory(category);
     };
 
-    // --- Core Functions ---
     const toggleTheme = () => {
         const newTheme = theme === 'light' ? 'dark' : 'light';
         setTheme(newTheme);
@@ -154,38 +148,32 @@ function App() {
         }
     };
 
-    // ✅ THIS IS THE UPDATED FUNCTION
-    const handleRegister = async (e) => {
-        e.preventDefault();
-        setIsRegistering(true);
-        if (registerFormData.password !== registerFormData.confirmPassword) {
-            showSnackbar("Passwords do not match.", 'error');
-            setIsRegistering(false);
-            return;
-        }
-        try {
-            const response = await axios.post(`${API_BASE_URL}/api/register`, registerFormData);
-            const { token: newToken, user: newUser } = response.data;
+    const handleRegister = async (e) => {
+        e.preventDefault();
+        setIsRegistering(true);
+        if (registerFormData.password !== registerFormData.confirmPassword) {
+            showSnackbar("Passwords do not match.", 'error');
+            setIsRegistering(false);
+            return;
+        }
+        try {
+            const response = await axios.post(`${API_BASE_URL}/api/register`, registerFormData);
+            const { token: newToken, user: newUser } = response.data;
 
-            // --- PERFORMANCE FIX ---
-            // 1. Set the token and basic user data immediately from the registration response.
-            localStorage.setItem('token', newToken);
-            setToken(newToken);
-            setUserData(newUser); // This makes the app feel instant.
+            localStorage.setItem('token', newToken);
+            setToken(newToken);
+            setUserData(newUser); 
 
-            // 2. Switch to the dashboard view right away.
-            setView('dashboard');
-            showSnackbar('Registration successful! Welcome.', 'success');
-            
-            // Note: The slow `await fetchAllUserData(newToken)` call has been removed.
-            // The main useEffect hook will now handle fetching the rest of the data in the background.
+            setView('dashboard');
+            showSnackbar('Registration successful! Welcome.', 'success');
+            
+        } catch (err) {
+            showSnackbar(err.response?.data?.error || "Registration failed.", 'error');
+        } finally {
+            setIsRegistering(false);
+        }
+    };
 
-        } catch (err) {
-            showSnackbar(err.response?.data?.error || "Registration failed.", 'error');
-        } finally {
-            setIsRegistering(false);
-        }
-    };
 
     const handleLoginInputChange = (e) => setLoginFormData({ ...loginFormData, [e.target.name]: e.target.value });
     const handleRegisterInputChange = (e) => setRegisterFormData({ ...registerFormData, [e.target.name]: e.target.value });
@@ -222,9 +210,7 @@ function App() {
         const goBackToGameLobby = () => handleViewChange('game');
 
         switch (view) {
-            case 'dashboard':
-                return <UserDashboard onViewChange={handleViewChange} />;
-            
+            case 'dashboard': return <UserDashboard onViewChange={handleViewChange} />;
             case 'plans': {
                 const balance = financialSummary ? Number(financialSummary.balance) || 0 : 0;
                 const withdrawable = financialSummary ? Number(financialSummary.withdrawable_wallet) || 0 : 0;
@@ -239,43 +225,26 @@ function App() {
                     initialCategory={initialCategory} 
                 />;
             }
-            // ADD THIS NEW CASE
-        case 'daily-tasks': return <DailyTasks token={token} onBack={goBackToDashboard} />;
-case 'news': 
+            case 'daily-tasks': 
+                return <DailyTasks token={token} userData={userData} onBack={goBackToDashboard} />;
+            case 'news': 
                 return <NewsView onBack={goBackToDashboard} />;
-
-            case 'game':
-                return <GameLobby onViewChange={handleViewChange} />; 
-            case 'color-prediction-game':
-                return <GameView token={token} financialSummary={financialSummary} onBack={goBackToGameLobby} onBetPlaced={() => fetchAllUserData(token)} />;
-            case 'ip-lottery':
-                return <IpLottery token={token} onBack={goBackToGameLobby} />;
-            case 'win-win':
-                return <WinWinGame onBack={goBackToGameLobby} />;
-            case 'aviator':
-                return <AviatorGame token={token} onBack={goBackToGameLobby} />;
-            case 'account':
-                return <AccountView userData={userData} financialSummary={financialSummary} onLogout={handleLogout} onViewChange={handleViewChange} token={token}/>;
-            case 'deposit':
-                return <Deposit token={token} userData={userData} onBack={goBackToDashboard} onDepositRequest={handleDepositRequest} />;
-            case 'withdraw':
-                return <Withdrawal token={token} financialSummary={financialSummary} onBack={goBackToDashboard} onWithdrawalRequest={handleWithdrawalRequest} />;
-            case 'team':
-                return <Team token={token} onBack={goBackToDashboard} />;
-            case 'rewards':
-                return <Rewards onBack={goBackToDashboard} />;
-            case 'sell-usdt':
-                return <SellUsdt onBack={goBackToDashboard} />;
-            case 'support':
-                return <Support onBack={goBackToDashboard} />;
-            case 'wallet':
-                return <Wallet financialSummary={financialSummary} onBack={goBackToDashboard} />;
-            case 'transactions':
-                return <TransactionHistory token={token} onBack={goBackToAccount} />;
-            case 'bet-history':
-                return <BetHistory token={token} onBack={goBackToAccount} />;
-            default:
-                return <UserDashboard onViewChange={handleViewChange} />;
+            case 'game': return <GameLobby onViewChange={handleViewChange} />; 
+            case 'color-prediction-game': return <GameView token={token} financialSummary={financialSummary} onBack={goBackToGameLobby} onBetPlaced={() => fetchAllUserData(token)} />;
+            case 'ip-lottery': return <IpLottery token={token} onBack={goBackToGameLobby} />;
+            case 'win-win': return <WinWinGame onBack={goBackToGameLobby} />;
+            case 'aviator': return <AviatorGame token={token} onBack={goBackToGameLobby} />;
+            case 'account': return <AccountView userData={userData} financialSummary={financialSummary} onLogout={handleLogout} onViewChange={handleViewChange} token={token}/>;
+            case 'deposit': return <Deposit token={token} userData={userData} onBack={goBackToDashboard} onDepositRequest={handleDepositRequest} />;
+            case 'withdraw': return <Withdrawal token={token} financialSummary={financialSummary} onBack={goBackToDashboard} onWithdrawalRequest={handleWithdrawalRequest} />;
+            case 'team': return <Team token={token} onBack={goBackToDashboard} />;
+            case 'rewards': return <Rewards onBack={goBackToDashboard} />;
+            case 'sell-usdt': return <SellUsdt onBack={goBackToDashboard} />;
+            case 'support': return <Support onBack={goBackToDashboard} />;
+            case 'wallet': return <Wallet financialSummary={financialSummary} onBack={goBackToDashboard} />;
+            case 'transactions': return <TransactionHistory token={token} onBack={goBackToAccount} />;
+            case 'bet-history': return <BetHistory token={token} onBack={goBackToAccount} />;
+            default: return <UserDashboard onViewChange={handleViewChange} />;
         }
     };
 
@@ -283,7 +252,7 @@ case 'news':
         return <LoadingScreen />;
     }
     
-    if (loading) {
+    if (loading && !userData) {
         return <div className="loading-app"><h1>MoneyPlus</h1></div>;
     }
     
@@ -298,13 +267,20 @@ case 'news':
                 handleRegisterInputChange={handleRegisterInputChange}
                 handleLogin={handleLogin}
                 handleRegister={handleRegister}
-                loading={loading}
+                loading={isRegistering}
             />
         );
     }
 
     return (
         <div className="App">
+            {/* ✅ FIX: This style block ensures the main content area has enough space for the fixed top and bottom navigation bars. */}
+            <style>{`
+              .main-content {
+                padding-top: 80px;
+                padding-bottom: 80px;
+              }
+            `}</style>
             <Snackbar message={snackbarNotification.message} type={snackbarNotification.type} show={snackbarNotification.show} onClose={() => setSnackbarNotification({ ...snackbarNotification, show: false })} />
             {showNotificationsDialog && <NotificationsDialog userNotifications={userNotifications} promotions={promotions} onClose={() => setShowNotificationsDialog(false)} onMarkAsRead={handleMarkAsRead} onDeleteRead={handleDeleteRead} />}
             <div className="app-container">
@@ -317,3 +293,4 @@ case 'news':
 }
 
 export default App;
+
