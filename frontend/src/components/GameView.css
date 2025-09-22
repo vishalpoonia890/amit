@@ -186,3 +186,124 @@
 .result-number-display.violet { background: linear-gradient(135deg, #9c27b0, #7b1fa2); }
 .result-modal button { width: 100%; padding: 12px; border: none; background-color: var(--primary-color); color: white; font-size: 1em; border-radius: 8px; margin-top: 10px; cursor: pointer; }
 
+/* src/components/GameView.css */
+
+/* --- Add these new styles to your existing file --- */
+
+/* Final Countdown Popup */
+.countdown-overlay {
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(5px);
+}
+.countdown-popup {
+    font-size: 8rem;
+    font-weight: 900;
+    color: white;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+    animation: pulse-and-fade 1s infinite;
+}
+@keyframes pulse-and-fade {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.7; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* --- Replace your old .result-modal styles with these --- */
+.result-modal {
+    text-align: center;
+    position: relative;
+    padding: 30px 20px 20px 20px;
+    border-top: 5px solid;
+    animation: slide-in 0.3s ease-out;
+}
+
+@keyframes slide-in {
+    from {
+        transform: translateY(-30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.result-modal.won {
+    border-top-color: var(--success-color);
+}
+.result-modal.loss {
+    border-top-color: var(--error-color);
+}
+
+.close-modal-btn {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 1.8rem;
+    line-height: 1;
+    color: var(--text-color-light);
+    cursor: pointer;
+    padding: 5px;
+}
+.close-modal-btn:hover {
+    color: var(--text-color);
+}
+
+.result-icon {
+    font-size: 3rem;
+    margin-bottom: 10px;
+    line-height: 1;
+}
+
+.result-modal h3 {
+    margin: 0 0 10px 0;
+    font-size: 1.5rem;
+}
+.result-modal.won h3 {
+    color: var(--success-color);
+}
+.result-modal.loss h3 {
+    color: var(--error-color);
+}
+
+.result-payout {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-color);
+    margin: 0 0 15px 0;
+}
+.result-motivation {
+    font-style: italic;
+    color: var(--text-color-light);
+    margin: 0 0 15px 0;
+}
+.result-modal > p {
+    margin-bottom: 15px;
+    color: var(--text-color-light);
+    font-size: 0.9em;
+}
+
+.result-number-display {
+    font-size: 3em;
+    font-weight: bold;
+    margin: 10px auto;
+    padding: 20px;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+.result-number-display.red { background: linear-gradient(135deg, #f44336, #d32f2f); }
+.result-number-display.green { background: linear-gradient(135deg, #4caf50, #388e3c); }
+.result-number-display.violet { background: linear-gradient(135deg, #9c27b0, #7b1fa2); }
+
+/* Hide the old generic button if it exists */
+.result-modal > button {
+    display: none; 
+}
