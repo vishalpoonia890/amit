@@ -19,6 +19,7 @@ function GameView({ token, financialSummary, onViewChange, onBetPlaced, ws, real
     // --- State Management ---
     const [gameState, setGameState] = useState(null);
     const [isUnderMaintenance, setIsUnderMaintenance] = useState(false);
+    const [gameHistory, setGameHistory] = useState([]); 
     const [loading, setLoading] = useState(true);
     const [showBetModal, setShowBetModal] = useState(false);
     const [betDetails, setBetDetails] = useState({ type: '', value: '' });
