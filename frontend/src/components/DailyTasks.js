@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import './DailyTasks.css'; // Assuming you have a CSS file for styling
+import './DailyTasks.css'; // ✅ FIX: Import the new stylesheet
 
 // --- Import image assets ---
 import referralImage from '../assets/103.png';
