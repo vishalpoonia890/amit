@@ -32,7 +32,7 @@ const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
 // A dedicated loading screen component for registration
 const LoadingScreen = () => (
     <div className="loading-app">
-        <h1 className="animated-logo">InvestmentPlus</h1>
+        <h1 className="animated-logo">MoneyPlus</h1>
         <p>Please wait, your account creation is in progress...</p>
         <div className="progress-bar">
             <div className="progress-bar-inner"></div>
@@ -270,7 +270,7 @@ function App() {
     }
     
     if (loading) {
-        return <div className="loading-app"><h1>InvestmentPlus</h1></div>;
+        return <div className="loading-app"><h1>MoneyPlus</h1></div>;
     }
     
     if (!token) {
