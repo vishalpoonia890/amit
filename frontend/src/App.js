@@ -223,7 +223,7 @@ function App() {
                     onPurchaseComplete={() => fetchAllUserData(token)} 
                     initialCategory={initialCategory} 
                 />;
-            
+            }
             case 'game': return <GameLobby onViewChange={handleViewChange} />; 
             case 'color-prediction-game': return <GameView token={token} financialSummary={financialSummary} onBack={goBackToGameLobby} onBetPlaced={() => fetchAllUserData(token)} />;
             case 'ip-lottery': return <IpLottery token={token} onBack={goBackToGameLobby} />;
