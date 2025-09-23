@@ -54,7 +54,7 @@ function AdminPanel({ token }) {
     const [manualNumA, setManualNumA] = useState('');
     const [manualNumB, setManualNumB] = useState('');
     const [currentLotteryRoundId, setCurrentLotteryRoundId] = useState('');
-     const [lotteryProfitPreference, setLotteryProfitPreference] = useState('max_profit');
+    const [lotteryProfitPreference, setLotteryProfitPreference] = useState('max_profit');
 
     const [aviatorLiveBets, setAviatorLiveBets] = useState([]);
     const [aviatorAnalysis, setAviatorAnalysis] = useState([]);
@@ -76,7 +76,9 @@ function AdminPanel({ token }) {
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
- const getLotteryRoundId = () => {
+    const [pendingPreSaleApprovals, setPendingPreSaleApprovals] = useState([]);
+    
+    const getLotteryRoundId = () => {
         const now = new Date();
         const nowIST = new Date(now.getTime() + (5.5 * 60 * 60 * 1000));
         const year = nowIST.getUTCFullYear();
@@ -93,8 +95,11 @@ function AdminPanel({ token }) {
             const roundId = getLotteryRoundId();
             setCurrentLotteryRoundId(roundId);
     
-
-            const [depositsRes, withdrawalsRes, gameStatusRes, statsRes, betsRes, analysisRes, incomeRes, platformStatsRes, lotteryAnalysisRes, overallGameStatsRes, aviatorBetsRes, aviatorAnalysisRes] = await Promise.all([
+            const [
+                depositsRes, withdrawalsRes, gameStatusRes, statsRes, betsRes, 
+                analysisRes, incomeRes, platformStatsRes, lotteryAnalysisRes, 
+                overallGameStatsRes, aviatorBetsRes, aviatorAnalysisRes, preSaleRes
+            ] = await Promise.all([
                 axios.get(`${API_BASE_URL}/api/admin/recharges/pending`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/withdrawals/pending`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/game-status`, { headers: { Authorization: `Bearer ${token}` } }),
@@ -106,7 +111,8 @@ function AdminPanel({ token }) {
                 axios.get(`${API_BASE_URL}/api/admin/lottery-analysis?roundId=${roundId}`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/overall-game-stats`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/aviator/live-bets`, { headers: { Authorization: `Bearer ${token}` } }),
-                axios.get(`${API_BASE_URL}/api/admin/aviator-analysis`, { headers: { Authorization: `Bearer ${token}` } })
+                axios.get(`${API_BASE_URL}/api/admin/aviator-analysis`, { headers: { Authorization: `Bearer ${token}` } }),
+                axios.get(`${API_BASE_URL}/api/admin/pre-sale/pending`, { headers: { Authorization: `Bearer ${token}` } })
             ]);
             setPendingDeposits(depositsRes.data.recharges || []);
             setPendingWithdrawals(withdrawalsRes.data.withdrawals || []);
@@ -121,6 +127,7 @@ function AdminPanel({ token }) {
             setOverallGameStats(overallGameStatsRes.data);
             setAviatorLiveBets(aviatorBetsRes.data.bets || []);
             setAviatorAnalysis(aviatorAnalysisRes.data.analysis || []);
+            setPendingPreSaleApprovals(preSaleRes.data.preSaleRequests || []);
         } catch (err) {
             if (isInitialLoad) setError('Failed to fetch admin data. Auto-refresh paused.');
             console.error(err);
@@ -157,7 +164,7 @@ function AdminPanel({ token }) {
             alert(res.data.message || 'Game status updated!');
             fetchData(false);
         } catch (err) {
-             alert(err.response?.data?.error || 'Failed to update game status.');
+            alert(err.response?.data?.error || 'Failed to update game status.');
         }
     };
     
@@ -293,7 +300,7 @@ function AdminPanel({ token }) {
         }
     };
     
-const handleAviatorSettingsUpdate = async (update) => {
+    const handleAviatorSettingsUpdate = async (update) => {
         try {
             const res = await axios.post(`${API_BASE_URL}/api/admin/aviator-settings`, update, { headers: { Authorization: `Bearer ${token}` } });
             setAviatorSettings(res.data.settings);
@@ -303,7 +310,26 @@ const handleAviatorSettingsUpdate = async (update) => {
         }
     };
 
-    
+    const handlePreSaleApproval = async (id) => {
+        try {
+            await axios.post(`${API_BASE_URL}/api/admin/pre-sale/approve`, { id }, { headers: { Authorization: `Bearer ${token}` } });
+            alert('Pre-sale approval granted.');
+            fetchData();
+        } catch (error) {
+            alert(error.response?.data?.error || 'Failed to approve pre-sale request.');
+        }
+    };
+
+    const handlePreSaleRejection = async (id) => {
+        try {
+            await axios.post(`${API_BASE_URL}/api/admin/pre-sale/reject`, { id }, { headers: { Authorization: `Bearer ${token}` } });
+            alert('Pre-sale request rejected.');
+            fetchData();
+        } catch (error) {
+            alert(error.response?.data?.error || 'Failed to reject pre-sale request.');
+        }
+    };
+
     if (loading) return <div className="loading-spinner">Loading Admin Panel...</div>;
     if (error) return <div className="error-message">{error}</div>;
 
@@ -428,7 +454,7 @@ const handleAviatorSettingsUpdate = async (update) => {
                         <tbody>
                             {aviatorLiveBets.map(bet => (
                                 <tr key={bet.id}>
-                                    <td>{bet.users.name} (ID: {bet.user_id})</td>
+                                    <td>{bet.users ? bet.users.name : 'N/A'} (ID: {bet.user_id})</td>
                                     <td>{formatCurrency(bet.bet_amount)}</td>
                                 </tr>
                             ))}
@@ -455,46 +481,28 @@ const handleAviatorSettingsUpdate = async (update) => {
             </div>
 
             <div className="admin-section">
-                <h2>Lottery Management (Current Round: {currentLotteryRoundId})</h2>
-                <div className="control-group">
-                    <label>Profit Preference</label>
-                    <div className="toggle-switch">
-                        <button onClick={() => handleGameStatusUpdate({ lottery_profit_preference: 'max_profit' })} className={lotteryProfitPreference === 'max_profit' ? 'active' : ''}>Max Profit</button>
-                        <button onClick={() => handleGameStatusUpdate({ lottery_profit_preference: 'zero_profit' })} className={lotteryProfitPreference === 'zero_profit' ? 'active' : ''}>Zero Profit (User Fun)</button>
-                    </div>
+                <h2>Pending Pre-Sale Approvals ({pendingPreSaleApprovals.length})</h2>
+                <div className="table-container">
+                    <table className="request-table">
+                        <thead>
+                            <tr><th>User ID</th><th>Plan Name</th><th>Date</th><th>Actions</th></tr>
+                        </thead>
+                        <tbody>
+                            {pendingPreSaleApprovals.map(approval => (
+                                <tr key={approval.id}>
+                                    <td>{approval.user_id}</td>
+                                    <td>{approval.plan_name}</td>
+                                    <td>{new Date(approval.created_at).toLocaleString()}</td>
+                                    <td className="actions">
+                                        <button className="approve-btn" onClick={() => handlePreSaleApproval(approval.id)}>Approve</button>
+                                        <button className="reject-btn" onClick={() => handlePreSaleRejection(approval.id)}>Reject</button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
                 </div>
-                <h4>Live Round Analysis</h4>
-                 <div className="analysis-table-container">
-                    <table className="analysis-table">
-                         <thead><tr><th>Outcome</th><th>Total Bet On</th><th>Potential Payout</th><th>Admin P/L</th></tr></thead>
-                         <tbody>
-                            {lotteryAnalysis.slice(0, 3).map(outcome => (
-                                 <tr key={`${outcome.a}-${outcome.b}`} className={outcome.netResult >= 0 ? 'positive' : 'negative'}>
-                                     <td>{`{${outcome.a}, ${outcome.b}}`}</td>
-                                     <td>{formatCurrency(outcome.totalBetOnPair)}</td>
-                                     <td>{formatCurrency(outcome.payout)}</td>
-                                     <td>{formatCurrency(outcome.netResult)}</td>
-                                 </tr>
-                             ))}
-                         </tbody>
-                     </table>
-                 </div>
             </div>
-            <div className="admin-section server-actions">
-                <h2>User & Platform Management</h2>
-                <div className="action-group">
-                    <h4>Global Daily Income Distribution</h4>
-                    <p>Calculate and distribute daily income to all users with active investments. This will enable their "Claim" button and send a notification.</p>
-                    <button onClick={handleDistributeIncome} className="action-btn" disabled={!incomeStatus.canDistribute}>
-                        Distribute Income Now
-                    </button>
-                    {!incomeStatus.canDistribute && (
-                        <div className="cooldown-timer">
-                            Next distribution available in: <CooldownTimer targetDate={incomeStatus.nextDistributionTime} />
-                        </div>
-                    )}
-                </div>
-                    </div>
 
             <div className="admin-section server-actions">
                 <h2>User & Platform Management</h2>
@@ -510,7 +518,7 @@ const handleAviatorSettingsUpdate = async (update) => {
                         </div>
                     )}
                 </div>
-                <div className="action-group">
+                 <div className="action-group">
                     <h4>Set User Account Status</h4>
                     <p>Change a user's status to Active, Non-Active, or Flagged.</p>
                     <form onSubmit={handleSetUserStatus} className="input-group">
@@ -519,7 +527,7 @@ const handleAviatorSettingsUpdate = async (update) => {
                         <button type="submit" className="action-btn">Set Status</button>
                     </form>
                 </div>
-                <div className="action-group">
+                 <div className="action-group">
                     <h4>Manage User Income</h4>
                     <p>Search for a user to allow or block their ability to receive daily income.</p>
                     <form onSubmit={handleUserSearch} className="input-group">
@@ -544,7 +552,7 @@ const handleAviatorSettingsUpdate = async (update) => {
                         </div>
                     </div>
                 )}
-                <div className="action-group">
+                 <div className="action-group">
                     <h4>Grant Bonus</h4>
                     <form onSubmit={handleGrantBonus}>
                         <input type="number" placeholder="Bonus Amount (₹)" value={bonusAmount} onChange={e => setBonusAmount(e.target.value)} required />
@@ -553,7 +561,7 @@ const handleAviatorSettingsUpdate = async (update) => {
                         <button type="submit" className="action-btn">Grant Bonus</button>
                     </form>
                 </div>
-                <div className="action-group">
+                 <div className="action-group">
                     <h4>Create Promotion</h4>
                     <form onSubmit={handleCreatePromotion}>
                         <input type="text" placeholder="Promotion Title" value={promoTitle} onChange={e => setPromoTitle(e.target.value)} required />
@@ -567,7 +575,6 @@ const handleAviatorSettingsUpdate = async (update) => {
                 <h2>Pending Deposits ({pendingDeposits.length})</h2>
                 <div className="table-container">
                     <table className="request-table">
-                        {/* ✅ UPDATED: Added "Screenshot" to the table header */}
                         <thead><tr><th>User ID</th><th>Amount</th><th>UTR/Hash</th><th>Screenshot</th><th>Date</th><th>Actions</th></tr></thead>
                         <tbody>
                             {pendingDeposits.map(d => (
@@ -575,7 +582,6 @@ const handleAviatorSettingsUpdate = async (update) => {
                                     <td>{d.user_id}</td>
                                     <td>{formatCurrency(d.amount)}</td>
                                     <td>{d.utr}</td>
-                                    {/* ✅ UPDATED: Added a clickable link to view the screenshot */}
                                     <td>
                                         <a href={d.screenshot_url} target="_blank" rel="noopener noreferrer" className="screenshot-link">
                                             View
@@ -597,8 +603,8 @@ const handleAviatorSettingsUpdate = async (update) => {
                 <h2>Pending Withdrawals ({pendingWithdrawals.length})</h2>
                 <div className="table-container">
                     <table className="request-table">
-                          <thead><tr><th>User ID</th><th>Name</th><th>Account Status</th><th>Amount</th><th>Method</th><th>Details</th><th>Date</th><th>Actions</th></tr></thead>
-                          <tbody>
+                        <thead><tr><th>User ID</th><th>Name</th><th>Account Status</th><th>Amount</th><th>Method</th><th>Details</th><th>Date</th><th>Actions</th></tr></thead>
+                        <tbody>
                             {pendingWithdrawals.map(w => (
                                 <tr key={w.id}>
                                     <td>{w.user_id}</td>
@@ -620,4 +626,3 @@ const handleAviatorSettingsUpdate = async (update) => {
 }
 
 export default AdminPanel;
-
