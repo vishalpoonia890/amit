@@ -3,14 +3,50 @@
     font-family: 'Inter', sans-serif;
     color: var(--text-color);
     background-color: var(--background-color);
+    min-height: 100vh;
 }
 
-.game-balance-card {
+/* --- General Card & Container Styles --- */
+.game-balance-card,
+.game-main-content,
+.game-history,
+.game-rules-section {
     background: var(--card-background);
     padding: 1.5rem;
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     margin-bottom: 1.5rem;
+}
+
+/* --- Button Styles --- */
+.balance-actions button, 
+.game-view .bet-btn {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    background: var(--button-bg);
+    color: var(--button-text);
+}
+
+.balance-actions button:hover, 
+.game-view .bet-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.balance-actions .rules-btn {
+    background: var(--secondary-button-bg);
+    color: var(--secondary-button-text);
+}
+
+/* --- Balance Card --- */
+.game-balance-card {
     text-align: center;
 }
 
@@ -33,42 +69,13 @@
     gap: 1rem;
 }
 
-.balance-actions button, .game-view .bet-btn {
-    flex: 1;
-    padding: 0.75rem 1.5rem;
-    border: none;
-    border-radius: 8px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    background: var(--button-bg);
-    color: var(--button-text);
-}
-
-.balance-actions button:hover, .game-view .bet-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.balance-actions .rules-btn {
-    background: var(--secondary-button-bg);
-    color: var(--secondary-button-text);
-}
-
-.game-main-content {
-    background: var(--card-background);
-    padding: 1.5rem;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    margin-bottom: 1.5rem;
-}
-
+/* --- Game Info Section --- */
 .game-info {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 1.5rem;
+    gap: 1rem;
 }
 
 .period-info, .countdown-info {
@@ -83,7 +90,7 @@
 }
 
 .game-info p {
-    font-size: 2.5rem;
+    font-size: 2.25rem;
     font-weight: 700;
     color: var(--primary-color);
     margin: 0;
@@ -91,6 +98,7 @@
     letter-spacing: -1px;
 }
 
+/* --- Betting Buttons --- */
 .betting-options-colors {
     display: flex;
     justify-content: space-between;
@@ -101,45 +109,34 @@
 .betting-options-colors .bet-btn {
     color: white;
     font-weight: 700;
-    padding: 1.5rem 1rem;
-    font-size: 1.25rem;
+    padding: 1.25rem 0.5rem;
+    font-size: 1.1rem;
 }
 
-.betting-options-colors .green {
-    background: #4caf50;
-}
-
-.betting-options-colors .violet {
-    background: #8e24aa;
-}
-
-.betting-options-colors .red {
-    background: #f44336;
-}
+.betting-options-colors .green { background: #4caf50; }
+.betting-options-colors .violet { background: #8e24aa; }
+.betting-options-colors .red { background: #f44336; }
 
 .betting-options-numbers {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 1rem;
+    gap: 0.5rem;
 }
 
 .betting-options-numbers .bet-btn {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     font-weight: 700;
     color: white;
-    padding: 1rem;
+    padding: 0.75rem;
 }
 
 .betting-options-numbers .bet-btn.red { background: #f44336; }
 .betting-options-numbers .bet-btn.green { background: #4caf50; }
 .betting-options-numbers .bet-btn.violet { background: #8e24aa; }
 
+/* --- History Table --- */
 .game-history {
-    background: var(--card-background);
-    padding: 1.5rem;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    margin-bottom: 1.5rem;
+    overflow-x: auto;
 }
 
 .game-history h4 {
@@ -152,9 +149,11 @@
 .history-table {
     width: 100%;
     border-collapse: collapse;
+    min-width: 350px;
 }
 
-.history-table th, .history-table td {
+.history-table th, 
+.history-table td {
     padding: 0.75rem 0.5rem;
     text-align: center;
     border-bottom: 1px solid var(--border-color);
@@ -177,7 +176,7 @@
 .result-dot.green { background-color: #4caf50; }
 .result-dot.violet { background-color: #8e24aa; }
 
-/* Modal and Popup styles */
+/* --- Modal & Popup Styles (Improved) --- */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -203,110 +202,37 @@
     animation: fadeIn 0.3s ease-out;
 }
 
-.bet-modal h3 {
-    margin-top: 0;
-    margin-bottom: 1.5rem;
-}
-
-.bet-modal .modal-content p {
-    color: var(--text-secondary);
-    margin-bottom: 0.5rem;
-}
-
-.amount-controls {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-}
-
-.amount-controls button {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: var(--button-bg);
-    color: var(--button-text);
-    font-size: 1.5rem;
-}
-
-.amount-controls input {
-    width: 100px;
-    padding: 0.5rem;
-    text-align: center;
-    border: 1px solid var(--border-color);
-    background: var(--input-background);
-    color: var(--input-text);
-    border-radius: 8px;
-    -moz-appearance: textfield;
-}
-
-.quick-amounts button {
-    background: var(--secondary-button-bg);
-    color: var(--secondary-button-text);
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
-    margin: 0.25rem;
-}
-
-.modal-actions {
-    display: flex;
-    gap: 1rem;
-    margin-top: 1.5rem;
-}
-
-.modal-actions .cancel-btn {
-    background: var(--button-bg-secondary);
-    color: var(--button-text-secondary);
-}
-
-.modal-actions .confirm-btn {
-    background: var(--accent-color);
-    color: white;
-}
-
-.countdown-popup {
-    font-size: 5rem;
-    font-weight: 900;
-    color: white;
-    background: var(--accent-color);
-    padding: 1rem 2rem;
-    border-radius: 50%;
-    width: 150px;
-    height: 150px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    animation: pulse 1s infinite;
-}
-
-.result-modal h3 {
-    font-size: 1.5rem;
-}
-
-.result-icon {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-}
-
 .result-modal.won {
-    background: #e8f5e9;
-    color: #388e3c;
+    background: linear-gradient(to bottom right, #4caf50, #8bc34a);
+    color: white;
+    box-shadow: 0 10px 20px rgba(76, 175, 80, 0.4);
 }
 
 .result-modal.lost {
-    background: #ffebee;
-    color: #d32f2f;
+    background: linear-gradient(to bottom right, #d32f2f, #ef5350);
+    color: white;
+    box-shadow: 0 10px 20px rgba(211, 47, 47, 0.4);
+}
+
+.result-modal h3, .result-modal p {
+    color: white;
+}
+
+.result-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    animation: bounce 0.5s ease-in-out;
 }
 
 .result-number-display {
     font-size: 3rem;
     font-weight: 700;
-    padding: 1rem;
+    padding: 1rem 1.5rem;
     border-radius: 12px;
     color: white;
     margin-top: 1rem;
     display: inline-block;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .result-number-display.red { background-color: #f44336; }
@@ -321,7 +247,8 @@
     background: none;
     border: none;
     cursor: pointer;
-    color: var(--text-secondary);
+    color: white;
+    opacity: 0.8;
 }
 
 .game-rules-section {
@@ -352,4 +279,17 @@
     0% { transform: scale(1); }
     50% { transform: scale(1.1); }
     100% { transform: scale(1); }
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+/* Tablet and Desktop Styles */
+@media (min-width: 768px) {
+    .game-view {
+        max-width: 768px;
+        margin: auto;
+    }
 }
