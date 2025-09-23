@@ -1,10 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import './App.css';
-// ✅ FIX: Import the new custom hook
 import useWebSocket from './hooks/useWebSocket';
-
-// --- COMPONENT IMPORTS ---
 import UserDashboard from './components/UserDashboard';
 import ProductsAndPlans from './components/ProductsAndPlans';
 import Team from './components/Team';
@@ -49,7 +46,6 @@ function App() {
     const [authView, setAuthView] = useState('login');
     const [userData, setUserData] = useState(null);
     const [financialSummary, setFinancialSummary] = useState(null);
-    // ✅ FIX: The loading state is now managed directly
     const [loading, setLoading] = useState(true);
     const [isRegistering, setIsRegistering] = useState(false);
     const [snackbarNotification, setSnackbarNotification] = useState({ show: false, message: '', type: 'info' });
@@ -62,8 +58,23 @@ function App() {
     const [showNotificationsDialog, setShowNotificationsDialog] = useState(false);
     const [initialCategory, setInitialCategory] = useState('all');
     
-    // ✅ FIX: Use the new custom hook to handle WebSocket logic
-    const { lastMessage, readyState } = useWebSocket(WEBSOCKET_URL, token);
+    // ✅ FIX: Use the new custom hook to handle WebSocket logic and pass a sendMessage function.
+    const { lastMessage, readyState, sendMessage } = useWebSocket(WEBSOCKET_URL, token);
+    
+    // ✅ FIX: New state variables to hold specific game data separately
+    const [colorPredictionData, setColorPredictionData] = useState(null);
+    const [pushpaGameData, setPushpaGameData] = useState(null);
+
+    // ✅ FIX: This new useEffect now handles incoming messages and updates the correct state.
+    useEffect(() => {
+        if (lastMessage) {
+            if (lastMessage.type === 'TIMER_UPDATE' || lastMessage.type === 'ROUND_RESULT') {
+                setColorPredictionData(lastMessage);
+            } else if (lastMessage.type === 'PUSHPA_STATE_UPDATE' || lastMessage.type === 'PUSHPA_BET_SUCCESS' || lastMessage.type === 'PUSHPA_BET_ERROR' || lastMessage.type === 'PUSHPA_CASHOUT_SUCCESS') {
+                setPushpaGameData(lastMessage);
+            }
+        }
+    }, [lastMessage]);
 
     useEffect(() => {
         if (token) {
@@ -97,7 +108,6 @@ function App() {
         setToken(null);
         setUserData(null);
         setFinancialSummary(null);
-        // ✅ FIX: Immediately set loading to false on logout
         setLoading(false);
     }, []);
 
@@ -269,15 +279,14 @@ function App() {
             case 'game': return <GameLobby onViewChange={handleViewChange} />; 
                 
             case 'color-prediction-game': 
-            // ✅ FIX: Pass the state from the hook instead of the raw WebSocket object
+            // ✅ FIX: Pass the specific color game data and the sendMessage function
             return <GameView 
                 token={token}
                 financialSummary={financialSummary}
                 onBetPlaced={() => fetchDynamicData(token)}
-                realtimeData={lastMessage}
+                realtimeData={colorPredictionData}
                 onViewChange={handleViewChange}
-                // ✅ FIX: Pass a sendMessage function from the hook
-                sendMessage={lastMessage}
+                sendMessage={sendMessage}
             />;
                 
             case 'ip-lottery': return <IpLottery token={token} onBack={goBackToGameLobby} />;
@@ -287,10 +296,9 @@ function App() {
                 return <PushpaRajGame 
                     token={token} 
                     onBack={goBackToGameLobby} 
-                    // ✅ FIX: Pass state from the hook
-                    realtimeData={lastMessage}
-                    // ✅ FIX: Pass a sendMessage function from the hook
-                    sendMessage={lastMessage}
+                    // ✅ FIX: Pass the specific pushpa game data and the sendMessage function
+                    realtimeData={pushpaGameData}
+                    sendMessage={sendMessage}
                 />;
             case 'account': return <AccountView userData={userData} financialSummary={financialSummary} onLogout={handleLogout} onViewChange={handleViewChange} token={token}/>;
             case 'deposit': return <Deposit token={token} userData={userData} onBack={goBackToDashboard} onDepositRequest={handleDepositRequest} />;
