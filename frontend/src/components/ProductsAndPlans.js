@@ -55,7 +55,7 @@ const categoryData = {
             "Returns are then redistributed among all investors, powering both your portfolio and the planet."
         ],
     },
-     'Wind Mill': {
+    'Wind Mill': {
         title: "Harness the Power of Wind for Your Portfolio!",
         points: [
             "You invest in our wind energy plans, contributing to sustainable power generation.",
@@ -117,6 +117,23 @@ function ProductsAndPlans({ token, userBalance, onPurchaseComplete, allPlans = [
     const [purchaseLoading, setPurchaseLoading] = useState(false);
     const [confirmingPlanId, setConfirmingPlanId] = useState(null);
     const [resultModal, setResultModal] = useState({ show: false, success: false, message: '' });
+    const [userInvestments, setUserInvestments] = useState([]);
+
+    useEffect(() => {
+        const fetchUserInvestments = async () => {
+            try {
+                const response = await axios.get(`${API_BASE_URL}/api/investments`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                setUserInvestments(response.data.investments.map(inv => inv.product_plans?.name || ''));
+            } catch (error) {
+                console.error("Failed to fetch user investments:", error);
+            }
+        };
+        if (token) {
+            fetchUserInvestments();
+        }
+    }, [token, onPurchaseComplete]);
 
     const handlePurchase = async (plan) => {
         setPurchaseLoading(true);
@@ -130,7 +147,13 @@ function ProductsAndPlans({ token, userBalance, onPurchaseComplete, allPlans = [
             
             await axios.post(`${API_BASE_URL}/api/purchase-plan`, purchasePayload, { headers: { Authorization: `Bearer ${token}` } });
             
-            setResultModal({ show: true, success: true, message: `You have successfully invested in ${plan.plan_name}.` });
+            const productStatus = getProductStatus(plan.id);
+            if (productStatus.isPreSale) {
+                 setResultModal({ show: true, success: true, message: `Congratulations! You have successfully booked the pre-sale product. Income will start once the sale begins on ${productStatus.launchDate}.` });
+            } else {
+                 setResultModal({ show: true, success: true, message: `You have successfully invested in ${plan.plan_name}.` });
+            }
+           
         } catch (error) {
             console.error("Server responded with an error:", error.response?.data || error.message);
             setResultModal({ show: true, success: false, message: error.response?.data?.error || 'An unknown error occurred.' });
@@ -148,6 +171,21 @@ function ProductsAndPlans({ token, userBalance, onPurchaseComplete, allPlans = [
     const formatCurrency = (amount) => new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR" }).format(amount);
 
     const filteredPlans = allPlans.filter(plan => plan.category === activeCategory);
+
+    // Hardcode pre-sale status and launch dates for new products
+    const getProductStatus = (id) => {
+        const preSaleProducts = [102, 103, 104, 105];
+        const launchDates = {
+            102: '27 Sep',
+            103: '28 Sep',
+            104: '29 Sep',
+            105: '30 Sep',
+        };
+        if (preSaleProducts.includes(id)) {
+            return { isPreSale: true, launchDate: launchDates[id] };
+        }
+        return { isPreSale: false };
+    };
 
     return (
         <div className="plans-page">
@@ -185,8 +223,14 @@ function ProductsAndPlans({ token, userBalance, onPurchaseComplete, allPlans = [
                 ) : (
                     filteredPlans.map((plan) => {
                         const canAfford = userBalance !== undefined && userBalance >= plan.price;
+                        const isPurchased = userInvestments.includes(plan.plan_name);
+                        const productStatus = getProductStatus(plan.id);
+                        
                         return (
                             <div key={plan.id} className="plan-card">
+                                {productStatus.isPreSale && (
+                                    <div className="pre-sale-tag">Pre-Sale</div>
+                                )}
                                 <div className="plan-image-container">
                                     <img src={imageMap[plan.id] || product_101_Image} alt={plan.plan_name} className="plan-image" />
                                 </div>
@@ -198,23 +242,49 @@ function ProductsAndPlans({ token, userBalance, onPurchaseComplete, allPlans = [
                                         <div><span>Term:</span><strong>{plan.duration_days} Days</strong></div>
                                         <div><span>Total Return:</span><strong>{formatCurrency(plan.total_return)}</strong></div>
                                     </div>
-                                    {confirmingPlanId !== plan.id ? (
-                                        <button
-                                            className={`purchase-button ${!canAfford ? 'disabled' : ''}`}
-                                            onClick={() => setConfirmingPlanId(plan.id)}
-                                            disabled={purchaseLoading || !canAfford}
-                                        >
-                                            Invest Now
-                                        </button>
+                                    {isPurchased ? (
+                                        <button className="purchase-button purchased-button" disabled>Already Purchased</button>
                                     ) : (
-                                        <div className="confirmation-buttons">
-                                            <button className="confirm-btn" onClick={() => handlePurchase(plan)} disabled={purchaseLoading}>
-                                                {purchaseLoading ? 'Processing...' : 'Confirm'}
-                                            </button>
-                                            <button className="cancel-btn" onClick={() => setConfirmingPlanId(null)} disabled={purchaseLoading}>Cancel</button>
-                                        </div>
+                                        productStatus.isPreSale ? (
+                                            <div className="pre-sale-info">
+                                                {confirmingPlanId !== plan.id ? (
+                                                    <button
+                                                        className={`purchase-button ${!canAfford ? 'disabled' : ''}`}
+                                                        onClick={() => setConfirmingPlanId(plan.id)}
+                                                        disabled={purchaseLoading || !canAfford}
+                                                    >
+                                                        Invest Now
+                                                    </button>
+                                                ) : (
+                                                    <div className="confirmation-buttons">
+                                                        <button className="confirm-btn" onClick={() => handlePurchase(plan)} disabled={purchaseLoading}>
+                                                            {purchaseLoading ? 'Processing...' : 'Confirm'}
+                                                        </button>
+                                                        <button className="cancel-btn" onClick={() => setConfirmingPlanId(null)} disabled={purchaseLoading}>Cancel</button>
+                                                    </div>
+                                                )}
+                                                <p>Launches on: {productStatus.launchDate}</p>
+                                            </div>
+                                        ) : (
+                                            confirmingPlanId !== plan.id ? (
+                                                <button
+                                                    className={`purchase-button ${!canAfford ? 'disabled' : ''}`}
+                                                    onClick={() => setConfirmingPlanId(plan.id)}
+                                                    disabled={purchaseLoading || !canAfford}
+                                                >
+                                                    Invest Now
+                                                </button>
+                                            ) : (
+                                                <div className="confirmation-buttons">
+                                                    <button className="confirm-btn" onClick={() => handlePurchase(plan)} disabled={purchaseLoading}>
+                                                        {purchaseLoading ? 'Processing...' : 'Confirm'}
+                                                    </button>
+                                                    <button className="cancel-btn" onClick={() => setConfirmingPlanId(null)} disabled={purchaseLoading}>Cancel</button>
+                                                </div>
+                                            )
+                                        )
                                     )}
-                                    {!canAfford && <p className="insufficient-balance-message">Insufficient Balance</p>}
+                                    {!canAfford && !isPurchased && !productStatus.isPreSale && <p className="insufficient-balance-message">Insufficient Balance</p>}
                                 </div>
                             </div>
                         );
