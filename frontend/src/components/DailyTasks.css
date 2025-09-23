@@ -2,13 +2,17 @@
 .daily-tasks-page {
     padding: 20px 15px 80px 15px;
     animation: fadeIn 0.5s ease-in-out;
-    background-color: var(--bg-color);
+    background-color: var(--bg-color, #1a202c);
+    color: var(--text-color, #f0f0f0);
+    font-family: 'Inter', sans-serif;
 }
 
 .tasks-header {
     text-align: center;
     margin-bottom: 30px;
     position: relative;
+    padding-left: 50px;
+    padding-right: 50px;
 }
 
 .tasks-header .back-button {
@@ -17,8 +21,8 @@
     left: 0;
     transform: translateY(-50%);
     background: none;
-    border: 1px solid var(--border-color);
-    color: var(--text-color-light);
+    border: 1px solid var(--border-color, #4a5568);
+    color: var(--text-color-light, #a0aec0);
     padding: 8px 12px;
     border-radius: 8px;
     cursor: pointer;
@@ -26,20 +30,20 @@
 }
 
 .tasks-header .back-button:hover {
-    background-color: var(--card-bg-color);
-    color: var(--text-color);
+    background-color: var(--card-bg-color, #2d3748);
+    color: var(--text-color, #ffffff);
 }
-
 
 .tasks-header h1 {
     font-size: 1.8em;
-    color: var(--primary-color);
+    color: var(--primary-color, #9f7aea);
     margin: 0;
+    text-shadow: 0 0 5px rgba(159, 122, 234, 0.5);
 }
 
 .tasks-header p {
     font-size: 0.9em;
-    color: var(--text-color-light);
+    color: var(--text-color-light, #a0aec0);
     margin-top: 5px;
 }
 
@@ -50,13 +54,13 @@
 
 .category-title {
     font-size: 1.4em;
-    color: var(--text-color);
+    color: var(--text-color, #ffffff);
     text-align: center;
-    border-bottom: 2px solid var(--primary-color);
-    display: inline-block;
+    border-bottom: 2px solid var(--primary-color, #9f7aea);
+    display: block;
     padding-bottom: 5px;
     margin-bottom: 25px;
-    width: 100%;
+    font-weight: 700;
 }
 
 .tasks-grid {
@@ -65,19 +69,33 @@
     gap: 20px;
 }
 
+@media (min-width: 600px) {
+    .tasks-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 992px) {
+    .tasks-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
 /* --- Task Card Styling --- */
 .task-card {
-    background-color: var(--card-bg-color);
+    background-color: var(--card-bg-color, #2d3748);
     border-radius: 12px;
-    border: 1px solid var(--border-color);
-    box-shadow: var(--card-shadow);
+    border: 1px solid var(--border-color, #4a5568);
+    box-shadow: var(--card-shadow, 0 4px 10px rgba(0,0,0,0.2));
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
     transition: transform 0.3s, box-shadow 0.3s;
 }
 
 .task-card:hover {
     transform: translateY(-5px);
-    box-shadow: var(--card-hover-shadow);
+    box-shadow: var(--card-hover-shadow, 0 6px 15px rgba(0,0,0,0.3));
 }
 
 .task-image {
@@ -88,17 +106,20 @@
 
 .task-content {
     padding: 20px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
 }
 
 .task-title {
     margin: 0 0 10px 0;
     font-size: 1.2em;
-    color: var(--text-color);
+    color: var(--text-color, #ffffff);
 }
 
 .task-description {
     font-size: 0.9em;
-    color: var(--text-color-light);
+    color: var(--text-color-light, #a0aec0);
     margin-bottom: 20px;
     line-height: 1.6;
 }
@@ -106,7 +127,7 @@
 /* --- Progress Bar --- */
 .progress-bar-container {
     height: 10px;
-    background-color: var(--bg-color);
+    background-color: var(--bg-color, #1a202c);
     border-radius: 5px;
     overflow: hidden;
     margin-bottom: 5px;
@@ -114,7 +135,7 @@
 
 .progress-bar {
     height: 100%;
-    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    background: linear-gradient(90deg, var(--primary-color, #9f7aea), var(--secondary-color, #805ad5));
     border-radius: 5px;
     transition: width 0.5s ease-in-out;
 }
@@ -122,7 +143,7 @@
 .progress-text {
     text-align: right;
     font-size: 0.8em;
-    color: var(--text-color-light);
+    color: var(--text-color-light, #a0aec0);
     margin-bottom: 15px;
 }
 
@@ -130,11 +151,11 @@
 .reward-info {
     font-size: 0.9em;
     margin-bottom: 20px;
-    color: var(--text-color-light);
+    color: var(--text-color-light, #a0aec0);
 }
 
 .reward-info strong {
-    color: var(--success-color);
+    color: var(--success-color, #48bb78);
     font-weight: 700;
 }
 
@@ -146,44 +167,36 @@
     font-size: 1em;
     font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.2s;
-    background-color: var(--border-color);
-    color: var(--text-color-light);
+    transition: background-color 0.2s, color 0.2s;
+    background-color: var(--disabled-color, #4a5568);
+    color: var(--text-color-light, #e2e8f0);
 }
 
 .task-card.completed .claim-button {
-    background-color: var(--success-color);
+    background-color: var(--success-color, #48bb78);
     color: white;
 }
 
-.claim-button:disabled:not(.completed) {
-    cursor: not-allowed;
-}
-
-.claim-button[disabled] {
+.claim-button:disabled {
     opacity: 0.7;
     cursor: not-allowed;
 }
 
-.claim-button:disabled:hover {
-     background-color: var(--border-color); /* Keep color on hover when disabled */
-}
-
-.task-card.completed .claim-button:disabled {
-    background-color: var(--success-color);
+.claim-button:hover:not(:disabled) {
+    background-color: var(--primary-color-dark, #805ad5);
 }
 
 /* --- Suggestion Box --- */
 .suggestion-box-section {
-    background-color: var(--card-bg-color);
+    background-color: var(--card-bg-color, #2d3748);
     padding: 25px;
     border-radius: 12px;
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--border-color, #4a5568);
     text-align: center;
 }
 
 .suggestion-box-section p {
-    color: var(--text-color-light);
+    color: var(--text-color-light, #a0aec0);
     font-size: 0.9em;
     margin-bottom: 20px;
 }
@@ -192,9 +205,9 @@
     width: 100%;
     padding: 10px;
     border-radius: 8px;
-    border: 1px solid var(--border-color);
-    background-color: var(--bg-color);
-    color: var(--text-color);
+    border: 1px solid var(--border-color, #4a5568);
+    background-color: var(--bg-color, #1a202c);
+    color: var(--text-color, #f0f0f0);
     font-family: inherit;
     font-size: 0.9em;
     margin-bottom: 15px;
@@ -206,7 +219,7 @@
     padding: 12px;
     border-radius: 8px;
     border: none;
-    background-color: var(--primary-color);
+    background-color: var(--primary-color, #805ad5);
     color: white;
     font-weight: 600;
     cursor: pointer;
@@ -214,12 +227,11 @@
 }
 
 .suggestion-form button:hover {
-    background-color: var(--primary-hover-color);
+    background-color: var(--primary-hover-color, #6b46c1);
 }
 
 .loading-spinner, .error-message {
     text-align: center;
     padding: 40px 20px;
-    color: var(--text-color-light);
+    color: var(--text-color-light, #a0aec0);
 }
-
