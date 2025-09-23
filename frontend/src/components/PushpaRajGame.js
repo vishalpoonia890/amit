@@ -1,4 +1,5 @@
 // src/components/PushpaRajGame.js
+
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import './PushpaRajGame.css';
@@ -22,7 +23,7 @@ const PushpaRajGame = ({ token, onBack, ws, realtimeData }) => {
 
     // This useEffect handles all incoming WebSocket data from the server.
     useEffect(() => {
-        if (!realtimeData || realtimeData.game !== 'pushpa') {
+        if (!realtimeData || realtimeData.type !== 'PUSHPA_STATE_UPDATE') {
             return;
         }
 
@@ -52,16 +53,16 @@ const PushpaRajGame = ({ token, onBack, ws, realtimeData }) => {
                 setIsCashedOut(false);
                 setButtonText('Place Bet');
                 setCountdown(0);
-                const newHistoryItem = { multiplier: payload.crashPoint.toFixed(2) };
+                const newHistoryItem = { multiplier: payload.crashMultiplier.toFixed(2) };
                 setGameHistory(prevHistory => {
                     const newHistory = [newHistoryItem, ...prevHistory];
                     return newHistory.slice(0, MAX_HISTORY);
                 });
 
                 if (isBetPlaced && !isCashedOut) {
-                    setMessage(`Lost! Crashed at ${payload.crashPoint.toFixed(2)}x.`);
+                    setMessage(`Lost! Crashed at ${payload.crashMultiplier.toFixed(2)}x.`);
                 } else {
-                    setMessage(`Crashed at ${payload.crashPoint.toFixed(2)}x!`);
+                    setMessage(`Crashed at ${payload.crashMultiplier.toFixed(2)}x!`);
                 }
                 break;
             default:
@@ -73,13 +74,13 @@ const PushpaRajGame = ({ token, onBack, ws, realtimeData }) => {
     // This useEffect handles the countdown display.
     useEffect(() => {
         let timer = null;
-        if (countdown > 0) {
+        if (isBettingPhase && countdown > 0) {
             timer = setInterval(() => {
                 setCountdown(prev => Math.max(0, prev - 100));
             }, 100);
         }
         return () => clearInterval(timer);
-    }, [countdown]);
+    }, [countdown, isBettingPhase]);
 
 
     const handleBetAction = async () => {
@@ -89,30 +90,25 @@ const PushpaRajGame = ({ token, onBack, ws, realtimeData }) => {
                 setMessage("Please enter a valid bet amount.");
                 return;
             }
-            try {
-                // Send bet via WebSocket for immediate processing
+            if (ws && ws.readyState === WebSocket.OPEN) {
                 ws.send(JSON.stringify({
                     game: 'pushpa',
                     action: 'bet',
                     payload: {
                         token: token,
                         betAmount: betAmount,
-                        roundId: realtimeData?.payload?.roundId // Send current round ID
+                        roundId: realtimeData?.payload?.roundId
                     }
                 }));
-
-                // Update UI immediately for a better user experience
                 setIsBetPlaced(true);
-                setMessage('Bet placed. Waiting for next round...');
+                setMessage('Bet placed. Waiting for game to start...');
                 setButtonText('Waiting for Game...');
-
-            } catch (error) {
-                console.error('Betting error:', error);
-                setMessage('Error placing bet.');
+            } else {
+                setMessage('Connection error. Please refresh.');
             }
         } else if (!isBettingPhase && isBetPlaced && !isCashedOut) {
             // Cash out logic
-            try {
+            if (ws && ws.readyState === WebSocket.OPEN) {
                 ws.send(JSON.stringify({
                     game: 'pushpa',
                     action: 'cashout',
@@ -122,13 +118,11 @@ const PushpaRajGame = ({ token, onBack, ws, realtimeData }) => {
                         cashOutMultiplier: currentMultiplier
                     }
                 }));
-                // Update UI immediately
                 setIsCashedOut(true);
                 setButtonText(`Cashed Out @ ${currentMultiplier.toFixed(2)}x`);
                 setMessage('Cashing out...');
-            } catch (error) {
-                console.error('Cash out error:', error);
-                setMessage('Failed to cash out.');
+            } else {
+                setMessage('Connection error. Please refresh.');
             }
         }
     };
@@ -136,7 +130,7 @@ const PushpaRajGame = ({ token, onBack, ws, realtimeData }) => {
     return (
         <div className="pushpa-raj-game">
             <button className="back-button" onClick={onBack}>← Back to Games</button>
-            <h2 className="game-title">Pushpa Raj</h2>
+            <h2 className="game-title">Pushpa Raj, Paisa Banaye Aasani!</h2>
             <div className="game-history">
                 {gameHistory.map((item, index) => (
                     <span key={index} className="history-item">
@@ -146,10 +140,12 @@ const PushpaRajGame = ({ token, onBack, ws, realtimeData }) => {
             </div>
             <div className="game-container">
                 <div className="game-animation-area">
-                    <div className="character-animation-container">
+                    {/* The animated truck and character */}
+                    <div className="pushpa-truck-container">
+                        <div className="pushpa-truck"></div>
                         <div className="pushpa-character"></div>
-                        <div className={`gun-animation ${!isBettingPhase ? 'active-gun' : ''}`}></div>
                     </div>
+                    {/* The multiplier display */}
                     <div className="multiplier-display">
                         <span ref={multiplierRef} className={`multiplier-text ${isBettingPhase ? 'waiting' : 'active'}`}>
                             {isBettingPhase ? `${(countdown / 1000).toFixed(1)}s` : `${currentMultiplier.toFixed(2)}x`}
@@ -164,7 +160,7 @@ const PushpaRajGame = ({ token, onBack, ws, realtimeData }) => {
                             id="betAmount"
                             value={betAmount}
                             onChange={(e) => setBetAmount(Number(e.target.value))}
-                            disabled={isBetPlaced && isBettingPhase}
+                            disabled={isBetPlaced || !isBettingPhase}
                             min="10"
                         />
                     </div>
@@ -172,7 +168,7 @@ const PushpaRajGame = ({ token, onBack, ws, realtimeData }) => {
                         ref={buttonRef}
                         className={`action-button ${isBettingPhase ? 'place-bet' : 'cash-out'} ${isCashedOut ? 'cashed-out' : ''}`}
                         onClick={handleBetAction}
-                        disabled={(isBetPlaced && isBettingPhase) || isCashedOut}
+                        disabled={(isBetPlaced && isBettingPhase) || isCashedOut || !isBettingPhase && !isBetPlaced}
                     >
                         {buttonText}
                     </button>
