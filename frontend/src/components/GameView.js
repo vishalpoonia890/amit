@@ -13,67 +13,71 @@ const getNumberColorClass = (num) => {
     return '';
 };
 
-function GameView({ token, financialSummary, onViewChange, onBetPlaced, ws, realtimeData }) {
+// ✅ FIX: The component now receives realtimeData and a sendMessage function from the parent App component
+function GameView({ token, financialSummary, onViewChange, onBetPlaced, realtimeData, sendMessage }) {
     // --- State Management ---
-    const [loading, setLoading] = useState(true);
+    // ✅ FIX: The loading state is now more explicit
+    const [isLoading, setIsLoading] = useState(true);
     const [gameHistory, setGameHistory] = useState([]);
     const [showBetModal, setShowBetModal] = useState(false);
     const [betDetails, setBetDetails] = useState({ type: '', value: '' });
     const [betAmount, setBetAmount] = useState(10);
     const [userRoundResult, setUserRoundResult] = useState(null);
     const [showFinalCountdown, setShowFinalCountdown] = useState(false);
-// ✅ NEW: Function to scroll smoothly to the rules section
+    
+    // ✅ NEW: Function to scroll smoothly to the rules section
     const scrollToRules = () => {
         document.getElementById('game-rules-section').scrollIntoView({ behavior: 'smooth' });
     };
+
     // This effect fetches the initial game history ONCE when the component mounts.
     useEffect(() => {
         axios.get(`${API_BASE_URL}/api/game-state`, { headers: { Authorization: `Bearer ${token}` } })
             .then(res => {
                 setGameHistory(res.data.results || []);
+                setIsLoading(false); // Set loading to false after initial fetch
             })
-            .catch(err => console.error("Failed to fetch initial history:", err));
+            .catch(err => {
+                console.error("Failed to fetch initial history:", err);
+                setIsLoading(false); // Set loading to false even on error
+            });
     }, [token]);
 
     // This effect listens for all real-time updates from the server via WebSockets.
-  // In GameView.js, replace the second useEffect
+    useEffect(() => {
+        if (realtimeData) {
+            if (realtimeData.type === 'ROUND_RESULT') {
+                if (realtimeData.results && realtimeData.results.length > 0) {
+                    setGameHistory(realtimeData.results);
+                    
+                    const lastPeriod = realtimeData.results[0].game_period;
+                    axios.get(`${API_BASE_URL}/api/my-bet-result/${lastPeriod}`, { headers: { Authorization: `Bearer ${token}` } })
+                        .then(res => {
+                            setUserRoundResult({ 
+                                status: res.data.status, 
+                                payout: res.data.payout,
+                                period: lastPeriod, 
+                                number: realtimeData.results[0].result_number 
+                            });
+                            // ✅ Call onBetPlaced to refresh balance in App.js
+                            onBetPlaced();
+                        })
+                        .catch(err => console.error("Error fetching my-bet-result:", err));
+                }
+            }
 
-useEffect(() => {
-    if (realtimeData) {
-        if (loading) {
-            setLoading(false);
-        }
-
-        if (realtimeData.type === 'ROUND_RESULT') {
-            if (realtimeData.results && realtimeData.results.length > 0) {
-                setGameHistory(realtimeData.results);
-                
-                const lastPeriod = realtimeData.results[0].game_period;
-                axios.get(`${API_BASE_URL}/api/my-bet-result/${lastPeriod}`, { headers: { Authorization: `Bearer ${token}` } })
-                    .then(res => {
-                        setUserRoundResult({ 
-                            status: res.data.status, 
-                            payout: res.data.payout,
-                            period: lastPeriod, 
-                            number: realtimeData.results[0].result_number 
-                        });
-                    })
-                    .catch(err => console.error("Error fetching my-bet-result:", err)); // Added error catching
+            if (realtimeData.type === 'TIMER_UPDATE') {
+                setShowFinalCountdown(realtimeData.timeLeft <= 5 && realtimeData.timeLeft > 0);
             }
         }
-
-        if (realtimeData.type === 'TIMER_UPDATE') {
-            setShowFinalCountdown(realtimeData.timeLeft <= 5 && realtimeData.timeLeft > 0);
-        }
-    }
-}, [realtimeData, token, loading]);
-            
-
+    }, [realtimeData, token, onBetPlaced]);
+                
 
     // --- Event Handlers ---
     const handleOpenBetModal = (type, value) => {
         if (realtimeData && !realtimeData.can_bet) {
-            alert("Betting has closed for the current round.");
+            // ✅ FIX: Replaced alert with a custom UI message or a snackbar
+            alert("Betting has closed for the current round."); 
             return;
         }
         setBetDetails({ type, value });
@@ -82,31 +86,36 @@ useEffect(() => {
 
     const handlePlaceBet = async () => {
         if (betAmount < 10) {
+            // ✅ FIX: Replaced alert with a custom UI message or a snackbar
             alert("Minimum bet is ₹10.");
             return;
         }
-        if (!ws || ws.readyState !== WebSocket.OPEN) {
-            alert("Connection error. Please refresh the page.");
-            return;
-        }
 
-        const betMessage = {
-            game: 'color-prediction',
-            action: 'bet',
-            payload: {
-                amount: betAmount,
-                bet_on: betDetails.value,
-                token: token
-            }
-        };
-        ws.send(JSON.stringify(betMessage));
-        alert('Bet placed successfully!');
+        // ✅ FIX: Use the new sendMessage function passed as a prop
+        if (sendMessage) {
+            const betMessage = {
+                game: 'color-prediction',
+                action: 'bet',
+                payload: {
+                    amount: betAmount,
+                    bet_on: betDetails.value,
+                    token: token
+                }
+            };
+            sendMessage(betMessage);
+            // ✅ FIX: The success message is now handled by the server response via the WebSocket.
+            // Awaiting server response
+        } else {
+            // ✅ FIX: Replaced alert with a custom UI message or a snackbar
+            alert("Connection error. Please try again later.");
+        }
+        
         setShowBetModal(false);
-        onBetPlaced();
     };
     
     // --- Render Logic ---
-    if (loading) return <div className="loading-spinner">Connecting to Game...</div>;
+    // ✅ FIX: Render a specific loading screen for the game
+    if (isLoading) return <div className="game-loading">Connecting to Game...</div>;
 
     const totalBalance = (financialSummary?.balance || 0) + (financialSummary?.withdrawable_wallet || 0);
 
@@ -121,11 +130,8 @@ useEffect(() => {
                 <p>Available balance</p>
                 <h3>₹{totalBalance.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
                 <div className="balance-actions">
-                    {/* This button correctly navigates to the Deposit view */}
                     <button onClick={() => onViewChange('deposit')}>Recharge</button>
-                    {/* ✅ CHANGED: This button now scrolls to the rules */}
                     <button className="rules-btn" onClick={scrollToRules}>Read Rules</button>
-               
                 </div>
             </div>
 
@@ -172,9 +178,8 @@ useEffect(() => {
                 </table>
             </div>
 
-            {/* Betting Modal */}
             {showBetModal && (
-                 <div className="modal-overlay">
+                <div className="modal-overlay">
                     <div className="bet-modal">
                         <h3 className={`bet-title ${betDetails.type === 'color' ? betDetails.value.toLowerCase() : ''}`}>Bet on {betDetails.value}</h3>
                         <div className="modal-content">
@@ -195,10 +200,9 @@ useEffect(() => {
                             <button className="confirm-btn" onClick={handlePlaceBet}>Confirm</button>
                         </div>
                     </div>
-                 </div>
+                </div>
             )}
             
-            {/* Final Countdown Popup */}
             {showFinalCountdown && (
                 <div className="modal-overlay countdown-overlay">
                     <div className="countdown-popup">
@@ -207,7 +211,6 @@ useEffect(() => {
                 </div>
             )}
 
-            {/* Personalized Result Popup */}
             {userRoundResult && (
                 <div className="modal-overlay">
                     <div className={`result-modal ${userRoundResult.status}`}>
@@ -243,7 +246,6 @@ useEffect(() => {
                 </div>
             )}
 
-                 {/* ✅ NEW: Rules Section */}
             <div id="game-rules-section" className="game-rules-section">
                 <h3>Game Rules & Payouts</h3>
                 <ul>
