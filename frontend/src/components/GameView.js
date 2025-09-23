@@ -23,7 +23,7 @@ function GameView({ token, financialSummary, onViewChange, onBetPlaced, realtime
     const [userRoundResult, setUserRoundResult] = useState(null);
     const [showFinalCountdown, setShowFinalCountdown] = useState(false);
     const scrollToRules = () => {
-        document.getElementById('game-rules-section').scroll-into-view({ behavior: 'smooth' });
+        document.getElementById('game-rules-section').scrollIntoView({ behavior: 'smooth' });
     };
     
     // This effect fetches the initial game history ONCE when the component mounts.
