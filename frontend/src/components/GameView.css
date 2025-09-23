@@ -1,309 +1,355 @@
-/* src/components/GameView.css */
-
 .game-view {
-    padding: 15px;
-    padding-bottom: 80px; /* Space for bottom nav */
+    padding: 1rem;
+    font-family: 'Inter', sans-serif;
+    color: var(--text-color);
+    background-color: var(--background-color);
 }
 
-.loading-spinner, .maintenance-mode {
-    text-align: center;
-    padding: 50px 20px;
-    font-size: 1.2em;
-    color: var(--text-color-light);
-}
-.maintenance-mode h3 { 
-    color: var(--primary-color); 
-}
-
-/* Balance Card */
 .game-balance-card {
-    background: linear-gradient(135deg, var(--primary-color), #3a32b3);
-    color: white;
-    padding: 20px;
+    background: var(--card-background);
+    padding: 1.5rem;
     border-radius: 12px;
-    margin-bottom: 20px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-}
-.game-balance-card p {
-    margin: 0 0 5px 0;
-    font-size: 0.9em;
-    opacity: 0.9;
-}
-.game-balance-card h3 {
-    margin: 0;
-    font-size: 2em;
-    font-weight: 700;
-}
-.balance-actions {
-    margin-top: 15px;
-    display: flex;
-    gap: 10px;
-}
-.balance-actions button {
-    background: rgba(255, 255, 255, 0.2);
-    border: 1px solid white;
-    color: white;
-    padding: 8px 15px;
-    border-radius: 20px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: background-color 0.2s;
-}
-.balance-actions button:hover {
-    background-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+    text-align: center;
 }
 
-/* Main Content */
-.game-main-content {
-    background: var(--card-bg-color);
-    padding: 15px;
-    border-radius: 12px;
-    margin-bottom: 20px;
-    border: 1px solid var(--border-color);
+.game-balance-card p {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin: 0 0 0.5rem;
 }
+
+.game-balance-card h3 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0 0 1rem;
+    color: var(--primary-color);
+}
+
+.balance-actions {
+    display: flex;
+    justify-content: space-around;
+    gap: 1rem;
+}
+
+.balance-actions button, .game-view .bet-btn {
+    flex: 1;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: var(--button-bg);
+    color: var(--button-text);
+}
+
+.balance-actions button:hover, .game-view .bet-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.balance-actions .rules-btn {
+    background: var(--secondary-button-bg);
+    color: var(--secondary-button-text);
+}
+
+.game-main-content {
+    background: var(--card-background);
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+}
+
 .game-info {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 20px;
+    align-items: center;
+    margin-bottom: 1.5rem;
 }
+
 .period-info, .countdown-info {
+    flex: 1;
     text-align: center;
 }
-.period-info h4, .countdown-info h4 {
-    color: var(--text-color-light);
-    font-size: 0.9em;
-    margin: 0 0 5px 0;
+
+.game-info h4 {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    margin: 0 0 0.5rem;
 }
-.period-info p, .countdown-info p {
-    font-size: 1.5em;
+
+.game-info p {
+    font-size: 2.5rem;
     font-weight: 700;
-    color: var(--text-color);
+    color: var(--primary-color);
     margin: 0;
+    line-height: 1;
+    letter-spacing: -1px;
 }
 
 .betting-options-colors {
     display: flex;
     justify-content: space-between;
-    gap: 10px;
-    margin-bottom: 15px;
+    gap: 1rem;
+    margin-bottom: 1rem;
 }
-.bet-btn {
-    border: none;
-    border-radius: 8px;
-    padding: 12px;
+
+.betting-options-colors .bet-btn {
     color: white;
     font-weight: 700;
-    cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s;
-    flex-grow: 1;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    padding: 1.5rem 1rem;
+    font-size: 1.25rem;
 }
-.bet-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+
+.betting-options-colors .green {
+    background: #4caf50;
 }
-.bet-btn.green { background-color: #4caf50; }
-.bet-btn.violet { background-color: #9c27b0; }
-.bet-btn.red { background-color: #f44336; }
+
+.betting-options-colors .violet {
+    background: #8e24aa;
+}
+
+.betting-options-colors .red {
+    background: #f44336;
+}
 
 .betting-options-numbers {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 10px;
+    gap: 1rem;
 }
-.bet-btn.number {
-    padding: 15px;
-    font-size: 1.2em;
-}
-.bet-btn.number.red { background: linear-gradient(135deg, #f44336, #d32f2f); }
-.bet-btn.number.green { background: linear-gradient(135deg, #4caf50, #388e3c); }
-.bet-btn.number.violet { background: linear-gradient(135deg, #9c27b0, #7b1fa2); }
 
-/* History Table */
+.betting-options-numbers .bet-btn {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: white;
+    padding: 1rem;
+}
+
+.betting-options-numbers .bet-btn.red { background: #f44336; }
+.betting-options-numbers .bet-btn.green { background: #4caf50; }
+.betting-options-numbers .bet-btn.violet { background: #8e24aa; }
+
 .game-history {
-    background: var(--card-bg-color);
-    padding: 15px;
+    background: var(--card-background);
+    padding: 1.5rem;
     border-radius: 12px;
-    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
 }
+
 .game-history h4 {
-    margin: 0 0 10px 0;
-    text-align: center;
+    font-size: 1.25rem;
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
 }
+
 .history-table {
     width: 100%;
     border-collapse: collapse;
 }
+
 .history-table th, .history-table td {
-    padding: 8px;
+    padding: 0.75rem 0.5rem;
     text-align: center;
+    border-bottom: 1px solid var(--border-color);
 }
+
 .history-table th {
-    color: var(--text-color-light);
-    font-size: 0.9em;
+    font-weight: 600;
+    color: var(--text-secondary);
 }
+
 .result-dot {
     display: inline-block;
-    width: 15px;
-    height: 15px;
+    width: 16px;
+    height: 16px;
     border-radius: 50%;
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
+    vertical-align: middle;
 }
+
 .result-dot.red { background-color: #f44336; }
 .result-dot.green { background-color: #4caf50; }
-.result-dot.violet { background: linear-gradient(45deg, #f44336, #9c27b0); }
+.result-dot.violet { background-color: #8e24aa; }
 
-
-/* Modal Styles */
+/* Modal and Popup styles */
 .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.6);
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 2000;
-    backdrop-filter: blur(4px);
+    z-index: 1000;
 }
-.bet-modal, .result-modal {
-    background: var(--card-bg-color);
-    border-radius: 12px;
-    padding: 20px;
-    width: 90%;
-    max-width: 350px;
-    border: 1px solid var(--border-color);
-    box-shadow: 0 5px 20px rgba(0,0,0,0.4);
-}
-.bet-title { text-align: center; margin: 0 0 15px 0; font-size: 1.3em; }
-.bet-title.red { color: #f44336; }
-.bet-title.green { color: #4caf50; }
-.bet-title.violet { color: #9c27b0; }
-.amount-controls { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 15px; }
-.amount-controls input { width: 80px; text-align: center; font-size: 1.2em; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background-color: var(--bg-color); color: var(--text-color);}
-.amount-controls button { font-size: 1.5em; width: 40px; height: 40px; border-radius: 50%; border: none; background-color: var(--border-color); color: var(--text-color); cursor: pointer; }
-.quick-amounts { display: flex; justify-content: space-around; margin-bottom: 20px; }
-.quick-amounts button { background-color: var(--bg-color); border: 1px solid var(--border-color); padding: 8px 12px; border-radius: 20px; color: var(--text-color); cursor: pointer; }
-.modal-actions { display: flex; gap: 10px; }
-.modal-actions button { flex-grow: 1; padding: 12px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; }
-.cancel-btn { background-color: var(--border-color); color: var(--text-color); }
-.confirm-btn { background-color: var(--primary-color); color: white; }
 
-/* Result Modal */
-.result-modal {
+.bet-modal, .result-modal, .countdown-popup {
+    background: var(--card-background);
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    width: 90%;
+    max-width: 400px;
     text-align: center;
     position: relative;
-    padding: 30px 20px 20px 20px;
-    border-top: 5px solid;
-    animation: slide-in 0.3s ease-out;
+    animation: fadeIn 0.3s ease-out;
 }
-@keyframes slide-in {
-    from { transform: translateY(-30px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
-.result-modal.won { border-top-color: var(--success-color); }
-.result-modal.lost { border-top-color: var(--error-color); }
-.result-modal.did_not_play { border-top-color: var(--text-color-light); }
-.close-modal-btn {
-    position: absolute;
-    top: 5px;
-    right: 10px;
-    background: none;
-    border: none;
-    font-size: 1.8rem;
-    line-height: 1;
-    color: var(--text-color-light);
-    cursor: pointer;
-    padding: 5px;
-}
-.close-modal-btn:hover { color: var(--text-color); }
-.result-icon { font-size: 3rem; margin-bottom: 10px; line-height: 1; }
-.result-modal h3 { margin: 0 0 10px 0; font-size: 1.5rem; }
-.result-modal.won h3 { color: var(--success-color); }
-.result-modal.lost h3 { color: var(--error-color); }
-.result-payout { font-size: 1.2rem; font-weight: 600; color: var(--text-color); margin: 0 0 15px 0; }
-.result-motivation { font-style: italic; color: var(--text-color-light); margin: 0 0 15px 0; }
-.result-modal > p { margin-bottom: 15px; color: var(--text-color-light); font-size: 0.9em; }
-.result-number-display {
-    font-size: 3em;
-    font-weight: bold;
-    margin: 10px auto;
-    width: 60px;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    border-radius: 50%;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-}
-.result-number-display.red { background: linear-gradient(135deg, #f44336, #d32f2f); }
-.result-number-display.green { background: linear-gradient(135deg, #4caf50, #388e3c); }
-.result-number-display.violet { background: linear-gradient(135deg, #9c27b0, #7b1fa2); }
 
-/* Final Countdown Popup */
-.countdown-overlay {
-    background: none;
-    backdrop-filter: none;
+.bet-modal h3 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
 }
+
+.bet-modal .modal-content p {
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.amount-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.amount-controls button {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--button-bg);
+    color: var(--button-text);
+    font-size: 1.5rem;
+}
+
+.amount-controls input {
+    width: 100px;
+    padding: 0.5rem;
+    text-align: center;
+    border: 1px solid var(--border-color);
+    background: var(--input-background);
+    color: var(--input-text);
+    border-radius: 8px;
+    -moz-appearance: textfield;
+}
+
+.quick-amounts button {
+    background: var(--secondary-button-bg);
+    color: var(--secondary-button-text);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    margin: 0.25rem;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.modal-actions .cancel-btn {
+    background: var(--button-bg-secondary);
+    color: var(--button-text-secondary);
+}
+
+.modal-actions .confirm-btn {
+    background: var(--accent-color);
+    color: white;
+}
+
 .countdown-popup {
-    font-size: 8rem;
+    font-size: 5rem;
     font-weight: 900;
     color: white;
-    text-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
-    animation: pulse-and-fade 1s infinite;
-}
-@keyframes pulse-and-fade {
-    0% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.2); opacity: 0.7; }
-    100% { transform: scale(1); opacity: 1; }
+    background: var(--accent-color);
+    padding: 1rem 2rem;
+    border-radius: 50%;
+    width: 150px;
+    height: 150px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: pulse 1s infinite;
 }
 
+.result-modal h3 {
+    font-size: 1.5rem;
+}
 
-/* Add this to the end of GameView.css */
+.result-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.result-modal.won {
+    background: #e8f5e9;
+    color: #388e3c;
+}
+
+.result-modal.lost {
+    background: #ffebee;
+    color: #d32f2f;
+}
+
+.result-number-display {
+    font-size: 3rem;
+    font-weight: 700;
+    padding: 1rem;
+    border-radius: 12px;
+    color: white;
+    margin-top: 1rem;
+    display: inline-block;
+}
+
+.result-number-display.red { background-color: #f44336; }
+.result-number-display.green { background-color: #4caf50; }
+.result-number-display.violet { background-color: #8e24aa; }
+
+.close-modal-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 1.5rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-secondary);
+}
 
 .game-rules-section {
-    margin-top: 25px;
-    padding: 20px;
-    background-color: var(--card-bg-color);
-    border: 1px solid var(--border-color);
+    background: var(--card-background);
+    padding: 1.5rem;
     border-radius: 12px;
-    text-align: left;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .game-rules-section h3 {
-    text-align: center;
-    color: var(--primary-color);
     margin-top: 0;
-    margin-bottom: 20px;
-    font-size: 1.3em;
-}
-
-.game-rules-section ul {
-    list-style-type: none;
-    padding-left: 0;
+    color: var(--text-primary);
+    font-size: 1.25rem;
 }
 
 .game-rules-section li {
-    color: var(--text-color-light);
-    line-height: 1.7;
-    margin-bottom: 12px;
-    padding-left: 25px;
-    position: relative;
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary);
 }
 
-.game-rules-section li::before {
-    content: '◈';
-    color: var(--primary-color);
-    position: absolute;
-    left: 0;
-    top: 2px;
-    font-size: 1.1em;
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
 }
 
-.game-rules-section strong {
-    color: var(--text-color);
-    font-weight: 600;
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
 }
