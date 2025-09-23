@@ -1,184 +1,192 @@
-// src/components/PushpaRajGame.js
-
+// ✅ This file has also been updated to use the new WebSocket hook
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
+import Confetti from 'react-confetti';
+import { useWindowSize } from 'react-use';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlaneDeparture, faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
 import './PushpaRajGame.css';
 
-const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
-const MAX_HISTORY = 20;
+const API_BASE_URL = process.env.NODE_ENV === 'production' ? 'https://investmentpro-nu7s.onrender.com' : '';
 
-const PushpaRajGame = ({ token, onBack, ws, realtimeData }) => {
-    const [isBettingPhase, setIsBettingPhase] = useState(true);
-    const [currentMultiplier, setCurrentMultiplier] = useState(1.00);
+// ✅ FIX: The component now receives realtimeData and a sendMessage function from the parent App component
+function PushpaRajGame({ token, onBack, realtimeData, sendMessage }) {
+    const [gameState, setGameState] = useState('waiting');
+    const [multiplier, setMultiplier] = useState(1.00);
     const [betAmount, setBetAmount] = useState(10);
     const [isBetPlaced, setIsBetPlaced] = useState(false);
+    const [lastBetDetails, setLastBetDetails] = useState(null);
     const [isCashedOut, setIsCashedOut] = useState(false);
-    const [message, setMessage] = useState('Place your bet!');
-    const [buttonText, setButtonText] = useState('Place Bet');
+    const [payout, setPayout] = useState(null);
+    const [roundId, setRoundId] = useState(null);
+    const [showConfetti, setShowConfetti] = useState(false);
+    const { width, height } = useWindowSize();
     const [gameHistory, setGameHistory] = useState([]);
-    const [countdown, setCountdown] = useState(0);
+    const [isBettingEnabled, setIsBettingEnabled] = useState(true);
+    const [countdown, setCountdown] = useState(15);
+    const [showBetModal, setShowBetModal] = useState(false);
+    const [lastBetStatus, setLastBetStatus] = useState(null);
+    const gameBoardRef = useRef(null);
 
-    const buttonRef = useRef(null);
-    const multiplierRef = useRef(null);
-
-    // This useEffect handles all incoming WebSocket data from the server.
+    // Initial state fetch on component mount
     useEffect(() => {
-        if (!realtimeData || realtimeData.type !== 'PUSHPA_STATE_UPDATE') {
-            return;
-        }
+        axios.get(`${API_BASE_URL}/api/aviator/history`, { headers: { Authorization: `Bearer ${token}` } })
+            .then(res => setGameHistory(res.data.history))
+            .catch(err => console.error("Failed to fetch game history:", err));
+    }, [token]);
 
-        const payload = realtimeData.payload;
-
-        switch (payload.status) {
-            case 'waiting':
-                setIsBettingPhase(true);
-                setIsBetPlaced(false);
-                setIsCashedOut(false);
-                setButtonText('Place Bet');
-                setCurrentMultiplier(1.00);
-                setMessage('Place your bet!');
-                setCountdown(payload.countdown || 10000);
-                break;
-            case 'running':
-                setIsBettingPhase(false);
-                setMessage('Game in progress...');
-                setCurrentMultiplier(payload.multiplier);
-                setCountdown(0);
-                if (isBetPlaced && !isCashedOut) {
-                    setButtonText(`Cash Out @ ${payload.multiplier.toFixed(2)}x`);
-                }
-                break;
-            case 'crashed':
-                setIsBettingPhase(true);
-                setIsCashedOut(false);
-                setButtonText('Place Bet');
-                setCountdown(0);
-                const newHistoryItem = { multiplier: payload.crashMultiplier.toFixed(2) };
-                setGameHistory(prevHistory => {
-                    const newHistory = [newHistoryItem, ...prevHistory];
-                    return newHistory.slice(0, MAX_HISTORY);
-                });
-
-                if (isBetPlaced && !isCashedOut) {
-                    setMessage(`Lost! Crashed at ${payload.crashMultiplier.toFixed(2)}x.`);
-                } else {
-                    setMessage(`Crashed at ${payload.crashMultiplier.toFixed(2)}x!`);
-                }
-                break;
-            default:
-                break;
-        }
-
-    }, [realtimeData, isBetPlaced, isCashedOut]);
-
-    // This useEffect handles the countdown display.
+    // WebSocket message handling
     useEffect(() => {
-        let timer = null;
-        if (isBettingPhase && countdown > 0) {
-            timer = setInterval(() => {
-                setCountdown(prev => Math.max(0, prev - 100));
-            }, 100);
-        }
-        return () => clearInterval(timer);
-    }, [countdown, isBettingPhase]);
-
-
-    const handleBetAction = async () => {
-        // Prevent action if not in the correct phase or if a bet is already placed
-        if (isBettingPhase && !isBetPlaced) {
-            if (betAmount <= 0) {
-                setMessage("Please enter a valid bet amount.");
-                return;
-            }
-            if (ws && ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({
-                    game: 'pushpa',
-                    action: 'bet',
-                    payload: {
-                        token: token,
-                        betAmount: betAmount,
-                        roundId: realtimeData?.payload?.roundId
-                    }
-                }));
+        if (realtimeData && realtimeData.game === 'pushpa') {
+            const data = realtimeData.payload;
+            if (data.type === 'PUSHPA_STATE_UPDATE') {
+                setGameState(data.status);
+                setMultiplier(data.multiplier);
+                setRoundId(data.roundId);
+                setCountdown(Math.ceil(data.countdown / 1000));
+                
+                if (data.status === 'waiting' && data.prevStatus === 'crashed') {
+                    setLastBetStatus(isCashedOut ? 'won' : 'lost');
+                    setIsBetPlaced(false);
+                    setIsCashedOut(false);
+                }
+            } else if (data.type === 'PUSHPA_BET_SUCCESS') {
                 setIsBetPlaced(true);
-                setMessage('Bet placed. Waiting for game to start...');
-                setButtonText('Waiting for Game...');
-            } else {
-                setMessage('Connection error. Please refresh.');
-            }
-        } else if (!isBettingPhase && isBetPlaced && !isCashedOut) {
-            // Cash out logic
-            if (ws && ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({
-                    game: 'pushpa',
-                    action: 'cashout',
-                    payload: {
-                        token: token,
-                        roundId: realtimeData?.payload?.roundId,
-                        cashOutMultiplier: currentMultiplier
-                    }
-                }));
+                setLastBetDetails({ amount: betAmount, roundId: data.roundId });
+            } else if (data.type === 'PUSHPA_BET_ERROR') {
+                setIsBetPlaced(false);
+                setLastBetStatus('failed');
+            } else if (data.type === 'PUSHPA_CASHOUT_SUCCESS') {
                 setIsCashedOut(true);
-                setButtonText(`Cashed Out @ ${currentMultiplier.toFixed(2)}x`);
-                setMessage('Cashing out...');
-            } else {
-                setMessage('Connection error. Please refresh.');
+                setPayout(data.payout);
+                setShowConfetti(true);
+                setTimeout(() => setShowConfetti(false), 5000);
             }
         }
+    }, [realtimeData]);
+
+    const handlePlaceBet = async () => {
+        if (!betAmount || betAmount < 10) return alert("Minimum bet is ₹10.");
+        if (!sendMessage) return alert("Connection error. Please try again.");
+
+        sendMessage({
+            game: 'pushpa',
+            action: 'bet',
+            payload: {
+                betAmount,
+                roundId,
+                token
+            }
+        });
+        setShowBetModal(false);
     };
 
+    const handleCashOut = () => {
+        if (!sendMessage) return alert("Connection error. Please try again.");
+
+        sendMessage({
+            game: 'pushpa',
+            action: 'cashout',
+            payload: {
+                roundId,
+                token
+            }
+        });
+        setIsCashedOut(true);
+    };
+    
     return (
-        <div className="pushpa-raj-game">
-            <button className="back-button" onClick={onBack}>← Back to Games</button>
-            <h2 className="game-title">Pushpa Raj, Paisa Banaye Aasani!</h2>
-            <div className="game-history">
-                {gameHistory.map((item, index) => (
-                    <span key={index} className="history-item">
-                        {item.multiplier}x
-                    </span>
-                ))}
+        <div className="pushpa-game-container">
+            {showConfetti && <Confetti width={width} height={height} numberOfPieces={200} gravity={0.1} />}
+            <div className="game-header">
+                <button onClick={onBack} className="back-btn">← Back</button>
+                <span className="game-name">Pushpa Raj</span>
+                <span className="question-mark"><FontAwesomeIcon icon={faQuestionCircle} /></span>
             </div>
-            <div className="game-container">
-                <div className="game-animation-area">
-                    {/* The animated truck and character */}
-                    <div className="pushpa-truck-container">
-                        <div className="pushpa-truck"></div>
-                        <div className="pushpa-character"></div>
-                    </div>
-                    {/* The multiplier display */}
-                    <div className="multiplier-display">
-                        <span ref={multiplierRef} className={`multiplier-text ${isBettingPhase ? 'waiting' : 'active'}`}>
-                            {isBettingPhase ? `${(countdown / 1000).toFixed(1)}s` : `${currentMultiplier.toFixed(2)}x`}
-                        </span>
-                    </div>
-                </div>
-                <div className="game-controls">
-                    <div className="input-group">
-                        <label htmlFor="betAmount">Bet Amount</label>
-                        <input
-                            type="number"
-                            id="betAmount"
-                            value={betAmount}
-                            onChange={(e) => setBetAmount(Number(e.target.value))}
-                            disabled={isBetPlaced || !isBettingPhase}
-                            min="10"
-                        />
-                    </div>
-                    <button
-                        ref={buttonRef}
-                        className={`action-button ${isBettingPhase ? 'place-bet' : 'cash-out'} ${isCashedOut ? 'cashed-out' : ''}`}
-                        onClick={handleBetAction}
-                        disabled={(isBetPlaced && isBettingPhase) || isCashedOut || !isBettingPhase && !isBetPlaced}
-                    >
-                        {buttonText}
-                    </button>
-                </div>
-                <div className="game-message">
-                    {message}
+
+            <div className="game-board" ref={gameBoardRef}>
+                <div className="game-board-content">
+                    {gameState === 'waiting' && (
+                        <div className="waiting-state">
+                            <span className="info-text">NEXT ROUND IN</span>
+                            <div className="countdown-timer">{countdown}s</div>
+                            <button onClick={() => setShowBetModal(true)} className="place-bet-btn">
+                                Place Your Bet
+                            </button>
+                            <span className="status-text">
+                                {lastBetStatus === 'won' && `You won ₹${payout.toFixed(2)} in the last round!`}
+                                {lastBetStatus === 'lost' && 'Last round crashed. Better luck this time!'}
+                                {lastBetStatus === 'failed' && 'Failed to place bet. Insufficient funds?'}
+                            </span>
+                        </div>
+                    )}
+
+                    {gameState === 'running' && (
+                        <div className="running-state">
+                            <span className="info-text">Multiplier</span>
+                            <div className="multiplier-value">{multiplier.toFixed(2)}x</div>
+                            <button 
+                                className={`cashout-btn ${!isBetPlaced || isCashedOut ? 'disabled' : ''}`}
+                                onClick={handleCashOut}
+                                disabled={!isBetPlaced || isCashedOut}
+                            >
+                                {isCashedOut ? `Cashed Out @ ${payout.toFixed(2)}x` : `Cash Out @ ${multiplier.toFixed(2)}x`}
+                            </button>
+                            {isBetPlaced && <span className="status-text">Your Bet: ₹{betAmount}</span>}
+                        </div>
+                    )}
+                    
+                    {gameState === 'crashed' && (
+                        <div className="crashed-state">
+                            <span className="info-text">FLIGHT FLEW AWAY</span>
+                            <div className="crashed-multiplier">{multiplier.toFixed(2)}x</div>
+                            <span className="status-text">{isCashedOut ? `You won ₹${payout.toFixed(2)}!` : 'You lost this round.'}</span>
+                        </div>
+                    )}
                 </div>
             </div>
+
+            <div className="game-controls">
+                <button onClick={() => setShowBetModal(true)} className={`primary-btn ${!isBettingEnabled ? 'disabled' : ''}`} disabled={!isBettingEnabled}>
+                    Bet Amount: ₹{betAmount}
+                </button>
+            </div>
+            
+            <div className="history-section">
+                <h4>Last Crashes</h4>
+                <div className="history-list">
+                    {gameHistory.map((round, index) => (
+                        <span key={index} className="history-item">{round.crash_multiplier.toFixed(2)}x</span>
+                    ))}
+                </div>
+            </div>
+            
+            {showBetModal && (
+                <div className="modal-overlay">
+                    <div className="bet-modal">
+                        <h3>Place Your Bet</h3>
+                        <div className="modal-content">
+                            <p>Amount</p>
+                            <div className="amount-controls">
+                                <button onClick={() => setBetAmount(Math.max(10, betAmount - 10))}>-</button>
+                                <input type="number" value={betAmount} onChange={e => setBetAmount(Number(e.target.value))} />
+                                <button onClick={() => setBetAmount(betAmount + 10)}>+</button>
+                            </div>
+                            <div className="quick-amounts">
+                                <button onClick={() => setBetAmount(100)}>100</button>
+                                <button onClick={() => setBetAmount(1000)}>1k</button>
+                                <button onClick={() => setBetAmount(10000)}>10k</button>
+                            </div>
+                        </div>
+                        <div className="modal-actions">
+                            <button className="cancel-btn" onClick={() => setShowBetModal(false)}>Cancel</button>
+                            <button className="confirm-btn" onClick={handlePlaceBet}>Confirm</button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
-};
+}
 
 export default PushpaRajGame;
