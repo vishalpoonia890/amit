@@ -33,9 +33,9 @@ const LoadingScreen = () => (
     <div className="loading-app">
         <h1 className="animated-logo">MoneyPlus</h1>
         <p>Please wait, your account creation is in progress...</p>
-        <div className="progress-bar">
-            <div className="progress-bar-inner"></div>
-        </div>
+        // <div className="progress-bar">
+        //     <div className="progress-bar-inner"></div>
+        // </div>
     </div>
 );
 
