@@ -73,14 +73,21 @@
 .game-info {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: stretch; /* Align items to fill the container height */
     margin-bottom: 1.5rem;
     gap: 1rem;
 }
 
 .period-info, .countdown-info {
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Center content vertically */
+    align-items: center; /* Center content horizontally */
     text-align: center;
+    padding: 1rem; /* Add padding for a box-like appearance */
+    border-radius: 12px; /* Consistent border radius */
+    background: var(--secondary-card-bg); /* Use a different background for contrast */
 }
 
 .game-info h4 {
@@ -90,7 +97,7 @@
 }
 
 .game-info p {
-    font-size: 1.8rem;
+    font-size: 1.5rem; /* Decreased font size */
     font-weight: 700;
     color: var(--primary-color);
     margin: 0;
@@ -264,6 +271,80 @@
     color: white;
     opacity: 0.8;
 }
+
+/* New Bet Modal Styles */
+.bet-modal .modal-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.bet-modal .amount-controls {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.bet-modal .amount-controls button {
+    font-size: 1.5rem;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    box-shadow: none;
+    background: var(--secondary-button-bg);
+    color: var(--secondary-button-text);
+}
+
+.bet-modal .amount-controls input {
+    width: 80px;
+    padding: 0.5rem;
+    text-align: center;
+    font-size: 1.25rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: var(--input-bg);
+    color: var(--text-primary);
+}
+
+.bet-modal .quick-amounts {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.bet-modal .quick-amounts button {
+    flex-grow: 1;
+    background: var(--tertiary-button-bg);
+    color: var(--tertiary-button-text);
+    padding: 0.75rem 1rem;
+    box-shadow: none;
+}
+
+.bet-modal .modal-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.bet-modal .modal-actions button {
+    flex: 1;
+    font-weight: 600;
+}
+
+.bet-modal .cancel-btn {
+    background: var(--button-bg);
+    color: var(--button-text);
+}
+
+.bet-modal .confirm-btn {
+    background: linear-gradient(45deg, #4caf50, #66bb6a);
+    color: white;
+}
+
 
 .game-rules-section {
     background: var(--card-background);
