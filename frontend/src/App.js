@@ -32,10 +32,7 @@ const WEBSOCKET_URL = 'wss://investmentpro-nu7s.onrender.com';
 const LoadingScreen = () => (
     <div className="loading-app">
         <h1 className="animated-logo">MoneyPlus</h1>
-        <p>Please wait, your account creation is in progress...</p>
-        // <div className="progress-bar">
-        //     <div className="progress-bar-inner"></div>
-        // </div>
+        <p>Your finance booster</p>
     </div>
 );
 
@@ -286,7 +283,6 @@ function App() {
             case 'ip-lottery': return <IpLottery token={token} onBack={goBackToGameLobby} />;
             case 'win-win': return <WinWinGame onBack={goBackToGameLobby} />;
             case 'aviator': return <AviatorGame token={token} onBack={goBackToGameLobby} />;
-            // The case for Pushpa Raj has been removed.
             case 'account': return <AccountView userData={userData} financialSummary={financialSummary} onLogout={handleLogout} onViewChange={handleViewChange} token={token}/>;
             case 'deposit': return <Deposit token={token} userData={userData} onBack={goBackToDashboard} onDepositRequest={handleDepositRequest} />;
             case 'withdraw': return <Withdrawal token={token} financialSummary={financialSummary} onBack={goBackToDashboard} onWithdrawalRequest={handleWithdrawalRequest} />;
