@@ -1,35 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { initializeApp } from 'firebase/app';
-import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from 'firebase/auth';
-import { getFirestore, doc, onSnapshot, setDoc, serverTimestamp } from 'firebase/firestore';
-
-// --- Firebase Configuration ---
-// These global variables are expected to be provided by the environment.
-const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-pushpa-game';
-const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
-    // Fallback config for local development
-    apiKey: "your-api-key",
-    authDomain: "your-project.firebaseapp.com",
-    projectId: "your-project-id",
-    storageBucket: "your-project.appspot.com",
-    messagingSenderId: "your-sender-id",
-    appId: "your-app-id"
-};
-const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-
-
-// --- Firebase Initialization ---
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-
-// --- Game Constants ---
-const WAITING_TIME = 15000; // 15 seconds for betting
-const CRASHED_TIME = 5000; // 5 seconds to show crashed result
-const GAME_DOC_PATH = `/artifacts/${appId}/public/data/pushpa_raj_game/current_round`;
-const MULTIPLIER_GROWTH_RATE = 1.09;
 
 // --- SVG Icons & Graphics ---
+// NOTE: These are self-contained and don't need changes.
 const TruckIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 140" className="w-full h-full">
         {/* Headlight Glow */}
@@ -105,17 +77,14 @@ const BackgroundHills = () => (
     </svg>
 );
 
-// --- Main Game Component ---
-export default function App({ onBack }) { // Added onBack prop for navigation
-    // Firebase state
-    const [userId, setUserId] = useState(null);
-    const [isHost, setIsHost] = useState(false);
 
-    // Game state from Firestore
-    const [gameState, setGameState] = useState({ status: 'connecting', roundId: null });
+// --- Main Game Component ---
+export default function PushpaRajGame({ onBack, token, ws, realtimeData, financialSummary, onBetPlaced }) {
+    // Game state from WebSocket
+    const [gameState, setGameState] = useState({ status: 'connecting', roundId: null, multiplier: 1.00 });
     
     // Local player state
-    const [balance, setBalance] = useState(1000);
+    const [balance, setBalance] = useState(financialSummary?.balance || 1000);
     const [betAmount, setBetAmount] = useState(10);
     const [nextBetAmount, setNextBetAmount] = useState(10);
     const [hasPlacedBet, setHasPlacedBet] = useState(false);
@@ -124,23 +93,75 @@ export default function App({ onBack }) { // Added onBack prop for navigation
     const [notification, setNotification] = useState('');
 
     // Animation & display state
-    const [currentMultiplier, setCurrentMultiplier] = useState(1.00);
     const [truckPosition, setTruckPosition] = useState(0);
-    const [recentCrashes, setRecentCrashes] = useState([]);
+    const [recentCrashes, setRecentCrashes] = useState([]); // This would need a separate API call to fetch
     const [countdown, setCountdown] = useState(100);
     
     // --- Sound State ---
     const sounds = useRef(null);
     const [isAudioReady, setIsAudioReady] = useState(false);
-
-    const animationFrameRef = useRef();
-    const countdownIntervalRef = useRef();
-    const gameStateRef = useRef(gameState);
-
-    useEffect(() => {
-        gameStateRef.current = gameState;
-    }, [gameState]);
     
+    // --- Game State Update Effect ---
+    useEffect(() => {
+        if (realtimeData) {
+            // Listen for general Pushpa game state updates
+            if (realtimeData.type === 'PUSHPA_STATE_UPDATE') {
+                const { status, roundId, multiplier, crashMultiplier, countdown: serverCountdown, waitingTime } = realtimeData.payload;
+                
+                // Reset player state on new round
+                if (gameState.roundId !== roundId) {
+                    setHasPlacedBet(false);
+                    setHasCashedOut(false);
+                    setCashOutMultiplier(0);
+                }
+
+                setGameState(realtimeData.payload);
+                
+                if(status === 'running') {
+                    const elapsed = (1 - (serverCountdown / waitingTime)) * (waitingTime / 1000);
+                    const newPosition = elapsed * (10 + Math.log(multiplier));
+                    setTruckPosition(newPosition);
+                }
+            }
+
+            // Listen for specific outcomes for THIS user
+            if(realtimeData.type === 'PUSHPA_BET_SUCCESS') {
+                setNotification('Bet placed successfully!');
+                setTimeout(() => setNotification(''), 3000);
+                onBetPlaced(); // This function should be passed from App.js to refresh balance
+            }
+            if(realtimeData.type === 'PUSHPA_BET_ERROR') {
+                setNotification(realtimeData.message || 'Bet failed!');
+                setHasPlacedBet(false); // Re-enable betting button
+                setTimeout(() => setNotification(''), 3000);
+            }
+            if(realtimeData.type === 'PUSHPA_CASHOUT_SUCCESS') {
+                setNotification(`Cashed out for ${realtimeData.payout.toFixed(2)}!`);
+                setTimeout(() => setNotification(''), 3000);
+                onBetPlaced(); // Refresh balance
+            }
+        }
+    }, [realtimeData, gameState.roundId, onBetPlaced]);
+
+    // Update balance from props
+    useEffect(() => {
+        if(financialSummary) {
+            setBalance(financialSummary.balance);
+        }
+    }, [financialSummary]);
+
+
+    // --- Countdown Timer Effect ---
+    useEffect(() => {
+        if (gameState.status === 'waiting' && gameState.countdown && gameState.waitingTime) {
+            const percentage = (gameState.countdown / gameState.waitingTime) * 100;
+            setCountdown(percentage);
+        } else {
+            setCountdown(0);
+        }
+    }, [gameState.status, gameState.countdown, gameState.waitingTime]);
+
+
     // --- Sound Setup Effect ---
     useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -158,175 +179,80 @@ export default function App({ onBack }) { // Added onBack prop for navigation
                 sounds.current.engineSound.volume.value = -20;
             };
             document.body.appendChild(script);
-
-            return () => {
-                if (document.body.contains(script)) {
-                    document.body.removeChild(script);
-                }
-            }
+            return () => { if (document.body.contains(script)) { document.body.removeChild(script); } }
         }
     }, []);
 
     const initAudio = async () => {
-        if (window.Tone && window.Tone.context.state !== 'running') {
-            await window.Tone.start();
-        }
+        if (window.Tone && window.Tone.context.state !== 'running') { await window.Tone.start(); }
         setIsAudioReady(true);
     };
-
-    // --- Countdown Timer Effect ---
-    useEffect(() => {
-        if (gameState.status === 'waiting') {
-            const startTime = gameState.timestamp?.toMillis();
-            if (!startTime) return;
-
-            countdownIntervalRef.current = setInterval(() => {
-                const elapsed = Date.now() - startTime;
-                const remaining = WAITING_TIME - elapsed;
-                const percentage = Math.max(0, (remaining / WAITING_TIME) * 100);
-                setCountdown(percentage);
-
-                if (remaining <= 0) {
-                    clearInterval(countdownIntervalRef.current);
-                }
-            }, 100); // Update every 100ms for a smooth bar
-
-        } else {
-            clearInterval(countdownIntervalRef.current);
-            setCountdown(0);
-        }
-
-        return () => clearInterval(countdownIntervalRef.current);
-    }, [gameState.status, gameState.timestamp]);
-
-    // --- Firebase Auth & Host Logic (unchanged) ---
-    useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, async (user) => {
-            if (user) { setUserId(user.uid); } 
-            else { try { if (initialAuthToken) { await signInWithCustomToken(auth, initialAuthToken); } else { await signInAnonymously(auth); } } catch (error) { console.error("Authentication failed:", error); } }
-        });
-        return () => unsubscribe();
-    }, []);
-
-    const runHostLogic = useCallback(async () => {
-        if (!isHost || !userId) return;
-        const now = Date.now();
-        const currentState = gameStateRef.current;
-        const lastUpdated = currentState.timestamp?.toMillis() || 0;
-        if (currentState.hostId !== userId) { setIsHost(false); return; }
-        try {
-            if (currentState.status === 'crashed' && now > lastUpdated + CRASHED_TIME) {
-                await setDoc(doc(db, GAME_DOC_PATH), { status: 'waiting', roundId: crypto.randomUUID(), hostId: userId, timestamp: serverTimestamp() }, { merge: true });
-            } else if (currentState.status === 'waiting' && now > lastUpdated + WAITING_TIME) {
-                const crashMultiplier = (Math.random() * 10) + 1;
-                await setDoc(doc(db, GAME_DOC_PATH), { status: 'running', startTime: serverTimestamp(), crashMultiplier: parseFloat(crashMultiplier.toFixed(2)), hostId: userId, timestamp: serverTimestamp() }, { merge: true });
-            } else if (currentState.status === 'running') {
-                 const startTime = currentState.startTime?.toMillis();
-                 if (!startTime) return;
-                 const elapsed = (now - startTime) / 1000;
-                 const multiplier = Math.max(1, Math.pow(MULTIPLIER_GROWTH_RATE, elapsed));
-                 if (multiplier >= currentState.crashMultiplier) {
-                    await setDoc(doc(db, GAME_DOC_PATH), { status: 'crashed', hostId: userId, timestamp: serverTimestamp() }, { merge: true });
-                 } else if (now > lastUpdated + 5000) {
-                    await setDoc(doc(db, GAME_DOC_PATH), { hostId: userId, timestamp: serverTimestamp() }, { merge: true });
-                 }
-            }
-        } catch (error) { console.error("Host logic failed:", error); setIsHost(false); }
-    }, [userId, isHost]);
-
-    useEffect(() => {
-        if (!userId) return;
-        const unsubscribe = onSnapshot(doc(db, GAME_DOC_PATH), (snapshot) => {
-            if (snapshot.exists()) {
-                const data = snapshot.data();
-                const now = Date.now();
-                const lastUpdated = data.timestamp?.toMillis() || 0;
-                const hostIsStale = now - lastUpdated > 15000;
-                if (data.hostId === userId) { if (!isHost) setIsHost(true); } 
-                else if (!data.hostId || hostIsStale) { setDoc(doc(db, GAME_DOC_PATH), { hostId: userId, timestamp: serverTimestamp() }, { merge: true }).catch(e => console.error("Error trying to become host:", e)); } 
-                else { if (isHost) setIsHost(false); }
-                if (gameStateRef.current.roundId !== data.roundId) {
-                    setHasCashedOut(false);
-                    setCashOutMultiplier(0);
-                    setCurrentMultiplier(1.00);
-                    setTruckPosition(0);
-                    if (data.status === 'crashed' && gameStateRef.current.status === 'running') { setRecentCrashes(prev => [gameStateRef.current.crashMultiplier, ...prev.slice(0, 5)]); }
-                    setHasPlacedBet(data.status !== 'waiting');
-                }
-                 setGameState(data);
-            } else { setDoc(doc(db, GAME_DOC_PATH), { status: 'crashed', crashMultiplier: 1.00, roundId: crypto.randomUUID(), hostId: userId, timestamp: serverTimestamp() }).catch(e => console.error("Failed to init game doc", e)); }
-        });
-        return () => unsubscribe();
-    }, [userId, isHost]);
-
-    useEffect(() => {
-        if (isHost) { const gameLoopInterval = setInterval(runHostLogic, 1000); return () => clearInterval(gameLoopInterval); }
-    }, [isHost, runHostLogic]);
     
-    // --- Animation & Sound Loop ---
-    const runAnimation = useCallback(() => {
-        const currentGameState = gameStateRef.current;
-        if (currentGameState.status !== 'running') { cancelAnimationFrame(animationFrameRef.current); return; }
-        const startTime = currentGameState.startTime?.toMillis();
-        if (!startTime) { animationFrameRef.current = requestAnimationFrame(runAnimation); return; }
-        const elapsed = (Date.now() - startTime) / 1000;
-        const newMultiplier = Math.max(1, Math.pow(MULTIPLIER_GROWTH_RATE, elapsed));
-        setCurrentMultiplier(newMultiplier);
-        const newPosition = elapsed * (10 + Math.log(newMultiplier));
-        setTruckPosition(newPosition);
-        animationFrameRef.current = requestAnimationFrame(runAnimation);
-    }, []);
-
+    // --- Sound Playing Effect ---
     useEffect(() => {
-        if (gameState.status === 'running') {
-            if (isAudioReady && sounds.current && sounds.current.engineSound.state === 'stopped') { sounds.current.engineSound.triggerAttack(); }
-            animationFrameRef.current = requestAnimationFrame(runAnimation);
-        } else {
-            if (isAudioReady && sounds.current && sounds.current.engineSound.state === 'started') { sounds.current.engineSound.triggerRelease(); }
-            if (gameState.status === 'crashed') {
-                if (isAudioReady && sounds.current && gameStateRef.current.status === 'running') { sounds.current.crashSound.triggerAttackRelease("1n"); }
-                if (gameState.crashMultiplier) { setCurrentMultiplier(gameState.crashMultiplier); }
+        if (isAudioReady && sounds.current) {
+            if (gameState.status === 'running' && sounds.current.engineSound.state === 'stopped') {
+                sounds.current.engineSound.triggerAttack();
+            } else if (gameState.status !== 'running' && sounds.current.engineSound.state === 'started') {
+                sounds.current.engineSound.triggerRelease();
             }
-            cancelAnimationFrame(animationFrameRef.current);
+            if (gameState.status === 'crashed' && (realtimeData?.payload?.prevStatus === 'running')) {
+                 sounds.current.crashSound.triggerAttackRelease("1n");
+            }
         }
-        return () => cancelAnimationFrame(animationFrameRef.current);
-    }, [gameState.status, runAnimation, gameState.crashMultiplier, isAudioReady]);
+    }, [gameState.status, isAudioReady, realtimeData]);
     
-    // --- User Actions (unchanged) ---
+    // --- User Actions ---
     const handlePlaceBet = async () => {
         if (!isAudioReady) await initAudio();
         if (sounds.current) sounds.current.betSound.triggerAttackRelease("C4", "8n");
-        if (balance >= nextBetAmount) { setBalance(prev => prev - nextBetAmount); setBetAmount(nextBetAmount); setHasPlacedBet(true);
-        } else { setNotification("Insufficient balance!"); setTimeout(() => setNotification(''), 3000); }
+        if (balance >= nextBetAmount) { 
+            setHasPlacedBet(true); 
+            ws.send(JSON.stringify({
+                game: 'pushpa',
+                action: 'bet',
+                payload: { token, betAmount: nextBetAmount, roundId: gameState.roundId }
+            }));
+        } else { 
+            setNotification("Insufficient balance!"); 
+            setTimeout(() => setNotification(''), 3000); 
+        }
     };
-    const handleCancelBet = () => { setBalance(prev => prev + betAmount); setHasPlacedBet(false); };
+    const handleCancelBet = () => { /* Cancellation logic would need backend support */ };
     const handleCashOut = () => {
         if (sounds.current) sounds.current.cashOutSound.triggerAttackRelease("G5", "4n");
-        if (gameState.status === 'running' && hasPlacedBet && !hasCashedOut) { const winnings = betAmount * currentMultiplier; setBalance(prev => prev + winnings); setCashOutMultiplier(currentMultiplier); setHasCashedOut(true); }
+        if (gameState.status === 'running' && hasPlacedBet && !hasCashedOut) {
+            setHasCashedOut(true);
+            ws.send(JSON.stringify({
+                game: 'pushpa',
+                action: 'cashout',
+                payload: { token, roundId: gameState.roundId }
+            }));
+        }
     };
     
-    // --- UI Components (unchanged) ---
+    // --- UI Components ---
     const renderActionButton = () => {
         if (gameState.status === 'waiting') {
-            if (hasPlacedBet) { return ( <button onClick={handleCancelBet} className="w-full h-full text-xl font-bold bg-gray-500 hover:bg-gray-600 rounded-lg shadow-lg transition-all transform hover:scale-105"> CANCEL BET </button> ); }
+            if (hasPlacedBet) { return ( <button disabled className="w-full h-full text-xl font-bold bg-gray-500 rounded-lg"> WAITING FOR START... </button> ); }
             return ( <button onClick={handlePlaceBet} className="w-full h-full text-xl font-bold bg-green-500 hover:bg-green-600 rounded-lg shadow-lg transition-all transform hover:scale-105"> PLACE BET </button> );
         }
         if (gameState.status === 'running') {
-            if (hasPlacedBet && !hasCashedOut) { return ( <button onClick={handleCashOut} className="w-full h-full text-xl font-bold bg-yellow-500 hover:bg-yellow-600 rounded-lg shadow-lg transition-all transform hover:scale-105"> CASH OUT @ {currentMultiplier.toFixed(2)}x </button> ); }
+            if (hasPlacedBet && !hasCashedOut) { return ( <button onClick={handleCashOut} className="w-full h-full text-xl font-bold bg-yellow-500 hover:bg-yellow-600 rounded-lg shadow-lg transition-all transform hover:scale-105"> CASH OUT @ {gameState.multiplier.toFixed(2)}x </button> ); }
             if(hasCashedOut){ return ( <button disabled className="w-full h-full text-xl font-bold bg-blue-400 rounded-lg cursor-not-allowed"> CASHED OUT @ {cashOutMultiplier.toFixed(2)}x </button> ); }
         }
         return ( <button disabled className="w-full h-full text-xl font-bold bg-gray-700 rounded-lg cursor-not-allowed"> WAITING FOR NEXT ROUND... </button> );
     };
     const getMultiplierColor = () => {
         if (gameState.status === 'crashed') return 'text-red-500';
-        if (currentMultiplier > 5) return 'text-green-400';
-        if (currentMultiplier > 2) return 'text-yellow-400';
+        if (gameState.multiplier > 5) return 'text-green-400';
+        if (gameState.multiplier > 2) return 'text-yellow-400';
         return 'text-white';
     };
     const getStatusMessage = () => {
         switch (gameState.status) {
-            case 'connecting': return 'CONNECTING TO PUSHPA NETWORK...';
-            case 'waiting': return 'PLACE YOUR BETS! ROUND STARTING SOON...';
+            case 'connecting': return 'CONNECTING...';
+            case 'waiting': return 'PLACE YOUR BETS!';
             case 'running': return hasCashedOut ? `SUCCESSFULLY CASHED OUT!` : 'Rukega nahi saala!';
             case 'crashed': return `TRUCK STOPPED!`;
             default: return '';
@@ -352,7 +278,6 @@ export default function App({ onBack }) { // Added onBack prop for navigation
                 </defs>
             </svg>
              <style>{`
-                /* TIRE ROTATION FIX */
                 @keyframes wheel-spin { 
                     from { transform: rotate(0deg); } 
                     to { transform: rotate(360deg); } 
@@ -361,7 +286,6 @@ export default function App({ onBack }) { // Added onBack prop for navigation
                 #wheel-1 { transform-origin: 70px 105px; }
                 #wheel-2 { transform-origin: 130px 105px; }
                 #wheel-3 { transform-origin: 235px 105px; }
-
                 @keyframes shake { 0%, 100% { transform: translate(0, 0) rotate(0); } 25% { transform: translate(-1px, 1px) rotate(-0.5deg); } 50% { transform: translate(1px, -1px) rotate(0.5deg); } 75% { transform: translate(-1px, -1px) rotate(0.2deg); } }
                 .shake-animation { animation: shake 0.3s cubic-bezier(.36,.07,.19,.97) both; }
                 @keyframes road-lines { from { background-position: 0 50%; } to { background-position: -200px 50%; } }
@@ -370,8 +294,7 @@ export default function App({ onBack }) { // Added onBack prop for navigation
             
             <div className="w-full max-w-4xl flex justify-between items-center mb-2 px-4 py-2 bg-black bg-opacity-30 rounded-lg z-30">
                 <button onClick={onBack} className="text-yellow-300 font-bold hover:underline">&lt; Back to Lobby</button>
-                <div className="text-lg">Balance: <span className="font-bold text-green-400">${balance.toFixed(2)}</span></div>
-                <div className="text-xs text-gray-400">UserID: {userId || 'Connecting...'}</div>
+                <div className="text-lg">Balance: <span className="font-bold text-green-400">${Number(balance).toFixed(2)}</span></div>
             </div>
 
             <div className="w-full max-w-4xl flex justify-center items-center gap-2 mb-2 z-30">
@@ -394,27 +317,22 @@ export default function App({ onBack }) { // Added onBack prop for navigation
                 
                 <div className="absolute bottom-0 left-0 w-full h-24 bg-[#4a2c0f]"></div>
                 <div className={`absolute bottom-16 left-0 w-full h-1 road-lines-animation ${gameState.status === 'running' ? 'opacity-100' : 'opacity-0'}`}></div>
-
-                 {/* Countdown Bar */}
+                
                 {gameState.status === 'waiting' && (
                     <div className="absolute top-0 left-0 w-full h-2.5 bg-gray-700/50 z-20">
-                        <div
-                            className="h-full bg-gradient-to-r from-yellow-400 to-amber-500 transition-all duration-100 ease-linear rounded-r-full"
-                            style={{ width: `${countdown}%` }}
-                        ></div>
+                        <div className="h-full bg-gradient-to-r from-yellow-400 to-amber-500 transition-all duration-100 ease-linear rounded-r-full" style={{ width: `${countdown}%` }}></div>
                         <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-white drop-shadow-md">
-                            STARTING IN {((countdown / 100) * (WAITING_TIME / 1000)).toFixed(1)}s
+                            STARTING IN {((countdown / 100) * (15)).toFixed(1)}s
                         </div>
                     </div>
                 )}
-
 
                 <div className={`absolute bottom-4 z-10 w-72 h-36 transition-transform duration-100 ease-linear ${gameState.status === 'crashed' ? 'shake-animation' : ''}`} style={{ left: '5%', transform: `translateX(${Math.min(truckPosition, 500)}px)`}}>
                    <TruckIcon />
                 </div>
 
                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-20 pointer-events-none z-20">
-                    <h2 className={`text-7xl md:text-9xl font-bold tracking-tighter transition-colors ${getMultiplierColor()}`}>{currentMultiplier.toFixed(2)}x</h2>
+                    <h2 className={`text-7xl md:text-9xl font-bold tracking-tighter transition-colors ${getMultiplierColor()}`}>{gameState.multiplier.toFixed(2)}x</h2>
                     <p className="text-xl mt-2 font-semibold text-gray-200 bg-black bg-opacity-40 px-4 py-1 rounded-md">{getStatusMessage()}</p>
                 </div>
             </div>
@@ -439,4 +357,3 @@ export default function App({ onBack }) { // Added onBack prop for navigation
         </div>
     );
 }
-
