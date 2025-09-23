@@ -160,12 +160,14 @@ function ProductsAndPlans({ token, userBalance, onPurchaseComplete, allPlans = [
         } finally {
             setPurchaseLoading(false);
             setConfirmingPlanId(null);
+            // After purchase, re-fetch investments to update the UI
+            onPurchaseComplete();
         }
     };
     
     const closeResultModalAndRefresh = () => {
         setResultModal({ show: false, success: false, message: '' });
-        onPurchaseComplete();
+        // The onPurchaseComplete call will handle the refresh, so we don't need to call it here.
     };
 
     const formatCurrency = (amount) => new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR" }).format(amount);
@@ -176,13 +178,17 @@ function ProductsAndPlans({ token, userBalance, onPurchaseComplete, allPlans = [
     const getProductStatus = (id) => {
         const preSaleProducts = [102, 103, 104, 105];
         const launchDates = {
-            102: '27 Sep',
-            103: '28 Sep',
-            104: '29 Sep',
-            105: '30 Sep',
+            102: '2025-09-27T00:00:00Z',
+            103: '2025-09-28T00:00:00Z',
+            104: '2025-09-29T00:00:00Z',
+            105: '2025-09-30T00:00:00Z',
         };
+        const launchDate = launchDates[id];
+        const isPreSale = preSaleProducts.includes(id) && new Date(launchDate) > new Date();
+        const launchText = isPreSale ? new Date(launchDate).toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) : '';
+
         if (preSaleProducts.includes(id)) {
-            return { isPreSale: true, launchDate: launchDates[id] };
+            return { isPreSale, launchDate: launchText, fullLaunchDate: launchDate };
         }
         return { isPreSale: false };
     };
@@ -223,8 +229,8 @@ function ProductsAndPlans({ token, userBalance, onPurchaseComplete, allPlans = [
                 ) : (
                     filteredPlans.map((plan) => {
                         const canAfford = userBalance !== undefined && userBalance >= plan.price;
-                        const isPurchased = userInvestments.includes(plan.plan_name);
                         const productStatus = getProductStatus(plan.id);
+                        const isPurchased = userInvestments.includes(plan.plan_name) || productStatus.isPreSale && new Date() < new Date(productStatus.fullLaunchDate);
                         
                         return (
                             <div key={plan.id} className="plan-card">
@@ -249,7 +255,7 @@ function ProductsAndPlans({ token, userBalance, onPurchaseComplete, allPlans = [
                                             <div className="pre-sale-info">
                                                 {confirmingPlanId !== plan.id ? (
                                                     <button
-                                                        className={`purchase-button ${!canAfford ? 'disabled' : ''}`}
+                                                        className={`purchase-button pre-sale-button ${!canAfford ? 'disabled' : ''}`}
                                                         onClick={() => setConfirmingPlanId(plan.id)}
                                                         disabled={purchaseLoading || !canAfford}
                                                     >
