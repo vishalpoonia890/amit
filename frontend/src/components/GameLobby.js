@@ -1,4 +1,3 @@
-// src/components/GameLobby.js
 import React from 'react';
 import './GameLobby.css';
 // --- INLINED ICONS ---
@@ -30,7 +29,7 @@ const games = [
         id: 'color-prediction',
         name: 'Color Prediction',
         description: 'Predict the next winning color to multiply your investment.',
-        image: '../assests/color.png',
+        image: '/assests/color.png',
         view: 'color-prediction-game',
         isAvailable: true,
     },
@@ -38,7 +37,7 @@ const games = [
         id: 'ip-lottery',
         name: 'IP Lottery',
         description: 'Try your luck and earn a jackpot of 10k!',
-        image: '../assests/lottery.png',
+        image: '/assests/lottery.png',
         view: 'ip-lottery',
         isAvailable: true,
     },
@@ -46,7 +45,7 @@ const games = [
         id: 'pushpa-raj',
         name: 'Pushpa Raj',
         description: 'Cash out before the truck stops. Rukega nahi saala!',
-        image: '../assests/pushpa.png',
+        image: '/assests/pushpa.png',
         view: 'pushpa-raj',
         isAvailable: false, // Set to false to show 'Coming Soon'
     },
@@ -54,7 +53,7 @@ const games = [
         id: 'win-win',
         name: 'Win-Win',
         description: 'Exclusive game for our top investors. Guaranteed win for every top player!',
-        image: '../assests/winwin.png',
+        image: '/assests/winwin.png',
         view: 'win-win',
         isAvailable: false, // Set to false to show 'Exclusive Access'
         isExclusive: true,
