@@ -22,7 +22,6 @@ import SellUsdt from './components/SellUsdt';
 import IpLottery from './components/IpLottery';
 import WinWinGame from './components/WinWinGame';
 import AviatorGame from './components/AviatorGame';
-import PushpaRajGame from './components/PushpaRajGame';
 import LandingPage from './components/LandingPage';
 import DailyTasks from './components/DailyTasks';
 import NewsView from './components/NewsView';
@@ -58,20 +57,16 @@ function App() {
     const [showNotificationsDialog, setShowNotificationsDialog] = useState(false);
     const [initialCategory, setInitialCategory] = useState('all');
     
-    // ✅ FIX: Use the new custom hook to handle WebSocket logic and pass a sendMessage function.
     const { lastMessage, readyState, sendMessage } = useWebSocket(WEBSOCKET_URL, token);
     
-    // ✅ FIX: New state variables to hold specific game data separately
+    // The state variable for Pushpa Raj has been removed.
     const [colorPredictionData, setColorPredictionData] = useState(null);
-    const [pushpaGameData, setPushpaGameData] = useState(null);
 
-    // ✅ FIX: This new useEffect now handles incoming messages and updates the correct state.
+    // This useEffect now only handles messages for the color prediction game.
     useEffect(() => {
         if (lastMessage) {
             if (lastMessage.type === 'TIMER_UPDATE' || lastMessage.type === 'ROUND_RESULT') {
                 setColorPredictionData(lastMessage);
-            } else if (lastMessage.type === 'PUSHPA_STATE_UPDATE' || lastMessage.type === 'PUSHPA_BET_SUCCESS' || lastMessage.type === 'PUSHPA_BET_ERROR' || lastMessage.type === 'PUSHPA_CASHOUT_SUCCESS') {
-                setPushpaGameData(lastMessage);
             }
         }
     }, [lastMessage]);
@@ -279,7 +274,6 @@ function App() {
             case 'game': return <GameLobby onViewChange={handleViewChange} />; 
                 
             case 'color-prediction-game': 
-            // ✅ FIX: Pass the specific color game data and the sendMessage function
             return <GameView 
                 token={token}
                 financialSummary={financialSummary}
@@ -292,14 +286,7 @@ function App() {
             case 'ip-lottery': return <IpLottery token={token} onBack={goBackToGameLobby} />;
             case 'win-win': return <WinWinGame onBack={goBackToGameLobby} />;
             case 'aviator': return <AviatorGame token={token} onBack={goBackToGameLobby} />;
-            case 'pushpa-raj': 
-                return <PushpaRajGame 
-                    token={token} 
-                    onBack={goBackToGameLobby} 
-                    // ✅ FIX: Pass the specific pushpa game data and the sendMessage function
-                    realtimeData={pushpaGameData}
-                    sendMessage={sendMessage}
-                />;
+            // The case for Pushpa Raj has been removed.
             case 'account': return <AccountView userData={userData} financialSummary={financialSummary} onLogout={handleLogout} onViewChange={handleViewChange} token={token}/>;
             case 'deposit': return <Deposit token={token} userData={userData} onBack={goBackToDashboard} onDepositRequest={handleDepositRequest} />;
             case 'withdraw': return <Withdrawal token={token} financialSummary={financialSummary} onBack={goBackToDashboard} onWithdrawalRequest={handleWithdrawalRequest} />;
