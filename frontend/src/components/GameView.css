@@ -122,11 +122,15 @@
 }
 
 .game-info p {
-    font-size: 1.2rem; /* Decreased font size */
+    font-size: 1.2rem;
     font-weight: 700;
     color: #ffc107;
     margin: 0;
     line-height: 1;
+}
+.game-info p.final-countdown {
+    color: white;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 255, 255, 0.6);
 }
 
 /* --- Betting Buttons --- */
