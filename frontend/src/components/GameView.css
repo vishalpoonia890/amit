@@ -83,8 +83,9 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: center;
-    text-align: center;
+    /* Aligned content to the left */
+    align-items: flex-start;
+    text-align: left;
     padding: 1rem;
     border-radius: 12px;
     background: #2b2b2b; /* A lighter dark background for contrast */
@@ -97,7 +98,8 @@
 }
 
 .game-info p {
-    font-size: 1.5rem;
+    /* Decreased font size */
+    font-size: 1.2rem;
     font-weight: 700;
     color: #ffc107;
     margin: 0;
