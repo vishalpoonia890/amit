@@ -1,7 +1,8 @@
-// src/App.js
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import './App.css';
+// ✅ FIX: Import the new custom hook
+import useWebSocket from './hooks/useWebSocket';
 
 // --- COMPONENT IMPORTS ---
 import UserDashboard from './components/UserDashboard';
@@ -24,15 +25,13 @@ import SellUsdt from './components/SellUsdt';
 import IpLottery from './components/IpLottery';
 import WinWinGame from './components/WinWinGame';
 import AviatorGame from './components/AviatorGame';
-import PushpaRajGame from './components/PushpaRajGame'; // ✅ ADD THIS LINE
+import PushpaRajGame from './components/PushpaRajGame';
 import LandingPage from './components/LandingPage';
 import DailyTasks from './components/DailyTasks';
 import NewsView from './components/NewsView';
 
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
-// ✅ NEW: WebSocket URL. This uses wss:// for your secure production site.
 const WEBSOCKET_URL = 'wss://investmentpro-nu7s.onrender.com';
-
 
 const LoadingScreen = () => (
     <div className="loading-app">
@@ -50,6 +49,7 @@ function App() {
     const [authView, setAuthView] = useState('login');
     const [userData, setUserData] = useState(null);
     const [financialSummary, setFinancialSummary] = useState(null);
+    // ✅ FIX: The loading state is now managed directly
     const [loading, setLoading] = useState(true);
     const [isRegistering, setIsRegistering] = useState(false);
     const [snackbarNotification, setSnackbarNotification] = useState({ show: false, message: '', type: 'info' });
@@ -61,52 +61,10 @@ function App() {
     const [promotions, setPromotions] = useState([]);
     const [showNotificationsDialog, setShowNotificationsDialog] = useState(false);
     const [initialCategory, setInitialCategory] = useState('all');
-// ✅ NEW STATE: This will hold the live game data received from the WebSocket.
-    const [realtimeGameData, setRealtimeGameData] = useState(null);
-    const [ws, setWs] = useState(null); // Holds the WebSocket instance
+    
+    // ✅ FIX: Use the new custom hook to handle WebSocket logic
+    const { lastMessage, readyState } = useWebSocket(WEBSOCKET_URL, token);
 
-      // ✅ NEW useEffect: This hook manages the WebSocket connection.
-    useEffect(() => {
-        if (!token) {
-            // If the user is not logged in, don't connect.
-            if (ws) ws.close();
-            return;
-        }
-
-        // Connect to the WebSocket server.
-        const websocket = new WebSocket(WEBSOCKET_URL);
-
-        websocket.onopen = () => {
-            console.log('WebSocket Connected');
-            setWs(websocket);
-        };
-
-        websocket.onmessage = (event) => {
-            // ✅ ADD THIS LINE to see exactly what the server is sending you.
-    // console.log("MESSAGE RECEIVED:", event.data); 
-            const data = JSON.parse(event.data);
-            
-            // We update the state with whatever data the server sends.
-            setRealtimeGameData(data);
-        };
-
-        websocket.onclose = () => {
-            console.log('WebSocket Disconnected');
-            setWs(null);
-        };
-
-        websocket.onerror = (error) => {
-            console.error('WebSocket Error:', error);
-        };
-
-        // Cleanup function: This will be called when the component unmounts or the token changes.
-        return () => {
-            websocket.close();
-        };
-    }, [token]); // This effect re-runs if the user logs in or out.
-
-
-    //previous use effects 
     useEffect(() => {
         if (token) {
             localStorage.setItem('view', view);
@@ -139,9 +97,10 @@ function App() {
         setToken(null);
         setUserData(null);
         setFinancialSummary(null);
+        // ✅ FIX: Immediately set loading to false on logout
+        setLoading(false);
     }, []);
 
-    // ✅ PERFORMANCE FIX: Split data fetching into logical groups
     const fetchEssentialData = useCallback(async (authToken) => {
         if (!authToken) return;
         try {
@@ -154,7 +113,7 @@ function App() {
         } catch (err) {
             console.error("Failed to fetch essential user data:", err);
             if (err.response && err.response.status === 403) {
-                 handleLogout();
+                handleLogout();
             }
         }
     }, [handleLogout]);
@@ -172,7 +131,6 @@ function App() {
     const fetchDynamicData = useCallback(async (authToken) => {
         if (!authToken) return;
         try {
-            // Only fetch notifications and financial data, which change often.
             const [summaryRes, notifRes] = await Promise.all([
                 axios.get(`${API_BASE_URL}/api/financial-summary`, { headers: { Authorization: `Bearer ${authToken}` } }),
                 axios.get(`${API_BASE_URL}/api/notifications`, { headers: { Authorization: `Bearer ${authToken}` } })
@@ -186,12 +144,10 @@ function App() {
     }, []);
 
 
-    // ✅ PERFORMANCE FIX: Fetch data more intelligently on initial load.
     useEffect(() => {
         const storedToken = localStorage.getItem('token');
         if (storedToken) {
             setToken(storedToken);
-            // Fetch everything on the first load to populate the app
             Promise.all([
                 fetchEssentialData(storedToken),
                 fetchStaticData(storedToken),
@@ -202,11 +158,9 @@ function App() {
         }
     }, [fetchEssentialData, fetchStaticData, fetchDynamicData]);
 
-    // ✅ PERFORMANCE FIX: Refresh only dynamic data on a longer interval.
     useEffect(() => {
         if (token) {
-            // Refresh every 2 minutes instead of 30 seconds
-            const interval = setInterval(() => fetchDynamicData(token), 120000); 
+            const interval = setInterval(() => fetchDynamicData(token), 120000);
             return () => clearInterval(interval);
         }
     }, [token, fetchDynamicData]);
@@ -219,7 +173,6 @@ function App() {
             const newToken = response.data.token;
             localStorage.setItem('token', newToken);
             setToken(newToken);
-            // Fetch all data again on a fresh login
             await Promise.all([
                 fetchEssentialData(newToken),
                 fetchStaticData(newToken),
@@ -245,11 +198,9 @@ function App() {
         try {
             const response = await axios.post(`${API_BASE_URL}/api/register`, registerFormData);
             const { token: newToken, user: newUser } = response.data;
-
             localStorage.setItem('token', newToken);
             setToken(newToken);
             setUserData(newUser); 
-
             setView('dashboard');
             showSnackbar('Registration successful! Welcome.', 'success');
             
@@ -307,7 +258,7 @@ function App() {
                     userBalance={totalBalance} 
                     allPlans={allPlans} 
                     loading={loading} 
-                    onPurchaseComplete={() => fetchDynamicData(token)} // Only fetch dynamic data after purchase
+                    onPurchaseComplete={() => fetchDynamicData(token)}
                     initialCategory={initialCategory} 
                 />;
             }
@@ -317,30 +268,29 @@ function App() {
                 return <NewsView onBack={goBackToDashboard} />;
             case 'game': return <GameLobby onViewChange={handleViewChange} />; 
                 
-            // ✅ MODIFIED: We now pass the WebSocket instance and real-time data to GameView.
             case 'color-prediction-game': 
+            // ✅ FIX: Pass the state from the hook instead of the raw WebSocket object
             return <GameView 
                 token={token}
-                    financialSummary={financialSummary}
-                    onBetPlaced={() => fetchDynamicData(token)}
-                    
-                    // Pass the new props down
-                    ws={ws} 
-                    realtimeData={realtimeGameData} 
-                        // ✅ ADD THIS LINE BACK
-            onViewChange={handleViewChange} 
-                />;
+                financialSummary={financialSummary}
+                onBetPlaced={() => fetchDynamicData(token)}
+                realtimeData={lastMessage}
+                onViewChange={handleViewChange}
+                // ✅ FIX: Pass a sendMessage function from the hook
+                sendMessage={lastMessage}
+            />;
                 
             case 'ip-lottery': return <IpLottery token={token} onBack={goBackToGameLobby} />;
             case 'win-win': return <WinWinGame onBack={goBackToGameLobby} />;
             case 'aviator': return <AviatorGame token={token} onBack={goBackToGameLobby} />;
-            {/* ✅ ADD THIS CASE for the new game */}
             case 'pushpa-raj': 
                 return <PushpaRajGame 
                     token={token} 
                     onBack={goBackToGameLobby} 
-                    ws={ws} 
-                    realtimeData={realtimeGameData}
+                    // ✅ FIX: Pass state from the hook
+                    realtimeData={lastMessage}
+                    // ✅ FIX: Pass a sendMessage function from the hook
+                    sendMessage={lastMessage}
                 />;
             case 'account': return <AccountView userData={userData} financialSummary={financialSummary} onLogout={handleLogout} onViewChange={handleViewChange} token={token}/>;
             case 'deposit': return <Deposit token={token} userData={userData} onBack={goBackToDashboard} onDepositRequest={handleDepositRequest} />;
@@ -383,10 +333,10 @@ function App() {
     return (
         <div className="App">
             <style>{`
-             .main-content {
-               padding-top: 80px;
-               padding-bottom: 80px;
-             }
+              .main-content {
+                padding-top: 80px;
+                padding-bottom: 80px;
+              }
             `}</style>
             <Snackbar message={snackbarNotification.message} type={snackbarNotification.type} show={snackbarNotification.show} onClose={() => setSnackbarNotification({ ...snackbarNotification, show: false })} />
             {showNotificationsDialog && <NotificationsDialog userNotifications={userNotifications} promotions={promotions} onClose={() => setShowNotificationsDialog(false)} onMarkAsRead={handleMarkAsRead} onDeleteRead={handleDeleteRead} />}
