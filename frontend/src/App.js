@@ -23,6 +23,7 @@ import SellUsdt from './components/SellUsdt';
 import IpLottery from './components/IpLottery';
 import WinWinGame from './components/WinWinGame';
 import AviatorGame from './components/AviatorGame';
+import PushpaRajGame from './components/PushpaRajGame'; // ✅ ADD THIS LINE
 import LandingPage from './components/LandingPage';
 import DailyTasks from './components/DailyTasks';
 import NewsView from './components/NewsView';
@@ -317,8 +318,8 @@ function App() {
                 
            // ✅ MODIFIED: We now pass the WebSocket instance and real-time data to GameView.
             case 'color-prediction-game': 
-                return <GameView 
-                    token={token}
+            return <GameView 
+                token={token}
                     financialSummary={financialSummary}
                     onBetPlaced={() => fetchDynamicData(token)}
                     
@@ -326,15 +327,23 @@ function App() {
                     ws={ws} 
                     realtimeData={realtimeGameData} 
                         // ✅ ADD THIS LINE BACK
-        onViewChange={handleViewChange} 
+            onViewChange={handleViewChange} 
                 />;
                 
-         case 'ip-lottery': return <IpLottery token={token} onBack={goBackToGameLobby} />;
-            case 'win-win': return <WinWinGame onBack={goBackToGameLobby} />;
-            case 'aviator': return <AviatorGame token={token} onBack={goBackToGameLobby} />;
-            case 'account': return <AccountView userData={userData} financialSummary={financialSummary} onLogout={handleLogout} onViewChange={handleViewChange} token={token}/>;
-            case 'deposit': return <Deposit token={token} userData={userData} onBack={goBackToDashboard} onDepositRequest={handleDepositRequest} />;
-            case 'withdraw': return <Withdrawal token={token} financialSummary={financialSummary} onBack={goBackToDashboard} onWithdrawalRequest={handleWithdrawalRequest} />;
+           case 'ip-lottery': return <IpLottery token={token} onBack={goBackToGameLobby} />;
+       case 'win-win': return <WinWinGame onBack={goBackToGameLobby} />;
+       case 'aviator': return <AviatorGame token={token} onBack={goBackToGameLobby} />;
+       {/* ✅ ADD THIS CASE for the new game */}
+       case 'pushpa-raj': 
+            return <PushpaRajGame 
+                token={token} 
+                onBack={goBackToGameLobby} 
+                ws={ws} 
+                realtimeData={realtimeGameData}
+            />;
+       case 'account': return <AccountView userData={userData} financialSummary={financialSummary} onLogout={handleLogout} onViewChange={handleViewChange} token={token}/>;
+       case 'deposit': return <Deposit token={token} userData={userData} onBack={goBackToDashboard} onDepositRequest={handleDepositRequest} />;
+       case 'withdraw': return <Withdrawal token={token} financialSummary={financialSummary} onBack={goBackToDashboard} onWithdrawalRequest={handleWithdrawalRequest} />;
             case 'team': return <Team token={token} onBack={goBackToDashboard} />;
             case 'rewards': return <Rewards onBack={goBackToDashboard} />;
             case 'sell-usdt': return <SellUsdt onBack={goBackToDashboard} />;
@@ -390,3 +399,4 @@ function App() {
 }
 
 export default App;
+
