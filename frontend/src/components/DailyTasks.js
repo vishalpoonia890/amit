@@ -1,51 +1,87 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
-import './DailyTasks.css'; // ✅ FIX: Import the new stylesheet
+import React from 'react';
+import './DailyTasks.css';
 
 // --- Import image assets ---
 import referralImage from '../assets/103.png';
 import investmentImage from '../assets/104.png';
 import gamingImage from '../assets/101.png';
-
-const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
+import winwinImage from '../assets/winwin.png';
+import pushpaImage from '../assets/pushpa.png';
 
 const imageMap = {
     'assets/103.png': referralImage,
     'assets/104.png': investmentImage,
     'assets/101.png': gamingImage,
+    'assets/winwin.png': winwinImage,
+    'assets/pushpa.png': pushpaImage,
 };
 
-// --- Helper Components ---
-const TaskCard = ({ task, onClaim, isLoading }) => {
-    const progress = Math.min((task.current_progress / task.target_value) * 100, 100);
-    const isCompleted = task.status === 'completed';
+const staticTasks = [
+    {
+        task_id: 1,
+        title: 'Referral Bonus',
+        description: 'Refer a friend and get a bonus when they sign up and make their first deposit.',
+        image_asset: 'assets/103.png',
+        reward_amount: 50,
+        reward_description: 'Instant Bonus',
+        status: 'unclaimed',
+    },
+    {
+        task_id: 2,
+        title: 'First Investment',
+        description: 'Make your very first investment in any product plan and get a special reward.',
+        image_asset: 'assets/104.png',
+        reward_amount: 100,
+        reward_description: 'Investment Credit',
+        status: 'completed',
+    },
+    {
+        task_id: 3,
+        title: 'New Game Launch',
+        description: 'Be one of the first 100 players to play our new game to get an exclusive bonus.',
+        image_asset: 'assets/101.png',
+        reward_amount: 75,
+        reward_description: 'Gaming Credit',
+        status: 'claimed',
+    },
+    {
+        task_id: 4,
+        title: 'Exclusive Access',
+        description: 'Get exclusive access to our newest games and private investment opportunities.',
+        image_asset: 'assets/winwin.png',
+        reward_amount: 0,
+        reward_description: 'VIP Status',
+        status: 'completed',
+    },
+    {
+        task_id: 5,
+        title: 'Pushpa Raj Special',
+        description: 'Play the Pushpa Raj game for a chance to win a massive jackpot.',
+        image_asset: 'assets/pushpa.png',
+        reward_amount: 0,
+        reward_description: 'Jackpot Entry',
+        status: 'unclaimed',
+    },
+];
 
+// --- Helper Component for offers ---
+const OfferCard = ({ offer }) => {
     return (
-        <div className={`task-card ${isCompleted ? 'completed' : ''}`}>
-            {task.image_asset && <img src={imageMap[task.image_asset]} alt={task.title} className="task-image" />}
+        <div className="task-card">
+            <img src={imageMap[offer.image_asset]} alt={offer.title} className="task-image" />
             <div className="task-content">
-                <h3 className="task-title">{task.title}</h3>
-                <p className="task-description">{task.description}</p>
-                <div className="progress-bar-container">
-                    <div className="progress-bar" style={{ width: `${progress}%` }}></div>
-                </div>
-                <div className="progress-text">
-                    {`${Math.floor(task.current_progress)} / ${task.target_value}`}
-                </div>
+                <h3 className="task-title">{offer.title}</h3>
+                <p className="task-description">{offer.description}</p>
                 <div className="reward-info">
-                    Reward: 
+                    Reward:
                     <strong>
-                        {task.reward_amount > 0 ? ` ₹${task.reward_amount.toLocaleString()}` : ''}
-                        {task.reward_amount > 0 && task.reward_description ? ' + ' : ''}
-                        {task.reward_description || ''}
+                        {offer.reward_amount > 0 ? ` ₹${offer.reward_amount.toLocaleString()}` : ''}
+                        {offer.reward_amount > 0 && offer.reward_description ? ' + ' : ''}
+                        {offer.reward_description || ''}
                     </strong>
                 </div>
-                <button 
-                    className="claim-button" 
-                    onClick={() => onClaim(task.task_id)} 
-                    disabled={!isCompleted || isLoading}
-                >
-                    {isLoading ? 'Claiming...' : (task.status === 'claimed' ? 'Claimed' : (isCompleted ? 'Claim Reward' : 'In Progress'))}
+                <button className="claim-button" disabled>
+                    View Offer
                 </button>
             </div>
         </div>
@@ -53,117 +89,22 @@ const TaskCard = ({ task, onClaim, isLoading }) => {
 };
 
 // --- Main Component ---
-function DailyTasks({ token, userData, onBack }) {
-    const [tasks, setTasks] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState('');
-    const [suggestion, setSuggestion] = useState('');
-    const [claimingId, setClaimingId] = useState(null);
-
-    const fetchTasks = useCallback(async () => {
-        if (!userData) return;
-        try {
-            const response = await axios.get(`${API_BASE_URL}/api/tasks`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            setTasks(response.data);
-            setLoading(false);
-        } catch (err) {
-            console.error("Failed to fetch tasks:", err);
-            setError('Could not load tasks. Please try again later.');
-            setLoading(false);
-        }
-    }, [token, userData]);
-
-    useEffect(() => {
-        fetchTasks();
-    }, [fetchTasks]);
-
-    const handleClaim = async (taskId) => {
-        setClaimingId(taskId);
-        try {
-            const response = await axios.post(`${API_BASE_URL}/api/tasks/claim`, 
-                { taskId },
-                { headers: { Authorization: `Bearer ${token}` } }
-            );
-            alert(response.data.message); // Or use a snackbar
-            fetchTasks(); // Refresh tasks to show the new state
-        } catch (err) {
-            console.error("Failed to claim task:", err);
-            alert(err.response?.data?.error || 'Failed to claim reward.');
-        } finally {
-            setClaimingId(null);
-        }
-    };
-
-    const handleSuggestionSubmit = async (e) => {
-        e.preventDefault();
-        if (!suggestion.trim()) {
-            alert("Please enter a suggestion.");
-            return;
-        }
-        try {
-            await axios.post(`${API_BASE_URL}/api/suggestions`, 
-                { suggestion_text: suggestion },
-                { headers: { Authorization: `Bearer ${token}` } }
-            );
-            alert("Thank you! Your suggestion has been submitted.");
-            setSuggestion('');
-        } catch (err) {
-            console.error("Failed to submit suggestion:", err);
-            alert("Could not submit your suggestion at this time.");
-        }
-    };
-
-    const groupedTasks = tasks.reduce((acc, task) => {
-        acc[task.category] = acc[task.category] || [];
-        acc[task.category].push(task);
-        return acc;
-    }, {});
-
-    const renderContent = () => {
-        if (loading) return <div className="loading-spinner">Loading Tasks...</div>;
-        if (error) return <p className="error-message">{error}</p>;
-        
-        return Object.entries(groupedTasks).map(([category, tasksInCategory]) => (
-            <div key={category} className="task-category-section">
-                <h2 className="category-title">{category} Goals</h2>
-                <div className="tasks-grid">
-                    {tasksInCategory.map(task => (
-                        <TaskCard 
-                            key={task.task_id} 
-                            task={task} 
-                            onClaim={handleClaim}
-                            isLoading={claimingId === task.task_id}
-                        />
-                    ))}
-                </div>
-            </div>
-        ));
-    };
-
+function DailyTasks({ onBack }) {
     return (
         <div className="daily-tasks-page">
             <div className="tasks-header">
                 <button className="back-button" onClick={onBack}>← Back</button>
-                <h1>Your Mission Hub</h1>
-                <p>Unlock achievements, complete tasks, and earn massive rewards!</p>
+                <h1>Current Offers</h1>
+                <p>Check out our latest offers and exciting rewards!</p>
             </div>
             
-            {renderContent()}
-
-            <div className="suggestion-box-section">
-                <h2 className="category-title">Suggest a New Game</h2>
-                <p>Have an idea for a fun new game? Let us know! If we build it, you'll get a special bonus.</p>
-                <form onSubmit={handleSuggestionSubmit} className="suggestion-form">
-                    <textarea
-                        value={suggestion}
-                        onChange={(e) => setSuggestion(e.target.value)}
-                        placeholder="Describe your game idea here..."
-                        rows="4"
-                    />
-                    <button type="submit">Submit Idea</button>
-                </form>
+            <div className="task-category-section">
+                <h2 className="category-title">Special Rewards</h2>
+                <div className="tasks-grid">
+                    {staticTasks.map(task => (
+                        <OfferCard key={task.task_id} offer={task} />
+                    ))}
+                </div>
             </div>
         </div>
     );
