@@ -230,7 +230,7 @@ function ProductsAndPlans({ token, userBalance, onPurchaseComplete, allPlans = [
                     filteredPlans.map((plan) => {
                         const canAfford = userBalance !== undefined && userBalance >= plan.price;
                         const productStatus = getProductStatus(plan.id);
-                        const isPurchased = userInvestments.includes(plan.plan_name) || productStatus.isPreSale && new Date() < new Date(productStatus.fullLaunchDate);
+                        const isPurchased = userInvestments.includes(plan.plan_name);
                         
                         return (
                             <div key={plan.id} className="plan-card">
