@@ -1,7 +1,7 @@
+// src/components/GameLobby.js
 import React from 'react';
-
+import './GameLobby.css';
 // --- INLINED ICONS ---
-// Icons are now included directly to resolve import errors.
 const SelectGameIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
@@ -22,16 +22,15 @@ const WinBigIcon = () => (
     </svg>
 );
 
-// --- IMAGE & CSS FIX ---
-// Image imports have been replaced with placeholder URLs.
-// Local asset paths are commented out for reference.
+// --- UPDATED IMAGE & CSS FIX ---
+// The placeholder URLs have been replaced with the image filenames.
+// You'll need to ensure these images are in your project's public folder or assets directory.
 const games = [
     {
         id: 'color-prediction',
         name: 'Color Prediction',
         description: 'Predict the next winning color to multiply your investment.',
-        // image: colorPredictionImage,
-        image: 'https://placehold.co/400x300/7B1FA2/FFFFFF?text=Color+Prediction',
+        image: '/images/color.png',
         view: 'color-prediction-game',
         isAvailable: true,
     },
@@ -39,8 +38,7 @@ const games = [
         id: 'ip-lottery',
         name: 'IP Lottery',
         description: 'Try your luck and earn a jackpot of 10k!',
-        // image: lotteryImage,
-        image: 'https://placehold.co/400x300/00796B/FFFFFF?text=IP+Lottery',
+        image: '/images/lottery.png',
         view: 'ip-lottery',
         isAvailable: true,
     },
@@ -48,19 +46,17 @@ const games = [
         id: 'pushpa-raj',
         name: 'Pushpa Raj',
         description: 'Cash out before the truck stops. Rukega nahi saala!',
-        // image: pushpaRajImage,
-        image: 'https://placehold.co/400x300/d32f2f/FFFFFF?text=Pushpa+Raj',
+        image: '/images/pushpa.png',
         view: 'pushpa-raj',
-        isAvailable: true,
+        isAvailable: false, // Set to false to show 'Coming Soon'
     },
     {
         id: 'win-win',
         name: 'Win-Win',
         description: 'Exclusive game for our top investors. Guaranteed win for every top player!',
-        // image: winWinImage,
-        image: 'https://placehold.co/400x300/FBC02D/333333?text=Win-Win',
+        image: '/images/winwin.png',
         view: 'win-win',
-        isAvailable: false,
+        isAvailable: false, // Set to false to show 'Exclusive Access'
         isExclusive: true,
     },
 ];
@@ -70,7 +66,6 @@ const partners = ['Pragmatic Play', 'Evolution', 'Ezugi', 'Betsoft', 'NetEnt', '
 function GameLobby({ onViewChange }) {
     return (
         <div className="game-lobby">
-            {/* INLINED CSS */}
             <style>{`
                 .game-lobby {
                     padding: 20px;
@@ -204,8 +199,8 @@ function GameLobby({ onViewChange }) {
             
             <div className="game-grid">
                 {games.map(game => (
-                    <div 
-                        key={game.id} 
+                    <div
+                        key={game.id}
                         className={`game-card ${!game.isAvailable ? 'disabled' : ''}`}
                         onClick={() => game.isAvailable && onViewChange(game.view)}
                     >
@@ -265,4 +260,3 @@ function GameLobby({ onViewChange }) {
 }
 
 export default GameLobby;
-
