@@ -22,38 +22,36 @@ function GameView({ token, financialSummary, onViewChange, onBetPlaced, realtime
     const [betAmount, setBetAmount] = useState(10);
     const [userRoundResult, setUserRoundResult] = useState(null);
     const [showFinalCountdown, setShowFinalCountdown] = useState(false);
+
     const scrollToRules = () => {
-        document.getElementById('game-rules-section').scrollIntoView({ behavior: 'smooth' });
+        const rulesSection = document.getElementById('game-rules-section');
+        if (rulesSection) {
+            rulesSection.scrollIntoView({ behavior: 'smooth' });
+        }
     };
-    
-    // This effect fetches the initial game history ONCE when the component mounts.
+
     useEffect(() => {
         axios.get(`${API_BASE_URL}/api/game-state`, { headers: { Authorization: `Bearer ${token}` } })
             .then(res => {
                 setGameHistory(res.data.results || []);
             })
-            .catch(err => console.error("Failed to fetch initial history:", err));
+            .catch(err => console.error("Failed to fetch initial history:", err))
+            .finally(() => setLoading(false));
     }, [token]);
 
-    // This effect listens for all real-time updates from the server via WebSockets.
     useEffect(() => {
         if (realtimeData) {
-            if (loading) {
-                setLoading(false);
-            }
-
             if (realtimeData.type === 'ROUND_RESULT') {
                 if (realtimeData.results && realtimeData.results.length > 0) {
                     setGameHistory(realtimeData.results);
-                    
                     const lastPeriod = realtimeData.results[0].game_period;
                     axios.get(`${API_BASE_URL}/api/my-bet-result/${lastPeriod}`, { headers: { Authorization: `Bearer ${token}` } })
                         .then(res => {
-                            setUserRoundResult({ 
-                                status: res.data.status, 
+                            setUserRoundResult({
+                                status: res.data.status,
                                 payout: res.data.payout,
-                                period: lastPeriod, 
-                                number: realtimeData.results[0].result_number 
+                                period: lastPeriod,
+                                number: realtimeData.results[0].result_number
                             });
                         })
                         .catch(err => console.error("Error fetching my-bet-result:", err));
@@ -64,24 +62,13 @@ function GameView({ token, financialSummary, onViewChange, onBetPlaced, realtime
                 setShowFinalCountdown(realtimeData.timeLeft <= 5 && realtimeData.timeLeft > 0);
             }
         }
-    }, [realtimeData, token, loading]);
-    
+    }, [realtimeData, token]);
+
+
     // --- Event Handlers ---
     const handleOpenBetModal = (type, value) => {
         if (realtimeData && !realtimeData.can_bet) {
-            const messageBox = document.createElement('div');
-            messageBox.className = 'modal-overlay';
-            messageBox.innerHTML = `
-                <div class="result-modal lost">
-                    <h3>Betting Closed!</h3>
-                    <p>Betting for this round has already closed. Better luck next time!</p>
-                    <button class="close-modal-btn">OK</button>
-                </div>
-            `;
-            document.body.appendChild(messageBox);
-            messageBox.querySelector('.close-modal-btn').addEventListener('click', () => {
-                document.body.removeChild(messageBox);
-            });
+            alert("Betting has closed for the current round.");
             return;
         }
         setBetDetails({ type, value });
@@ -90,19 +77,7 @@ function GameView({ token, financialSummary, onViewChange, onBetPlaced, realtime
 
     const handlePlaceBet = () => {
         if (betAmount < 10) {
-            const messageBox = document.createElement('div');
-            messageBox.className = 'modal-overlay';
-            messageBox.innerHTML = `
-                <div class="result-modal lost">
-                    <h3>Invalid Bet!</h3>
-                    <p>Minimum bet amount is ₹10.</p>
-                    <button class="close-modal-btn">OK</button>
-                </div>
-            `;
-            document.body.appendChild(messageBox);
-            messageBox.querySelector('.close-modal-btn').addEventListener('click', () => {
-                document.body.removeChild(messageBox);
-            });
+            alert("Minimum bet is ₹10.");
             return;
         }
         
@@ -115,20 +90,20 @@ function GameView({ token, financialSummary, onViewChange, onBetPlaced, realtime
                 token: token
             }
         });
+        
         setShowBetModal(false);
         onBetPlaced();
     };
-    
+
     // --- Render Logic ---
     if (loading) return <div className="loading-spinner">Connecting to Game...</div>;
 
     const totalBalance = (financialSummary?.balance || 0) + (financialSummary?.withdrawable_wallet || 0);
-
     const timeLeft = realtimeData?.timeLeft ?? 0;
     const currentPeriod = realtimeData?.current_period ?? '...';
     const minutes = Math.floor(timeLeft / 60);
     const seconds = timeLeft % 60;
-
+    
     return (
         <div className="game-view">
             <div className="game-balance-card">
@@ -226,7 +201,7 @@ function GameView({ token, financialSummary, onViewChange, onBetPlaced, realtime
                         
                         {userRoundResult.status === 'won' && (
                             <>
-                                <div className="result-icon won">🎉</div>
+                                <div className="result-icon win">🎉</div>
                                 <h3>Congratulations!</h3>
                                 <p className="result-payout">You Won: ₹{userRoundResult.payout.toLocaleString('en-IN')}</p>
                             </>
@@ -234,7 +209,7 @@ function GameView({ token, financialSummary, onViewChange, onBetPlaced, realtime
                         
                         {userRoundResult.status === 'lost' && (
                             <>
-                                <div className="result-icon lost">😕</div>
+                                <div className="result-icon loss">😕</div>
                                 <h3>Better Luck Next Time!</h3>
                                 <p className="result-motivation">This time you can do it!</p>
                             </>
@@ -253,7 +228,7 @@ function GameView({ token, financialSummary, onViewChange, onBetPlaced, realtime
                     </div>
                 </div>
             )}
-            
+
             <div id="game-rules-section" className="game-rules-section">
                 <h3>Game Rules & Payouts</h3>
                 <ul>
