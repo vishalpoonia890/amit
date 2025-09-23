@@ -22,10 +22,10 @@ const WinBigIcon = () => (
 );
 
 // --- IMPORT IMAGES DIRECTLY ---
-import colorImage from '../assests/color.png';
-import lotteryImage from '../assests/lottery.png';
-import pushpaImage from '../assests/pushpa.png';
-import winwinImage from '../assests/winwin.png';
+import colorImage from '../assets/color.png';
+import lotteryImage from '../assets/lottery.png';
+import pushpaImage from '../assets/pushpa.png';
+import winwinImage from '../assets/winwin.png';
 
 const games = [
     {
