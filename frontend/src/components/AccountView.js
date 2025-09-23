@@ -22,6 +22,7 @@ const CountdownTimer = ({ targetDate, onEnd }) => {
             return null;
         }
         return {
+            days: Math.floor(difference / (1000 * 60 * 60 * 24)),
             hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
             minutes: Math.floor((difference / 1000 / 60) % 60),
             seconds: Math.floor((difference / 1000) % 60)
@@ -38,14 +39,26 @@ const CountdownTimer = ({ targetDate, onEnd }) => {
     });
     
     if (!timeLeft) return "Claim Now";
-
-    return `${String(timeLeft.hours).padStart(2, '0')}:${String(timeLeft.minutes).padStart(2, '0')}:${String(timeLeft.seconds).padStart(2, '0')}`;
+    
+    const parts = [];
+    if (timeLeft.days > 0) parts.push(`${timeLeft.days}d`);
+    parts.push(`${String(timeLeft.hours).padStart(2, '0')}h`);
+    parts.push(`${String(timeLeft.minutes).padStart(2, '0')}m`);
+    parts.push(`${String(timeLeft.seconds).padStart(2, '0')}s`);
+    
+    return parts.join(' ');
 };
 
 function AccountView({ userData, financialSummary, onLogout, onViewChange, token }) {
     const [userInvestments, setUserInvestments] = useState([]);
     const [isClaiming, setIsClaiming] = useState(false);
     const [nextClaimTime, setNextClaimTime] = useState(null);
+    const preSaleLaunchDates = useMemo(() => ({
+        'Product 102': '2025-09-27T00:00:00Z',
+        'Product 103': '2025-09-28T00:00:00Z',
+        'Product 104': '2025-09-29T00:00:00Z',
+        'Product 105': '2025-09-30T00:00:00Z',
+    }), []);
 
     useEffect(() => {
         const fetchInvestments = async () => {
@@ -77,8 +90,8 @@ function AccountView({ userData, financialSummary, onLogout, onViewChange, token
     }, [financialSummary]);
 
     const activeInvestments = useMemo(() => 
-        userInvestments.filter(inv => inv.status === 'active' && inv.days_left > 0),
-        [userInvestments]
+        userInvestments.filter(inv => inv.status === 'active' || (preSaleLaunchDates[inv.plan_name] && new Date(preSaleLaunchDates[inv.plan_name]) > new Date())),
+        [userInvestments, preSaleLaunchDates]
     );
 
     const totalDailyIncome = useMemo(() =>
@@ -179,18 +192,27 @@ function AccountView({ userData, financialSummary, onLogout, onViewChange, token
                  <h4>My Active Investments</h4>
                  <ul>
                      {activeInvestments.length > 0 ? (
-                         activeInvestments.map(product => (
-                             <li key={product.id}>
-                                 <div className="product-info">
-                                     <span>{product.plan_name}</span>
-                                     <span className="product-details">Ends in {product.days_left} days</span>
-                                 </div>
-                                 <div className="product-income">
-                                     <span>Daily Income</span>
-                                     <strong>{formatCurrency(product.daily_income)}</strong>
-                                 </div>
-                             </li>
-                         ))
+                         activeInvestments.map(product => {
+                             const isPreSale = preSaleLaunchDates[product.plan_name] && new Date(preSaleLaunchDates[product.plan_name]) > new Date();
+                             return (
+                                 <li key={product.id}>
+                                     <div className="product-info">
+                                         <span>{product.plan_name}</span>
+                                         {isPreSale ? (
+                                             <span className="product-details pre-sale-status">
+                                                 Pre-Sale <CountdownTimer targetDate={preSaleLaunchDates[product.plan_name]} onEnd={() => {}} />
+                                             </span>
+                                         ) : (
+                                             <span className="product-details">Ends in {product.days_left} days</span>
+                                         )}
+                                     </div>
+                                     <div className="product-income">
+                                         <span>Daily Income</span>
+                                         <strong>{formatCurrency(product.daily_income)}</strong>
+                                     </div>
+                                 </li>
+                             );
+                         })
                      ) : (
                          <li className="no-products">You have no active investments.</li>
                      )}
@@ -212,4 +234,3 @@ function AccountView({ userData, financialSummary, onLogout, onViewChange, token
 }
 
 export default AccountView;
-
