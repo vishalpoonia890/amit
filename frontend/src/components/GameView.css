@@ -85,7 +85,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 1.5rem;
+    gap: 1rem;
     padding: 1.5rem;
     border-radius: 12px;
     background: #2b2b2b;
@@ -104,14 +104,7 @@
     flex-direction: column;
     text-align: center;
     flex-grow: 1;
-}
-.period-info {
-    align-items: flex-start;
-    text-align: left;
-}
-.countdown-info {
-    align-items: flex-end;
-    text-align: right;
+    padding: 0 0.5rem;
 }
 
 .game-info h4 {
@@ -119,6 +112,7 @@
     color: #aaa;
     margin: 0 0 0.5rem;
     text-transform: uppercase;
+    white-space: nowrap;
 }
 
 .game-info p {
@@ -128,6 +122,7 @@
     margin: 0;
     line-height: 1;
 }
+
 .game-info p.final-countdown {
     color: white;
     text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 255, 255, 0.6);
