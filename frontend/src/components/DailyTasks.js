@@ -170,4 +170,3 @@ function DailyTasks({ token, userData, onBack }) {
 }
 
 export default DailyTasks;
-
