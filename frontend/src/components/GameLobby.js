@@ -1,5 +1,11 @@
 import React from 'react';
 import './GameLobby.css';
+// --- IMPORT IMAGES DIRECTLY ---
+import colorImage from '../assets/color.png';
+import lotteryImage from '../assets/lottery.png';
+import pushpaImage from '../assets/pushpa.png';
+import winwinImage from '../assets/winwin.png';
+
 // --- INLINED ICONS ---
 const SelectGameIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -20,12 +26,6 @@ const WinBigIcon = () => (
         <path d="M12 2 L15.09 8.26 L22 9.27 L17 14.14 L18.18 21.02 L12 17.77 L5.82 21.02 L7 14.14 L2 9.27 L8.91 8.26 L12 2 Z" />
     </svg>
 );
-
-// --- IMPORT IMAGES DIRECTLY ---
-import colorImage from '../assets/color.png';
-import lotteryImage from '../assets/lottery.png';
-import pushpaImage from '../assets/pushpa.png';
-import winwinImage from '../assets/winwin.png';
 
 const games = [
     {
@@ -113,7 +113,7 @@ function GameLobby({ onViewChange }) {
                         <div className="step-icon"><PlaceBetIcon /></div>
                         <h4>2. Place Your Bet</h4>
                         <p>Understand the rules, enter your amount, and confirm your bet. Always play responsibly.</p>
-                    </div>
+                    </div >
                     <div className="step-item">
                         <div className="step-icon"><WinBigIcon /></div>
                         <h4>3. Enjoy & Win</h4>
