@@ -1,3 +1,4 @@
+// src/App.js
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import './App.css';
@@ -64,7 +65,7 @@ function App() {
     const [realtimeGameData, setRealtimeGameData] = useState(null);
     const [ws, setWs] = useState(null); // Holds the WebSocket instance
 
-     // ✅ NEW useEffect: This hook manages the WebSocket connection.
+      // ✅ NEW useEffect: This hook manages the WebSocket connection.
     useEffect(() => {
         if (!token) {
             // If the user is not logged in, don't connect.
@@ -316,7 +317,7 @@ function App() {
                 return <NewsView onBack={goBackToDashboard} />;
             case 'game': return <GameLobby onViewChange={handleViewChange} />; 
                 
-           // ✅ MODIFIED: We now pass the WebSocket instance and real-time data to GameView.
+            // ✅ MODIFIED: We now pass the WebSocket instance and real-time data to GameView.
             case 'color-prediction-game': 
             return <GameView 
                 token={token}
@@ -330,20 +331,20 @@ function App() {
             onViewChange={handleViewChange} 
                 />;
                 
-           case 'ip-lottery': return <IpLottery token={token} onBack={goBackToGameLobby} />;
-       case 'win-win': return <WinWinGame onBack={goBackToGameLobby} />;
-       case 'aviator': return <AviatorGame token={token} onBack={goBackToGameLobby} />;
-       {/* ✅ ADD THIS CASE for the new game */}
-       case 'pushpa-raj': 
-            return <PushpaRajGame 
-                token={token} 
-                onBack={goBackToGameLobby} 
-                ws={ws} 
-                realtimeData={realtimeGameData}
-            />;
-       case 'account': return <AccountView userData={userData} financialSummary={financialSummary} onLogout={handleLogout} onViewChange={handleViewChange} token={token}/>;
-       case 'deposit': return <Deposit token={token} userData={userData} onBack={goBackToDashboard} onDepositRequest={handleDepositRequest} />;
-       case 'withdraw': return <Withdrawal token={token} financialSummary={financialSummary} onBack={goBackToDashboard} onWithdrawalRequest={handleWithdrawalRequest} />;
+            case 'ip-lottery': return <IpLottery token={token} onBack={goBackToGameLobby} />;
+            case 'win-win': return <WinWinGame onBack={goBackToGameLobby} />;
+            case 'aviator': return <AviatorGame token={token} onBack={goBackToGameLobby} />;
+            {/* ✅ ADD THIS CASE for the new game */}
+            case 'pushpa-raj': 
+                return <PushpaRajGame 
+                    token={token} 
+                    onBack={goBackToGameLobby} 
+                    ws={ws} 
+                    realtimeData={realtimeGameData}
+                />;
+            case 'account': return <AccountView userData={userData} financialSummary={financialSummary} onLogout={handleLogout} onViewChange={handleViewChange} token={token}/>;
+            case 'deposit': return <Deposit token={token} userData={userData} onBack={goBackToDashboard} onDepositRequest={handleDepositRequest} />;
+            case 'withdraw': return <Withdrawal token={token} financialSummary={financialSummary} onBack={goBackToDashboard} onWithdrawalRequest={handleWithdrawalRequest} />;
             case 'team': return <Team token={token} onBack={goBackToDashboard} />;
             case 'rewards': return <Rewards onBack={goBackToDashboard} />;
             case 'sell-usdt': return <SellUsdt onBack={goBackToDashboard} />;
@@ -382,10 +383,10 @@ function App() {
     return (
         <div className="App">
             <style>{`
-              .main-content {
-                padding-top: 80px;
-                padding-bottom: 80px;
-              }
+             .main-content {
+               padding-top: 80px;
+               padding-bottom: 80px;
+             }
             `}</style>
             <Snackbar message={snackbarNotification.message} type={snackbarNotification.type} show={snackbarNotification.show} onClose={() => setSnackbarNotification({ ...snackbarNotification, show: false })} />
             {showNotificationsDialog && <NotificationsDialog userNotifications={userNotifications} promotions={promotions} onClose={() => setShowNotificationsDialog(false)} onMarkAsRead={handleMarkAsRead} onDeleteRead={handleDeleteRead} />}
@@ -399,4 +400,3 @@ function App() {
 }
 
 export default App;
-
