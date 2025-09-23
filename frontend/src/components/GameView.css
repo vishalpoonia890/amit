@@ -1,8 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
 .game-view {
     padding: 1rem;
     font-family: 'Inter', sans-serif;
-    color: #f0f0f0; /* Light gray for text */
-    background-color: #121212; /* Dark, solid background */
+    color: #f0f0f0;
+    background-color: #121212;
     min-height: 100vh;
 }
 
@@ -11,18 +13,24 @@
 .game-main-content,
 .game-history,
 .game-rules-section {
-    background: #1e1e1e; /* Darker gray for cards */
+    background: #1e1e1e;
     padding: 1.5rem;
     border-radius: 12px;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
     margin-bottom: 1.5rem;
+    transition: transform 0.3s ease-in-out;
+}
+
+.game-balance-card:hover, .game-main-content:hover {
+    transform: translateY(-5px);
 }
 
 /* --- Button Styles --- */
-.balance-actions button, 
-.game-view .bet-btn {
+.balance-actions button,
+.game-view .bet-btn,
+.modal-actions button {
     flex: 1;
-    padding: 0.9rem 1rem;
+    padding: 1rem 1.25rem;
     border: none;
     border-radius: 10px;
     font-size: 1rem;
@@ -30,18 +38,18 @@
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    background: #333; /* Dark button background */
+    background: #2b2b2b;
     color: #f0f0f0;
 }
 
-.balance-actions button:hover, 
+.balance-actions button:hover,
 .game-view .bet-btn:hover {
     transform: translateY(-3px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
 }
 
 .balance-actions .rules-btn {
-    background: #555; /* Secondary button color */
+    background: #444;
     color: #f0f0f0;
 }
 
@@ -57,10 +65,10 @@
 }
 
 .game-balance-card h3 {
-    font-size: 2.25rem;
+    font-size: 2.5rem;
     font-weight: 700;
     margin: 0 0 1rem;
-    color: #ffc107; /* Gold accent color */
+    color: #ffc107;
 }
 
 .balance-actions {
@@ -71,24 +79,23 @@
 
 /* --- Game Info Section --- */
 .game-info {
-    display: flex;
-    justify-content: space-between;
-    align-items: stretch;
-    margin-bottom: 1.5rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 1rem;
+    margin-bottom: 1.5rem;
 }
 
 .period-info, .countdown-info {
-    flex: 1;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    /* Aligned content to the left */
-    align-items: flex-start;
-    text-align: left;
-    padding: 1rem;
+    align-items: center;
+    padding: 1.5rem 1rem;
     border-radius: 12px;
-    background: #2b2b2b; /* A lighter dark background for contrast */
+    background: #2b2b2b;
+    border: 1px solid #444;
+    box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.05);
+    text-align: center;
 }
 
 .game-info h4 {
@@ -98,13 +105,11 @@
 }
 
 .game-info p {
-    /* Decreased font size */
-    font-size: 1.2rem;
+    font-size: 1.5rem;
     font-weight: 700;
     color: #ffc107;
     margin: 0;
     line-height: 1;
-    letter-spacing: -1px;
 }
 
 /* --- Betting Buttons --- */
@@ -119,25 +124,25 @@
     color: white;
     font-weight: 700;
     padding: 1.5rem 0.5rem;
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     text-shadow: 1px 1px 2px rgba(0,0,0,0.4);
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
 }
 
-.betting-options-colors .green { 
+.betting-options-colors .green {
     background: #4CAF50;
 }
-.betting-options-colors .violet { 
+.betting-options-colors .violet {
     background: #8e24aa;
 }
-.betting-options-colors .red { 
+.betting-options-colors .red {
     background: #f44336;
 }
 
 .betting-options-numbers {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 0.5rem;
+    gap: 0.75rem;
 }
 
 .betting-options-numbers .bet-btn {
@@ -154,7 +159,7 @@
 
 /* --- History Table --- */
 .game-history {
-    overflow-x: hidden;
+    overflow-x: auto;
 }
 
 .game-history h4 {
@@ -167,10 +172,10 @@
 .history-table {
     width: 100%;
     border-collapse: collapse;
-    table-layout: fixed;
+    table-layout: auto;
 }
 
-.history-table th, 
+.history-table th,
 .history-table td {
     padding: 0.75rem 0.5rem;
     text-align: center;
@@ -203,7 +208,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.9); /* More opaque for better visibility */
+    background: rgba(0, 0, 0, 0.85);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -277,6 +282,10 @@
 }
 
 /* Bet Modal specific styles */
+.bet-modal .bet-title {
+    color: white;
+}
+
 .bet-modal .modal-content {
     display: flex;
     flex-direction: column;
@@ -384,10 +393,14 @@
     50% { transform: translateY(-10px); }
 }
 
-/* Tablet and Desktop Styles */
+/* Media Queries for Responsiveness */
 @media (min-width: 768px) {
     .game-view {
-        max-width: 768px;
+        max-width: 800px;
         margin: auto;
+    }
+
+    .betting-options-colors .bet-btn {
+        font-size: 1.25rem;
     }
 }
