@@ -14,7 +14,7 @@
     background: var(--card-background);
     padding: 1.5rem;
     border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
     margin-bottom: 1.5rem;
 }
 
@@ -22,22 +22,22 @@
 .balance-actions button, 
 .game-view .bet-btn {
     flex: 1;
-    padding: 0.75rem 1rem;
+    padding: 0.9rem 1rem;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     background: var(--button-bg);
     color: var(--button-text);
 }
 
 .balance-actions button:hover, 
 .game-view .bet-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
 }
 
 .balance-actions .rules-btn {
@@ -57,7 +57,7 @@
 }
 
 .game-balance-card h3 {
-    font-size: 2rem;
+    font-size: 2.25rem;
     font-weight: 700;
     margin: 0 0 1rem;
     color: var(--primary-color);
@@ -84,13 +84,13 @@
 }
 
 .game-info h4 {
-    font-size: 1rem;
+    font-size: 1.1rem;
     color: var(--text-secondary);
     margin: 0 0 0.5rem;
 }
 
 .game-info p {
-    font-size: 2.25rem;
+    font-size: 2.5rem;
     font-weight: 700;
     color: var(--primary-color);
     margin: 0;
@@ -109,13 +109,20 @@
 .betting-options-colors .bet-btn {
     color: white;
     font-weight: 700;
-    padding: 1.25rem 0.5rem;
-    font-size: 1.1rem;
+    padding: 1.5rem 0.5rem;
+    font-size: 1.2rem;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
 }
 
-.betting-options-colors .green { background: #4caf50; }
-.betting-options-colors .violet { background: #8e24aa; }
-.betting-options-colors .red { background: #f44336; }
+.betting-options-colors .green { 
+    background: linear-gradient(135deg, #4CAF50, #66BB6A); 
+}
+.betting-options-colors .violet { 
+    background: linear-gradient(135deg, #8e24aa, #ab47bc); 
+}
+.betting-options-colors .red { 
+    background: linear-gradient(135deg, #f44336, #e57373); 
+}
 
 .betting-options-numbers {
     display: grid;
@@ -127,12 +134,13 @@
     font-size: 1.25rem;
     font-weight: 700;
     color: white;
-    padding: 0.75rem;
+    padding: 0.9rem;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
 }
 
-.betting-options-numbers .bet-btn.red { background: #f44336; }
-.betting-options-numbers .bet-btn.green { background: #4caf50; }
-.betting-options-numbers .bet-btn.violet { background: #8e24aa; }
+.betting-options-numbers .bet-btn.red { background: linear-gradient(135deg, #f44336, #e57373); }
+.betting-options-numbers .bet-btn.green { background: linear-gradient(135deg, #4caf50, #66bb6a); }
+.betting-options-numbers .bet-btn.violet { background: linear-gradient(135deg, #8e24aa, #ab47bc); }
 
 /* --- History Table --- */
 .game-history {
@@ -183,7 +191,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(0, 0, 0, 0.75);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -193,8 +201,8 @@
 .bet-modal, .result-modal, .countdown-popup {
     background: var(--card-background);
     padding: 2rem;
-    border-radius: 12px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     width: 90%;
     max-width: 400px;
     text-align: center;
@@ -203,19 +211,24 @@
 }
 
 .result-modal.won {
-    background: linear-gradient(to bottom right, #4caf50, #8bc34a);
+    background: linear-gradient(135deg, #33bb55, #4caf50);
     color: white;
     box-shadow: 0 10px 20px rgba(76, 175, 80, 0.4);
 }
 
 .result-modal.lost {
-    background: linear-gradient(to bottom right, #d32f2f, #ef5350);
+    background: linear-gradient(135deg, #d32f2f, #ef5350);
     color: white;
     box-shadow: 0 10px 20px rgba(211, 47, 47, 0.4);
 }
 
 .result-modal h3, .result-modal p {
     color: white;
+    margin: 0.5rem 0;
+}
+
+.result-modal h3 {
+    font-size: 1.8rem;
 }
 
 .result-icon {
@@ -225,10 +238,10 @@
 }
 
 .result-number-display {
-    font-size: 3rem;
+    font-size: 3.5rem;
     font-weight: 700;
     padding: 1rem 1.5rem;
-    border-radius: 12px;
+    border-radius: 14px;
     color: white;
     margin-top: 1rem;
     display: inline-block;
