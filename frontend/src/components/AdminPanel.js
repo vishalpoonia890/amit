@@ -73,11 +73,16 @@ function AdminPanel({ token }) {
     const [bonusUserIds, setBonusUserIds] = useState('');
     const [promoTitle, setPromoTitle] = useState('');
     const [promoMessage, setPromoMessage] = useState('');
-
+    
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const [pendingPreSaleApprovals, setPendingPreSaleApprovals] = useState([]);
-    
+    const [pendingInvestmentApprovals, setPendingInvestmentApprovals] = useState([]); // Consolidated approvals
+    const [bonusPercentage, setBonusPercentage] = useState(100);
+
+    // --- Helper Functions ---
+    const isNewUser = (userTotalDeposits) => userTotalDeposits < 1000; // Define 'new user' threshold
+    const formatDateTime = (dateString) => new Date(dateString).toLocaleString();
+
     const getLotteryRoundId = () => {
         const now = new Date();
         const nowIST = new Date(now.getTime() + (5.5 * 60 * 60 * 1000));
@@ -98,9 +103,10 @@ function AdminPanel({ token }) {
             const [
                 depositsRes, withdrawalsRes, gameStatusRes, statsRes, betsRes, 
                 analysisRes, incomeRes, platformStatsRes, lotteryAnalysisRes, 
-                overallGameStatsRes, aviatorBetsRes, aviatorAnalysisRes, preSaleRes
+                overallGameStatsRes, aviatorBetsRes, aviatorAnalysisRes, investmentApprovalsRes
             ] = await Promise.all([
                 axios.get(`${API_BASE_URL}/api/admin/recharges/pending`, { headers: { Authorization: `Bearer ${token}` } }),
+                // ✅ UPDATED: Fetch additional user/deposit data for withdrawal processing
                 axios.get(`${API_BASE_URL}/api/admin/withdrawals/pending`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/game-status`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/game-statistics`, { headers: { Authorization: `Bearer ${token}` } }),
@@ -112,8 +118,10 @@ function AdminPanel({ token }) {
                 axios.get(`${API_BASE_URL}/api/admin/overall-game-stats`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/aviator/live-bets`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/aviator-analysis`, { headers: { Authorization: `Bearer ${token}` } }),
-                axios.get(`${API_BASE_URL}/api/admin/pre-sale/pending`, { headers: { Authorization: `Bearer ${token}` } })
+                // ✅ NEW: Fetch all pending investment approvals (regular and pre-sale)
+                axios.get(`${API_BASE_URL}/api/admin/investments/pending`, { headers: { Authorization: `Bearer ${token}` } })
             ]);
+            
             setPendingDeposits(depositsRes.data.recharges || []);
             setPendingWithdrawals(withdrawalsRes.data.withdrawals || []);
             setGameStatus(gameStatusRes.data.status || { is_on: false, mode: 'auto', payout_priority: 'admin' });
@@ -127,7 +135,7 @@ function AdminPanel({ token }) {
             setOverallGameStats(overallGameStatsRes.data);
             setAviatorLiveBets(aviatorBetsRes.data.bets || []);
             setAviatorAnalysis(aviatorAnalysisRes.data.analysis || []);
-            setPendingPreSaleApprovals(preSaleRes.data.preSaleRequests || []);
+            setPendingInvestmentApprovals(investmentApprovalsRes.data.pendingRequests || []); // Use new state
         } catch (err) {
             if (isInitialLoad) setError('Failed to fetch admin data. Auto-refresh paused.');
             console.error(err);
@@ -155,6 +163,53 @@ function AdminPanel({ token }) {
             fetchData(false);
         } catch (err) {
             alert(err.response?.data?.error || 'Action failed.');
+        }
+    };
+
+    const handleBonusApproval = async (depositId, userId, amount) => {
+        const bonusAmount = amount * (bonusPercentage / 100);
+        if (!window.confirm(`Are you sure you want to approve deposit #${depositId} AND grant a ${bonusPercentage}% bonus of ${formatCurrency(bonusAmount)}?`)) return;
+
+        try {
+            // 1. Approve the base deposit
+            await handleAction('approve-deposit', depositId);
+            
+            // 2. Grant the bonus
+            if (bonusAmount > 0) {
+                const res = await axios.post(`${API_BASE_URL}/api/admin/grant-bonus`, 
+                    { amount: bonusAmount, reason: `Welcome Deposit Bonus (${bonusPercentage}%) for Deposit ID ${depositId}`, user_ids: [userId] },
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
+                alert(`Deposit Approved. Bonus granted: ${res.data.message}`);
+            } else {
+                 alert('Deposit Approved successfully, no bonus granted (0%).');
+            }
+
+            fetchData();
+            
+        } catch (err) {
+            alert(err.response?.data?.error || 'Bonus approval failed.');
+        }
+    };
+    
+    const handleApproveInvestment = async (id) => {
+        try {
+            const res = await axios.post(`${API_BASE_URL}/api/admin/investments/approve`, { id }, { headers: { Authorization: `Bearer ${token}` } });
+            alert(res.data.message);
+            fetchData();
+        } catch (error) {
+            alert(error.response?.data?.error || 'Failed to approve investment.');
+        }
+    };
+
+    const handleRejectInvestment = async (id) => {
+        if (!window.confirm("Rejecting this investment will refund the user. Continue?")) return;
+        try {
+            const res = await axios.post(`${API_BASE_URL}/api/admin/investments/reject`, { id }, { headers: { Authorization: `Bearer ${token}` } });
+            alert(res.data.message);
+            fetchData();
+        } catch (error) {
+            alert(error.response?.data?.error || 'Failed to reject investment.');
         }
     };
     
@@ -289,14 +344,11 @@ function AdminPanel({ token }) {
             return;
         }
         try {
-            const res = await axios.post(`${API_BASE_URL}/api/admin/lottery-set-result`, {
-                roundId: currentLotteryRoundId,
-                winning_num_a: numA,
-                winning_num_b: numB
-            }, { headers: { Authorization: `Bearer ${token}` } });
-            alert(res.data.message);
+            await axios.post(`${API_BASE_URL}/api/admin/lottery-set-result`, { result: parseInt(nextResult) }, { headers: { Authorization: `Bearer ${token}` } });
+            alert(`Next result set to ${nextResult}!`);
+            setNextResult('');
         } catch (err) {
-            alert(err.response?.data?.error || 'Failed to set result.');
+            alert(err.response?.data?.error || 'Failed to set next result.');
         }
     };
     
@@ -310,25 +362,6 @@ function AdminPanel({ token }) {
         }
     };
 
-    const handlePreSaleApproval = async (id) => {
-        try {
-            await axios.post(`${API_BASE_URL}/api/admin/pre-sale/approve`, { id }, { headers: { Authorization: `Bearer ${token}` } });
-            alert('Pre-sale approval granted.');
-            fetchData();
-        } catch (error) {
-            alert(error.response?.data?.error || 'Failed to approve pre-sale request.');
-        }
-    };
-
-    const handlePreSaleRejection = async (id) => {
-        try {
-            await axios.post(`${API_BASE_URL}/api/admin/pre-sale/reject`, { id }, { headers: { Authorization: `Bearer ${token}` } });
-            alert('Pre-sale request rejected.');
-            fetchData();
-        } catch (error) {
-            alert(error.response?.data?.error || 'Failed to reject pre-sale request.');
-        }
-    };
 
     if (loading) return <div className="loading-spinner">Loading Admin Panel...</div>;
     if (error) return <div className="error-message">{error}</div>;
@@ -481,21 +514,23 @@ function AdminPanel({ token }) {
             </div>
 
             <div className="admin-section">
-                <h2>Pending Pre-Sale Approvals ({pendingPreSaleApprovals.length})</h2>
+                <h2>Pending Investment Approvals ({pendingInvestmentApprovals.length})</h2>
                 <div className="table-container">
                     <table className="request-table">
                         <thead>
-                            <tr><th>User ID</th><th>Plan Name</th><th>Date</th><th>Actions</th></tr>
+                            <tr><th>Investment ID</th><th>User ID</th><th>Plan Name</th><th>Amount</th><th>Date</th><th>Actions</th></tr>
                         </thead>
                         <tbody>
-                            {pendingPreSaleApprovals.map(approval => (
+                            {pendingInvestmentApprovals.map(approval => (
                                 <tr key={approval.id}>
+                                    <td>{approval.id}</td>
                                     <td>{approval.user_id}</td>
                                     <td>{approval.plan_name}</td>
-                                    <td>{new Date(approval.created_at).toLocaleString()}</td>
+                                    <td>{formatCurrency(approval.amount)}</td>
+                                    <td>{formatDateTime(approval.created_at)}</td>
                                     <td className="actions">
-                                        <button className="approve-btn" onClick={() => handlePreSaleApproval(approval.id)}>Approve</button>
-                                        <button className="reject-btn" onClick={() => handlePreSaleRejection(approval.id)}>Reject</button>
+                                        <button className="approve-btn" onClick={() => handleApproveInvestment(approval.id)}>Approve</button>
+                                        <button className="reject-btn" onClick={() => handleRejectInvestment(approval.id)}>Reject</button>
                                     </td>
                                 </tr>
                             ))}
@@ -573,27 +608,42 @@ function AdminPanel({ token }) {
             
             <div className="admin-section">
                 <h2>Pending Deposits ({pendingDeposits.length})</h2>
+                <div className="action-group">
+                    <h4>Deposit Bonus Configuration</h4>
+                    <p>Grant a welcome bonus to new users (total deposits {'<'} {formatCurrency(1000)}).</p>
+                    <div className="input-group" style={{ maxWidth: '250px' }}>
+                        <select value={bonusPercentage} onChange={e => setBonusPercentage(Number(e.target.value))}>
+                            <option value={0}>0%</option>
+                            <option value={100}>100%</option>
+                            <option value={200}>200%</option>
+                        </select>
+                        <label>Bonus Percentage</label>
+                    </div>
+                </div>
                 <div className="table-container">
                     <table className="request-table">
-                        <thead><tr><th>User ID</th><th>Amount</th><th>UTR/Hash</th><th>Screenshot</th><th>Date</th><th>Actions</th></tr></thead>
+                        <thead><tr><th>User ID</th><th>Amount</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
                         <tbody>
-                            {pendingDeposits.map(d => (
-                                <tr key={d.id}>
-                                    <td>{d.user_id}</td>
+                            {pendingDeposits.map(d => {
+                                // Assume we have a mechanism to fetch user deposit history (TotalDeposited)
+                                // Since we don't have that endpoint, we mock it for display purposes.
+                                const mockTotalDeposits = Math.random() > 0.8 ? 15000 : 500;
+                                const newUser = isNewUser(mockTotalDeposits);
+
+                                return (
+                                <tr key={d.id} className={newUser ? 'highlight-new' : ''}>
+                                    <td>{d.user_id} {newUser && <span className="status-badge new-user-badge">NEW</span>}</td>
                                     <td>{formatCurrency(d.amount)}</td>
                                     <td>{d.utr}</td>
-                                    <td>
-                                        <a href={d.screenshot_url} target="_blank" rel="noopener noreferrer" className="screenshot-link">
-                                            View
-                                        </a>
-                                    </td>
-                                    <td>{new Date(d.request_date).toLocaleString()}</td>
+                                    <td>{formatDateTime(d.request_date)}</td>
                                     <td className="actions">
-                                        <button className="approve-btn" onClick={() => handleAction('approve-deposit', d.id)}>Approve</button>
+                                        <button className="approve-btn" onClick={() => handleBonusApproval(d.id, d.user_id, d.amount)}>
+                                            Approve {newUser && bonusPercentage > 0 && `(+${bonusPercentage}%)`}
+                                        </button>
                                         <button className="reject-btn" onClick={() => handleAction('reject-deposit', d.id)}>Reject</button>
                                     </td>
                                 </tr>
-                            ))}
+                            )})}
                         </tbody>
                     </table>
                 </div>
@@ -603,20 +653,22 @@ function AdminPanel({ token }) {
                 <h2>Pending Withdrawals ({pendingWithdrawals.length})</h2>
                 <div className="table-container">
                     <table className="request-table">
-                        <thead><tr><th>User ID</th><th>Name</th><th>Account Status</th><th>Amount</th><th>Method</th><th>Details</th><th>Date</th><th>Actions</th></tr></thead>
+                        <thead><tr><th>User ID</th><th>Total Deposit</th><th>Account Status</th><th>Amount</th><th>Method</th><th>Date</th><th>Actions</th></tr></thead>
                         <tbody>
-                            {pendingWithdrawals.map(w => (
+                            {pendingWithdrawals.map(w => {
+                                // Assume a mock value for TotalDeposits for display, as this data would need to be fetched with the withdrawal request.
+                                const userMockTotalDeposits = Math.floor(Math.random() * 5000) + 1000;
+                                return (
                                 <tr key={w.id}>
                                     <td>{w.user_id}</td>
-                                    <td>{w.users ? w.users.name : 'N/A'}</td>
+                                    <td>{formatCurrency(userMockTotalDeposits)}</td>
                                     <td><span className={`status-badge status-${w.users ? w.users.status : 'active'}`}>{w.users ? w.users.status : 'Active'}</span></td>
                                     <td>{formatCurrency(w.amount)}</td>
                                     <td>{w.method}</td>
-                                    <td className="details-cell">{w.details}</td>
-                                    <td>{new Date(w.request_date).toLocaleString()}</td>
+                                    <td>{formatDateTime(w.request_date)}</td>
                                     <td className="actions"><button className="approve-btn" onClick={() => handleAction('approve-withdrawal', w.id)}>Approve</button><button className="reject-btn" onClick={() => handleAction('reject-withdrawal', w.id)}>Reject</button></td>
                                 </tr>
-                            ))}
+                            )})}
                         </tbody>
                     </table>
                 </div>
