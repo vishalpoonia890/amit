@@ -420,4 +420,4 @@ function WithdrawalForm({ token, userData, onBack }) {
     );
 }
 
-export default WithdrawalForm;
+export default Withdrawal;
