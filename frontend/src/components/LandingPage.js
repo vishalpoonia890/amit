@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
+import axios from 'axios';
 import './LandingPage.css';
 import { FidelityLogoIcon, LoginIcon } from './Icons';
 
@@ -10,6 +11,15 @@ import promoImage from '../assets/ipbia.png';
 import casinoNews1 from '../assets/casino1.jpg';
 import casinoNews2 from '../assets/casino2.jpg';
 import casinoNews3 from '../assets/casino3.jpg';
+
+// Debounce utility function (to prevent too many API calls while typing)
+const debounce = (func, delay) => {
+    let timeoutId;
+    return (...args) => {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => func.apply(this, args), delay);
+    };
+};
 
 // --- SVG Icons for Password Toggle ---
 const EyeIcon = () => (
@@ -70,6 +80,52 @@ function LandingPage({ authView, setAuthView, loginFormData, registerFormData, h
     const [showLoginPassword, setShowLoginPassword] = useState(false);
     const [showRegisterPassword, setShowRegisterPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+    // ✅ NEW STATE for Pincode
+    const [cityName, setCityName] = useState('');
+    const [pinCodeError, setPinCodeError] = useState('');
+
+    // --- Pincode API Call Logic ---
+    const fetchCityName = useCallback(async (pinCode) => {
+        setCityName('');
+        setPinCodeError('');
+        if (!pinCode || pinCode.length !== 6 || isNaN(pinCode)) {
+            return;
+        }
+
+        try {
+            // Using the official India Post API for reliable Pincode lookup
+            const response = await axios.get(`https://api.postalpincode.in/pincode/${pinCode}`);
+            const data = response.data;
+
+            if (data && data[0] && data[0].Status === 'Success' && data[0].PostOffice.length > 0) {
+                // Use the main district/region name
+                setCityName(data[0].PostOffice[0].District);
+            } else {
+                setPinCodeError('Invalid Pincode.');
+                setCityName('');
+            }
+        } catch (error) {
+            console.error("Pincode API Error:", error);
+            setPinCodeError('Failed to verify Pincode.');
+            setCityName('');
+        }
+    }, []);
+
+    const debouncedFetchCityName = useCallback(debounce(fetchCityName, 500), [fetchCityName]);
+
+    const handlePinCodeChange = (e) => {
+        const pinCode = e.target.value;
+        // Update the form data
+        handleRegisterInputChange({ target: { name: 'cityPinCode', value: pinCode } });
+        // Trigger debounced lookup
+        if (pinCode.length === 6) {
+            debouncedFetchCityName(pinCode);
+        } else {
+            setCityName('');
+            setPinCodeError('');
+        }
+    };
     
     const scrollToAuth = (view) => {
         setAuthView(view);
@@ -80,6 +136,10 @@ function LandingPage({ authView, setAuthView, loginFormData, registerFormData, h
         e.preventDefault();
         if (!termsAccepted) {
             alert("You must accept the terms and conditions to register.");
+            return;
+        }
+        if (!cityName) {
+            alert("Please enter a valid 6-digit PIN code and ensure the city name is displayed.");
             return;
         }
         handleRegister(e);
@@ -118,7 +178,7 @@ function LandingPage({ authView, setAuthView, loginFormData, registerFormData, h
                 </section>
 
                 <section id="inflation" className="content-section">
-                       <div className="content-image"><img src={inflationImage} alt="Money losing value"/></div>
+                        <div className="content-image"><img src={inflationImage} alt="Money losing value"/></div>
                     <div className="content-text">
                         <h2>Don't Let Inflation Eat Your Savings</h2>
                         <p>Every day, the money in your bank account is losing purchasing power. To truly grow your wealth and secure your future, your money needs to work for you and grow faster than inflation.</p>
@@ -129,11 +189,11 @@ function LandingPage({ authView, setAuthView, loginFormData, registerFormData, h
                     <h2>Our Investment Products</h2>
                     <div className="sample-grid">
                         <div className="sample-card"><img src={solarPlanImage} alt="Solar Energy Plan"/><h3>Solar Energy Plans</h3><p>Invest in a green future and earn stable daily returns by funding large-scale solar projects.</p></div>
-                         <div className="sample-card"><img src={aviatorGameImage} alt="Aviator Game"/><h3>Aviator Game</h3><p>Test your nerve in this thrilling crash game. Cash out before the plane flies away to multiply your bet!</p></div>
+                        <div className="sample-card"><img src={aviatorGameImage} alt="Aviator Game"/><h3>Aviator Game</h3><p>Test your nerve in this thrilling crash game. Cash out before the plane flies away to multiply your bet!</p></div>
                     </div>
                 </section>
                 
-                 <section className="casino-news-section">
+                <section className="casino-news-section">
                     <h2>Casino & Fun</h2>
                     <div className="casino-grid">
                         <img src={casinoNews1} alt="Casino Fun 1" />
@@ -170,10 +230,27 @@ function LandingPage({ authView, setAuthView, loginFormData, registerFormData, h
                                     <p className="auth-switch">Don't have an account? <button type="button" onClick={() => setAuthView('register')}>Sign Up</button></p>
                                 </form>
                             ) : (
-                                 <form onSubmit={handleRegisterSubmit} className="auth-form">
+                                <form onSubmit={handleRegisterSubmit} className="auth-form">
                                     <h2>Join MoneyPlus</h2>
-                                     <div className="input-box"><input type="text" name="username" value={registerFormData.username} onChange={handleRegisterInputChange} required autoComplete="username"/><label>Username</label></div>
-                                    <div className="input-box"><input type="tel" name="mobile" value={registerFormData.mobile} onChange={handleRegisterInputChange} required autoComplete="tel"/><label>Mobile Number</label></div>
+                                    <div className="input-box"><input type="text" name="username" value={registerFormData.username} onChange={handleRegisterInputChange} required autoComplete="username"/><label>Username</label></div>
+                                    <div className="input-box"><input type="tel" name="mobile" value={registerFormData.mobile} onChange={handleLoginInputChange} required autoComplete="tel"/><label>Mobile Number</label></div>
+                                    
+                                    {/* ✅ NEW Pincode and City Inputs */}
+                                    <div className="input-box">
+                                        <input 
+                                            type="tel" 
+                                            name="cityPinCode" 
+                                            value={registerFormData.cityPinCode || ''} 
+                                            onChange={handlePinCodeChange} 
+                                            placeholder="XXXXXX" 
+                                            maxLength="6"
+                                            required 
+                                        />
+                                        <label>City Pin Code</label>
+                                    </div>
+                                    {cityName && <p className="pincode-status success">City: <strong>{cityName}</strong></p>}
+                                    {pinCodeError && <p className="pincode-status error">{pinCodeError}</p>}
+                                    
                                     {/* --- REGISTER PASSWORD INPUT (UPDATED) --- */}
                                     <div className="input-box">
                                         <input 
@@ -209,7 +286,7 @@ function LandingPage({ authView, setAuthView, loginFormData, registerFormData, h
                                         <input type="checkbox" id="terms" name="terms" checked={termsAccepted} onChange={(e) => setTermsAccepted(e.target.checked)} />
                                         <label htmlFor="terms">I accept all the <a href="#terms" target="_blank">Terms and Conditions</a></label>
                                     </div>
-                                    <button className="cta-button" type="submit" disabled={loading || !termsAccepted}>{loading ? 'Registering...' : 'Register'}</button>
+                                    <button className="cta-button" type="submit" disabled={loading || !termsAccepted || !cityName}>{loading ? 'Registering...' : 'Register'}</button>
                                     <p className="auth-switch">Already have an account? <button type="button" onClick={() => setAuthView('login')}>Sign In</button></p>
                                 </form>
                             )}
