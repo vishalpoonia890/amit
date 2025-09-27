@@ -106,8 +106,9 @@ function AdminPanel({ token }) {
                 overallGameStatsRes, aviatorBetsRes, aviatorAnalysisRes, investmentApprovalsRes
             ] = await Promise.all([
                 axios.get(`${API_BASE_URL}/api/admin/recharges/pending`, { headers: { Authorization: `Bearer ${token}` } }),
-                // ✅ UPDATED: Fetch additional user/deposit data for withdrawal processing
-                axios.get(`${API_BASE_URL}/api/admin/withdrawals/pending`, { headers: { Authorization: `Bearer ${token}` } }),
+                // Note: The /api/admin/withdrawals/pending endpoint in the backend needs to be updated 
+                // to include user details (name, status, total_deposits) for the UI to display them correctly.
+                axios.get(`${API_BASE_URL}/api/admin/withdrawals/pending`, { headers: { Authorization: `Bearer ${token}` } }), 
                 axios.get(`${API_BASE_URL}/api/admin/game-status`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/game-statistics`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/current-bets`, { headers: { Authorization: `Bearer ${token}` } }),
@@ -118,7 +119,6 @@ function AdminPanel({ token }) {
                 axios.get(`${API_BASE_URL}/api/admin/overall-game-stats`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/aviator/live-bets`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/aviator-analysis`, { headers: { Authorization: `Bearer ${token}` } }),
-                // ✅ NEW: Fetch all pending investment approvals (regular and pre-sale)
                 axios.get(`${API_BASE_URL}/api/admin/investments/pending`, { headers: { Authorization: `Bearer ${token}` } })
             ]);
             
@@ -172,19 +172,22 @@ function AdminPanel({ token }) {
 
         try {
             // 1. Approve the base deposit
-            await handleAction('approve-deposit', depositId);
+            // We use the existing approve-deposit handler which also processes the referral bonus
+            await axios.post(`${API_BASE_URL}/api/admin/recharge/${depositId}/approve`, {}, { headers: { Authorization: `Bearer ${token}` } });
             
-            // 2. Grant the bonus
+            // 2. Grant the bonus separately
+            let bonusMessage = 'Deposit Approved successfully.';
             if (bonusAmount > 0) {
                 const res = await axios.post(`${API_BASE_URL}/api/admin/grant-bonus`, 
                     { amount: bonusAmount, reason: `Welcome Deposit Bonus (${bonusPercentage}%) for Deposit ID ${depositId}`, user_ids: [userId] },
                     { headers: { Authorization: `Bearer ${token}` } }
                 );
-                alert(`Deposit Approved. Bonus granted: ${res.data.message}`);
+                bonusMessage += ` Bonus granted: ${res.data.message}`;
             } else {
-                 alert('Deposit Approved successfully, no bonus granted (0%).');
+                 bonusMessage += ' No bonus granted (0%).';
             }
 
+            alert(bonusMessage);
             fetchData();
             
         } catch (err) {
@@ -366,6 +369,8 @@ function AdminPanel({ token }) {
     if (loading) return <div className="loading-spinner">Loading Admin Panel...</div>;
     if (error) return <div className="error-message">{error}</div>;
 
+    const bonusOptions = [0, 10, 20, 30, 40, 50, 100, 200, 300];
+
     return (
         <div className="admin-panel">
             <h1>Admin Control Panel</h1>
@@ -522,7 +527,7 @@ function AdminPanel({ token }) {
                         </thead>
                         <tbody>
                             {pendingInvestmentApprovals.map(approval => (
-                                <tr key={approval.id}>
+                                <tr key={approval.id} className="investment-row">
                                     <td>{approval.id}</td>
                                     <td>{approval.user_id}</td>
                                     <td>{approval.plan_name}</td>
@@ -613,9 +618,7 @@ function AdminPanel({ token }) {
                     <p>Grant a welcome bonus to new users (total deposits {'<'} {formatCurrency(1000)}).</p>
                     <div className="input-group" style={{ maxWidth: '250px' }}>
                         <select value={bonusPercentage} onChange={e => setBonusPercentage(Number(e.target.value))}>
-                            <option value={0}>0%</option>
-                            <option value={100}>100%</option>
-                            <option value={200}>200%</option>
+                            {bonusOptions.map(p => <option key={p} value={p}>{p}%</option>)}
                         </select>
                         <label>Bonus Percentage</label>
                     </div>
@@ -625,8 +628,7 @@ function AdminPanel({ token }) {
                         <thead><tr><th>User ID</th><th>Amount</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
                         <tbody>
                             {pendingDeposits.map(d => {
-                                // Assume we have a mechanism to fetch user deposit history (TotalDeposited)
-                                // Since we don't have that endpoint, we mock it for display purposes.
+                                // Assume a mock value for TotalDeposits for display, as this data would need to be fetched with the deposit request.
                                 const mockTotalDeposits = Math.random() > 0.8 ? 15000 : 500;
                                 const newUser = isNewUser(mockTotalDeposits);
 
