@@ -132,6 +132,14 @@
     font-size: 0.85em;
     margin-top: 5px;
     padding-left: 5px;
+    /* ✅ FIX: Ensure the bank name is clearly visible and aligned */
+    text-align: left; 
+    font-weight: 500;
+}
+.ifsc-status strong {
+    /* Base color for text */
+    color: var(--text-color); 
+    font-weight: 700;
 }
 .ifsc-status.success strong {
     color: var(--success-color);
