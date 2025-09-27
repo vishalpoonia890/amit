@@ -28,7 +28,7 @@
     top: 0;
     bottom: 0;
     width: 50px;
-    background: linear-gradient(to left, var(--bg-color, #f0f2f5), transparent);
+    background: linear-gradient(to left, var(--bg-color, #111827), transparent);
     pointer-events: none;
     z-index: 2;
 }
@@ -67,7 +67,12 @@
     background-color: var(--primary-color);
     border-color: var(--primary-color);
     color: white;
-    box-shadow: 0 2px 10px rgba(41, 98, 255, 0.4);
+    box-shadow: 0 2px 10px rgba(79, 70, 229, 0.4);
+}
+
+.category-tab.locked {
+    cursor: not-allowed;
+    opacity: 0.5;
 }
 
 .category-description-section {
@@ -88,31 +93,18 @@
     color: var(--text-color-light);
 }
 
-/* --- Styles for New Category Statistics Card --- */
-.category-stats-card {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 15px;
-    background-color: var(--primary-color-light);
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 25px;
+/* --- LOCKED MESSAGE STYLES --- */
+.locked-message {
     text-align: center;
-    border: 1px solid var(--primary-color);
-}
-.stat-item {
-    display: flex;
-    flex-direction: column;
-}
-.stat-label {
-    font-size: 0.8em;
+    padding: 40px 20px;
+    background-color: var(--card-bg-color);
+    border-radius: 12px;
     color: var(--text-color-light);
-    margin-bottom: 5px;
 }
-.stat-value {
+.locked-message p {
     font-size: 1.1em;
-    font-weight: 700;
-    color: var(--primary-color);
+    font-weight: 600;
+    margin: 0;
 }
 
 .plans-grid {
@@ -140,7 +132,8 @@
     transition: transform 0.2s, box-shadow 0.2s;
     display: flex;
     flex-direction: column;
-    position: relative; /* Added for pre-sale tag */
+    position: relative;
+    border: 1px solid var(--border-color);
 }
 
 .plan-card:hover {
@@ -213,30 +206,33 @@
     cursor: pointer;
     transition: transform 0.2s, background 0.3s;
 }
-.purchase-button:hover:not(.disabled) {
+.purchase-button:hover:not(.disabled):not(.purchased-button) {
     transform: scale(1.03);
 }
 
 .purchase-button.disabled {
-    background: var(--disabled-color);
+    background-color: var(--border-color);
     background-image: none;
     cursor: not-allowed;
     opacity: 0.7;
 }
 
 .purchased-button {
-    background-color: var(--secondary-color);
+    /* Signifies already purchased, uses a secondary, distinct color */
+    background: var(--success-color);
     background-image: none;
     cursor: not-allowed;
     color: #fff;
+    opacity: 1;
 }
 
 .pre-sale-tag {
     position: absolute;
     top: 10px;
     right: 10px;
-    background-color: var(--warning-color);
-    color: white;
+    /* Use secondary color for high visibility on pre-sale */
+    background-color: var(--secondary-color); 
+    color: #111827;
     font-weight: bold;
     padding: 5px 10px;
     border-radius: 5px;
@@ -259,21 +255,23 @@
 }
 
 .pre-sale-button {
-    background-color: var(--primary-color);
+    background-color: var(--secondary-color);
     color: white;
     cursor: pointer;
     background-image: none;
     transition: transform 0.2s;
 }
 
-.pre-sale-button:hover {
+.pre-sale-button:hover:not(:disabled) {
     transform: scale(1.03);
+    background-color: #f7b731; /* Lighter secondary color on hover */
 }
 
 
 .confirmation-buttons {
     display: flex;
     gap: 10px;
+    width: 100%;
 }
 
 .confirm-btn, .cancel-btn {
@@ -296,13 +294,14 @@
     border: 1px solid var(--border-color);
 }
 
+/* --- MODAL STYLES --- */
 .purchase-result-modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
+    background-color: rgba(0, 0, 0, 0.8);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -311,14 +310,14 @@
 }
 
 .purchase-result-modal {
-    background: var(--background-color-light);
+    background: var(--card-bg-color);
     color: var(--text-color);
     padding: 30px;
     border-radius: 15px;
     text-align: center;
     width: 90%;
     max-width: 350px;
-    box-shadow: 0 5px 25px rgba(0,0,0,0.2);
+    box-shadow: 0 5px 25px rgba(0,0,0,0.5);
     border: 1px solid var(--border-color);
     transform: scale(0.9);
     animation: modal-pop 0.3s ease-out forwards;
@@ -343,11 +342,11 @@
 }
 
 .purchase-result-modal.success h2 {
-    color: #28a745;
+    color: var(--success-color);
 }
 
 .purchase-result-modal.error h2 {
-    color: #dc3545;
+    color: var(--error-color);
 }
 
 .purchase-result-modal p {
@@ -370,7 +369,7 @@
 }
 
 .modal-close-btn:hover {
-    background: var(--primary-color-dark);
+    background: var(--primary-hover-color);
 }
 
 .purchase-button.disabled {
