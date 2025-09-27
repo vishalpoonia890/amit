@@ -5,7 +5,7 @@ import './Deposit.css';
 
 // ✅ IMPORTANT: Make sure you have an 'assets' folder inside your 'src' folder
 // and that these images are placed inside it.
-import upiQrImage from '../assets/ptys.jpg';
+import upiQrImage from '../assets/ptyss.jpg';
 import usdtQrImage from '../assets/usdt.jpg';
 
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
@@ -233,7 +233,7 @@ function Deposit({ token, userData, onBack, onDepositRequest }) {
                         />
                         <div className="upload-area">
                             <label htmlFor="screenshot-upload">
-                                {filePreview ? <img src={filePreview} alt="Screenshot Preview" className="screenshot-preview" /> : "Upload Screenshot (Optional)"}
+                                {filePreview ? <img src={filePreview} alt="Screenshot Preview" className="screenshot-preview" /> : "Upload Screenshot Only if Payment Made via USDT (Optional)"}
                             </label>
                             <input id="screenshot-upload" type="file" accept="image/*" onChange={handleFileChange} />
                         </div>
