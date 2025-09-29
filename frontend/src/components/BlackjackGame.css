@@ -1,41 +1,4 @@
-/* Basic reset for game elements */
-.card-face {
-    font-family: 'Inter', sans-serif;
-    transition: transform 0.3s ease;
-}
-
-.card-face:hover {
-    transform: translateY(-5px);
-}
-
-.card-back {
-    transition: transform 0.3s ease;
-}
-
-.card-hand-container {
-    padding-bottom: 8px; /* Extra padding for card hover effect */
-}
-
-/* Custom background for the buttons */
-#actionControls button {
-    transition: background-color 0.2s, transform 0.1s;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
-}
-
-/* Ensure the main table background stands out */
-.bg-green-800 {
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
-}
-
-/* Ensure rotated text for card value displays correctly */
-.rotate-180 {
-    writing-mode: horizontal-tb;
-    transform: rotate(180deg);
-}
-
-/* BlackjackGame.css 
-    Styles to supplement Tailwind classes used in the BlackjackGame React component.
-*/
+/* --- BlackjackGame.css: Complete Stylesheet --- */
 
 /* --- General Theme & Typography --- */
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@700&display=swap');
@@ -52,25 +15,44 @@
     /* Custom effect for the felt table */
     position: relative;
     overflow: hidden;
-    /* Optional subtle felt pattern (adjust opacity if needed) */
+    /* Optional subtle felt pattern for casino felt look */
     background-image: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.05) 1px, transparent 15px);
+    /* Enhances the shadow for the table itself */
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
 }
 
 /* --- Card Styling --- */
-/* The Card component uses utility classes, but this enhances the shadow for depth */
-.card-stack {
-    perspective: 1000px; /* For potential 3D flip effects later */
+/* Base styles for the card faces */
+.card-face {
+    font-family: 'Inter', sans-serif;
+    transition: transform 0.3s ease;
 }
 
-/* Enhance the card shadow for a lifted look */
+/* Hover effect on cards */
+.card-face:hover {
+    transform: translateY(-5px);
+}
+
+/* For the whole card hand area (to prevent clipping the hover effect) */
+.card-hand-container {
+    padding-bottom: 8px; 
+}
+
+/* The Card component uses utility classes, but this enhances the shadow for depth */
 .bg-white.border {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
     transition: transform 0.2s ease;
 }
 
-/* --- Interactive Elements (Chips) --- */
+/* Ensures the rotated card value text is correct */
+.rotate-180 {
+    writing-mode: horizontal-tb;
+    transform: rotate(180deg);
+}
+
+/* --- Interactive Elements (Chips & Buttons) --- */
+/* Style for the bet placement chip buttons */
 .betting-chip {
-    /* Style for the bet placement buttons */
     transition: all 0.15s ease-in-out;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5), inset 0 2px 5px rgba(255, 255, 255, 0.3);
 }
@@ -80,7 +62,14 @@
     box-shadow: 0 6px 15px rgba(255, 255, 0, 0.6), inset 0 2px 5px rgba(255, 255, 255, 0.5);
 }
 
-/* --- Modal Dialog --- */
+/* Custom background and shadow for the action buttons container */
+#actionControls button {
+    transition: background-color 0.2s, transform 0.1s;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+
+/* --- Modal Dialog (Game End) --- */
 #resultDialog > div {
     /* Style the result box (win/lose message) */
     border: 3px solid #f6e05e; /* Tailwind yellow-400 */
