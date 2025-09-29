@@ -32,3 +32,69 @@
     writing-mode: horizontal-tb;
     transform: rotate(180deg);
 }
+
+/* BlackjackGame.css 
+    Styles to supplement Tailwind classes used in the BlackjackGame React component.
+*/
+
+/* --- General Theme & Typography --- */
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@700&display=swap');
+
+.blackjack-game-container {
+    /* Ensures background texture/color covers the component area */
+    background-color: #1a202c; /* Equivalent to bg-gray-900 for consistency */
+    min-height: 100vh;
+    font-family: 'Roboto Mono', monospace; /* Use a sporty/casino-appropriate font */
+}
+
+/* --- Game Table Styling --- */
+.bg-green-800 {
+    /* Custom effect for the felt table */
+    position: relative;
+    overflow: hidden;
+    /* Optional subtle felt pattern (adjust opacity if needed) */
+    background-image: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.05) 1px, transparent 15px);
+}
+
+/* --- Card Styling --- */
+/* The Card component uses utility classes, but this enhances the shadow for depth */
+.card-stack {
+    perspective: 1000px; /* For potential 3D flip effects later */
+}
+
+/* Enhance the card shadow for a lifted look */
+.bg-white.border {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    transition: transform 0.2s ease;
+}
+
+/* --- Interactive Elements (Chips) --- */
+.betting-chip {
+    /* Style for the bet placement buttons */
+    transition: all 0.15s ease-in-out;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5), inset 0 2px 5px rgba(255, 255, 255, 0.3);
+}
+
+.betting-chip:hover:not(:disabled) {
+    transform: scale(1.1);
+    box-shadow: 0 6px 15px rgba(255, 255, 0, 0.6), inset 0 2px 5px rgba(255, 255, 255, 0.5);
+}
+
+/* --- Modal Dialog --- */
+#resultDialog > div {
+    /* Style the result box (win/lose message) */
+    border: 3px solid #f6e05e; /* Tailwind yellow-400 */
+    box-shadow: 0 0 30px rgba(255, 220, 0, 0.7);
+    animation: bounce-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes bounce-in {
+    0% {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
