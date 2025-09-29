@@ -1,86 +1,109 @@
-/* --- BlackjackGame.css: Complete Stylesheet --- */
+/* BlackjackGame.css: Complete Stylesheet for Casino Aesthetic
+    This CSS overrides and enhances Tailwind classes to create a deep, professional casino felt look,
+    sharp card presentation, and highly visible action elements.
+*/
 
-/* --- General Theme & Typography --- */
+/* --- 1. General Theme & Typography --- */
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@700&display=swap');
 
 .blackjack-game-container {
     /* Ensures background texture/color covers the component area */
-    background-color: #1a202c; /* Equivalent to bg-gray-900 for consistency */
+    background-color: #1a202c; /* Deep dark blue/gray background */
     min-height: 100vh;
-    font-family: 'Roboto Mono', monospace; /* Use a sporty/casino-appropriate font */
+    font-family: 'Roboto Mono', monospace; /* Casino/tech-appropriate font */
 }
 
-/* --- Game Table Styling --- */
+/* --- 2. Game Table Styling (bg-green-800) --- */
 .bg-green-800 {
-    /* Custom effect for the felt table */
+    /* Deep Emerald Felt Look */
+    background-color: #044b36; 
     position: relative;
     overflow: hidden;
-    /* Optional subtle felt pattern for casino felt look */
-    background-image: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.05) 1px, transparent 15px);
-    /* Enhances the shadow for the table itself */
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+    padding: 2.5rem; /* Ensure generous padding on the table */
+    border-radius: 1.5rem;
+    
+    /* Subtle felt texture pattern */
+    background-image: 
+        radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.04) 1px, transparent 15px),
+        radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0.1) 1px, transparent 10px);
+
+    /* Rich, layered shadow for 3D effect */
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.7), 
+                inset 0 0 15px rgba(0, 0, 0, 0.5), 
+                0 0 20px rgba(255, 255, 255, 0.05);
 }
 
-/* --- Card Styling --- */
-/* Base styles for the card faces */
-.card-face {
-    font-family: 'Inter', sans-serif;
-    transition: transform 0.3s ease;
-}
+/* --- 3. Card Styling --- */
 
-/* Hover effect on cards */
-.card-face:hover {
-    transform: translateY(-5px);
-}
-
-/* For the whole card hand area (to prevent clipping the hover effect) */
+/* Card container for spacing and hover effects */
 .card-hand-container {
-    padding-bottom: 8px; 
+    padding-bottom: 12px; /* Allows for card lift effect without clipping */
 }
 
-/* The Card component uses utility classes, but this enhances the shadow for depth */
-.bg-white.border {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-    transition: transform 0.2s ease;
+/* Base style for individual cards */
+.card-face {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+    transition: transform 0.2s ease, box-shadow 0.2s;
+    border: 1px solid #ccc;
 }
 
-/* Ensures the rotated card value text is correct */
+.card-face:hover {
+    transform: translateY(-8px); /* Card lifts on hover */
+    box-shadow: 0 8px 16px rgba(255, 255, 0, 0.4); /* Subtle yellow glow on hover */
+}
+
+/* Dealer's hidden card (bg-yellow-900/90) */
+.bg-yellow-900\/90 {
+    background-color: #6d4e16 !important; /* Richer gold-brown color */
+    border-color: #ffeb3b !important;
+}
+
+/* Ensures the rotated value is correct for the card corners */
 .rotate-180 {
     writing-mode: horizontal-tb;
     transform: rotate(180deg);
 }
 
-/* --- Interactive Elements (Chips & Buttons) --- */
-/* Style for the bet placement chip buttons */
+/* --- 4. Interactive Elements (Chips & Buttons) --- */
+
+/* Styles for the chip buttons in the betting area */
 .betting-chip {
-    transition: all 0.15s ease-in-out;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5), inset 0 2px 5px rgba(255, 255, 255, 0.3);
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Springy transition */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6), inset 0 2px 5px rgba(255, 255, 255, 0.3);
+    font-size: 1.25rem; /* Larger text inside chip */
 }
 
 .betting-chip:hover:not(:disabled) {
-    transform: scale(1.1);
-    box-shadow: 0 6px 15px rgba(255, 255, 0, 0.6), inset 0 2px 5px rgba(255, 255, 255, 0.5);
+    transform: scale(1.15); /* More pronounced lift */
+    box-shadow: 0 8px 20px rgba(255, 255, 0, 0.8), inset 0 2px 5px rgba(255, 255, 255, 0.6);
 }
 
-/* Custom background and shadow for the action buttons container */
+/* Styles for the main action buttons (DEAL, HIT, STAND, DOUBLE DOWN) */
 #actionControls button {
     transition: background-color 0.2s, transform 0.1s;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6);
+}
+#actionControls button:hover:not(:disabled) {
+    transform: scale(1.03);
 }
 
+/* --- 5. Modal Dialog (Result Box) --- */
 
-/* --- Modal Dialog (Game End) --- */
 #resultDialog > div {
-    /* Style the result box (win/lose message) */
-    border: 3px solid #f6e05e; /* Tailwind yellow-400 */
-    box-shadow: 0 0 30px rgba(255, 220, 0, 0.7);
-    animation: bounce-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    /* The main dialog box */
+    border: 3px solid #ffc107; /* Gold border */
+    background-color: #2d3748; /* Dark dialog background */
+    box-shadow: 0 0 40px rgba(255, 215, 0, 0.8); /* Stronger gold glow */
+    animation: bounce-in 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 @keyframes bounce-in {
     0% {
-        transform: scale(0.5);
+        transform: scale(0.5) translateY(-50px);
         opacity: 0;
+    }
+    70% {
+        transform: scale(1.05);
     }
     100% {
         transform: scale(1);
