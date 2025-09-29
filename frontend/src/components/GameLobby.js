@@ -5,7 +5,8 @@ import colorImage from '../assets/color.png';
 import lotteryImage from '../assets/lottery.png';
 import pushpaImage from '../assets/pushpa.png';
 import winwinImage from '../assets/winwin.png';
-import blackjackImage from '../assets/blackjack.png'; // Assuming you add an image for Blackjack
+import blackjackImage from '../assets/blackjack.png'; // NEW: Placeholder for Blackjack Image
+
 
 // --- INLINED ICONS ---
 const SelectGameIcon = () => (
@@ -28,16 +29,8 @@ const WinBigIcon = () => (
     </svg>
 );
 
+
 const games = [
-    {
-        id: 'blackjack-practice',
-        name: 'Blackjack Practice',
-        description: 'A pure simulation game to test and sharpen your Blackjack strategy.',
-        image: blackjackImage,
-        view: 'blackjack-game',
-        isAvailable: true,
-        isSimulation: true,
-    },
     {
         id: 'color-prediction',
         name: 'Color Prediction',
@@ -53,6 +46,14 @@ const games = [
         image: lotteryImage,
         view: 'ip-lottery',
         isAvailable: true,
+    },
+    {
+        id: 'blackjack', // NEW GAME ADDED
+        name: 'Blackjack',
+        description: 'The classic 21. Strategize and beat the dealer!',
+        image: blackjackImage,
+        view: 'blackjack-game', // New view name for the component
+        isAvailable: true, 
     },
     {
         id: 'pushpa-raj',
@@ -73,7 +74,9 @@ const games = [
     },
 ];
 
+
 const partners = ['Pragmatic Play', 'Evolution', 'Ezugi', 'Betsoft', 'NetEnt', 'Playtech'];
+
 
 function GameLobby({ onViewChange }) {
     return (
@@ -82,6 +85,7 @@ function GameLobby({ onViewChange }) {
                 <h1 className="lobby-title">Game Center</h1>
                 <p className="lobby-subtitle">Choose a game to play and win big!</p>
             </div>
+
 
             <div className="zero-edge-promo-card">
                 <h3>World's First Casino with "ZERO" House Edge</h3>
@@ -96,21 +100,21 @@ function GameLobby({ onViewChange }) {
                         onClick={() => game.isAvailable && onViewChange(game.view)}
                     >
                         <div className="game-image-container">
-                            {/* NOTE: You need to add an actual image file named 'blackjack.png' in your assets folder */}
                             <img src={game.image} alt={game.name} className="game-image" />
                         </div>
                         <div className="game-info">
                             <h3>{game.name}</h3>
                             <p>{game.description}</p>
                         </div>
-                        {(!game.isAvailable || game.isSimulation) && (
-                            <div className={`coming-soon-overlay ${game.isSimulation ? 'simulation-badge' : ''}`}>
-                                {game.isSimulation ? 'Practice Mode' : (game.isExclusive ? 'Exclusive Access' : 'Coming Soon!!')}
+                        {!game.isAvailable && (
+                            <div className="coming-soon-overlay">
+                                {game.isExclusive ? 'Exclusive Access' : 'Coming Soon!!'}
                             </div>
                         )}
                     </div>
                 ))}
             </div>
+
 
             <div className="how-to-play-card">
                 <h3>How to Play</h3>
@@ -133,6 +137,7 @@ function GameLobby({ onViewChange }) {
                 </div>
             </div>
 
+
             <div className="partners-section">
                 <h3>Our Trusted Game Providers</h3>
                 <div className="partners-grid">
@@ -142,13 +147,17 @@ function GameLobby({ onViewChange }) {
                 </div>
             </div>
 
+
             <footer className="game-footer">
                 <p>© 2025 MoneyPlus.com | All Rights Reserved.</p>
                 <p>MoneyPlus is owned and operated by IP Gaming Solutions N.V., registration number: 145353, registered address: Seru Loraweg 17 B, Curaçao. Payment agent companies are IP Finance Limited and IP Tech Limited. Contact us at support@moneyplus.com.</p>
                 <p>MoneyPlus is committed to responsible gambling, for more information visit Gamblingtherapy.org</p>
             </footer>
+
+
         </div>
     );
 }
+
 
 export default GameLobby;
