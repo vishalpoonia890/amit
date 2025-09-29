@@ -5,7 +5,7 @@ import { FidelityLogoIcon, LoginIcon } from './Icons';
 
 // Asset imports
 import solarPlanImage from '../assets/solar.png'; 
-import aviatorGameImage from '../assets/color.png';
+import aviatorGameImage from '../assets/blackjack.png';
 import inflationImage from '../assets/inflation.png';
 import promoImage from '../assets/ipbia.png';
 import casinoNews1 from '../assets/casino1.jpg';
@@ -189,7 +189,7 @@ function LandingPage({ authView, setAuthView, loginFormData, registerFormData, h
                     <h2>Our Investment Products</h2>
                     <div className="sample-grid">
                         <div className="sample-card"><img src={solarPlanImage} alt="Solar Energy Plan"/><h3>Solar Energy Plans</h3><p>Invest in a green future and earn stable daily returns by funding large-scale solar projects.</p></div>
-                        <div className="sample-card"><img src={aviatorGameImage} alt="Aviator Game"/><h3>Aviator Game</h3><p>Test your nerve in this thrilling crash game. Cash out before the plane flies away to multiply your bet!</p></div>
+                        <div className="sample-card"><img src={aviatorGameImage} alt="Black-Jack"/><h3>Black-Jack</h3><p>Test your nerve in this thrilling card game. Play smartly and show your talent to multiply your bet!</p></div>
                     </div>
                 </section>
                 
