@@ -2,7 +2,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import './AdminPanel.css';
 
+
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
+
 
 // --- Helper Components ---
 const formatCurrency = (amount) => {
@@ -13,6 +15,7 @@ const formatCurrency = (amount) => {
         maximumFractionDigits: 2
     }).format(amount);
 };
+
 
 const CooldownTimer = ({ targetDate }) => {
     const calculateTimeLeft = useCallback(() => {
@@ -25,15 +28,19 @@ const CooldownTimer = ({ targetDate }) => {
         return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
     }, [targetDate]);
 
+
     const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
+
 
     useEffect(() => {
         const timer = setInterval(() => setTimeLeft(calculateTimeLeft()), 1000);
         return () => clearInterval(timer);
     }, [calculateTimeLeft]);
 
+
     return <span>{timeLeft}</span>;
 };
+
 
 // --- Main Admin Panel Component ---
 function AdminPanel({ token }) {
@@ -56,9 +63,11 @@ function AdminPanel({ token }) {
     const [currentLotteryRoundId, setCurrentLotteryRoundId] = useState('');
     const [lotteryProfitPreference, setLotteryProfitPreference] = useState('max_profit');
 
+
     const [aviatorLiveBets, setAviatorLiveBets] = useState([]);
     const [aviatorAnalysis, setAviatorAnalysis] = useState([]);
     const [aviatorSettings, setAviatorSettings] = useState({ mode: 'auto', profitMargin: 0.10, manualCrashPoint: null });
+
 
     const [incomeStatus, setIncomeStatus] = useState({ canDistribute: false, nextDistributionTime: null });
     const [userStatusId, setUserStatusId] = useState('');
@@ -67,6 +76,7 @@ function AdminPanel({ token }) {
     const [searchedUserInfo, setSearchedUserInfo] = useState(null);
     const [searchLoading, setSearchLoading] = useState(false);
     const [searchError, setSearchError] = useState('');
+
 
     const [bonusAmount, setBonusAmount] = useState('');
     const [bonusReason, setBonusReason] = useState('');
@@ -79,9 +89,14 @@ function AdminPanel({ token }) {
     const [pendingInvestmentApprovals, setPendingInvestmentApprovals] = useState([]); // Consolidated approvals
     const [bonusPercentage, setBonusPercentage] = useState(100);
 
+    // NEW: Blackjack State
+    const [blackjackSettings, setBlackjackSettings] = useState({ luckFactor: 0, isManualShuffle: false });
+
+
     // --- Helper Functions ---
     const isNewUser = (userTotalDeposits) => userTotalDeposits < 1000; // Define 'new user' threshold
     const formatDateTime = (dateString) => new Date(dateString).toLocaleString();
+
 
     const getLotteryRoundId = () => {
         const now = new Date();
@@ -93,6 +108,7 @@ function AdminPanel({ token }) {
         return `${year}${month}${day}-${hour}`;
     };
 
+
     const fetchData = useCallback(async (isInitialLoad = false) => {
         if (isInitialLoad) setLoading(true);
         setError('');
@@ -103,7 +119,8 @@ function AdminPanel({ token }) {
             const [
                 depositsRes, withdrawalsRes, gameStatusRes, statsRes, betsRes, 
                 analysisRes, incomeRes, platformStatsRes, lotteryAnalysisRes, 
-                overallGameStatsRes, aviatorBetsRes, aviatorAnalysisRes, investmentApprovalsRes
+                overallGameStatsRes, aviatorBetsRes, aviatorAnalysisRes, investmentApprovalsRes,
+                blackjackSettingsRes // NEW: Fetch Blackjack settings
             ] = await Promise.all([
                 axios.get(`${API_BASE_URL}/api/admin/recharges/pending`, { headers: { Authorization: `Bearer ${token}` } }),
                 // Note: The /api/admin/withdrawals/pending endpoint in the backend needs to be updated 
@@ -119,7 +136,8 @@ function AdminPanel({ token }) {
                 axios.get(`${API_BASE_URL}/api/admin/overall-game-stats`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/aviator/live-bets`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/aviator-analysis`, { headers: { Authorization: `Bearer ${token}` } }),
-                axios.get(`${API_BASE_URL}/api/admin/investments/pending`, { headers: { Authorization: `Bearer ${token}` } })
+                axios.get(`${API_BASE_URL}/api/admin/investments/pending`, { headers: { Authorization: `Bearer ${token}` } }),
+                axios.get(`${API_BASE_URL}/api/admin/blackjack-settings`, { headers: { Authorization: `Bearer ${token}` } }) // NEW FETCH
             ]);
             
             setPendingDeposits(depositsRes.data.recharges || []);
@@ -136,6 +154,7 @@ function AdminPanel({ token }) {
             setAviatorLiveBets(aviatorBetsRes.data.bets || []);
             setAviatorAnalysis(aviatorAnalysisRes.data.analysis || []);
             setPendingInvestmentApprovals(investmentApprovalsRes.data.pendingRequests || []); // Use new state
+            setBlackjackSettings(blackjackSettingsRes.data.settings); // NEW STATE UPDATE
         } catch (err) {
             if (isInitialLoad) setError('Failed to fetch admin data. Auto-refresh paused.');
             console.error(err);
@@ -144,14 +163,30 @@ function AdminPanel({ token }) {
         }
     }, [token]);
 
+
     useEffect(() => {
         fetchData(true);
         const interval = setInterval(() => fetchData(false), 10000);
         return () => clearInterval(interval);
     }, [fetchData]);
 
+
     
-    // --- Action Handlers ---
+    // --- New Handler for Blackjack Settings ---
+    const handleBlackjackSettingsUpdate = async (update) => {
+        try {
+            const res = await axios.post(`${API_BASE_URL}/api/admin/blackjack-settings`, update, { headers: { Authorization: `Bearer ${token}` } });
+            setBlackjackSettings(res.data.settings);
+            alert(res.data.message);
+            fetchData();
+        } catch (err) {
+            alert(err.response?.data?.error || 'Failed to update Blackjack settings.');
+        }
+    };
+    // ------------------------------------------
+
+
+    // --- Existing Action Handlers ---
     const handleAction = async (action, id) => {
         const urlMap = {
             'approve-deposit': `/api/admin/recharge/${id}/approve`, 'reject-deposit': `/api/admin/recharge/${id}/reject`,
@@ -166,9 +201,11 @@ function AdminPanel({ token }) {
         }
     };
 
+
     const handleBonusApproval = async (depositId, userId, amount) => {
         const bonusAmount = amount * (bonusPercentage / 100);
         if (!window.confirm(`Are you sure you want to approve deposit #${depositId} AND grant a ${bonusPercentage}% bonus of ${formatCurrency(bonusAmount)}?`)) return;
+
 
         try {
             // 1. Approve the base deposit
@@ -187,6 +224,7 @@ function AdminPanel({ token }) {
                  bonusMessage += ' No bonus granted (0%).';
             }
 
+
             alert(bonusMessage);
             fetchData();
             
@@ -204,6 +242,7 @@ function AdminPanel({ token }) {
             alert(error.response?.data?.error || 'Failed to approve investment.');
         }
     };
+
 
     const handleRejectInvestment = async (id) => {
         if (!window.confirm("Rejecting this investment will refund the user. Continue?")) return;
@@ -240,6 +279,7 @@ function AdminPanel({ token }) {
         }
     };
 
+
     const handleDistributeIncome = async () => {
         if (!window.confirm("Are you sure you want to distribute daily income to ALL active users? This will trigger notifications.")) return;
         try {
@@ -250,6 +290,7 @@ function AdminPanel({ token }) {
             alert(err.response?.data?.error || 'Failed to distribute income.');
         }
     };
+
 
     const handleUserSearch = async (e) => {
         e.preventDefault();
@@ -299,6 +340,7 @@ function AdminPanel({ token }) {
         }
     };
 
+
     const handleGrantBonus = async (e) => {
         e.preventDefault();
         const userIdsArray = bonusUserIds.split(',').map(id => parseInt(id.trim())).filter(id => !isNaN(id));
@@ -313,6 +355,7 @@ function AdminPanel({ token }) {
             alert(err.response?.data?.error || 'Failed to grant bonus.');
         }
     };
+
 
     const handleCreatePromotion = async (e) => {
         e.preventDefault();
@@ -369,7 +412,9 @@ function AdminPanel({ token }) {
     if (loading) return <div className="loading-spinner">Loading Admin Panel...</div>;
     if (error) return <div className="error-message">{error}</div>;
 
+
     const bonusOptions = [0, 10, 20, 30, 40, 50, 100, 200, 300];
+
 
     return (
         <div className="admin-panel">
@@ -383,6 +428,7 @@ function AdminPanel({ token }) {
                     <div className="stat-card"><h4>Platform P/L</h4><p className={`stat-value ${platformStats.platformPL >= 0 ? 'positive' : 'negative'}`}>{formatCurrency(platformStats.platformPL)}</p></div>
                 </div>
             </div>
+
 
             <div className="admin-section stats-section">
                 <h2>Overall Game Financials</h2>
@@ -401,6 +447,7 @@ function AdminPanel({ token }) {
                     <div className="stat-card"><h4>Overall</h4><p className={`stat-value ${gameStats.total.pl >= 0 ? 'positive' : 'negative'}`}>{formatCurrency(gameStats.total.pl)}</p></div>
                 </div>
             </div>
+
 
             <div className="admin-grid">
                 <div className="grid-column">
@@ -446,7 +493,7 @@ function AdminPanel({ token }) {
                             </form>
                         )}
                     </div>
-                     <div className="admin-section outcome-analysis">
+                    <div className="admin-section outcome-analysis">
                         <h2>Color Prediction: Admin's Choice</h2>
                         <div className="analysis-table-container">
                             <table className="analysis-table">
@@ -465,6 +512,45 @@ function AdminPanel({ token }) {
                     </div>
                 </div>
             </div>
+            
+            {/* NEW BLACKJACK MANAGEMENT SECTION */}
+            <div className="admin-section">
+                <h2>Blackjack Management (RTP Control)</h2>
+                <div className="control-group">
+                    <label>Luck Factor ({blackjackSettings.luckFactor}%)</label>
+                    <p className="description">Adjusts the game bias. -100 is dealer win, 100 is player win, 0 is casino standard.</p>
+                    <input 
+                        type="range"
+                        min="-100"
+                        max="100"
+                        value={blackjackSettings.luckFactor}
+                        onChange={(e) => setBlackjackSettings(prev => ({...prev, luckFactor: parseInt(e.target.value)}))}
+                        onMouseUp={(e) => handleBlackjackSettingsUpdate({ luckFactor: parseInt(e.target.value) })}
+                        onTouchEnd={(e) => handleBlackjackSettingsUpdate({ luckFactor: parseInt(e.target.value) })}
+                    />
+                    <p className="text-center font-bold">Bias: {blackjackSettings.luckFactor > 0 ? `Player +${blackjackSettings.luckFactor}%` : blackjackSettings.luckFactor < 0 ? `Dealer ${blackjackSettings.luckFactor}%` : 'Standard Casino'}</p>
+                </div>
+                <div className="control-group">
+                    <label>Manual Shuffle</label>
+                    <p className="description">Toggles manual shuffle control (if implemented on client side).</p>
+                    <div className="toggle-switch">
+                        <button 
+                            onClick={() => handleBlackjackSettingsUpdate({ isManualShuffle: true })} 
+                            className={blackjackSettings.isManualShuffle ? 'active' : ''}
+                        >
+                            Manual
+                        </button>
+                        <button 
+                            onClick={() => handleBlackjackSettingsUpdate({ isManualShuffle: false })} 
+                            className={!blackjackSettings.isManualShuffle ? 'active' : ''}
+                        >
+                            Auto
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {/* END NEW BLACKJACK MANAGEMENT SECTION */}
+
 
             <div className="admin-section">
                 <h2>Aviator Management</h2>
@@ -475,48 +561,49 @@ function AdminPanel({ token }) {
                         <button onClick={() => handleAviatorSettingsUpdate({ mode: 'admin' })} className={aviatorSettings.mode === 'admin' ? 'active' : ''}>Admin Choice</button>
                     </div>
                 </div>
-                 <div className="action-group">
-                    <h4>Set Profit Margin (Auto Mode)</h4>
-                    <input type="number" step="0.01" value={aviatorSettings.profitMargin} onChange={e => handleAviatorSettingsUpdate({ profitMargin: parseFloat(e.target.value) })} />
-                </div>
-                {aviatorSettings.mode === 'admin' && (
                     <div className="action-group">
-                        <h4>Set Manual Crash Point</h4>
-                        <input type="number" step="0.01" placeholder="e.g., 2.50" onChange={e => handleAviatorSettingsUpdate({ manualCrashPoint: parseFloat(e.target.value) })} />
+                        <h4>Set Profit Margin (Auto Mode)</h4>
+                        <input type="number" step="0.01" value={aviatorSettings.profitMargin} onChange={e => handleAviatorSettingsUpdate({ profitMargin: parseFloat(e.target.value) })} />
                     </div>
-                )}
-                 <h4>Live Bets in Current Round ({aviatorLiveBets.length})</h4>
-                <div className="analysis-table-container">
-                    <table className="analysis-table">
-                        <thead><tr><th>Player</th><th>Bet Amount</th></tr></thead>
-                        <tbody>
-                            {aviatorLiveBets.map(bet => (
-                                <tr key={bet.id}>
-                                    <td>{bet.users ? bet.users.name : 'N/A'} (ID: {bet.user_id})</td>
-                                    <td>{formatCurrency(bet.bet_amount)}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                    {aviatorSettings.mode === 'admin' && (
+                        <div className="action-group">
+                            <h4>Set Manual Crash Point</h4>
+                            <input type="number" step="0.01" placeholder="e.g., 2.50" onChange={e => handleAviatorSettingsUpdate({ manualCrashPoint: parseFloat(e.target.value) })} />
+                        </div>
+                    )}
+                    <h4>Live Bets in Current Round ({aviatorLiveBets.length})</h4>
+                    <div className="analysis-table-container">
+                        <table className="analysis-table">
+                            <thead><tr><th>Player</th><th>Bet Amount</th></tr></thead>
+                            <tbody>
+                                {aviatorLiveBets.map(bet => (
+                                    <tr key={bet.id}>
+                                        <td>{bet.users ? bet.users.name : 'N/A'} (ID: {bet.user_id})</td>
+                                        <td>{formatCurrency(bet.bet_amount)}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                    <h4>Profitability Analysis (Current Round)</h4>
+                    <div className="analysis-table-container">
+                        <table className="analysis-table">
+                            <thead><tr><th>Target Profit</th><th>Required Crash At</th><th>Total Bet In</th><th>Estimated Payout</th><th>Net P/L</th></tr></thead>
+                            <tbody>
+                                {aviatorAnalysis.map(row => (
+                                    <tr key={row.profitMargin} className={row.netProfit >= 0 ? 'positive' : 'negative'}>
+                                        <td>{row.profitMargin}</td>
+                                        <td>{row.requiredMultiplier}</td>
+                                        <td>{formatCurrency(row.totalBet)}</td>
+                                        <td>{formatCurrency(row.estimatedPayout)}</td>
+                                        <td>{formatCurrency(row.netProfit)}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-                <h4>Profitability Analysis (Current Round)</h4>
-                <div className="analysis-table-container">
-                    <table className="analysis-table">
-                        <thead><tr><th>Target Profit</th><th>Required Crash At</th><th>Total Bet In</th><th>Estimated Payout</th><th>Net P/L</th></tr></thead>
-                        <tbody>
-                            {aviatorAnalysis.map(row => (
-                                <tr key={row.profitMargin} className={row.netProfit >= 0 ? 'positive' : 'negative'}>
-                                    <td>{row.profitMargin}</td>
-                                    <td>{row.requiredMultiplier}</td>
-                                    <td>{formatCurrency(row.totalBet)}</td>
-                                    <td>{formatCurrency(row.estimatedPayout)}</td>
-                                    <td>{formatCurrency(row.netProfit)}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+
 
             <div className="admin-section">
                 <h2>Pending Investment Approvals ({pendingInvestmentApprovals.length})</h2>
@@ -544,6 +631,7 @@ function AdminPanel({ token }) {
                 </div>
             </div>
 
+
             <div className="admin-section server-actions">
                 <h2>User & Platform Management</h2>
                 <div className="action-group">
@@ -558,59 +646,59 @@ function AdminPanel({ token }) {
                         </div>
                     )}
                 </div>
-                 <div className="action-group">
-                    <h4>Set User Account Status</h4>
-                    <p>Change a user's status to Active, Non-Active, or Flagged.</p>
-                    <form onSubmit={handleSetUserStatus} className="input-group">
-                        <input type="number" value={userStatusId} onChange={e => setUserStatusId(e.target.value)} placeholder="User ID" required />
-                        <select value={newStatus} onChange={e => setNewStatus(e.target.value)}><option value="active">Active</option><option value="non-active">Non-Active</option><option value="flagged">Flagged</option></select>
-                        <button type="submit" className="action-btn">Set Status</button>
-                    </form>
-                </div>
-                 <div className="action-group">
-                    <h4>Manage User Income</h4>
-                    <p>Search for a user to allow or block their ability to receive daily income.</p>
-                    <form onSubmit={handleUserSearch} className="input-group">
-                        <input type="number" value={searchUserId} onChange={e => setSearchUserId(e.target.value)} placeholder="Enter User ID" required />
-                        <button type="submit" disabled={searchLoading}>{searchLoading ? 'Searching...' : 'Search'}</button>
-                    </form>
-                    {searchError && <p className="error-message small">{searchError}</p>}
-                </div>
-                {searchedUserInfo && (
-                    <div className="action-group user-status-result">
-                        <h4>User: {searchedUserInfo.name} (ID: {searchedUserInfo.id})</h4>
-                        <div className="status-control">
-                            <p>Current Income Status: 
-                                <span className={searchedUserInfo.can_receive_income ? 'status-allowed' : 'status-blocked'}>
-                                    {searchedUserInfo.can_receive_income ? 'Allowed' : 'Blocked'}
-                                </span>
-                            </p>
-                            <div className="button-group">
-                                <button onClick={() => handleManageUserIncome(true)} className="approve-btn" disabled={searchedUserInfo.can_receive_income}>Allow</button>
-                                <button onClick={() => handleManageUserIncome(false)} className="reject-btn" disabled={!searchedUserInfo.can_receive_income}>Block</button>
+                    <div className="action-group">
+                        <h4>Set User Account Status</h4>
+                        <p>Change a user's status to Active, Non-Active, or Flagged.</p>
+                        <form onSubmit={handleSetUserStatus} className="input-group">
+                            <input type="number" value={userStatusId} onChange={e => setUserStatusId(e.target.value)} placeholder="User ID" required />
+                            <select value={newStatus} onChange={e => setNewStatus(e.target.value)}><option value="active">Active</option><option value="non-active">Non-Active</option><option value="flagged">Flagged</option></select>
+                            <button type="submit" className="action-btn">Set Status</button>
+                        </form>
+                    </div>
+                    <div className="action-group">
+                        <h4>Manage User Income</h4>
+                        <p>Search for a user to allow or block their ability to receive daily income.</p>
+                        <form onSubmit={handleUserSearch} className="input-group">
+                            <input type="number" value={searchUserId} onChange={e => setSearchUserId(e.target.value)} placeholder="Enter User ID" required />
+                            <button type="submit" disabled={searchLoading}>{searchLoading ? 'Searching...' : 'Search'}</button>
+                        </form>
+                        {searchError && <p className="error-message small">{searchError}</p>}
+                    </div>
+                    {searchedUserInfo && (
+                        <div className="action-group user-status-result">
+                            <h4>User: {searchedUserInfo.name} (ID: {searchedUserInfo.id})</h4>
+                            <div className="status-control">
+                                <p>Current Income Status: 
+                                    <span className={searchedUserInfo.can_receive_income ? 'status-allowed' : 'status-blocked'}>
+                                        {searchedUserInfo.can_receive_income ? 'Allowed' : 'Blocked'}
+                                    </span>
+                                </p>
+                                <div className="button-group">
+                                    <button onClick={() => handleManageUserIncome(true)} className="approve-btn" disabled={searchedUserInfo.can_receive_income}>Allow</button>
+                                    <button onClick={() => handleManageUserIncome(false)} className="reject-btn" disabled={!searchedUserInfo.can_receive_income}>Block</button>
+                                </div>
                             </div>
                         </div>
+                    )}
+                    <div className="action-group">
+                        <h4>Grant Bonus</h4>
+                        <form onSubmit={handleGrantBonus}>
+                            <input type="number" placeholder="Bonus Amount (₹)" value={bonusAmount} onChange={e => setBonusAmount(e.target.value)} required />
+                            <input type="text" placeholder="Reason for Bonus" value={bonusReason} onChange={e => setBonusReason(e.target.value)} required />
+                            <input type="text" placeholder="User IDs (comma-separated, or leave blank for all)" value={bonusUserIds} onChange={e => setBonusUserIds(e.target.value)} />
+                            <button type="submit" className="action-btn">Grant Bonus</button>
+                        </form>
                     </div>
-                )}
-                 <div className="action-group">
-                    <h4>Grant Bonus</h4>
-                    <form onSubmit={handleGrantBonus}>
-                        <input type="number" placeholder="Bonus Amount (₹)" value={bonusAmount} onChange={e => setBonusAmount(e.target.value)} required />
-                        <input type="text" placeholder="Reason for Bonus" value={bonusReason} onChange={e => setBonusReason(e.target.value)} required />
-                        <input type="text" placeholder="User IDs (comma-separated, or leave blank for all)" value={bonusUserIds} onChange={e => setBonusUserIds(e.target.value)} />
-                        <button type="submit" className="action-btn">Grant Bonus</button>
-                    </form>
+                    <div className="action-group">
+                        <h4>Create Promotion</h4>
+                        <form onSubmit={handleCreatePromotion}>
+                            <input type="text" placeholder="Promotion Title" value={promoTitle} onChange={e => setPromoTitle(e.target.value)} required />
+                            <textarea placeholder="Promotion Message" value={promoMessage} onChange={e => setPromoMessage(e.target.value)} required />
+                            <button type="submit" className="action-btn">Create Promotion</button>
+                        </form>
+                    </div>
                 </div>
-                 <div className="action-group">
-                    <h4>Create Promotion</h4>
-                    <form onSubmit={handleCreatePromotion}>
-                        <input type="text" placeholder="Promotion Title" value={promoTitle} onChange={e => setPromoTitle(e.target.value)} required />
-                        <textarea placeholder="Promotion Message" value={promoMessage} onChange={e => setPromoMessage(e.target.value)} required />
-                        <button type="submit" className="action-btn">Create Promotion</button>
-                    </form>
-                </div>
-            </div>
-            
+                
             <div className="admin-section">
                 <h2>Pending Deposits ({pendingDeposits.length})</h2>
                 <div className="action-group">
@@ -632,6 +720,7 @@ function AdminPanel({ token }) {
                                 const mockTotalDeposits = Math.random() > 0.8 ? 15000 : 500;
                                 const newUser = isNewUser(mockTotalDeposits);
 
+
                                 return (
                                 <tr key={d.id} className={newUser ? 'highlight-new' : ''}>
                                     <td>{d.user_id} {newUser && <span className="status-badge new-user-badge">NEW</span>}</td>
@@ -651,32 +740,34 @@ function AdminPanel({ token }) {
                 </div>
             </div>
 
-             <div className="admin-section">
-                <h2>Pending Withdrawals ({pendingWithdrawals.length})</h2>
-                <div className="table-container">
-                    <table className="request-table">
-                        <thead><tr><th>User ID</th><th>Total Deposit</th><th>Account Status</th><th>Amount</th><th>Method</th><th>Date</th><th>Actions</th></tr></thead>
-                        <tbody>
-                            {pendingWithdrawals.map(w => {
-                                // Assume a mock value for TotalDeposits for display, as this data would need to be fetched with the withdrawal request.
-                                const userMockTotalDeposits = Math.floor(Math.random() * 5000) + 1000;
-                                return (
-                                <tr key={w.id}>
-                                    <td>{w.user_id}</td>
-                                    <td>{formatCurrency(userMockTotalDeposits)}</td>
-                                    <td><span className={`status-badge status-${w.users ? w.users.status : 'active'}`}>{w.users ? w.users.status : 'Active'}</span></td>
-                                    <td>{formatCurrency(w.amount)}</td>
-                                    <td>{w.method}</td>
-                                    <td>{formatDateTime(w.request_date)}</td>
-                                    <td className="actions"><button className="approve-btn" onClick={() => handleAction('approve-withdrawal', w.id)}>Approve</button><button className="reject-btn" onClick={() => handleAction('reject-withdrawal', w.id)}>Reject</button></td>
-                                </tr>
-                            )})}
-                        </tbody>
-                    </table>
+
+                <div className="admin-section">
+                    <h2>Pending Withdrawals ({pendingWithdrawals.length})</h2>
+                    <div className="table-container">
+                        <table className="request-table">
+                            <thead><tr><th>User ID</th><th>Total Deposit</th><th>Account Status</th><th>Amount</th><th>Method</th><th>Date</th><th>Actions</th></tr></thead>
+                            <tbody>
+                                {pendingWithdrawals.map(w => {
+                                    // Assume a mock value for TotalDeposits for display, as this data would need to be fetched with the withdrawal request.
+                                    const userMockTotalDeposits = Math.floor(Math.random() * 5000) + 1000;
+                                    return (
+                                    <tr key={w.id}>
+                                        <td>{w.user_id}</td>
+                                        <td>{formatCurrency(userMockTotalDeposits)}</td>
+                                        <td><span className={`status-badge status-${w.users ? w.users.status : 'active'}`}>{w.users ? w.users.status : 'Active'}</span></td>
+                                        <td>{formatCurrency(w.amount)}</td>
+                                        <td>{w.method}</td>
+                                        <td>{formatDateTime(w.request_date)}</td>
+                                        <td className="actions"><button className="approve-btn" onClick={() => handleAction('approve-withdrawal', w.id)}>Approve</button><button className="reject-btn" onClick={() => handleAction('reject-withdrawal', w.id)}>Reject</button></td>
+                                    </tr>
+                                )})}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-        </div>
     );
 }
+
 
 export default AdminPanel;
