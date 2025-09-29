@@ -282,7 +282,6 @@ function App() {
             />;
                 
             case 'blackjack':
-                // FIX: Pass userToken and the goBack function
                 return <BlackjackGame onBack={goBackToGameLobby} userToken={token} />;
             
             case 'ip-lottery': return <IpLottery token={token} onBack={goBackToGameLobby} />;
