@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
+import './BlackjackGame.css'; // Import the new CSS file
 
 // IMPORTANT: This component assumes a client-side environment where a central state
 // (like a Redux/Context Store) holds the user's balance and token.
-// For this standalone component, BALANCE is managed locally.
+// For this standalone component, BALANCE is managed locally for demonstration.
 
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com'; // Use your actual API base URL
 
@@ -11,23 +12,26 @@ const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com'; // Use your actu
 
 /** Creates a visual representation of a single card using SVG/divs. */
 const Card = ({ card, isHidden = false }) => {
+    // Suit color logic uses Tailwind classes (red for hearts/diamonds)
     const suitColor = card && (card.suit === '♥' || card.suit === '♦') ? 'text-red-500' : 'text-gray-900';
     
     if (isHidden) {
         return (
-            <div className="w-[70px] h-[100px] sm:w-20 sm:h-28 bg-blue-700 border-2 border-yellow-300 rounded-lg shadow-xl flex items-center justify-center">
+            <div className="w-[70px] h-[100px] sm:w-20 sm:h-28 bg-blue-700 border-2 border-yellow-300 rounded-lg shadow-xl flex items-center justify-center card-back">
                 <span className="text-xl font-extrabold text-white transform rotate-12">BJ</span>
             </div>
         );
     }
     
     return (
-        <div className="w-[70px] h-[100px] sm:w-20 sm:h-28 bg-white border border-gray-300 rounded-lg shadow-md flex flex-col p-1 sm:p-2 text-xs sm:text-base font-bold">
+        <div className="w-[70px] h-[100px] sm:w-20 sm:h-28 bg-white border border-gray-300 rounded-lg shadow-md flex flex-col p-1 sm:p-2 text-xs sm:text-base font-bold card-face">
             <div className={`text-left ${suitColor}`}>{card.value}</div>
             <div className={`flex-grow flex items-center justify-center text-xl sm:text-2xl ${suitColor}`}>
                 {card.suit}
             </div>
-            <div className={`text-right ${suitColor} rotate-180`}>{card.value}</div>
+            <div className="text-right text-xs sm:text-base rotate-180" style={{ color: suitColor }}>
+                {card.value}
+            </div>
         </div>
     );
 };
@@ -79,7 +83,7 @@ const calculateHandValue = (hand) => {
 
 // --- Main Blackjack Component ---
 
-const BlackjackGame = ({ userToken }) => {
+const BlackjackGame = ({ onBack, userToken }) => {
     // --- State Management ---
     const [balance, setBalance] = useState(1000); // Mock User Balance
     const [currentBet, setCurrentBet] = useState(0);
@@ -102,7 +106,6 @@ const BlackjackGame = ({ userToken }) => {
     const fetchAdminSettings = useCallback(async () => {
         try {
             // Note: This API call is theoretical, assuming your userToken is an admin token.
-            // If running as a standard user, you would need a non-admin endpoint.
             const response = await axios.get(`${API_BASE_URL}/api/admin/blackjack-settings`, {
                 headers: { Authorization: `Bearer ${userToken || 'MOCK_TOKEN'}` }
             });
@@ -122,9 +125,11 @@ const BlackjackGame = ({ userToken }) => {
     // --- Game Logic Functions ---
 
     const drawCard = (currentDeck) => {
-        if (currentDeck.length === 0) {
+        if (currentDeck.length < 5) { // Reshuffle when deck is low
             setMessage("Shuffling a new deck...");
             currentDeck = shuffleDeck(createDeck());
+            // Must update the deck state before drawing the card
+            setDeck(currentDeck); 
         }
         const card = currentDeck.pop();
         setDeck(currentDeck);
@@ -159,11 +164,14 @@ const BlackjackGame = ({ userToken }) => {
         setMessage('Player turn! Hit, Stand, or Double.');
         setIsDealerCardHidden(true);
 
+        // Ensure a fresh deck is used if the game just started or deck is low
         let currentDeck = [...deck];
+        if (currentDeck.length < 10) currentDeck = shuffleDeck(createDeck());
+
         let pHand = [];
         let dHand = [];
 
-        // Deal 2 cards each
+        // Deal 2 cards each (Player, Dealer, Player, Dealer)
         pHand.push(drawCard(currentDeck));
         dHand.push(drawCard(currentDeck));
         pHand.push(drawCard(currentDeck));
@@ -339,28 +347,28 @@ const BlackjackGame = ({ userToken }) => {
         <div id="actionControls" className="flex flex-wrap gap-4 justify-center p-4 bg-gray-900 rounded-lg shadow-inner mt-4 sm:mt-0">
             <button 
                 onClick={deal} 
-                className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg disabled:opacity-50 transition-colors"
+                className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg disabled:opacity-50 transition-colors transform hover:scale-[1.02]"
                 disabled={gameState !== 'betting' || currentBet < minBet}
             >
                 DEAL
             </button>
             <button 
                 onClick={hit} 
-                className="w-full sm:w-auto bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg disabled:opacity-50 transition-colors"
+                className="w-full sm:w-auto bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg disabled:opacity-50 transition-colors transform hover:scale-[1.02]"
                 disabled={gameState !== 'playerTurn'}
             >
                 HIT
             </button>
             <button 
                 onClick={stand} 
-                className="w-full sm:w-auto bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg disabled:opacity-50 transition-colors"
+                className="w-full sm:w-auto bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg disabled:opacity-50 transition-colors transform hover:scale-[1.02]"
                 disabled={gameState !== 'playerTurn'}
             >
                 STAND
             </button>
             <button 
                 onClick={doubleDown} 
-                className="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg disabled:opacity-50 transition-colors"
+                className="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg disabled:opacity-50 transition-colors transform hover:scale-[1.02]"
                 disabled={gameState !== 'playerTurn' || currentBet * 2 > balance}
             >
                 DOUBLE DOWN
@@ -379,7 +387,7 @@ const BlackjackGame = ({ userToken }) => {
                 {chips.map(value => (
                     <button
                         key={value}
-                        className="w-12 h-12 bg-green-600 hover:bg-green-700 text-white font-extrabold rounded-full shadow-lg border-2 border-white/30 transition-transform transform hover:scale-105 disabled:opacity-50"
+                        className="w-12 h-12 bg-green-600 hover:bg-green-700 text-white font-extrabold rounded-full shadow-lg border-2 border-white/30 transition-transform transform hover:scale-110 disabled:opacity-50"
                         onClick={() => placeBet(value)}
                         disabled={gameState !== 'betting'}
                     >
@@ -389,7 +397,7 @@ const BlackjackGame = ({ userToken }) => {
             </div>
             
             <button
-                className="mt-4 sm:mt-0 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg shadow-md disabled:opacity-50 transition-colors"
+                className="mt-4 sm:mt-0 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg shadow-md disabled:opacity-50 transition-colors transform hover:scale-105"
                 onClick={clearBet}
                 disabled={gameState !== 'betting' || currentBet === 0}
             >
@@ -400,13 +408,17 @@ const BlackjackGame = ({ userToken }) => {
 
     return (
         <div className="p-4 sm:p-8 bg-gray-900 min-h-screen text-white">
+            <button onClick={onBack} className="mb-4 bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-colors flex items-center">
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+                Back to Lobby
+            </button>
             <div className="max-w-4xl mx-auto">
                 <h1 className="text-3xl sm:text-4xl font-extrabold text-center text-yellow-500 mb-6 border-b border-gray-700 pb-2">
                     Blackjack 21
                 </h1>
-                {/* <p className="text-center text-sm text-gray-400 mb-4">
-                    Admin Luck Factor: <span className={blackjackSettings.luckFactor > 0 ? 'text-green-400' : blackjackSettings.luckFactor < 0 ? 'text-red-400' : 'text-yellow-400'}>{blackjackSettings.luckFactor}%</span>
-                </p> */}
+                <p className="text-center text-sm text-gray-400 mb-4">
+                    Deck remaining: {deck.length} cards.
+                </p>
 
                 {/* --- Main Game Table --- */}
                 <div className="bg-green-800 p-4 sm:p-6 rounded-2xl shadow-2xl border-4 border-green-700">
@@ -417,7 +429,7 @@ const BlackjackGame = ({ userToken }) => {
                             <span>Dealer's Hand:</span>
                             <span className="text-white">Value: {isDealerCardHidden ? `${getDealerVisibleValue()} + ?` : dealerValue}</span>
                         </p>
-                        <div className="flex gap-2 min-h-[100px] overflow-x-auto">
+                        <div className="flex gap-2 min-h-[100px] overflow-x-auto card-hand-container">
                             {dealerHand.map((card, index) => (
                                 <Card key={index} card={card} isHidden={isDealerCardHidden && index === 1} />
                             ))}
@@ -425,7 +437,7 @@ const BlackjackGame = ({ userToken }) => {
                     </div>
 
                     <div className="text-center my-4">
-                        <p className="text-lg font-semibold text-yellow-100 min-h-[30px]">{message}</p>
+                        <p className={`text-xl font-extrabold ${gameState === 'finished' ? 'text-red-400' : 'text-yellow-100'} min-h-[30px] transition-colors`}>{message}</p>
                     </div>
 
                     {/* Player Hand */}
@@ -434,7 +446,7 @@ const BlackjackGame = ({ userToken }) => {
                             <span>Your Hand:</span>
                             <span className="text-white">Value: {playerValue}</span>
                         </p>
-                        <div className="flex gap-2 min-h-[100px] overflow-x-auto">
+                        <div className="flex gap-2 min-h-[100px] overflow-x-auto card-hand-container">
                             {playerHand.map((card, index) => (
                                 <Card key={index} card={card} isHidden={false} />
                             ))}
@@ -475,7 +487,7 @@ const BlackjackGame = ({ userToken }) => {
                     <p id="dialogMessage" className="text-lg mb-6 text-gray-300"></p>
                     <button 
                         id="newRoundButton" 
-                        className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition-colors" 
+                        className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition-colors transform hover:scale-105" 
                         onClick={startNewRound}
                     >
                         Start New Round
