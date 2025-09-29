@@ -5,31 +5,56 @@
     <link rel="icon" href="%PUBLIC_URL%/mplogoo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
-    <!-- 
-        ✅ SEO FIX: Improved Meta Description for Google 
-        This is what appears below your title in search results. 
-    -->
-    <meta
+    
+    <!-- PRIMARY META TAGS (Brand-focused, for Search Results) -->
+    <title>MoneyPlus | Your Finance Booster, Investment & Gaming Platform</title>
+    <meta 
       name="description"
-      content="MoneyPlus: Your finance booster. Invest in high-yield plans and enjoy secure, compliant investment opportunities for a better financial future."
+      content="MoneyPlus: Your finance booster. Invest in high-yield plans and enjoy secure, compliant investment opportunities and exciting games for a better financial future."
     />
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/mplogoo.png" />
     
-    <!-- ✅ SEO FIX: Open Graph Tags for Social Media Sharing (Facebook, WhatsApp) -->
-    <meta property="og:title" content="MoneyPlus | Your Finance Booster" />
-    <meta property="og:description" content="Invest in high-yield plans and enjoy secure, compliant investment opportunities." />
-    <meta property="og:type" content="website" />
-    
-    <!-- ✅ SEO FIX: Canonical URL (Important for avoiding duplicate content issues) -->
+    <!-- CANONICAL URL: Tells Google the preferred version of the site -->
     <link rel="canonical" href="https://moneyplus.today/" />
 
-    <link rel="manifest" href="%PUBLIC_URL%/mplogoo.png" />
+    <!-- OPEN GRAPH (OG) TAGS for Social Media Sharing -->
+    <meta property="og:title" content="MoneyPlus | Official Investment & Gaming Site" />
+    <meta property="og:description" content="Secure your future with high-yield investments and win big with our fair games. Start earning today!" />
+    <meta property="og:url" content="https://moneyplus.today/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://moneyplus.today/social-share-image.jpg" />
     
-    <!-- ✅ SEO FIX: Updated Title with Primary Keyword/Brand Name -->
-    <title>MoneyPlus | Your Finance Booster</title>
+    <!-- TWITTER CARD -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="MoneyPlus | Your Financial Booster" />
+    <meta name="twitter:description" content="Invest and play to boost your earnings. Secure and transparent." />
+    
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/mplogoo.png" />
+    <link rel="manifest" href="%PUBLIC_URL%/mplogoo.png" />
+
+    <!-- 
+        ✅ SEO FIX: JSON-LD Structured Data for Organization (Critical for brand authority)
+        This explicitly tells Google your brand name, URL, and logo.
+    -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "MoneyPlus",
+      "url": "https://moneyplus.today/",
+      "logo": "https://moneyplus.today/%PUBLIC_URL%/mplogoo.png",
+      "sameAs": [
+        "https://twitter.com/MoneyPlusOfficial"
+      ]
+    }
+    </script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
+    
+    <!-- 
+        Note on H1: Since this is a React app, your main headline should use <h1> 
+        in your LandingPage.js file to ensure it's visible on the rendered page.
+    -->
     <div id="root"></div>
   </body>
 </html>
