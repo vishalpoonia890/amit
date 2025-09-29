@@ -1,43 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import './BlackjackGame.css'; // Import the new CSS file
-
-// IMPORTANT: This component assumes a client-side environment where a central state
-// (like a Redux/Context Store) holds the user's balance and token.
-// For this standalone component, BALANCE is managed locally for demonstration.
+import '../styles/BlackjackGame.css'; // Ensure this path is correct
 
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com'; // Use your actual API base URL
 
-// --- Card Components and Logic ---
+// --- Utility Functions (Deck/Hand Logic) ---
 
-/** Creates a visual representation of a single card using SVG/divs. */
-const Card = ({ card, isHidden = false }) => {
-    // Suit color logic uses Tailwind classes (red for hearts/diamonds)
-    const suitColor = card && (card.suit === '♥' || card.suit === '♦') ? 'text-red-500' : 'text-gray-900';
-    
-    if (isHidden) {
-        return (
-            <div className="w-[70px] h-[100px] sm:w-20 sm:h-28 bg-blue-700 border-2 border-yellow-300 rounded-lg shadow-xl flex items-center justify-center card-back">
-                <span className="text-xl font-extrabold text-white transform rotate-12">BJ</span>
-            </div>
-        );
-    }
-    
-    return (
-        <div className="w-[70px] h-[100px] sm:w-20 sm:h-28 bg-white border border-gray-300 rounded-lg shadow-md flex flex-col p-1 sm:p-2 text-xs sm:text-base font-bold card-face">
-            <div className={`text-left ${suitColor}`}>{card.value}</div>
-            <div className={`flex-grow flex items-center justify-center text-xl sm:text-2xl ${suitColor}`}>
-                {card.suit}
-            </div>
-            <div className="text-right text-xs sm:text-base rotate-180" style={{ color: suitColor }}>
-                {card.value}
-            </div>
-        </div>
-    );
-};
-
-
-// Deck utility functions (pure logic, adapted for React state)
 const createDeck = () => {
     const suits = ['♥', '♦', '♣', '♠'];
     const values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
@@ -81,6 +49,33 @@ const calculateHandValue = (hand) => {
     return value;
 };
 
+
+// --- Card Component (Styled) ---
+
+const Card = ({ card, isHidden = false }) => {
+    const suitColor = card && (card.suit === '♥' || card.suit === '♦') ? 'text-red-600' : 'text-gray-900';
+    
+    // card-face and bg-white.border classes trigger custom CSS effects
+    if (isHidden) {
+        return (
+            <div className="card-face w-[70px] h-[100px] sm:w-24 sm:h-32 bg-yellow-900/90 border-2 border-yellow-300 rounded-lg shadow-xl flex items-center justify-center transform rotate-3">
+                <span className="text-2xl font-extrabold text-gray-800">M P</span>
+            </div>
+        );
+    }
+    
+    return (
+        <div className="card-face bg-white border w-[70px] h-[100px] sm:w-24 sm:h-32 rounded-lg shadow-md flex flex-col p-1 sm:p-2 text-xs sm:text-base font-bold select-none">
+            <div className={`text-left text-sm sm:text-lg ${suitColor}`}>{card.value}</div>
+            <div className={`flex-grow flex items-center justify-center text-2xl sm:text-4xl ${suitColor}`}>
+                {card.suit}
+            </div>
+            <div className={`text-right text-sm sm:text-lg ${suitColor} rotate-180`}>{card.value}</div>
+        </div>
+    );
+};
+
+
 // --- Main Blackjack Component ---
 
 const BlackjackGame = ({ onBack, userToken }) => {
@@ -102,17 +97,15 @@ const BlackjackGame = ({ onBack, userToken }) => {
     const dealerValue = calculateHandValue(dealerHand);
 
 
-    // --- Server Settings Fetch (for demonstration of integration) ---
+    // --- Server Settings Fetch (for demonstration) ---
     const fetchAdminSettings = useCallback(async () => {
+        // ... (API logic to fetch settings remains the same)
         try {
-            // Note: This API call is theoretical, assuming your userToken is an admin token.
             const response = await axios.get(`${API_BASE_URL}/api/admin/blackjack-settings`, {
                 headers: { Authorization: `Bearer ${userToken || 'MOCK_TOKEN'}` }
             });
             setBlackjackSettings(response.data.settings);
         } catch (error) {
-            // console.error("Could not fetch Blackjack admin settings:", error);
-            // Default to safe settings if API fails
             setBlackjackSettings({ luckFactor: 0, isManualShuffle: false });
         }
     }, [userToken]);
@@ -122,14 +115,12 @@ const BlackjackGame = ({ onBack, userToken }) => {
     }, [fetchAdminSettings]);
 
 
-    // --- Game Logic Functions ---
+    // --- Game Logic Functions (Same as previous version) ---
 
     const drawCard = (currentDeck) => {
-        if (currentDeck.length < 5) { // Reshuffle when deck is low
+        if (currentDeck.length < 5) { // Shuffle early if deck is low
             setMessage("Shuffling a new deck...");
             currentDeck = shuffleDeck(createDeck());
-            // Must update the deck state before drawing the card
-            setDeck(currentDeck); 
         }
         const card = currentDeck.pop();
         setDeck(currentDeck);
@@ -164,14 +155,10 @@ const BlackjackGame = ({ onBack, userToken }) => {
         setMessage('Player turn! Hit, Stand, or Double.');
         setIsDealerCardHidden(true);
 
-        // Ensure a fresh deck is used if the game just started or deck is low
         let currentDeck = [...deck];
-        if (currentDeck.length < 10) currentDeck = shuffleDeck(createDeck());
-
         let pHand = [];
         let dHand = [];
 
-        // Deal 2 cards each (Player, Dealer, Player, Dealer)
         pHand.push(drawCard(currentDeck));
         dHand.push(drawCard(currentDeck));
         pHand.push(drawCard(currentDeck));
@@ -180,7 +167,6 @@ const BlackjackGame = ({ onBack, userToken }) => {
         setPlayerHand(pHand);
         setDealerHand(dHand);
 
-        // Check for initial Blackjack
         if (calculateHandValue(pHand) === 21) {
             setMessage('BLACKJACK! Checking dealer...');
             setTimeout(() => finishGame(calculateHandValue(dHand) === 21 ? 'push' : 'playerBlackjack'), 1500);
@@ -216,16 +202,14 @@ const BlackjackGame = ({ onBack, userToken }) => {
     };
 
     const doubleDown = () => {
-        if (gameState !== 'playerTurn' || currentBet * 2 > balance) {
-            setMessage('Cannot double down. Check balance.');
+        if (gameState !== 'playerTurn' || currentBet * 2 > balance || playerHand.length > 2) {
+            setMessage('Double Down only allowed on first move or insufficient balance.');
             return;
         }
 
-        // Double bet
         setBalance(b => b - currentBet);
         setCurrentBet(b => b * 2);
 
-        // Hit exactly one card
         let currentDeck = [...deck];
         const newCard = drawCard(currentDeck);
         const newHand = [...playerHand, newCard];
@@ -237,7 +221,6 @@ const BlackjackGame = ({ onBack, userToken }) => {
         if (newValue > 21) {
             setTimeout(() => finishGame('dealerWin'), 1500);
         } else {
-            // Auto-stand and proceed to dealer's turn
             setGameState('dealerTurn');
             setTimeout(dealerPlay, 2000);
         }
@@ -245,24 +228,23 @@ const BlackjackGame = ({ onBack, userToken }) => {
 
     const dealerPlay = () => {
         let dHand = [...dealerHand];
-        let dValue = calculateHandValue(dHand);
-        const pValue = calculateHandValue(playerHand);
-
+        
         const playMove = () => {
-            dValue = calculateHandValue(dHand);
+            let dValue = calculateHandValue(dHand);
+            const pValue = calculateHandValue(playerHand);
+
             if (dValue < 17) {
                 let currentDeck = [...deck];
                 const newCard = drawCard(currentDeck);
                 dHand.push(newCard);
                 setDealerHand(dHand);
                 setMessage('Dealer hits...');
-                setTimeout(playMove, 1500); // Recursive call to continue hitting
+                setTimeout(playMove, 1500);
             } else if (dValue > 21) {
                 setMessage('Dealer busts!');
                 setTimeout(() => finishGame('playerWin'), 1500);
             } else {
                 setMessage('Dealer stands.');
-                // Compare hands
                 setTimeout(() => {
                     if (dValue > pValue) {
                         finishGame('dealerWin');
@@ -284,6 +266,9 @@ const BlackjackGame = ({ onBack, userToken }) => {
         let finalMessage = '';
         let payout = 0;
         
+        // Ensure hidden card is revealed before calculating final values
+        setIsDealerCardHidden(false); 
+
         const finalPValue = calculateHandValue(playerHand);
         const finalDValue = calculateHandValue(dealerHand);
 
@@ -295,7 +280,7 @@ const BlackjackGame = ({ onBack, userToken }) => {
                 break;
             case 'playerBlackjack':
                 title = 'BLACKJACK!';
-                finalMessage = `You got a Blackjack! Payout is 1.5x. You win ₹${currentBet * 1.5}.`;
+                finalMessage = `You got a Blackjack! Payout is 1.5x. You win ₹${(currentBet * 1.5).toFixed(0)}.`;
                 payout = currentBet * 2.5;
                 break;
             case 'dealerWin':
@@ -319,9 +304,11 @@ const BlackjackGame = ({ onBack, userToken }) => {
         setCurrentBet(0);
         
         // Show dialog after a delay
-        document.getElementById('resultDialog').classList.remove('hidden');
-        document.getElementById('dialogTitle').textContent = title;
-        document.getElementById('dialogMessage').textContent = finalMessage;
+        setTimeout(() => {
+            document.getElementById('resultDialog').classList.remove('hidden');
+            document.getElementById('dialogTitle').textContent = title;
+            document.getElementById('dialogMessage').textContent = finalMessage;
+        }, 500);
     };
 
     const startNewRound = () => {
@@ -344,32 +331,32 @@ const BlackjackGame = ({ onBack, userToken }) => {
     // --- UI Rendering ---
 
     const renderActionButtons = () => (
-        <div id="actionControls" className="flex flex-wrap gap-4 justify-center p-4 bg-gray-900 rounded-lg shadow-inner mt-4 sm:mt-0">
+        <div id="actionControls" className="flex flex-wrap gap-3 justify-center p-4 bg-gray-900 rounded-lg shadow-inner mt-4 sm:mt-0">
             <button 
                 onClick={deal} 
-                className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg disabled:opacity-50 transition-colors transform hover:scale-[1.02]"
+                className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg disabled:opacity-50 transition-colors transform hover:scale-[1.02]"
                 disabled={gameState !== 'betting' || currentBet < minBet}
             >
                 DEAL
             </button>
             <button 
                 onClick={hit} 
-                className="w-full sm:w-auto bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg disabled:opacity-50 transition-colors transform hover:scale-[1.02]"
+                className="w-full sm:w-auto bg-yellow-600 hover:bg-yellow-700 text-gray-900 font-bold py-3 px-6 rounded-xl shadow-lg disabled:opacity-50 transition-colors transform hover:scale-[1.02]"
                 disabled={gameState !== 'playerTurn'}
             >
                 HIT
             </button>
             <button 
                 onClick={stand} 
-                className="w-full sm:w-auto bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg disabled:opacity-50 transition-colors transform hover:scale-[1.02]"
+                className="w-full sm:w-auto bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg disabled:opacity-50 transition-colors transform hover:scale-[1.02]"
                 disabled={gameState !== 'playerTurn'}
             >
                 STAND
             </button>
             <button 
                 onClick={doubleDown} 
-                className="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg disabled:opacity-50 transition-colors transform hover:scale-[1.02]"
-                disabled={gameState !== 'playerTurn' || currentBet * 2 > balance}
+                className="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg disabled:opacity-50 transition-colors transform hover:scale-[1.02]"
+                disabled={gameState !== 'playerTurn' || currentBet * 2 > balance || playerHand.length > 2}
             >
                 DOUBLE DOWN
             </button>
@@ -377,76 +364,75 @@ const BlackjackGame = ({ onBack, userToken }) => {
     );
     
     const renderBettingArea = () => (
-        <div className="w-full p-4 sm:p-6 bg-gray-800 rounded-xl shadow-lg mt-4 flex flex-col sm:flex-row items-center justify-between">
+        <div className="w-full p-4 sm:p-6 bg-gray-800 rounded-xl shadow-lg mt-6 flex flex-col sm:flex-row items-center justify-between">
             <div className="flex flex-col items-center sm:items-start mb-4 sm:mb-0">
-                <p className="text-xl font-bold text-white mb-2">Balance: <span className="text-yellow-400">₹{balance.toLocaleString()}</span></p>
+                <p className="text-xl font-bold text-white mb-2">Total Balance: <span className="text-yellow-400">₹{balance.toLocaleString()}</span></p>
                 <p className="text-lg font-semibold text-gray-300">Current Bet: <span className="text-green-400">₹{currentBet.toLocaleString()}</span></p>
             </div>
             
-            <div className="flex flex-wrap gap-3 justify-center sm:justify-start">
+            <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
                 {chips.map(value => (
                     <button
                         key={value}
-                        className="w-12 h-12 bg-green-600 hover:bg-green-700 text-white font-extrabold rounded-full shadow-lg border-2 border-white/30 transition-transform transform hover:scale-110 disabled:opacity-50"
+                        className="betting-chip w-14 h-14 bg-red-600 text-white font-extrabold rounded-full transition-transform"
+                        style={{ backgroundColor: value === 500 ? '#f6e05e' : value === 100 ? '#48bb78' : value === 50 ? '#4299e1' : '#ed8936' }} // Custom colors for better look
                         onClick={() => placeBet(value)}
-                        disabled={gameState !== 'betting'}
+                        disabled={gameState !== 'betting' || value > balance}
                     >
                         {value}
                     </button>
                 ))}
+                <button
+                    className="mt-2 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg shadow-md disabled:opacity-50 transition-colors"
+                    onClick={clearBet}
+                    disabled={gameState !== 'betting' || currentBet === 0}
+                >
+                    Clear Bet
+                </button>
             </div>
-            
-            <button
-                className="mt-4 sm:mt-0 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg shadow-md disabled:opacity-50 transition-colors transform hover:scale-105"
-                onClick={clearBet}
-                disabled={gameState !== 'betting' || currentBet === 0}
-            >
-                Clear Bet
-            </button>
         </div>
     );
 
     return (
-        <div className="p-4 sm:p-8 bg-gray-900 min-h-screen text-white">
-            <button onClick={onBack} className="mb-4 bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-colors flex items-center">
+        // Apply the custom CSS class here
+        <div className="blackjack-game-container p-4 sm:p-8 min-h-screen text-white">
+            <button onClick={onBack} className="mb-4 bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-colors flex items-center">
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
                 Back to Lobby
             </button>
             <div className="max-w-4xl mx-auto">
-                <h1 className="text-3xl sm:text-4xl font-extrabold text-center text-yellow-500 mb-6 border-b border-gray-700 pb-2">
+                <h1 className="text-4xl font-extrabold text-center text-yellow-500 mb-8 border-b border-gray-700 pb-3">
                     Blackjack 21
                 </h1>
-                <p className="text-center text-sm text-gray-400 mb-4">
-                    Deck remaining: {deck.length} cards.
-                </p>
-
+                
                 {/* --- Main Game Table --- */}
-                <div className="bg-green-800 p-4 sm:p-6 rounded-2xl shadow-2xl border-4 border-green-700">
+                <div className="bg-green-800 p-4 sm:p-8 rounded-2xl shadow-2xl border-4 border-yellow-800/50">
                     
-                    {/* Dealer Hand */}
-                    <div className="mb-8">
-                        <p className="text-xl font-bold mb-2 text-yellow-300 flex justify-between">
+                    {/* Dealer Hand Area */}
+                    <div className="mb-10">
+                        <p className="text-xl font-bold mb-3 text-yellow-300 flex justify-between">
                             <span>Dealer's Hand:</span>
-                            <span className="text-white">Value: {isDealerCardHidden ? `${getDealerVisibleValue()} + ?` : dealerValue}</span>
+                            <span className="text-white text-2xl font-extrabold">Value: {isDealerCardHidden ? `${getDealerVisibleValue()} + ?` : dealerValue}</span>
                         </p>
-                        <div className="flex gap-2 min-h-[100px] overflow-x-auto card-hand-container">
+                        <div className="flex gap-3 min-h-[120px] overflow-x-auto card-hand-container">
                             {dealerHand.map((card, index) => (
                                 <Card key={index} card={card} isHidden={isDealerCardHidden && index === 1} />
                             ))}
                         </div>
                     </div>
 
-                    <div className="text-center my-4">
-                        <p className={`text-xl font-extrabold ${gameState === 'finished' ? 'text-red-400' : 'text-yellow-100'} min-h-[30px] transition-colors`}>{message}</p>
+                    {/* Game Message */}
+                    <div className="text-center my-6">
+                        <p className="text-xl font-semibold text-yellow-100 min-h-[30px]">{message}</p>
                     </div>
 
-                    {/* Player Hand */}
-                    <div className="mb-4">
-                        <p className="text-xl font-bold mb-2 text-yellow-300 flex justify-between">
+                    {/* Player Hand Area */}
+                    <div className="mb-6">
+                        <p className="text-xl font-bold mb-3 text-yellow-300 flex justify-between">
                             <span>Your Hand:</span>
-                            <span className="text-white">Value: {playerValue}</span>
+                            <span className="text-white text-2xl font-extrabold">Value: {playerValue}</span>
                         </p>
-                        <div className="flex gap-2 min-h-[100px] overflow-x-auto card-hand-container">
+                        <div className="flex gap-3 min-h-[120px] overflow-x-auto card-hand-container">
                             {playerHand.map((card, index) => (
                                 <Card key={index} card={card} isHidden={false} />
                             ))}
@@ -471,7 +457,7 @@ const BlackjackGame = ({ onBack, userToken }) => {
                             <ul className="list-disc list-inside ml-6 text-base text-gray-300 space-y-1 mt-1">
                                 <li>**HIT:** Take one more card.</li>
                                 <li>**STAND:** End your turn, keeping your current hand.</li>
-                                <li>**DOUBLE DOWN:** Double your bet and take only one more card, then automatically Stand.</li>
+                                <li>**DOUBLE DOWN:** Double your bet and take only one more card, then automatically Stand. Only allowed on the initial two cards.</li>
                             </ul>
                         </li>
                         <li><strong>Dealer's Turn:</strong> The Dealer reveals their hidden card. The Dealer must hit on 16 or less and must stand on 17 or more.</li>
@@ -487,7 +473,7 @@ const BlackjackGame = ({ onBack, userToken }) => {
                     <p id="dialogMessage" className="text-lg mb-6 text-gray-300"></p>
                     <button 
                         id="newRoundButton" 
-                        className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition-colors transform hover:scale-105" 
+                        className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition-colors" 
                         onClick={startNewRound}
                     >
                         Start New Round
