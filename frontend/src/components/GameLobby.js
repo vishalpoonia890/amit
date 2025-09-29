@@ -5,6 +5,7 @@ import colorImage from '../assets/color.png';
 import lotteryImage from '../assets/lottery.png';
 import pushpaImage from '../assets/pushpa.png';
 import winwinImage from '../assets/winwin.png';
+import blackjackImage from '../assets/blackjack.png'; // Assuming you add an image for Blackjack
 
 // --- INLINED ICONS ---
 const SelectGameIcon = () => (
@@ -28,6 +29,15 @@ const WinBigIcon = () => (
 );
 
 const games = [
+    {
+        id: 'blackjack-practice',
+        name: 'Blackjack Practice',
+        description: 'A pure simulation game to test and sharpen your Blackjack strategy.',
+        image: blackjackImage,
+        view: 'blackjack-game',
+        isAvailable: true,
+        isSimulation: true,
+    },
     {
         id: 'color-prediction',
         name: 'Color Prediction',
@@ -86,15 +96,16 @@ function GameLobby({ onViewChange }) {
                         onClick={() => game.isAvailable && onViewChange(game.view)}
                     >
                         <div className="game-image-container">
+                            {/* NOTE: You need to add an actual image file named 'blackjack.png' in your assets folder */}
                             <img src={game.image} alt={game.name} className="game-image" />
                         </div>
                         <div className="game-info">
                             <h3>{game.name}</h3>
                             <p>{game.description}</p>
                         </div>
-                        {!game.isAvailable && (
-                            <div className="coming-soon-overlay">
-                                {game.isExclusive ? 'Exclusive Access' : 'Coming Soon!!'}
+                        {(!game.isAvailable || game.isSimulation) && (
+                            <div className={`coming-soon-overlay ${game.isSimulation ? 'simulation-badge' : ''}`}>
+                                {game.isSimulation ? 'Practice Mode' : (game.isExclusive ? 'Exclusive Access' : 'Coming Soon!!')}
                             </div>
                         )}
                     </div>
