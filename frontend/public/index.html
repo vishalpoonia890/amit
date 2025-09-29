@@ -1,60 +1,90 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-IN">
   <head>
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/mplogoo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
     
-    <!-- PRIMARY META TAGS (Brand-focused, for Search Results) -->
-    <title>MoneyPlus | Your Finance Booster, Investment & Gaming Platform</title>
+    <!-- PRIMARY META TAGS -->
+    <title>MoneyPlus | Your Finance Booster, Investment & Gaming Platform in India</title>
     <meta 
       name="description"
-      content="MoneyPlus: Your finance booster. Invest in high-yield plans and enjoy secure, compliant investment opportunities and exciting games for a better financial future."
+      content="MoneyPlus: Your finance booster in India. Invest in high-yield plans and enjoy secure, compliant investment opportunities and exciting games for a better financial future."
     />
     
-    <!-- CANONICAL URL: Tells Google the preferred version of the site -->
+    <!-- GEO-TARGETING META TAGS -->
+    <meta name="geo.region" content="IN" />
+    <meta name="geo.placename" content="India" />
+
     <link rel="canonical" href="https://moneyplus.today/" />
 
-    <!-- OPEN GRAPH (OG) TAGS for Social Media Sharing -->
-    <meta property="og:title" content="MoneyPlus | Official Investment & Gaming Site" />
-    <meta property="og:description" content="Secure your future with high-yield investments and win big with our fair games. Start earning today!" />
+    <!-- OPEN GRAPH (OG) TAGS -->
+    <meta property="og:title" content="MoneyPlus | Official Investment & Gaming Site for India" />
+    <meta property="og:locale" content="en_IN" />
+    <meta property="og:description" content="Secure your future with high-yield investments in India and win big with our fair games. Start earning today!" />
     <meta property="og:url" content="https://moneyplus.today/" />
     <meta property="og:type" content="website" />
     <meta property="og:image" content="https://moneyplus.today/social-share-image.jpg" />
     
     <!-- TWITTER CARD -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="MoneyPlus | Your Financial Booster" />
+    <meta name="twitter:title" content="MoneyPlus | Your Financial Booster in India" />
     <meta name="twitter:description" content="Invest and play to boost your earnings. Secure and transparent." />
     
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/mplogoo.png" />
     <link rel="manifest" href="%PUBLIC_URL%/mplogoo.png" />
 
     <!-- 
-        ✅ SEO FIX: JSON-LD Structured Data for Organization (Critical for brand authority)
-        This explicitly tells Google your brand name, URL, and logo.
+        ✅ AI OPTIMIZATION: JSON-LD Structured Data for Organization and WebPage
+        This provides explicit, machine-readable data for AI models.
     -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "Organization",
-      "name": "MoneyPlus",
-      "url": "https://moneyplus.today/",
-      "logo": "https://moneyplus.today/%PUBLIC_URL%/mplogoo.png",
-      "sameAs": [
-        "https://twitter.com/MoneyPlusOfficial"
+      "@graph": [
+        {
+          "@type": "WebPage",
+          "@id": "https://moneyplus.today/#webpage",
+          "url": "https://moneyplus.today/",
+          "name": "MoneyPlus | Your Finance Booster, Investment & Gaming Platform",
+          "description": "Secure, high-yield investment plans paired with engaging, fair-play games for users across India. We offer daily income and transparent withdrawals.",
+          "isPartOf": { "@id": "https://moneyplus.today/#organization" }
+        },
+        {
+          "@type": "InvestmentCompany",
+          "@id": "https://moneyplus.today/#organization",
+          "name": "MoneyPlus",
+          "legalName": "MoneyPlus Solutions Pvt. Ltd.",
+          "url": "https://moneyplus.today/",
+          "slogan": "Your Finance Booster.",
+          "foundingDate": "2024", 
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://moneyplus.today/%PUBLIC_URL%/mplogoo.png"
+          },
+          "image": { "@type": "ImageObject", "url": "https://moneyplus.today/social-share-image.jpg" },
+          "description": "A trusted platform offering both financial investment products and licensed online gaming services targeted at the Indian market.",
+          "sameAs": [
+            "https://twitter.com/MoneyPlusOfficial"
+          ],
+          "knowsAbout": [
+              { "@type": "Service", "name": "High-Yield Investment Plans" },
+              { "@type": "Game", "name": "Online Color Prediction Games" },
+              { "@type": "Game", "name": "Black jack Game" }
+          ],
+          "address": {
+            "@type": "Country",
+            "name": "India"
+          }
+        }
       ]
     }
     </script>
+    <title>MoneyPlus | Your Finance Booster, Investment & Gaming Platform in India</title>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    
-    <!-- 
-        Note on H1: Since this is a React app, your main headline should use <h1> 
-        in your LandingPage.js file to ensure it's visible on the rendered page.
-    -->
     <div id="root"></div>
   </body>
 </html>
