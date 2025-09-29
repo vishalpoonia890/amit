@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import '../styles/BlackjackGame.css'; // Ensure this path is correct
+import './BlackjackGame.css'; // Ensure this path is correct
 
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com'; // Use your actual API base URL
 
