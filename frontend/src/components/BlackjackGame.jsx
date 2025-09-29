@@ -404,9 +404,9 @@ const BlackjackGame = ({ userToken }) => {
                 <h1 className="text-3xl sm:text-4xl font-extrabold text-center text-yellow-500 mb-6 border-b border-gray-700 pb-2">
                     Blackjack 21
                 </h1>
-                <p className="text-center text-sm text-gray-400 mb-4">
+                {/* <p className="text-center text-sm text-gray-400 mb-4">
                     Admin Luck Factor: <span className={blackjackSettings.luckFactor > 0 ? 'text-green-400' : blackjackSettings.luckFactor < 0 ? 'text-red-400' : 'text-yellow-400'}>{blackjackSettings.luckFactor}%</span>
-                </p>
+                </p> */}
 
                 {/* --- Main Game Table --- */}
                 <div className="bg-green-800 p-4 sm:p-6 rounded-2xl shadow-2xl border-4 border-green-700">
