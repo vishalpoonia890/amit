@@ -25,6 +25,9 @@ import AviatorGame from './components/AviatorGame';
 import LandingPage from './components/LandingPage';
 import DailyTasks from './components/DailyTasks';
 import NewsView from './components/NewsView';
+// --- FIX: Import the new component ---
+import BlackjackGame from './components/BlackjackGame'; 
+// ------------------------------------
 
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
 const WEBSOCKET_URL = 'wss://investmentpro-nu7s.onrender.com';
@@ -35,19 +38,6 @@ const LoadingScreen = () => (
         <p>Your finance booster</p>
     </div>
 );
-
-// --- New Placeholder Component for Blackjack ---
-const BlackjackGame = ({ onBack }) => (
-    <div className="p-4">
-        <h2 className="text-xl font-bold mb-4">Blackjack</h2>
-        <p>Blackjack game development is in progress. Check back soon!</p>
-        <button onClick={onBack} className="mt-4 bg-gray-500 text-white p-2 rounded-lg">
-            Back to Game Lobby
-        </button>
-    </div>
-);
-// ----------------------------------------------
-
 
 function App() {
     const [token, setToken] = useState(localStorage.getItem('token') || null);
@@ -69,10 +59,8 @@ function App() {
     
     const { lastMessage, readyState, sendMessage } = useWebSocket(WEBSOCKET_URL, token);
     
-    // The state variable for Pushpa Raj has been removed.
     const [colorPredictionData, setColorPredictionData] = useState(null);
 
-    // This useEffect now only handles messages for the color prediction game.
     useEffect(() => {
         if (lastMessage) {
             if (lastMessage.type === 'TIMER_UPDATE' || lastMessage.type === 'ROUND_RESULT') {
@@ -293,10 +281,9 @@ function App() {
                 sendMessage={sendMessage}
             />;
                 
-            // --- FIX: ADDED BLACKJACK CASE ---
             case 'blackjack':
-                return <BlackjackGame onBack={goBackToGameLobby} />;
-            // ---------------------------------
+                // FIX: Pass userToken and the goBack function
+                return <BlackjackGame onBack={goBackToGameLobby} userToken={token} />;
             
             case 'ip-lottery': return <IpLottery token={token} onBack={goBackToGameLobby} />;
             case 'win-win': return <WinWinGame onBack={goBackToGameLobby} />;
