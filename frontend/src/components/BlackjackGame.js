@@ -1,4 +1,4 @@
-// blackjackgame.jsx (Final Version with UI Fixes)
+// blackjackgame.jsx (Final Version with All UI Fixes)
 
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
@@ -52,14 +52,12 @@ const calculateHandValue = (hand) => {
 };
 
 
-// --- Card Component (Color Fix Implemented) ---
+// --- Card Component (Color Fix Confirmed) ---
 
 const Card = ({ card, isHidden = false }) => {
-    // FIX 1: Apply suit color classes based on the suit symbol
-    // These classes apply to the text inside the white card face.
+    // Suit color applied here. It relies on the presence of Tailwind's utility classes.
     const suitColor = card && (card.suit === '♥' || card.suit === '♦') ? 'text-red-700' : 'text-gray-900';
     
-    // Custom classes for mobile size (defined in CSS) and standard Tailwind for sm
     const cardSizeClasses = "card-size-mobile sm:card-size-desktop flex-shrink-0"; 
 
     if (isHidden) {
@@ -71,6 +69,7 @@ const Card = ({ card, isHidden = false }) => {
     }
     
     return (
+        // The card itself is bg-white, ensuring the text is visible
         <div className={`card-face card-front card-front-3d bg-white border ${cardSizeClasses} rounded-lg shadow-md flex flex-col p-1 sm:p-2 text-xs sm:text-base font-bold select-none transition-all duration-300`}>
             
             <div className={`text-left text-sm sm:text-xl ${suitColor}`}>
@@ -385,7 +384,7 @@ const BlackjackGame = ({ onBack, userToken }) => {
     );
     
     const renderBettingArea = () => (
-        <div className="w-full p-4 sm:p-6 bg-gray-900/95 border-t border-yellow-500/30 rounded-t-xl shadow-2xl flex flex-col sm:flex-row items-center justify-between">
+        <div className="w-full p-4 sm:p-6 bg-gray-900/95 border-t border-yellow-500/30 rounded-t-xl shadow-2xl flex flex-col sm:flex-row items-center justify-center">
             
             {/* 1. Chip Controls (takes up more space now) */}
             <div className="flex flex-wrap gap-2 justify-center w-full sm:w-2/3 mb-4 sm:mb-0">
@@ -425,7 +424,7 @@ const BlackjackGame = ({ onBack, userToken }) => {
     return (
         <div className="blackjack-game-container p-2 sm:p-8 min-h-screen text-white flex flex-col">
             
-            {/* FIX 2: TOP HEADER - Balance and Bet displayed here */}
+            {/* TOP HEADER - Balance and Bet displayed here (FIXED POSITION) */}
             <div className="top-game-header flex justify-between items-center max-w-4xl mx-auto w-full mb-4 p-2 bg-gray-900 rounded-lg shadow-lg border-b border-yellow-500/30">
                  <button onClick={onBack} className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-1 px-3 rounded-lg shadow-md transition-colors flex items-center text-sm">
                     <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
@@ -451,7 +450,7 @@ const BlackjackGame = ({ onBack, userToken }) => {
                             Dealer ({dealerHand.length > 0 && !isDealerCardHidden ? dealerValue : getDealerVisibleValue()})
                         </p>
                         <div className="card-hand-container"> 
-                            {/* FIX 4: Wrap Card in div for Z-Index stacking */}
+                            {/* Card Stacking with Z-Index */}
                             {dealerHand.map((card, index) => (
                                 <div key={index} style={{zIndex: index + 1}}>
                                     <Card card={card} isHidden={isDealerCardHidden && index === 1} />
@@ -460,7 +459,7 @@ const BlackjackGame = ({ onBack, userToken }) => {
                         </div>
                     </div>
 
-                    {/* Game Message (Center) & Bet Visualizer */}
+                    {/* Game Message (Center) & Bet Visualizer (Chip Stack) */}
                     <div className="flex justify-center items-center my-4 h-16 relative sm:h-20">
                         
                         {/* Central Bet Visualizer: Visible only during/after play */}
@@ -485,7 +484,7 @@ const BlackjackGame = ({ onBack, userToken }) => {
                             Your Hand ({playerHand.length > 0 ? playerValue : '0'})
                         </p>
                         <div className="card-hand-container"> 
-                            {/* FIX 4: Wrap Card in div for Z-Index stacking */}
+                            {/* Card Stacking with Z-Index */}
                             {playerHand.map((card, index) => (
                                 <div key={index} style={{zIndex: index + 1}}>
                                     <Card card={card} isHidden={false} />
@@ -512,7 +511,7 @@ const BlackjackGame = ({ onBack, userToken }) => {
                     )}
                 </div>
 
-                {/* --- Action/Betting Control Panel (unchanged) --- */}
+                {/* --- Action/Betting Control Panel --- */}
                 <div className="bg-gray-900/90 py-4 shadow-top-heavy">
                     {gameState === 'betting' ? renderBettingArea() : renderActionButtons()}
                 </div>
