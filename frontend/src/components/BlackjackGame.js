@@ -1,4 +1,4 @@
-// blackjackgame.js (Final Version with Card Display Fix)
+// blackjackgame.js (Final Version with Larger Cards and Repositioned Dialog)
 
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
@@ -52,20 +52,19 @@ const calculateHandValue = (hand) => {
 };
 
 
-// --- Card Component (Styled, Responsive, and FIXED) ---
+// --- Card Component (Larger Dimensions and Fixed) ---
 
 const Card = ({ card, isHidden = false }) => {
-    // Suit color refinement for better contrast
     const suitColor = card && (card.suit === '♥' || card.suit === '♦') ? 'text-red-700' : 'text-gray-900';
     
-    // Responsive sizing and CRITICAL: flex-shrink-0 to prevent collapsing
-    const cardSizeClasses = "w-[50px] h-[80px] sm:w-24 sm:h-32 flex-shrink-0"; 
+    // INCREASED DIMENSIONS: w-[60px] h-[90px] on mobile, sm:w-28 sm:h-40 (Larger for better feel)
+    const cardSizeClasses = "w-[60px] h-[90px] sm:w-28 sm:h-40 flex-shrink-0"; 
 
     if (isHidden) {
         return (
-            // Card Back (MP side)
             <div className={`card-face card-back ${cardSizeClasses} bg-yellow-900/90 border-2 border-yellow-300 rounded-lg shadow-xl flex items-center justify-center transform rotate-3`}>
-                <span className="text-xl font-extrabold text-gray-800 tracking-widest text-shadow-md">MP</span>
+                {/* Font size increased slightly to match larger card */}
+                <span className="text-xl sm:text-2xl font-extrabold text-gray-800 tracking-widest text-shadow-md">MP</span>
             </div>
         );
     }
@@ -74,18 +73,18 @@ const Card = ({ card, isHidden = false }) => {
         // Card Front: MUST use 'flex flex-col' for vertical stacking of value/suit
         <div className={`card-face card-front bg-white border ${cardSizeClasses} rounded-lg shadow-md flex flex-col p-1 sm:p-2 text-xs sm:text-base font-bold select-none transition-all duration-300`}>
             
-            {/* Top Value (Properly sized and aligned) */}
-            <div className={`text-left text-xs sm:text-lg ${suitColor}`}>
+            {/* Top Value */}
+            <div className={`text-left text-sm sm:text-xl ${suitColor}`}>
                 {card.value}
             </div> 
             
-            {/* Center Suit (Uses flex-grow to occupy space and centers the large suit symbol) */}
-            <div className={`flex-grow flex items-center justify-center text-xl sm:text-4xl ${suitColor}`}>
+            {/* Center Suit */}
+            <div className={`flex-grow flex items-center justify-center text-2xl sm:text-5xl ${suitColor}`}>
                 {card.suit}
             </div>
             
             {/* Bottom Value (Rotated) */}
-            <div className={`text-right text-xs sm:text-lg ${suitColor} rotate-180`}>
+            <div className={`text-right text-sm sm:text-xl ${suitColor} rotate-180`}>
                 {card.value}
             </div> 
         </div>
@@ -130,10 +129,9 @@ const BlackjackGame = ({ onBack, userToken }) => {
     }, [fetchAdminSettings]);
 
 
-    // --- Game Logic Functions (Includes 'is not iterable' Fix) ---
+    // --- Game Logic Functions ---
 
     const drawCard = () => {
-        // Fix for "is not iterable" error: Ensure 'deck' is a valid array, reshuffle if empty/invalid.
         let currentDeck = Array.isArray(deck) && deck.length >= 1 
                           ? [...deck] 
                           : shuffleDeck(createDeck()); 
@@ -176,21 +174,28 @@ const BlackjackGame = ({ onBack, userToken }) => {
         setMessage('Player turn! Hit, Stand, or Double.');
         setIsDealerCardHidden(true);
 
+        // Deal cards with a slight delay for animation effect
         let pHand = [];
         let dHand = [];
 
         pHand.push(drawCard());
         dHand.push(drawCard());
-        pHand.push(drawCard());
-        dHand.push(drawCard());
 
         setPlayerHand(pHand);
         setDealerHand(dHand);
+        
+        // Use setTimeout to create a brief, visible dealing animation
+        setTimeout(() => {
+            pHand.push(drawCard());
+            dHand.push(drawCard());
+            setPlayerHand(pHand);
+            setDealerHand(dHand);
 
-        if (calculateHandValue(pHand) === 21) {
-            setMessage('BLACKJACK! Checking dealer...');
-            setTimeout(() => finishGame(calculateHandValue(dHand) === 21 ? 'push' : 'playerBlackjack'), 1500);
-        }
+            if (calculateHandValue(pHand) === 21) {
+                setMessage('BLACKJACK! Checking dealer...');
+                setTimeout(() => finishGame(calculateHandValue(dHand) === 21 ? 'push' : 'playerBlackjack'), 1500);
+            }
+        }, 500); // 0.5 second delay between dealing card 1 and card 2
     };
 
     const hit = () => {
@@ -318,6 +323,7 @@ const BlackjackGame = ({ onBack, userToken }) => {
 
         setBalance(b => b + payout);
         
+        // Show dialog inside the game table
         setTimeout(() => {
              document.getElementById('resultDialog').classList.remove('hidden');
              document.getElementById('dialogTitle').textContent = title;
@@ -432,14 +438,15 @@ const BlackjackGame = ({ onBack, userToken }) => {
             <div className="max-w-4xl mx-auto w-full flex-grow flex flex-col">
                 
                 {/* --- Main Game Table --- */}
-                <div className="game-table-felt p-4 sm:p-8 rounded-2xl shadow-2xl flex-grow mb-4">
+                {/* Repositioned the result dialog container to be relative to the game table */}
+                <div className="game-table-felt p-4 sm:p-8 rounded-2xl shadow-2xl flex-grow mb-4 relative overflow-hidden"> 
                     
                     {/* Dealer Hand Area (Top) */}
                     <div className="text-center mb-8">
                         <p className="text-base sm:text-xl font-bold mb-3 text-yellow-300">
                             Dealer ({dealerHand.length > 0 ? getDealerVisibleValue() : '0'})
                         </p>
-                        <div className="flex gap-3 justify-center min-h-[120px] overflow-x-auto card-hand-container flex-nowrap"> 
+                        <div className="flex gap-3 justify-center min-h-[120px] sm:min-h-[160px] overflow-x-auto card-hand-container flex-nowrap"> 
                             {dealerHand.map((card, index) => (
                                 <Card key={index} card={card} isHidden={isDealerCardHidden && index === 1} />
                             ))}
@@ -455,7 +462,8 @@ const BlackjackGame = ({ onBack, userToken }) => {
                         </div>
 
                         <div className="absolute inset-0 flex items-center justify-center">
-                             <p className={`text-lg sm:text-2xl font-black text-yellow-100 p-2 rounded-lg bg-black/50 backdrop-blur-sm transition-opacity duration-500 message-bar ${gameState !== 'betting' ? 'opacity-100' : 'opacity-80'}`}>
+                            {/* Added message-bar-animate class for pulsing effect */}
+                             <p className={`text-lg sm:text-2xl font-black text-yellow-100 p-2 rounded-lg bg-black/50 backdrop-blur-sm transition-opacity duration-500 message-bar message-bar-animate ${gameState !== 'betting' ? 'opacity-100' : 'opacity-80'}`}>
                                 {message}
                             </p>
                         </div>
@@ -466,10 +474,25 @@ const BlackjackGame = ({ onBack, userToken }) => {
                         <p className="text-base sm:text-xl font-bold mb-3 text-yellow-300">
                             Your Hand ({playerHand.length > 0 ? playerValue : '0'})
                         </p>
-                        <div className="flex gap-3 justify-center min-h-[120px] overflow-x-auto card-hand-container flex-nowrap"> 
+                        <div className="flex gap-3 justify-center min-h-[120px] sm:min-h-[160px] overflow-x-auto card-hand-container flex-nowrap"> 
                             {playerHand.map((card, index) => (
                                 <Card key={index} card={card} isHidden={false} />
                             ))}
+                        </div>
+                    </div>
+                    
+                    {/* MODAL DIALOG IS NOW POSITIONED RELATIVE TO THE GAME TABLE */}
+                    <div id="resultDialog" className="absolute inset-0 bg-black bg-opacity-80 flex items-center justify-center z-40 hidden">
+                        <div className="bg-gray-900 p-6 rounded-xl shadow-2xl text-center max-w-xs w-11/12 transform transition-all result-dialog-style">
+                            <h3 id="dialogTitle" className="text-2xl sm:text-3xl font-extrabold mb-4 text-yellow-400">Game Over!</h3>
+                            <p id="dialogMessage" className="text-sm sm:text-lg mb-6 text-gray-300"></p>
+                            <button 
+                                id="newRoundButton" 
+                                className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-full shadow-lg transition-colors w-full" 
+                                onClick={startNewRound}
+                            >
+                                New Bet
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -477,21 +500,6 @@ const BlackjackGame = ({ onBack, userToken }) => {
                 {/* --- Action/Betting Control Panel --- */}
                 <div className="bg-gray-900/90 py-4 shadow-top-heavy">
                     {gameState === 'betting' ? renderBettingArea() : renderActionButtons()}
-                </div>
-            </div>
-
-            {/* Modal Dialog for Game End */}
-            <div id="resultDialog" className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 hidden">
-                <div className="bg-gray-900 p-6 rounded-xl shadow-2xl text-center max-w-xs w-11/12 transform transition-all result-dialog-style">
-                    <h3 id="dialogTitle" className="text-2xl sm:text-3xl font-extrabold mb-4 text-yellow-400">Game Over!</h3>
-                    <p id="dialogMessage" className="text-sm sm:text-lg mb-6 text-gray-300"></p>
-                    <button 
-                        id="newRoundButton" 
-                        className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-full shadow-lg transition-colors w-full" 
-                        onClick={startNewRound}
-                    >
-                        New Bet
-                    </button>
                 </div>
             </div>
         </div>
