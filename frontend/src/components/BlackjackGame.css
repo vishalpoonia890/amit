@@ -1,4 +1,4 @@
-/* BlackjackGame.css: Advanced Graphics for Casino Aesthetic */
+/* BlackjackGame.css: Advanced Graphics for Casino Aesthetic (FINAL, Mobile-Optimized) */
 
 /* --- 1. General Theme & Typography --- */
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@700&family=Orbitron:wght@900&display=swap');
@@ -26,7 +26,7 @@
                 inset 0 0 40px rgba(0, 0, 0, 0.7); /* Inner Shadow for depth */
 }
 
-/* --- 3. Card Styling (3D Flip Animation) --- */
+/* --- 3. Card Styling (CRITICAL MOBILE/DISPLAY FIXES) --- */
 
 /* Base card setup for perspective */
 .card-face {
@@ -36,12 +36,26 @@
     cursor: default;
     border: 1px solid #1a202c;
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.7);
+    /* The 'flex-shrink-0' Tailwind class in the Card component handles the sizing fix. */
 }
 
 .card-hand-container {
-     /* Slight downward projection for realism */
+    /* Enables smooth horizontal scrolling for hands with many cards on mobile */
+    overflow-x: auto; 
+    
+    /* Slight downward projection for realism */
     perspective: 1000px;
     padding-bottom: 20px;
+    
+    /* Optional: Improves mobile scroll experience */
+    -webkit-overflow-scrolling: touch; 
+    scroll-snap-type: x mandatory; 
+    
+    /* Ensure the content aligns to the start of the visible area */
+    justify-content: center;
+}
+.card-face {
+    scroll-snap-align: center; /* Ensures the first card snaps into view */
 }
 
 /* Card Front: visible */
@@ -63,30 +77,31 @@
 @keyframes card-slide-in {
     from {
         opacity: 0;
-        transform: translateX(-50px) rotate(-10deg);
+        transform: translateX(-50px) rotate(-10deg) scale(0.9); /* Scale down slightly */
     }
     to {
         opacity: 1;
-        transform: translateX(0) rotate(0deg);
+        transform: translateX(0) rotate(0deg) scale(1);
     }
 }
 .card-hand-container .card-face {
     animation: card-slide-in 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
+
 /* --- 4. Interactive Elements (Chips & Buttons) --- */
 
 /* Betting Chips: Strong 3D look */
 .betting-chip {
     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    font-family: 'Orbitron', sans-serif; /* Techy/bold font for chips */
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.8), /* Shadow for lift */
-                inset 0 4px 8px rgba(255, 255, 255, 0.4); /* Highlight for gloss */
+    font-family: 'Orbitron', sans-serif;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.8),
+                inset 0 4px 8px rgba(255, 255, 255, 0.4);
     border: 2px solid rgba(255, 255, 255, 0.2);
 }
 
 .betting-chip:hover:not(:disabled) {
-    transform: scale(1.2) translateY(-5px); /* Stronger lift and scale */
+    transform: scale(1.2) translateY(-5px);
     box-shadow: 0 10px 30px rgba(255, 255, 0, 0.7), 
                 inset 0 4px 8px rgba(255, 255, 255, 0.6);
 }
@@ -102,7 +117,7 @@
 
 .action-button:hover:not(:disabled) {
     transform: scale(1.05);
-    box-shadow: 0 0 20px rgba(255, 255, 255, 0.4); /* White glow */
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
 }
 
 .deal-button {
@@ -118,20 +133,21 @@
 }
 
 /* Bet Visualizer */
+@keyframes fade-in-bet {
+    from { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+    to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
 .bet-visualizer {
     opacity: 0;
     animation: fade-in-bet 0.5s forwards;
     transition: transform 0.5s ease;
-}
-.bet-visualizer.visible {
-    opacity: 1;
 }
 
 .chip-stack {
     position: relative;
     transform: translateY(-5px);
 }
-.chip-stack::before { /* Stacked chip illusion */
+.chip-stack::before { 
     content: '';
     position: absolute;
     top: 5px;
@@ -143,17 +159,14 @@
     z-index: -1;
 }
 
-
 /* --- 5. Modal Dialog (Result Box) --- */
 .result-dialog-style {
     border: 3px solid #ffc107;
-    background-color: #1f2937; /* Darker, sophisticated dialog */
-    box-shadow: 0 0 50px rgba(255, 215, 0, 1); /* Intense gold glow */
+    background-color: #1f2937;
+    box-shadow: 0 0 50px rgba(255, 215, 0, 1);
     animation: bounce-in 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-/* Keyframe from your original code is kept: */
-/* @keyframes bounce-in { ... } */
 @keyframes bounce-in {
     0% {
         transform: scale(0.5) translateY(-50px);
