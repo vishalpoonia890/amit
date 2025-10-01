@@ -1,4 +1,4 @@
-// blackjackgame.js (Final Version: Modal Z-Index Fix)
+// blackjackgame.js (Final Version: All Fixes Included)
 
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
@@ -99,7 +99,12 @@ const BlackjackGame = ({ onBack, userToken }) => {
     const [gameState, setGameState] = useState('betting');
     const [message, setMessage] = useState('Place your bet and hit DEAL.');
     const [isDealerCardHidden, setIsDealerCardHidden] = useState(true);
-    const [isResultVisible, setIsResultVisible] = useState(false); // Controls modal visibility
+    const [isResultVisible, setIsResultVisible] = useState(false); 
+    
+    // FIX: New state for dialog content to prevent "Cannot set properties of null" error
+    const [dialogTitle, setDialogTitle] = useState('');
+    const [dialogMessage, setDialogMessage] = useState('');
+    
     const [blackjackSettings, setBlackjackSettings] = useState({ luckFactor: 0, isManualShuffle: false });
 
     const chips = [10, 50, 100, 500];
@@ -108,7 +113,7 @@ const BlackjackGame = ({ onBack, userToken }) => {
     const dealerValue = calculateHandValue(dealerHand);
 
 
-    // --- Server Settings Fetch ---
+    // --- Server Settings Fetch (403 error is backend, but we keep this client structure) ---
     const fetchAdminSettings = useCallback(async () => {
         try {
             const response = await axios.get(`${API_BASE_URL}/api/admin/blackjack-settings`, {
@@ -116,6 +121,7 @@ const BlackjackGame = ({ onBack, userToken }) => {
             });
             setBlackjackSettings(response.data.settings);
         } catch (error) {
+             // 403 Forbidden is handled here by setting default, safe settings
             setBlackjackSettings({ luckFactor: 0, isManualShuffle: false });
         }
     }, [userToken]);
@@ -181,7 +187,6 @@ const BlackjackGame = ({ onBack, userToken }) => {
         setPlayerHand(pHand);
         setDealerHand(dHand);
         
-        // Use setTimeout to create a brief, visible dealing animation
         setTimeout(() => {
             pHand.push(drawCard());
             dHand.push(drawCard());
@@ -194,7 +199,7 @@ const BlackjackGame = ({ onBack, userToken }) => {
             } else {
                  setMessage('Player turn! Hit, Stand, or Double.');
             }
-        }, 500); // 0.5 second delay between dealing card 1 and card 2
+        }, 500); 
     };
 
     const hit = () => {
@@ -291,7 +296,7 @@ const BlackjackGame = ({ onBack, userToken }) => {
         setIsDealerCardHidden(false); 
 
         const finalPValue = calculateHandValue(playerHand);
-        const finalDValue = calculateHandValue(dealerHand);
+        const finalDValue = calculateHandHandValue(dealerHand);
 
         switch (result) {
             case 'playerWin':
@@ -322,10 +327,12 @@ const BlackjackGame = ({ onBack, userToken }) => {
 
         setBalance(b => b + payout);
         
-        // Show dialog using state control
+        // FIX: Store content in state first (before rendering)
+        setDialogTitle(title);
+        setDialogMessage(finalMessage);
+        
+        // Show dialog after a delay
         setTimeout(() => {
-             document.getElementById('dialogTitle').textContent = title;
-             document.getElementById('dialogMessage').textContent = finalMessage;
              setIsResultVisible(true); // Trigger visibility
         }, 500);
         
@@ -341,6 +348,8 @@ const BlackjackGame = ({ onBack, userToken }) => {
         setDealerHand([]);
         setIsDealerCardHidden(true);
         setMessage('Place your bet and hit DEAL.');
+        setDialogTitle('');
+        setDialogMessage('');
     };
 
     const getDealerVisibleValue = () => {
@@ -480,11 +489,11 @@ const BlackjackGame = ({ onBack, userToken }) => {
                     
                     {/* MODAL DIALOG: Conditional Rendering Fix */}
                     {isResultVisible && (
-                        // Added dialog-overlay class for full coverage and z-index insurance
                         <div id="resultDialog" className={`dialog-overlay absolute inset-0 bg-black bg-opacity-80 flex items-center justify-center z-40`}>
                             <div className="bg-gray-900 p-6 rounded-xl shadow-2xl text-center max-w-xs w-11/12 transform transition-all result-dialog-style">
-                                <h3 id="dialogTitle" className="text-2xl sm:text-3xl font-extrabold mb-4 text-yellow-400">Game Over!</h3>
-                                <p id="dialogMessage" className="text-sm sm:text-lg mb-6 text-gray-300"></p>
+                                {/* FIX: Render content directly from state */}
+                                <h3 id="dialogTitle" className="text-2xl sm:text-3xl font-extrabold mb-4 text-yellow-400">{dialogTitle}</h3>
+                                <p id="dialogMessage" className="text-sm sm:text-lg mb-6 text-gray-300">{dialogMessage}</p>
                                 <button 
                                     id="newRoundButton" 
                                     className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-full shadow-lg transition-colors w-full" 
