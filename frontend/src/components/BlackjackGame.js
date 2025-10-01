@@ -1,4 +1,4 @@
-// blackjackgame.jsx (Final Version - All Issues Resolved)
+// blackjackgame.jsx (Final Version - Syntax Error Fixed)
 
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
@@ -55,7 +55,7 @@ const calculateHandValue = (hand) => {
 // --- Card Component (Guaranteed Color Fix) ---
 
 const Card = ({ card, isHidden = false }) => {
-    // FIX 1: Use direct hex codes for guaranteed color visibility
+    // Guaranteed color visibility via inline style
     const hexColor = card && (card.suit === '♥' || card.suit === '♦') ? '#B91C1C' : '#1F2937'; 
     
     const cardSizeClasses = "card-size-mobile sm:card-size-desktop flex-shrink-0"; 
@@ -113,7 +113,7 @@ const BlackjackGame = ({ onBack, userToken }) => {
     const dealerValue = calculateHandValue(dealerHand);
 
 
-    // --- Game Logic Functions (omitted for brevity, unchanged from user's submission) ---
+    // --- Game Logic Functions (omitted for brevity, unchanged sections) ---
     const fetchAdminSettings = useCallback(async () => { 
         try {
             const response = await axios.get(`${API_BASE_URL}/api/admin/blackjack-settings`, {
@@ -244,7 +244,7 @@ const BlackjackGame = ({ onBack, userToken }) => {
 
         const newValue = calculateHandValue(newHand);
 
-        if (newValue > 2佶) {
+        if (newValue > 21) { // 🛑 SYNTAX FIX APPLIED HERE: Changed from > 247 to > 21
             setTimeout(() => finishGame('dealerWin'), 1500);
         } else {
             setGameState('dealerTurn');
@@ -360,7 +360,6 @@ const BlackjackGame = ({ onBack, userToken }) => {
     // --- UI Rendering ---
 
     const renderActionButtons = () => (
-        // FIX: Ensures buttons are side-by-side on all screens
         <div id="actionControls" className="flex flex-row gap-2 sm:gap-4 justify-center p-2"> 
             <button 
                 onClick={hit} 
@@ -389,14 +388,14 @@ const BlackjackGame = ({ onBack, userToken }) => {
     const renderBettingArea = () => (
         <div className="w-full p-4 sm:p-6 bg-gray-900/95 border-t border-yellow-500/30 rounded-t-xl shadow-2xl flex flex-col sm:flex-row items-center justify-between">
             
-            {/* FIX 2: Bet Amount Displayed prominently near chips */}
+            {/* CURRENT BET DISPLAY */}
             <div className="flex justify-center items-center w-full sm:w-1/4 mb-4 sm:mb-0 order-1 sm:order-1">
                 <p className={`font-semibold ${currentBet > 0 ? 'text-green-400' : 'text-gray-400'} transition-colors text-lg sm:text-xl text-center`}>
                     CURRENT BET: <span className="font-extrabold text-2xl sm:text-3xl">₹{currentBet.toLocaleString()}</span>
                 </p>
             </div>
             
-            {/* 2. Chip Controls */}
+            {/* CHIP CONTROLS */}
             <div className="flex flex-wrap gap-2 justify-center w-full sm:w-1/2 mb-4 sm:mb-0 order-2 sm:order-2">
                 {chips.map(value => (
                     <button
@@ -418,7 +417,7 @@ const BlackjackGame = ({ onBack, userToken }) => {
                 </button>
             </div>
             
-            {/* 3. Deal Button */}
+            {/* DEAL BUTTON */}
             <div className="w-full sm:w-1/4 flex justify-center sm:justify-end order-3 sm:order-3">
                  <button 
                     onClick={deal} 
