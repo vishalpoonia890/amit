@@ -1,4 +1,4 @@
-// blackjackgame.js (Final Version: Modal Visibility Fixed)
+// blackjackgame.js (Final Version: Modal Z-Index Fix)
 
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
@@ -58,12 +58,10 @@ const Card = ({ card, isHidden = false }) => {
     const suitColor = card && (card.suit === '♥' || card.suit === '♦') ? 'text-red-700' : 'text-gray-900';
     
     // Increased Dimensions & flex-shrink-0 for stability
-    // Card size is now w: 60px/90px (mobile) to w: 112px/160px (desktop)
     const cardSizeClasses = "w-[60px] h-[90px] sm:w-28 sm:h-40 flex-shrink-0"; 
 
     if (isHidden) {
         return (
-            // Added card-back-3d class for thickness effect in CSS
             <div className={`card-face card-back card-back-3d ${cardSizeClasses} bg-yellow-900/90 border-2 border-yellow-300 rounded-lg shadow-xl flex items-center justify-center transform rotate-3`}>
                 <span className="text-xl sm:text-2xl font-extrabold text-gray-800 tracking-widest text-shadow-md">MP</span>
             </div>
@@ -71,7 +69,6 @@ const Card = ({ card, isHidden = false }) => {
     }
     
     return (
-        // Added card-front-3d class for thickness effect in CSS
         <div className={`card-face card-front card-front-3d bg-white border ${cardSizeClasses} rounded-lg shadow-md flex flex-col p-1 sm:p-2 text-xs sm:text-base font-bold select-none transition-all duration-300`}>
             
             <div className={`text-left text-sm sm:text-xl ${suitColor}`}>
@@ -483,7 +480,8 @@ const BlackjackGame = ({ onBack, userToken }) => {
                     
                     {/* MODAL DIALOG: Conditional Rendering Fix */}
                     {isResultVisible && (
-                        <div id="resultDialog" className={`absolute inset-0 bg-black bg-opacity-80 flex items-center justify-center z-40`}>
+                        // Added dialog-overlay class for full coverage and z-index insurance
+                        <div id="resultDialog" className={`dialog-overlay absolute inset-0 bg-black bg-opacity-80 flex items-center justify-center z-40`}>
                             <div className="bg-gray-900 p-6 rounded-xl shadow-2xl text-center max-w-xs w-11/12 transform transition-all result-dialog-style">
                                 <h3 id="dialogTitle" className="text-2xl sm:text-3xl font-extrabold mb-4 text-yellow-400">Game Over!</h3>
                                 <p id="dialogMessage" className="text-sm sm:text-lg mb-6 text-gray-300"></p>
