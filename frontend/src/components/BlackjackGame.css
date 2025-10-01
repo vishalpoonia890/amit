@@ -1,4 +1,4 @@
-/* blackjackgame.css (FINAL VERSION: Fixed Back Button & Top Bet Styling) */
+/* blackjackgame.css (FINAL MOBILE-OPTIMIZED VERSION) */
 
 /* --- 1. General Theme & Typography --- */
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@700&family=Orbitron:wght@900&display=swap');
@@ -7,38 +7,69 @@
     background: #0d1117; 
     min-height: 100vh;
     font-family: 'Roboto Mono', monospace;
+    /* Ensure no unexpected horizontal scrolling from the container itself */
+    overflow-x: hidden; 
 }
 
 .text-shadow-lg {
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8), 0 0 10px rgba(255, 255, 255, 0.1);
 }
 
-/* --- FIX: Back Button Styling --- */
 .blackjack-game-container button[onClick^="onBack"] {
-    background-color: #374151; /* Dark Gray */
+    background-color: #374151;
     border: 1px solid #4b5563;
     transition: all 0.2s ease-in-out;
 }
 
 .blackjack-game-container button[onClick^="onBack"]:hover {
-    background-color: #4b5563; /* Slightly lighter on hover */
+    background-color: #4b5563;
     transform: scale(1.05);
     box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
 }
 
-
-/* --- 2. Game Table Styling: The Felt (game-table-felt) --- */
+/* --- 2. Game Table Styling: The Felt & Layout Fixes --- */
 .game-table-felt {
     position: relative; 
     background: radial-gradient(ellipse at 50% 100%, #157347 0%, #044b36 70%);
-    overflow: hidden;
+    /* FIX: Remove overflow: hidden; here if it causes card animations to be cut off */
     border: 8px solid #3c2a0e; 
     
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 
                 inset 0 0 40px rgba(0, 0, 0, 0.7); 
 }
 
-/* --- 3. Card Styling (REALISM ENHANCED: 3D Thickness) --- */
+/* 🛑 FIX 1: Layout Break Prevention & Horizontal Scroll */
+.card-hand-container {
+    /* Set a specific min-height to ensure the container doesn't collapse */
+    min-height: 120px; /* Base for mobile */
+    
+    /* FIX: Force horizontal scrolling if cards overflow the container */
+    overflow-x: auto; 
+    overflow-y: hidden;
+    
+    /* FIX: Change display to block/inline-flex to better manage scrollable content */
+    display: flex;
+    justify-content: center; /* Center initially, then scroll */
+    align-items: flex-start;
+    
+    /* Default spacing when cards are few */
+    gap: 0px; 
+
+    perspective: 1200px;
+    padding-bottom: 20px;
+    -webkit-overflow-scrolling: touch; 
+    scroll-snap-type: x mandatory; 
+}
+
+/* FIX: Increase container size for tablets/desktop */
+@media (min-width: 640px) {
+    .card-hand-container {
+        min-height: 160px; /* Larger size for desktop */
+    }
+}
+
+
+/* --- 3. Card Styling (REALISM ENHANCED: Stacking & Size Fix) --- */
 
 .card-face {
     transform-style: preserve-3d;
@@ -47,19 +78,22 @@
     cursor: default;
     border: 1px solid #1a202c;
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.7);
+    
+    /* FIX 2: Negative margin for card stacking effect */
+    margin-right: -40px; /* Pull cards closer for overlap on mobile */
+    z-index: 10; /* Base z-index */
 }
 
-.card-hand-container {
-    overflow-x: auto; 
-    perspective: 1200px; /* Increased perspective for deeper 3D effect */
-    padding-bottom: 20px;
-    
-    -webkit-overflow-scrolling: touch; 
-    scroll-snap-type: x mandatory; 
-    justify-content: center;
-}
-.card-face {
-    scroll-snap-align: center;
+/* FIX: Adjust card size classes for better mobile fit */
+.w-\[60px\] { width: 65px; } 
+.h-\[90px\] { height: 95px; } 
+
+@media (min-width: 640px) {
+    .card-face {
+        margin-right: -60px; /* Larger overlap on desktop */
+    }
+    .w-28 { width: 112px; } /* Tailwind default w-28 */
+    .h-40 { height: 160px; } /* Tailwind default h-40 */
 }
 
 /* 3D THICKNESS EFFECT: Pushes the card visually forward with a deeper edge */
