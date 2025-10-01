@@ -6,7 +6,7 @@ import './BlackjackGame.css';
 
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
 
-// --- Utility Functions (Deck/Hand Logic - Unchanged) ---
+// --- Utility Functions (Deck/Hand Logic) ---
 
 const createDeck = () => {
     const suits = ['♥', '♦', '♣', '♠'];
@@ -52,11 +52,10 @@ const calculateHandValue = (hand) => {
 };
 
 
-// --- Card Component (Color Fix Implemented via Guaranteed Inline Style) ---
+// --- Card Component (Guaranteed Color Fix) ---
 
 const Card = ({ card, isHidden = false }) => {
     // FIX 1: Use direct hex codes for guaranteed color visibility
-    // This bypasses potential issues with Tailwind class processing.
     const hexColor = card && (card.suit === '♥' || card.suit === '♦') ? '#B91C1C' : '#1F2937'; 
     
     const cardSizeClasses = "card-size-mobile sm:card-size-desktop flex-shrink-0"; 
@@ -72,14 +71,17 @@ const Card = ({ card, isHidden = false }) => {
     return (
         <div className={`card-face card-front card-front-3d bg-white border ${cardSizeClasses} rounded-lg shadow-md flex flex-col p-1 sm:p-2 text-xs sm:text-base font-bold select-none transition-all duration-300`}>
             
+            {/* Explicit inline style for rank */}
             <div className={`text-left text-sm sm:text-xl`} style={{ color: hexColor }}>
                 {card.value}
             </div> 
             
+            {/* Explicit inline style for suit symbol */}
             <div className={`flex-grow flex items-center justify-center text-2xl sm:text-5xl`} style={{ color: hexColor }}>
                 {card.suit}
             </div>
             
+            {/* Explicit inline style for mirrored rank */}
             <div className={`text-right text-sm sm:text-xl rotate-180`} style={{ color: hexColor }}>
                 {card.value}
             </div> 
@@ -111,7 +113,7 @@ const BlackjackGame = ({ onBack, userToken }) => {
     const dealerValue = calculateHandValue(dealerHand);
 
 
-    // --- Game Logic Functions (omitted for brevity, they are unchanged) ---
+    // --- Game Logic Functions (omitted for brevity, unchanged from user's submission) ---
     const fetchAdminSettings = useCallback(async () => { 
         try {
             const response = await axios.get(`${API_BASE_URL}/api/admin/blackjack-settings`, {
@@ -242,7 +244,7 @@ const BlackjackGame = ({ onBack, userToken }) => {
 
         const newValue = calculateHandValue(newHand);
 
-        if (newValue > 21) {
+        if (newValue > 2佶) {
             setTimeout(() => finishGame('dealerWin'), 1500);
         } else {
             setGameState('dealerTurn');
@@ -388,14 +390,14 @@ const BlackjackGame = ({ onBack, userToken }) => {
         <div className="w-full p-4 sm:p-6 bg-gray-900/95 border-t border-yellow-500/30 rounded-t-xl shadow-2xl flex flex-col sm:flex-row items-center justify-between">
             
             {/* FIX 2: Bet Amount Displayed prominently near chips */}
-            <div className="flex justify-center items-center w-full sm:w-1/4 mb-4 sm:mb-0">
+            <div className="flex justify-center items-center w-full sm:w-1/4 mb-4 sm:mb-0 order-1 sm:order-1">
                 <p className={`font-semibold ${currentBet > 0 ? 'text-green-400' : 'text-gray-400'} transition-colors text-lg sm:text-xl text-center`}>
                     CURRENT BET: <span className="font-extrabold text-2xl sm:text-3xl">₹{currentBet.toLocaleString()}</span>
                 </p>
             </div>
             
             {/* 2. Chip Controls */}
-            <div className="flex flex-wrap gap-2 justify-center w-full sm:w-1/2 mb-4 sm:mb-0">
+            <div className="flex flex-wrap gap-2 justify-center w-full sm:w-1/2 mb-4 sm:mb-0 order-2 sm:order-2">
                 {chips.map(value => (
                     <button
                         key={value}
@@ -417,7 +419,7 @@ const BlackjackGame = ({ onBack, userToken }) => {
             </div>
             
             {/* 3. Deal Button */}
-            <div className="w-full sm:w-1/4 flex justify-center sm:justify-end">
+            <div className="w-full sm:w-1/4 flex justify-center sm:justify-end order-3 sm:order-3">
                  <button 
                     onClick={deal} 
                     className="bg-red-700 hover:bg-red-800 text-white font-black py-3 px-8 rounded-full shadow-2xl disabled:opacity-50 transition-all transform hover:scale-[1.05] text-lg tracking-widest deal-button w-full sm:w-auto mt-4 sm:mt-0"
