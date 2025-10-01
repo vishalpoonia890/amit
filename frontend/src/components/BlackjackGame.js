@@ -1,4 +1,4 @@
-// blackjackgame.jsx (Final Mobile-Optimized Version)
+// blackjackgame.jsx (Final Version with UI Fixes)
 
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
@@ -52,13 +52,15 @@ const calculateHandValue = (hand) => {
 };
 
 
-// --- Card Component (Realism Enhanced) ---
+// --- Card Component (Color Fix Implemented) ---
 
 const Card = ({ card, isHidden = false }) => {
+    // FIX 1: Apply suit color classes based on the suit symbol
+    // These classes apply to the text inside the white card face.
     const suitColor = card && (card.suit === '♥' || card.suit === '♦') ? 'text-red-700' : 'text-gray-900';
     
-    // Using custom mobile size classes defined in CSS, then standard Tailwind for SM
-    const cardSizeClasses = "w-[60px] h-[90px] sm:w-28 sm:h-40 flex-shrink-0"; 
+    // Custom classes for mobile size (defined in CSS) and standard Tailwind for sm
+    const cardSizeClasses = "card-size-mobile sm:card-size-desktop flex-shrink-0"; 
 
     if (isHidden) {
         return (
@@ -87,7 +89,7 @@ const Card = ({ card, isHidden = false }) => {
 };
 
 
-// --- Main Blackjack Component (Logic remains the same) ---
+// --- Main Blackjack Component ---
 
 const BlackjackGame = ({ onBack, userToken }) => {
     // --- State Management ---
@@ -100,11 +102,8 @@ const BlackjackGame = ({ onBack, userToken }) => {
     const [message, setMessage] = useState('Place your bet and hit DEAL.');
     const [isDealerCardHidden, setIsDealerCardHidden] = useState(true);
     const [isResultVisible, setIsResultVisible] = useState(false); 
-    
-    // FIX: State for dialog content (avoids "Cannot set properties of null" error on conditional render)
     const [dialogTitle, setDialogTitle] = useState('');
     const [dialogMessage, setDialogMessage] = useState('');
-    
     const [blackjackSettings, setBlackjackSettings] = useState({ luckFactor: 0, isManualShuffle: false });
 
     const chips = [10, 50, 100, 500];
@@ -113,8 +112,8 @@ const BlackjackGame = ({ onBack, userToken }) => {
     const dealerValue = calculateHandValue(dealerHand);
 
 
-    // --- Server Settings Fetch ---
-    const fetchAdminSettings = useCallback(async () => {
+    // --- Game Logic Functions (omitted for brevity, they are unchanged) ---
+    const fetchAdminSettings = useCallback(async () => { 
         try {
             const response = await axios.get(`${API_BASE_URL}/api/admin/blackjack-settings`, {
                 headers: { Authorization: `Bearer ${userToken || 'MOCK_TOKEN'}` }
@@ -128,10 +127,7 @@ const BlackjackGame = ({ onBack, userToken }) => {
     useEffect(() => {
         fetchAdminSettings();
     }, [fetchAdminSettings]);
-
-
-    // --- Game Logic Functions ---
-
+    
     const drawCard = () => {
         let currentDeck = Array.isArray(deck) && deck.length >= 1 
                               ? [...deck] 
@@ -176,7 +172,6 @@ const BlackjackGame = ({ onBack, userToken }) => {
         setIsDealerCardHidden(true); 
         setIsResultVisible(false); 
 
-        // Deal cards with a slight delay for animation effect
         let pHand = [];
         let dHand = [];
 
@@ -392,14 +387,8 @@ const BlackjackGame = ({ onBack, userToken }) => {
     const renderBettingArea = () => (
         <div className="w-full p-4 sm:p-6 bg-gray-900/95 border-t border-yellow-500/30 rounded-t-xl shadow-2xl flex flex-col sm:flex-row items-center justify-between">
             
-            {/* 1. Player Info & Current Bet */}
-            <div className="flex justify-between items-center w-full sm:w-1/3 mb-4 sm:mb-0">
-                <p className="text-sm font-bold text-white tracking-wider sm:text-lg">BALANCE: <span className="text-yellow-400 text-lg sm:text-2xl">₹{balance.toLocaleString()}</span></p>
-                <p className={`text-sm font-semibold ${currentBet > 0 ? 'text-green-400' : 'text-gray-400'} transition-colors sm:text-lg`}>BET: <span className="text-lg sm:text-2xl font-extrabold">₹{currentBet.toLocaleString()}</span></p>
-            </div>
-            
-            {/* 2. Chip Controls */}
-            <div className="flex flex-wrap gap-2 justify-center w-full sm:w-1/3 mb-4 sm:mb-0">
+            {/* 1. Chip Controls (takes up more space now) */}
+            <div className="flex flex-wrap gap-2 justify-center w-full sm:w-2/3 mb-4 sm:mb-0">
                 {chips.map(value => (
                     <button
                         key={value}
@@ -420,7 +409,7 @@ const BlackjackGame = ({ onBack, userToken }) => {
                 </button>
             </div>
             
-            {/* 3. Deal Button */}
+            {/* 2. Deal Button (takes up remaining space) */}
             <div className="w-full sm:w-1/3 flex justify-center sm:justify-end">
                  <button 
                     onClick={deal} 
@@ -435,12 +424,20 @@ const BlackjackGame = ({ onBack, userToken }) => {
 
     return (
         <div className="blackjack-game-container p-2 sm:p-8 min-h-screen text-white flex flex-col">
-            <div className="flex justify-between items-center max-w-4xl mx-auto w-full mb-4">
-                 <button onClick={onBack} className="mb-2 bg-gray-700 hover:bg-gray-600 text-white font-bold py-1 px-3 rounded-lg shadow-md transition-colors flex items-center text-sm">
+            
+            {/* FIX 2: TOP HEADER - Balance and Bet displayed here */}
+            <div className="top-game-header flex justify-between items-center max-w-4xl mx-auto w-full mb-4 p-2 bg-gray-900 rounded-lg shadow-lg border-b border-yellow-500/30">
+                 <button onClick={onBack} className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-1 px-3 rounded-lg shadow-md transition-colors flex items-center text-sm">
                     <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
                     Lobby
                 </button>
-                <h1 className="text-2xl sm:text-4xl font-extrabold text-yellow-500 tracking-widest text-shadow-lg">Blackjack 21</h1>
+                
+                <h1 className="text-xl sm:text-3xl font-extrabold text-yellow-500 tracking-widest text-shadow-lg hidden sm:block">Blackjack 21</h1>
+
+                <div className="flex items-center gap-4 text-sm sm:text-lg">
+                    <p className="font-bold text-white tracking-wider">BAL: <span className="text-yellow-400 font-extrabold">₹{balance.toLocaleString()}</span></p>
+                    <p className={`font-semibold ${currentBet > 0 ? 'text-green-400' : 'text-gray-400'} transition-colors`}>BET: <span className="font-extrabold">₹{currentBet.toLocaleString()}</span></p>
+                </div>
             </div>
             
             <div className="max-w-4xl mx-auto w-full flex-grow flex flex-col">
@@ -451,22 +448,29 @@ const BlackjackGame = ({ onBack, userToken }) => {
                     {/* Dealer Hand Area (Top) */}
                     <div className="text-center mb-8">
                         <p className="text-base sm:text-xl font-bold mb-3 text-yellow-300">
-                            Dealer ({dealerHand.length > 0 ? getDealerVisibleValue() : '0'})
+                            Dealer ({dealerHand.length > 0 && !isDealerCardHidden ? dealerValue : getDealerVisibleValue()})
                         </p>
-                        <div className="flex gap-3 justify-center min-h-[120px] sm:min-h-[160px] overflow-x-auto card-hand-container flex-nowrap"> 
+                        <div className="card-hand-container"> 
+                            {/* FIX 4: Wrap Card in div for Z-Index stacking */}
                             {dealerHand.map((card, index) => (
-                                <Card key={index} card={card} isHidden={isDealerCardHidden && index === 1} />
+                                <div key={index} style={{zIndex: index + 1}}>
+                                    <Card card={card} isHidden={isDealerCardHidden && index === 1} />
+                                </div>
                             ))}
                         </div>
                     </div>
 
                     {/* Game Message (Center) & Bet Visualizer */}
                     <div className="flex justify-center items-center my-4 h-16 relative sm:h-20">
-                        <div className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 ${currentBet > 0 ? 'visible' : 'hidden'} transition-all duration-500 bet-visualizer`}>
-                            <div className="chip-stack bg-red-800 rounded-full w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center border-4 border-yellow-500 shadow-2xl p-2 text-center">
-                                <span className="text-sm font-black text-white sm:text-xl">BET <br/> ₹{currentBet.toLocaleString()}</span>
+                        
+                        {/* Central Bet Visualizer: Visible only during/after play */}
+                        {gameState !== 'betting' && currentBet > 0 && (
+                            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bet-visualizer">
+                                <div className="chip-stack bg-red-800 rounded-full w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center border-4 border-yellow-500 shadow-2xl p-2 text-center">
+                                    <span className="text-sm font-black text-white sm:text-xl">BET <br/> ₹{currentBet.toLocaleString()}</span>
+                                </div>
                             </div>
-                        </div>
+                        )}
 
                         <div className="absolute inset-0 flex items-center justify-center">
                              <p className={`text-lg sm:text-2xl font-black text-yellow-100 p-2 rounded-lg bg-black/50 backdrop-blur-sm transition-opacity duration-500 message-bar message-bar-animate ${gameState !== 'betting' ? 'opacity-100' : 'opacity-80'}`}>
@@ -480,14 +484,17 @@ const BlackjackGame = ({ onBack, userToken }) => {
                         <p className="text-base sm:text-xl font-bold mb-3 text-yellow-300">
                             Your Hand ({playerHand.length > 0 ? playerValue : '0'})
                         </p>
-                        <div className="flex gap-3 justify-center min-h-[120px] sm:min-h-[160px] overflow-x-auto card-hand-container flex-nowrap"> 
+                        <div className="card-hand-container"> 
+                            {/* FIX 4: Wrap Card in div for Z-Index stacking */}
                             {playerHand.map((card, index) => (
-                                <Card key={index} card={card} isHidden={false} />
+                                <div key={index} style={{zIndex: index + 1}}>
+                                    <Card card={card} isHidden={false} />
+                                </div>
                             ))}
                         </div>
                     </div>
                     
-                    {/* MODAL DIALOG */}
+                    {/* MODAL DIALOG (unchanged) */}
                     {isResultVisible && (
                         <div id="resultDialog" className={`dialog-overlay absolute inset-0 bg-black bg-opacity-80 flex items-center justify-center z-40`}>
                             <div className="bg-gray-900 p-6 rounded-xl shadow-2xl text-center max-w-xs w-11/12 transform transition-all result-dialog-style">
@@ -505,12 +512,12 @@ const BlackjackGame = ({ onBack, userToken }) => {
                     )}
                 </div>
 
-                {/* --- Action/Betting Control Panel --- */}
+                {/* --- Action/Betting Control Panel (unchanged) --- */}
                 <div className="bg-gray-900/90 py-4 shadow-top-heavy">
                     {gameState === 'betting' ? renderBettingArea() : renderActionButtons()}
                 </div>
 
-                 {/* --- How to Play Section --- */}
+                 {/* --- How to Play Section (unchanged) --- */}
                 <div className="mt-6 p-4 sm:p-6 bg-gray-700 rounded-xl shadow-xl">
                     <h2 className="text-2xl font-extrabold text-yellow-300 mb-4">How to Play Blackjack</h2>
                     <ol className="list-decimal list-inside space-y-3 text-lg text-gray-200 text-left">
