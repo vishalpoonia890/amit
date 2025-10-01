@@ -55,6 +55,7 @@ const calculateHandValue = (hand) => {
 // --- Card Component (Styled, Responsive, and FIXED) ---
 
 const Card = ({ card, isHidden = false }) => {
+    // Suit color refinement for better contrast
     const suitColor = card && (card.suit === '♥' || card.suit === '♦') ? 'text-red-700' : 'text-gray-900';
     
     // Responsive sizing and CRITICAL: flex-shrink-0 to prevent collapsing
@@ -62,6 +63,7 @@ const Card = ({ card, isHidden = false }) => {
 
     if (isHidden) {
         return (
+            // Card Back (MP side)
             <div className={`card-face card-back ${cardSizeClasses} bg-yellow-900/90 border-2 border-yellow-300 rounded-lg shadow-xl flex items-center justify-center transform rotate-3`}>
                 <span className="text-xl font-extrabold text-gray-800 tracking-widest text-shadow-md">MP</span>
             </div>
@@ -69,7 +71,7 @@ const Card = ({ card, isHidden = false }) => {
     }
     
     return (
-        // *** CRITICAL FIX: The card container MUST be 'flex flex-col' for correct internal layout ***
+        // Card Front: MUST use 'flex flex-col' for vertical stacking of value/suit
         <div className={`card-face card-front bg-white border ${cardSizeClasses} rounded-lg shadow-md flex flex-col p-1 sm:p-2 text-xs sm:text-base font-bold select-none transition-all duration-300`}>
             
             {/* Top Value (Properly sized and aligned) */}
@@ -77,7 +79,7 @@ const Card = ({ card, isHidden = false }) => {
                 {card.value}
             </div> 
             
-            {/* Center Suit (Uses flex-grow to occupy space) */}
+            {/* Center Suit (Uses flex-grow to occupy space and centers the large suit symbol) */}
             <div className={`flex-grow flex items-center justify-center text-xl sm:text-4xl ${suitColor}`}>
                 {card.suit}
             </div>
