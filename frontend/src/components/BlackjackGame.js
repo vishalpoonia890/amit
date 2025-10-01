@@ -1,4 +1,4 @@
-// blackjackgame.jsx (Final Version: All Fixes Included)
+// blackjackgame.jsx (Final Mobile-Optimized Version)
 
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
@@ -40,7 +40,6 @@ const calculateHandValue = (hand) => {
         } else if (['K', 'Q', 'J'].includes(card.value)) {
             value += 10;
         } else {
-            // Ensure card.value is converted to an integer
             value += parseInt(card.value, 10);
         }
     }
@@ -58,7 +57,7 @@ const calculateHandValue = (hand) => {
 const Card = ({ card, isHidden = false }) => {
     const suitColor = card && (card.suit === '♥' || card.suit === '♦') ? 'text-red-700' : 'text-gray-900';
     
-    // Increased Dimensions & flex-shrink-0 for stability
+    // Using custom mobile size classes defined in CSS, then standard Tailwind for SM
     const cardSizeClasses = "w-[60px] h-[90px] sm:w-28 sm:h-40 flex-shrink-0"; 
 
     if (isHidden) {
@@ -88,7 +87,7 @@ const Card = ({ card, isHidden = false }) => {
 };
 
 
-// --- Main Blackjack Component ---
+// --- Main Blackjack Component (Logic remains the same) ---
 
 const BlackjackGame = ({ onBack, userToken }) => {
     // --- State Management ---
@@ -122,7 +121,6 @@ const BlackjackGame = ({ onBack, userToken }) => {
             });
             setBlackjackSettings(response.data.settings);
         } catch (error) {
-             // 403 Forbidden/Error: Set default, safe settings
             setBlackjackSettings({ luckFactor: 0, isManualShuffle: false });
         }
     }, [userToken]);
@@ -300,7 +298,7 @@ const BlackjackGame = ({ onBack, userToken }) => {
         setIsDealerCardHidden(false); 
 
         const finalPValue = calculateHandValue(playerHand);
-        const finalDValue = calculateHandValue(dealerHand); // Corrected function name
+        const finalDValue = calculateHandValue(dealerHand);
 
         switch (result) {
             case 'playerWin':
@@ -331,13 +329,11 @@ const BlackjackGame = ({ onBack, userToken }) => {
 
         setBalance(b => b + payout);
         
-        // FIX: Store content in state first (before rendering)
         setDialogTitle(title);
         setDialogMessage(finalMessage);
         
-        // Show dialog after a delay
         setTimeout(() => {
-              setIsResultVisible(true); // Trigger visibility
+              setIsResultVisible(true);
         }, 500);
         
         setTimeout(() => {
@@ -346,7 +342,7 @@ const BlackjackGame = ({ onBack, userToken }) => {
     };
 
     const startNewRound = () => {
-        setIsResultVisible(false); // Hide dialog
+        setIsResultVisible(false);
         setGameState('betting');
         setPlayerHand([]);
         setDealerHand([]);
