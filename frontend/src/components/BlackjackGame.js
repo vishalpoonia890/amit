@@ -1,4 +1,4 @@
-// blackjackgame.jsx (Final Version with All UI Fixes)
+// blackjackgame.jsx (Final Version - All Issues Resolved)
 
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
@@ -6,7 +6,7 @@ import './BlackjackGame.css';
 
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
 
-// --- Utility Functions (Deck/Hand Logic) ---
+// --- Utility Functions (Deck/Hand Logic - Unchanged) ---
 
 const createDeck = () => {
     const suits = ['♥', '♦', '♣', '♠'];
@@ -52,11 +52,12 @@ const calculateHandValue = (hand) => {
 };
 
 
-// --- Card Component (Color Fix Implemented via Inline Style) ---
+// --- Card Component (Color Fix Implemented via Guaranteed Inline Style) ---
 
 const Card = ({ card, isHidden = false }) => {
     // FIX 1: Use direct hex codes for guaranteed color visibility
-    const hexColor = card && (card.suit === '♥' || card.suit === '♦') ? '#B91C1C' : '#1F2937'; // Red-700 / Gray-900
+    // This bypasses potential issues with Tailwind class processing.
+    const hexColor = card && (card.suit === '♥' || card.suit === '♦') ? '#B91C1C' : '#1F2937'; 
     
     const cardSizeClasses = "card-size-mobile sm:card-size-desktop flex-shrink-0"; 
 
@@ -87,10 +88,10 @@ const Card = ({ card, isHidden = false }) => {
 };
 
 
-// --- Main Blackjack Component (Game Logic omitted for brevity, unchanged) ---
+// --- Main Blackjack Component ---
 
 const BlackjackGame = ({ onBack, userToken }) => {
-    // ... (State Management) ...
+    // --- State Management ---
     const [balance, setBalance] = useState(1000); 
     const [currentBet, setCurrentBet] = useState(0);
     const [deck, setDeck] = useState(shuffleDeck(createDeck()));
@@ -109,8 +110,8 @@ const BlackjackGame = ({ onBack, userToken }) => {
     const playerValue = calculateHandValue(playerHand);
     const dealerValue = calculateHandValue(dealerHand);
 
-    // ... (Game Logic Functions like fetchAdminSettings, drawCard, placeBet, deal, hit, stand, doubleDown, dealerPlay, finishGame, startNewRound, getDealerVisibleValue) ...
 
+    // --- Game Logic Functions (omitted for brevity, they are unchanged) ---
     const fetchAdminSettings = useCallback(async () => { 
         try {
             const response = await axios.get(`${API_BASE_URL}/api/admin/blackjack-settings`, {
@@ -357,7 +358,7 @@ const BlackjackGame = ({ onBack, userToken }) => {
     // --- UI Rendering ---
 
     const renderActionButtons = () => (
-        // FIX: Ensure buttons are side-by-side on all screens
+        // FIX: Ensures buttons are side-by-side on all screens
         <div id="actionControls" className="flex flex-row gap-2 sm:gap-4 justify-center p-2"> 
             <button 
                 onClick={hit} 
@@ -386,9 +387,9 @@ const BlackjackGame = ({ onBack, userToken }) => {
     const renderBettingArea = () => (
         <div className="w-full p-4 sm:p-6 bg-gray-900/95 border-t border-yellow-500/30 rounded-t-xl shadow-2xl flex flex-col sm:flex-row items-center justify-between">
             
-            {/* FIX 2: Bet Amount Displayed near chips */}
+            {/* FIX 2: Bet Amount Displayed prominently near chips */}
             <div className="flex justify-center items-center w-full sm:w-1/4 mb-4 sm:mb-0">
-                <p className={`font-semibold ${currentBet > 0 ? 'text-green-400' : 'text-gray-400'} transition-colors text-lg sm:text-xl`}>
+                <p className={`font-semibold ${currentBet > 0 ? 'text-green-400' : 'text-gray-400'} transition-colors text-lg sm:text-xl text-center`}>
                     CURRENT BET: <span className="font-extrabold text-2xl sm:text-3xl">₹{currentBet.toLocaleString()}</span>
                 </p>
             </div>
@@ -431,7 +432,7 @@ const BlackjackGame = ({ onBack, userToken }) => {
     return (
         <div className="blackjack-game-container p-2 sm:p-8 min-h-screen text-white flex flex-col">
             
-            {/* TOP HEADER - Balance and Bet displayed here */}
+            {/* TOP HEADER - BALANCE ONLY displayed here */}
             <div className="top-game-header flex justify-between items-center max-w-4xl mx-auto w-full mb-4 p-2 bg-gray-900 rounded-lg shadow-lg border-b border-yellow-500/30">
                  <button onClick={onBack} className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-1 px-3 rounded-lg shadow-md transition-colors flex items-center text-sm">
                     <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
