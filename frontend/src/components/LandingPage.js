@@ -267,7 +267,7 @@ function LandingPage({ authView, setAuthView, loginFormData, registerFormData, h
                                             name="cityPinCode" 
                                             value={registerFormData.cityPinCode || ''} 
                                             onChange={handlePinCodeChange} 
-                                            placeholder="XXXXXX" 
+                                            placeholder="" 
                                             maxLength="6"
                                             required 
                                         />
