@@ -1,4 +1,4 @@
-// blackjackgame.js (Final Version: All Fixes Included)
+// blackjackgame.jsx (Final Version: All Fixes Included)
 
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
@@ -40,7 +40,8 @@ const calculateHandValue = (hand) => {
         } else if (['K', 'Q', 'J'].includes(card.value)) {
             value += 10;
         } else {
-            value += parseInt(card.value);
+            // Ensure card.value is converted to an integer
+            value += parseInt(card.value, 10);
         }
     }
 
@@ -101,7 +102,7 @@ const BlackjackGame = ({ onBack, userToken }) => {
     const [isDealerCardHidden, setIsDealerCardHidden] = useState(true);
     const [isResultVisible, setIsResultVisible] = useState(false); 
     
-    // FIX: New state for dialog content to prevent "Cannot set properties of null" error
+    // FIX: State for dialog content (avoids "Cannot set properties of null" error on conditional render)
     const [dialogTitle, setDialogTitle] = useState('');
     const [dialogMessage, setDialogMessage] = useState('');
     
@@ -113,7 +114,7 @@ const BlackjackGame = ({ onBack, userToken }) => {
     const dealerValue = calculateHandValue(dealerHand);
 
 
-    // --- Server Settings Fetch (403 error is backend, but we keep this client structure) ---
+    // --- Server Settings Fetch ---
     const fetchAdminSettings = useCallback(async () => {
         try {
             const response = await axios.get(`${API_BASE_URL}/api/admin/blackjack-settings`, {
@@ -121,7 +122,7 @@ const BlackjackGame = ({ onBack, userToken }) => {
             });
             setBlackjackSettings(response.data.settings);
         } catch (error) {
-             // 403 Forbidden is handled here by setting default, safe settings
+             // 403 Forbidden/Error: Set default, safe settings
             setBlackjackSettings({ luckFactor: 0, isManualShuffle: false });
         }
     }, [userToken]);
@@ -135,8 +136,8 @@ const BlackjackGame = ({ onBack, userToken }) => {
 
     const drawCard = () => {
         let currentDeck = Array.isArray(deck) && deck.length >= 1 
-                          ? [...deck] 
-                          : shuffleDeck(createDeck()); 
+                              ? [...deck] 
+                              : shuffleDeck(createDeck()); 
 
         if (currentDeck.length < 5) {
             setMessage("Shuffling a new deck...");
@@ -193,9 +194,12 @@ const BlackjackGame = ({ onBack, userToken }) => {
             setPlayerHand(pHand);
             setDealerHand(dHand);
 
-            if (calculateHandValue(pHand) === 21) {
+            const initialPlayerValue = calculateHandValue(pHand);
+            const initialDealerValue = calculateHandValue(dHand);
+            
+            if (initialPlayerValue === 21) {
                 setMessage('BLACKJACK! Checking dealer...');
-                setTimeout(() => finishGame(calculateHandValue(dHand) === 21 ? 'push' : 'playerBlackjack'), 1500);
+                setTimeout(() => finishGame(initialDealerValue === 21 ? 'push' : 'playerBlackjack'), 1500);
             } else {
                  setMessage('Player turn! Hit, Stand, or Double.');
             }
@@ -232,7 +236,7 @@ const BlackjackGame = ({ onBack, userToken }) => {
 
     const doubleDown = () => {
         if (gameState !== 'playerTurn' || currentBet * 2 > balance || playerHand.length > 2) {
-            setMessage('Double Down only allowed on first move or insufficient balance.');
+            setMessage('Double Down only allowed on first move and requires sufficient balance.');
             return;
         }
 
@@ -296,7 +300,7 @@ const BlackjackGame = ({ onBack, userToken }) => {
         setIsDealerCardHidden(false); 
 
         const finalPValue = calculateHandValue(playerHand);
-        const finalDValue = calculateHandHandValue(dealerHand);
+        const finalDValue = calculateHandValue(dealerHand); // Corrected function name
 
         switch (result) {
             case 'playerWin':
@@ -333,11 +337,11 @@ const BlackjackGame = ({ onBack, userToken }) => {
         
         // Show dialog after a delay
         setTimeout(() => {
-             setIsResultVisible(true); // Trigger visibility
+              setIsResultVisible(true); // Trigger visibility
         }, 500);
         
         setTimeout(() => {
-             setCurrentBet(0);
+              setCurrentBet(0);
         }, 100);
     };
 
@@ -487,11 +491,10 @@ const BlackjackGame = ({ onBack, userToken }) => {
                         </div>
                     </div>
                     
-                    {/* MODAL DIALOG: Conditional Rendering Fix */}
+                    {/* MODAL DIALOG */}
                     {isResultVisible && (
                         <div id="resultDialog" className={`dialog-overlay absolute inset-0 bg-black bg-opacity-80 flex items-center justify-center z-40`}>
                             <div className="bg-gray-900 p-6 rounded-xl shadow-2xl text-center max-w-xs w-11/12 transform transition-all result-dialog-style">
-                                {/* FIX: Render content directly from state */}
                                 <h3 id="dialogTitle" className="text-2xl sm:text-3xl font-extrabold mb-4 text-yellow-400">{dialogTitle}</h3>
                                 <p id="dialogMessage" className="text-sm sm:text-lg mb-6 text-gray-300">{dialogMessage}</p>
                                 <button 
@@ -514,12 +517,12 @@ const BlackjackGame = ({ onBack, userToken }) => {
                  {/* --- How to Play Section --- */}
                 <div className="mt-6 p-4 sm:p-6 bg-gray-700 rounded-xl shadow-xl">
                     <h2 className="text-2xl font-extrabold text-yellow-300 mb-4">How to Play Blackjack</h2>
-                    <ol className="list-decimal list-inside space-y-3 text-lg text-gray-200">
-                        <li><strong>Place a Bet:</strong> Use the chips to place your bet (min ₹{minBet}) and hit "DEAL".</li>
-                        <li><strong>Scoring:</strong> Aim for a hand total closer to 21 than the Dealer, without exceeding 21. Aces are 1 or 11; Face cards are 10.</li>
-                        <li><strong>Actions:</strong> Use **HIT** (take a card), **STAND** (keep hand), or **DOUBLE DOWN** (double bet, take one card, then stand).</li>
-                        <li><strong>Dealer's Rules:</strong> The Dealer must hit on 16 or less and must stand on 17 or more.</li>
-                        <li><strong>Payouts:</strong> Win (1:1), Blackjack (3:2), Push (bet returned), Lose (bet lost).</li>
+                    <ol className="list-decimal list-inside space-y-3 text-lg text-gray-200 text-left">
+                        <li>**Place a Bet:** Use the chips to place your bet (min **₹{minBet}**) and hit "DEAL".</li>
+                        <li>**Scoring:** Aim for a hand total closer to **21** than the Dealer, without exceeding 21. Aces are 1 or 11; Face cards are 10.</li>
+                        <li>**Actions:** Use **HIT** (take a card), **STAND** (keep hand), or **DOUBLE DOWN** (double bet, take one card, then stand).</li>
+                        <li>**Dealer's Rules:** The Dealer must **hit on 16 or less** and must **stand on 17 or more**.</li>
+                        <li>**Payouts:** Win (**1:1**), Blackjack (**3:2**), Push (bet returned), Lose (bet lost).</li>
                     </ol>
                 </div>
             </div>
