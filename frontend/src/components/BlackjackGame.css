@@ -1,4 +1,4 @@
-/* blackjackgame.css (FINAL MOBILE-OPTIMIZED VERSION) */
+/* blackjackgame.css (FINAL VERSION with Stacking and Layout Fixes) */
 
 /* --- 1. General Theme & Typography --- */
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@700&family=Orbitron:wght@900&display=swap');
@@ -7,8 +7,14 @@
     background: #0d1117; 
     min-height: 100vh;
     font-family: 'Roboto Mono', monospace;
-    /* Ensure no unexpected horizontal scrolling from the container itself */
     overflow-x: hidden; 
+}
+
+/* New class for positioning the top balance/bet display */
+.top-game-header {
+    max-width: 4xl;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .text-shadow-lg {
@@ -31,45 +37,31 @@
 .game-table-felt {
     position: relative; 
     background: radial-gradient(ellipse at 50% 100%, #157347 0%, #044b36 70%);
-    /* FIX: Remove overflow: hidden; here if it causes card animations to be cut off */
     border: 8px solid #3c2a0e; 
-    
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 
                 inset 0 0 40px rgba(0, 0, 0, 0.7); 
 }
 
-/* 🛑 FIX 1: Layout Break Prevention & Horizontal Scroll */
+/* FIX: Card Container Layout & Scrolling */
 .card-hand-container {
-    /* Set a specific min-height to ensure the container doesn't collapse */
-    min-height: 120px; /* Base for mobile */
-    
-    /* FIX: Force horizontal scrolling if cards overflow the container */
+    min-height: 120px; 
     overflow-x: auto; 
     overflow-y: hidden;
-    
-    /* FIX: Change display to block/inline-flex to better manage scrollable content */
     display: flex;
-    justify-content: center; /* Center initially, then scroll */
+    justify-content: center;
     align-items: flex-start;
-    
-    /* Default spacing when cards are few */
-    gap: 0px; 
-
-    perspective: 1200px;
+    gap: 0; 
     padding-bottom: 20px;
     -webkit-overflow-scrolling: touch; 
-    scroll-snap-type: x mandatory; 
 }
 
-/* FIX: Increase container size for tablets/desktop */
 @media (min-width: 640px) {
     .card-hand-container {
-        min-height: 160px; /* Larger size for desktop */
+        min-height: 160px;
     }
 }
 
-
-/* --- 3. Card Styling (REALISM ENHANCED: Stacking & Size Fix) --- */
+/* --- 3. Card Styling (Stacking & Size Fix) --- */
 
 .card-face {
     transform-style: preserve-3d;
@@ -79,24 +71,34 @@
     border: 1px solid #1a202c;
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.7);
     
-    /* FIX 2: Negative margin for card stacking effect */
-    margin-right: -40px; /* Pull cards closer for overlap on mobile */
-    z-index: 10; /* Base z-index */
+    /* FIX 3: Negative margin for card overlap (stacking) */
+    margin-right: -45px; 
 }
 
-/* FIX: Adjust card size classes for better mobile fit */
-.w-\[60px\] { width: 65px; } 
-.h-\[90px\] { height: 95px; } 
+/* FIX: Custom classes for better mobile/desktop sizing (used in JSX) */
+.card-size-mobile { 
+    width: 65px; 
+    height: 95px; 
+} 
+
+.sm\:card-size-desktop {
+    width: 112px; /* sm:w-28 */
+    height: 160px; /* sm:h-40 */
+}
 
 @media (min-width: 640px) {
     .card-face {
-        margin-right: -60px; /* Larger overlap on desktop */
+        margin-right: -70px; /* Larger overlap on desktop */
     }
-    .w-28 { width: 112px; } /* Tailwind default w-28 */
-    .h-40 { height: 160px; } /* Tailwind default h-40 */
 }
 
-/* 3D THICKNESS EFFECT: Pushes the card visually forward with a deeper edge */
+/* Ensure the last card in the hand does not have negative margin */
+.card-hand-container > div:last-child > .card-face {
+    margin-right: 0;
+}
+
+
+/* 3D THICKNESS EFFECT (unchanged) */
 .card-front-3d {
     transform: translateZ(4px); 
     box-shadow: 0 5px 12px rgba(0, 0, 0, 0.5), inset 0 0 0 3px rgba(255, 255, 255, 0.8);
@@ -107,7 +109,7 @@
 }
 
 
-/* Keyframe for "Card Deal" effect */
+/* Keyframe for "Card Deal" effect (unchanged) */
 @keyframes card-slide-in {
     0% {
         opacity: 0;
@@ -118,7 +120,9 @@
         transform: translateY(0) scale(1) rotateZ(0deg);
     }
 }
-.card-hand-container .card-face {
+
+/* Apply animation to the card face inside the wrapper div */
+.card-hand-container > div > .card-face {
     animation: card-slide-in 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
