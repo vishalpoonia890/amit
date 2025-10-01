@@ -405,4 +405,4 @@ export default function LandingPage({ authView, setAuthView, loginFormData, regi
         </div>
     );
 }
-export default LandingPage;
+
