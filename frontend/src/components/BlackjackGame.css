@@ -65,7 +65,7 @@
 
 /* Wrapper for the card to control z-index and stacking */
 .card-hand-container > div {
-    position: relative; /* Needed for z-index to work against its siblings */
+    position: relative; 
 }
 
 .card-face {
@@ -76,7 +76,7 @@
     border: 1px solid #1a202c;
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.7);
     
-    /* FIX 3: Negative margin for card overlap (stacking) */
+    /* FIX: Negative margin for card overlap (stacking) */
     margin-right: -45px; 
 }
 
