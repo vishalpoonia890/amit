@@ -1,4 +1,4 @@
-/* blackjackgame.css (Final Version with Larger Cards and New Animations) */
+/* blackjackgame.css (Final Version: Real Cards & Animations) */
 
 /* --- 1. General Theme & Typography --- */
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@700&family=Orbitron:wght@900&display=swap');
@@ -15,9 +15,7 @@
 
 /* --- 2. Game Table Styling: The Felt (game-table-felt) --- */
 .game-table-felt {
-    /* CRITICAL: Changed to relative for the inner modal positioning */
     position: relative; 
-    
     background: radial-gradient(ellipse at 50% 100%, #157347 0%, #044b36 70%);
     overflow: hidden;
     border: 8px solid #3c2a0e; 
@@ -26,12 +24,12 @@
                 inset 0 0 40px rgba(0, 0, 0, 0.7); 
 }
 
-/* --- 3. Card Styling (Larger Dimensions and Animations) --- */
+/* --- 3. Card Styling (REALISM ENHANCED) --- */
 
 .card-face {
     transform-style: preserve-3d;
     position: relative;
-    transition: transform 0.6s ease-out;
+    transition: transform 0.6s ease-out, box-shadow 0.2s;
     cursor: default;
     border: 1px solid #1a202c;
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.7);
@@ -50,23 +48,48 @@
     scroll-snap-align: center;
 }
 
-/* Keyframe for "Card Deal" effect (Ensures a clean slide-in) */
+/* 3D THICKNESS EFFECT FOR REALISM */
+.card-front-3d {
+    /* Push the front face slightly forward for thickness illusion */
+    transform: translateZ(2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4), 0 0 0 3px rgba(255, 255, 255, 0.8);
+}
+.card-back-3d {
+    /* Push the back face slightly forward */
+    transform: translateZ(2px); 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
+}
+
+/* Card Front: visible */
+.card-front {
+    background-color: #fff;
+    backface-visibility: hidden;
+    transform: rotateY(0deg);
+}
+
+/* Card Back: Hidden Dealer Card */
+.card-back {
+    background: linear-gradient(135deg, #6d4e16 0%, #a06e1b 50%, #6d4e16 100%);
+    backface-visibility: hidden;
+    transform: rotateY(0deg); 
+}
+
+/* Keyframe for "Card Deal" effect */
 @keyframes card-slide-in {
     0% {
         opacity: 0;
-        transform: translateY(-20px) scale(0.8);
+        transform: translateY(-20px) scale(0.8) rotateZ(-5deg); /* Added slight rotation */
     }
     100% {
         opacity: 1;
-        transform: translateY(0) scale(1);
+        transform: translateY(0) scale(1) rotateZ(0deg);
     }
 }
 .card-hand-container .card-face {
-    /* Apply a slight delay based on card index in React if you want cascading deal */
     animation: card-slide-in 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-/* New Animation for Game Message Bar */
+/* New Animation for Game Message Bar (Active during play) */
 @keyframes message-pulse {
     0% { transform: scale(1); box-shadow: 0 0 5px rgba(255, 255, 0, 0.5); }
     50% { transform: scale(1.02); box-shadow: 0 0 15px rgba(255, 255, 0, 0.9); }
@@ -76,6 +99,7 @@
 .message-bar-animate {
     animation: message-pulse 2s infinite ease-in-out;
 }
+
 
 /* --- 4. Interactive Elements (Chips & Buttons) --- */
 
@@ -144,7 +168,7 @@
     z-index: -1;
 }
 
-/* --- 5. Modal Dialog (Result Box - Now positioned inside game-table-felt) --- */
+/* --- 5. Modal Dialog (Result Box) --- */
 .result-dialog-style {
     border: 3px solid #ffc107;
     background-color: #1f2937;
