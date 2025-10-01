@@ -1,4 +1,4 @@
-// blackjackgame.js (Final Version: Logic Fixed, Cards Larger, How to Play Added)
+// blackjackgame.js (Final Version: Modal Visibility Fixed)
 
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
@@ -58,6 +58,7 @@ const Card = ({ card, isHidden = false }) => {
     const suitColor = card && (card.suit === '♥' || card.suit === '♦') ? 'text-red-700' : 'text-gray-900';
     
     // Increased Dimensions & flex-shrink-0 for stability
+    // Card size is now w: 60px/90px (mobile) to w: 112px/160px (desktop)
     const cardSizeClasses = "w-[60px] h-[90px] sm:w-28 sm:h-40 flex-shrink-0"; 
 
     if (isHidden) {
@@ -101,7 +102,7 @@ const BlackjackGame = ({ onBack, userToken }) => {
     const [gameState, setGameState] = useState('betting');
     const [message, setMessage] = useState('Place your bet and hit DEAL.');
     const [isDealerCardHidden, setIsDealerCardHidden] = useState(true);
-    const [isResultVisible, setIsResultVisible] = useState(false); // New state for dialog control
+    const [isResultVisible, setIsResultVisible] = useState(false); // Controls modal visibility
     const [blackjackSettings, setBlackjackSettings] = useState({ luckFactor: 0, isManualShuffle: false });
 
     const chips = [10, 50, 100, 500];
@@ -170,8 +171,8 @@ const BlackjackGame = ({ onBack, userToken }) => {
         
         setGameState('playerTurn');
         setMessage('Dealing cards...');
-        setIsDealerCardHidden(true);
-        setIsResultVisible(false); // Hide result box if somehow visible
+        setIsDealerCardHidden(true); 
+        setIsResultVisible(false); 
 
         // Deal cards with a slight delay for animation effect
         let pHand = [];
@@ -328,7 +329,7 @@ const BlackjackGame = ({ onBack, userToken }) => {
         setTimeout(() => {
              document.getElementById('dialogTitle').textContent = title;
              document.getElementById('dialogMessage').textContent = finalMessage;
-             setIsResultVisible(true);
+             setIsResultVisible(true); // Trigger visibility
         }, 500);
         
         setTimeout(() => {
@@ -480,20 +481,22 @@ const BlackjackGame = ({ onBack, userToken }) => {
                         </div>
                     </div>
                     
-                    {/* MODAL DIALOG: Controlled by isResultVisible state */}
-                    <div id="resultDialog" className={`absolute inset-0 bg-black bg-opacity-80 flex items-center justify-center z-40 ${isResultVisible ? '' : 'hidden'}`}>
-                        <div className="bg-gray-900 p-6 rounded-xl shadow-2xl text-center max-w-xs w-11/12 transform transition-all result-dialog-style">
-                            <h3 id="dialogTitle" className="text-2xl sm:text-3xl font-extrabold mb-4 text-yellow-400">Game Over!</h3>
-                            <p id="dialogMessage" className="text-sm sm:text-lg mb-6 text-gray-300"></p>
-                            <button 
-                                id="newRoundButton" 
-                                className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-full shadow-lg transition-colors w-full" 
-                                onClick={startNewRound}
-                            >
-                                New Bet
-                            </button>
+                    {/* MODAL DIALOG: Conditional Rendering Fix */}
+                    {isResultVisible && (
+                        <div id="resultDialog" className={`absolute inset-0 bg-black bg-opacity-80 flex items-center justify-center z-40`}>
+                            <div className="bg-gray-900 p-6 rounded-xl shadow-2xl text-center max-w-xs w-11/12 transform transition-all result-dialog-style">
+                                <h3 id="dialogTitle" className="text-2xl sm:text-3xl font-extrabold mb-4 text-yellow-400">Game Over!</h3>
+                                <p id="dialogMessage" className="text-sm sm:text-lg mb-6 text-gray-300"></p>
+                                <button 
+                                    id="newRoundButton" 
+                                    className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-full shadow-lg transition-colors w-full" 
+                                    onClick={startNewRound}
+                                >
+                                    New Bet
+                                </button>
+                            </div>
                         </div>
-                    </div>
+                    )}
                 </div>
 
                 {/* --- Action/Betting Control Panel --- */}
