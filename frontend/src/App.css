@@ -5,7 +5,7 @@
 @tailwind utilities;
 
 /* Then import your custom styles */
-/* @import './BlackjackGame.css'; */
+@import './components/BlackjackGame.css';
 
 :root {
     --primary-color: #4F46E5;
