@@ -81,7 +81,7 @@ function LandingPage({ authView, setAuthView, loginFormData, registerFormData, h
     const [showRegisterPassword, setShowRegisterPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-    // ✅ NEW STATE for Pincode
+    // --- State for Pincode/City ---
     const [cityName, setCityName] = useState('');
     const [pinCodeError, setPinCodeError] = useState('');
 
@@ -173,15 +173,39 @@ function LandingPage({ authView, setAuthView, loginFormData, registerFormData, h
                 </section>
 
                 <section className="hero-content-below-image">
-                        <h2>Worried About Your Money?</h2>
+                    <h2>Worried About Your Money?</h2>
                     <p>Don't be. We are with you in shaping your financial situation for the better. With our investment products that provide daily income and exciting games that offer big wins, your journey to financial independence starts now.</p>
                 </section>
+                
+                {/* --- NEW SECTION: Why Choose MoneyPlus? (for SEO and trust) --- */}
+                <section id="why-choose" className="content-section dark-bg">
+                    <h2>Why Choose MoneyPlus? 🚀</h2>
+                    <div className="benefits-grid">
+                        <div className="benefit-card">
+                            <h3>High-Yield Investments</h3>
+                            <p>Generate **daily returns** that outpace inflation with our expertly managed investment products.</p>
+                        </div>
+                        <div className="benefit-card">
+                            <h3>Instant Withdrawals</h3>
+                            <p>Get your winnings and daily income in your account in **under 40 minutes**, guaranteed.</p>
+                        </div>
+                        <div className="benefit-card">
+                            <h3>Secure & Trusted Platform</h3>
+                            <p>Your security is our priority. We use advanced encryption to protect your funds and data.</p>
+                        </div>
+                        <div className="benefit-card">
+                            <h3>24/7 Customer Support</h3>
+                            <p>Our dedicated team is always here to help you with any investment or gaming queries.</p>
+                        </div>
+                    </div>
+                </section>
+                {/* ----------------------------------------------------------------- */}
 
                 <section id="inflation" className="content-section">
-                        <div className="content-image"><img src={inflationImage} alt="Money losing value"/></div>
+                    <div className="content-image"><img src={inflationImage} alt="Money losing value"/></div>
                     <div className="content-text">
                         <h2>Don't Let Inflation Eat Your Savings</h2>
-                        <p>Every day, the money in your bank account is losing purchasing power. To truly grow your wealth and secure your future, your money needs to work for you and grow faster than inflation.</p>
+                        <p>Every day, the money in your bank account is losing purchasing power. To truly grow your wealth and secure your future, your money needs to work for you and grow faster than inflation. **Start earning passive income today.**</p>
                     </div>
                 </section>
                 
@@ -211,7 +235,6 @@ function LandingPage({ authView, setAuthView, loginFormData, registerFormData, h
                                 <form onSubmit={handleLogin} className="auth-form">
                                     <h2>Welcome Back!</h2>
                                     <div className="input-box"><input type="tel" name="mobile" value={loginFormData.mobile} onChange={handleLoginInputChange} required autoComplete="tel"/><label>Mobile Number</label></div>
-                                    {/* --- LOGIN PASSWORD INPUT (UPDATED) --- */}
                                     <div className="input-box">
                                         <input 
                                             type={showLoginPassword ? 'text' : 'password'} 
@@ -233,9 +256,11 @@ function LandingPage({ authView, setAuthView, loginFormData, registerFormData, h
                                 <form onSubmit={handleRegisterSubmit} className="auth-form">
                                     <h2>Join MoneyPlus</h2>
                                     <div className="input-box"><input type="text" name="username" value={registerFormData.username} onChange={handleRegisterInputChange} required autoComplete="username"/><label>Username</label></div>
-                                    <div className="input-box"><input type="tel" name="mobile" value={registerFormData.mobile} onChange={handleLoginInputChange} required autoComplete="tel"/><label>Mobile Number</label></div>
                                     
-                                    {/* ✅ NEW Pincode and City Inputs */}
+                                    {/* --- FIX: Changed type to "number" and fixed onChange handler --- */}
+                                    <div className="input-box"><input type="number" name="mobile" value={registerFormData.mobile} onChange={handleRegisterInputChange} required autoComplete="tel" pattern="\d*"/><label>Mobile Number</label></div>
+                                    
+                                    {/* --- Pincode Input (City Code/Name feature) --- */}
                                     <div className="input-box">
                                         <input 
                                             type="tel" 
@@ -251,7 +276,6 @@ function LandingPage({ authView, setAuthView, loginFormData, registerFormData, h
                                     {cityName && <p className="pincode-status success">City: <strong>{cityName}</strong></p>}
                                     {pinCodeError && <p className="pincode-status error">{pinCodeError}</p>}
                                     
-                                    {/* --- REGISTER PASSWORD INPUT (UPDATED) --- */}
                                     <div className="input-box">
                                         <input 
                                             type={showRegisterPassword ? 'text' : 'password'} 
@@ -266,7 +290,6 @@ function LandingPage({ authView, setAuthView, loginFormData, registerFormData, h
                                             {showRegisterPassword ? <EyeOffIcon /> : <EyeIcon />}
                                         </button>
                                     </div>
-                                    {/* --- CONFIRM PASSWORD INPUT (UPDATED) --- */}
                                     <div className="input-box">
                                         <input 
                                             type={showConfirmPassword ? 'text' : 'password'} 
@@ -306,9 +329,18 @@ function LandingPage({ authView, setAuthView, loginFormData, registerFormData, h
                     <div className="partner-section"><span>Backed By</span><FidelityLogoIcon /></div>
                 </section>
                 
+                {/* --- NEW FOOTER CONTENT: Risk Disclosure & SEO --- */}
                 <footer className="landing-footer">
                     <p><strong>MoneyPlus Solutions Pvt. Ltd.</strong></p>
                     <p>12th Floor, Tower C, Tech Boulevard, Texas, USA</p>
+                    
+                    <div className="licensing-info">
+                        <h3>Risk Disclosure & Key Information</h3>
+                        <p><strong>Investment Focus:</strong> Our core business provides access to private financial instruments like Solar Energy Bonds, structured to offer high daily returns. These are not publicly traded equity or mutual funds.</p>
+                        <p><strong>Skill-Based Gaming:</strong> We offer engaging, skill-based games to supplement earnings. Please remember, these games involve financial risk.</p>
+                        <p><strong>Keywords for SEO:</strong> Daily Income Investment, High Return Schemes, Top Casino Games India, Low-Risk Investment, Financial Freedom Platform.</p>
+                    </div>
+
                     <p className="disclaimer">*Disclaimer: Investments are subject to market risks. Please read all scheme-related documents carefully. Gaming involves an element of financial risk and may be addictive. Please play responsibly and at your own risk. MoneyPlus is a privately operated platform and is not directly affiliated with or regulated by SEBI or RBI.</p>
                 </footer>
             </main>
