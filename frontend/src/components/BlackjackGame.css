@@ -1,102 +1,159 @@
-/* BlackjackGame.css: Complete Stylesheet for Casino Aesthetic
-    This CSS overrides and enhances Tailwind classes to create a deep, professional casino felt look,
-    sharp card presentation, and highly visible action elements.
-*/
+/* BlackjackGame.css: Advanced Graphics for Casino Aesthetic */
 
 /* --- 1. General Theme & Typography --- */
-@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@700&family=Orbitron:wght@900&display=swap');
 
 .blackjack-game-container {
-    /* Ensures background texture/color covers the component area */
-    background-color: #1a202c; /* Deep dark blue/gray background */
+    background: #0d1117; /* Darkest background for premium feel */
     min-height: 100vh;
-    font-family: 'Roboto Mono', monospace; /* Casino/tech-appropriate font */
+    font-family: 'Roboto Mono', monospace;
 }
 
-/* --- 2. Game Table Styling (bg-green-800) --- */
-.bg-green-800 {
-    /* Deep Emerald Felt Look */
-    background-color: #044b36; 
+.text-shadow-lg {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8), 0 0 10px rgba(255, 255, 255, 0.1);
+}
+
+/* --- 2. Game Table Styling: The Felt (game-table-felt) --- */
+.game-table-felt {
+    /* Rich, Dark Emerald Felt Look */
+    background: radial-gradient(ellipse at 50% 100%, #157347 0%, #044b36 70%);
     position: relative;
     overflow: hidden;
-    padding: 2.5rem; /* Ensure generous padding on the table */
-    border-radius: 1.5rem;
+    border: 8px solid #3c2a0e; /* Wood/leather table edge */
     
-    /* Subtle felt texture pattern */
-    background-image: 
-        radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.04) 1px, transparent 15px),
-        radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0.1) 1px, transparent 10px);
-
-    /* Rich, layered shadow for 3D effect */
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.7), 
-                inset 0 0 15px rgba(0, 0, 0, 0.5), 
-                0 0 20px rgba(255, 255, 255, 0.05);
+    /* Strong 3D Felt Texture */
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), /* Outer Shadow */
+                inset 0 0 40px rgba(0, 0, 0, 0.7); /* Inner Shadow for depth */
 }
 
-/* --- 3. Card Styling --- */
+/* --- 3. Card Styling (3D Flip Animation) --- */
 
-/* Card container for spacing and hover effects */
-.card-hand-container {
-    padding-bottom: 12px; /* Allows for card lift effect without clipping */
-}
-
-/* Base style for individual cards */
+/* Base card setup for perspective */
 .card-face {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
-    transition: transform 0.2s ease, box-shadow 0.2s;
-    border: 1px solid #ccc;
+    transform-style: preserve-3d;
+    position: relative;
+    transition: transform 0.6s ease-out;
+    cursor: default;
+    border: 1px solid #1a202c;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.7);
 }
 
-.card-face:hover {
-    transform: translateY(-8px); /* Card lifts on hover */
-    box-shadow: 0 8px 16px rgba(255, 255, 0, 0.4); /* Subtle yellow glow on hover */
+.card-hand-container {
+     /* Slight downward projection for realism */
+    perspective: 1000px;
+    padding-bottom: 20px;
 }
 
-/* Dealer's hidden card (bg-yellow-900/90) */
-.bg-yellow-900\/90 {
-    background-color: #6d4e16 !important; /* Richer gold-brown color */
-    border-color: #ffeb3b !important;
+/* Card Front: visible */
+.card-front {
+    background-color: #fff;
+    backface-visibility: hidden;
+    transform: rotateY(0deg);
 }
 
-/* Ensures the rotated value is correct for the card corners */
-.rotate-180 {
-    writing-mode: horizontal-tb;
-    transform: rotate(180deg);
+/* Card Back: Hidden Dealer Card */
+.card-back {
+    /* Back side design: Rich gold/dark red pattern */
+    background: linear-gradient(135deg, #6d4e16 0%, #a06e1b 50%, #6d4e16 100%);
+    backface-visibility: hidden;
+    transform: rotateY(0deg); /* Start position */
+}
+
+/* Keyframe for "Card Deal" effect */
+@keyframes card-slide-in {
+    from {
+        opacity: 0;
+        transform: translateX(-50px) rotate(-10deg);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0) rotate(0deg);
+    }
+}
+.card-hand-container .card-face {
+    animation: card-slide-in 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 /* --- 4. Interactive Elements (Chips & Buttons) --- */
 
-/* Styles for the chip buttons in the betting area */
+/* Betting Chips: Strong 3D look */
 .betting-chip {
-    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Springy transition */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6), inset 0 2px 5px rgba(255, 255, 255, 0.3);
-    font-size: 1.25rem; /* Larger text inside chip */
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    font-family: 'Orbitron', sans-serif; /* Techy/bold font for chips */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.8), /* Shadow for lift */
+                inset 0 4px 8px rgba(255, 255, 255, 0.4); /* Highlight for gloss */
+    border: 2px solid rgba(255, 255, 255, 0.2);
 }
 
 .betting-chip:hover:not(:disabled) {
-    transform: scale(1.15); /* More pronounced lift */
-    box-shadow: 0 8px 20px rgba(255, 255, 0, 0.8), inset 0 2px 5px rgba(255, 255, 255, 0.6);
+    transform: scale(1.2) translateY(-5px); /* Stronger lift and scale */
+    box-shadow: 0 10px 30px rgba(255, 255, 0, 0.7), 
+                inset 0 4px 8px rgba(255, 255, 255, 0.6);
 }
 
-/* Styles for the main action buttons (DEAL, HIT, STAND, DOUBLE DOWN) */
-#actionControls button {
-    transition: background-color 0.2s, transform 0.1s;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6);
+/* Action Buttons: Polished look with glow */
+.action-button {
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 900;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
 }
-#actionControls button:hover:not(:disabled) {
-    transform: scale(1.03);
+
+.action-button:hover:not(:disabled) {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.4); /* White glow */
 }
+
+.deal-button {
+    /* Distinct red button for the primary action */
+    box-shadow: 0 0 25px rgba(255, 0, 0, 0.7);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); box-shadow: 0 0 15px rgba(255, 0, 0, 0.7); }
+    50% { transform: scale(1.03); box-shadow: 0 0 30px rgba(255, 0, 0, 0.9); }
+    100% { transform: scale(1); box-shadow: 0 0 15px rgba(255, 0, 0, 0.7); }
+}
+
+/* Bet Visualizer */
+.bet-visualizer {
+    opacity: 0;
+    animation: fade-in-bet 0.5s forwards;
+    transition: transform 0.5s ease;
+}
+.bet-visualizer.visible {
+    opacity: 1;
+}
+
+.chip-stack {
+    position: relative;
+    transform: translateY(-5px);
+}
+.chip-stack::before { /* Stacked chip illusion */
+    content: '';
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.1);
+    z-index: -1;
+}
+
 
 /* --- 5. Modal Dialog (Result Box) --- */
-
-#resultDialog > div {
-    /* The main dialog box */
-    border: 3px solid #ffc107; /* Gold border */
-    background-color: #2d3748; /* Dark dialog background */
-    box-shadow: 0 0 40px rgba(255, 215, 0, 0.8); /* Stronger gold glow */
-    animation: bounce-in 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+.result-dialog-style {
+    border: 3px solid #ffc107;
+    background-color: #1f2937; /* Darker, sophisticated dialog */
+    box-shadow: 0 0 50px rgba(255, 215, 0, 1); /* Intense gold glow */
+    animation: bounce-in 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
+/* Keyframe from your original code is kept: */
+/* @keyframes bounce-in { ... } */
 @keyframes bounce-in {
     0% {
         transform: scale(0.5) translateY(-50px);
