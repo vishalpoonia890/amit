@@ -52,11 +52,11 @@ const calculateHandValue = (hand) => {
 };
 
 
-// --- Card Component (Color Fix Confirmed) ---
+// --- Card Component (Color Fix Implemented via Inline Style) ---
 
 const Card = ({ card, isHidden = false }) => {
-    // Suit color applied here. It relies on the presence of Tailwind's utility classes.
-    const suitColor = card && (card.suit === '♥' || card.suit === '♦') ? 'text-red-700' : 'text-gray-900';
+    // FIX 1: Use direct hex codes for guaranteed color visibility
+    const hexColor = card && (card.suit === '♥' || card.suit === '♦') ? '#B91C1C' : '#1F2937'; // Red-700 / Gray-900
     
     const cardSizeClasses = "card-size-mobile sm:card-size-desktop flex-shrink-0"; 
 
@@ -69,18 +69,17 @@ const Card = ({ card, isHidden = false }) => {
     }
     
     return (
-        // The card itself is bg-white, ensuring the text is visible
         <div className={`card-face card-front card-front-3d bg-white border ${cardSizeClasses} rounded-lg shadow-md flex flex-col p-1 sm:p-2 text-xs sm:text-base font-bold select-none transition-all duration-300`}>
             
-            <div className={`text-left text-sm sm:text-xl ${suitColor}`}>
+            <div className={`text-left text-sm sm:text-xl`} style={{ color: hexColor }}>
                 {card.value}
             </div> 
             
-            <div className={`flex-grow flex items-center justify-center text-2xl sm:text-5xl ${suitColor}`}>
+            <div className={`flex-grow flex items-center justify-center text-2xl sm:text-5xl`} style={{ color: hexColor }}>
                 {card.suit}
             </div>
             
-            <div className={`text-right text-sm sm:text-xl ${suitColor} rotate-180`}>
+            <div className={`text-right text-sm sm:text-xl rotate-180`} style={{ color: hexColor }}>
                 {card.value}
             </div> 
         </div>
@@ -88,10 +87,10 @@ const Card = ({ card, isHidden = false }) => {
 };
 
 
-// --- Main Blackjack Component ---
+// --- Main Blackjack Component (Game Logic omitted for brevity, unchanged) ---
 
 const BlackjackGame = ({ onBack, userToken }) => {
-    // --- State Management ---
+    // ... (State Management) ...
     const [balance, setBalance] = useState(1000); 
     const [currentBet, setCurrentBet] = useState(0);
     const [deck, setDeck] = useState(shuffleDeck(createDeck()));
@@ -110,8 +109,8 @@ const BlackjackGame = ({ onBack, userToken }) => {
     const playerValue = calculateHandValue(playerHand);
     const dealerValue = calculateHandValue(dealerHand);
 
+    // ... (Game Logic Functions like fetchAdminSettings, drawCard, placeBet, deal, hit, stand, doubleDown, dealerPlay, finishGame, startNewRound, getDealerVisibleValue) ...
 
-    // --- Game Logic Functions (omitted for brevity, they are unchanged) ---
     const fetchAdminSettings = useCallback(async () => { 
         try {
             const response = await axios.get(`${API_BASE_URL}/api/admin/blackjack-settings`, {
@@ -358,24 +357,25 @@ const BlackjackGame = ({ onBack, userToken }) => {
     // --- UI Rendering ---
 
     const renderActionButtons = () => (
-        <div id="actionControls" className="flex flex-col sm:flex-row gap-4 justify-center p-2"> 
+        // FIX: Ensure buttons are side-by-side on all screens
+        <div id="actionControls" className="flex flex-row gap-2 sm:gap-4 justify-center p-2"> 
             <button 
                 onClick={hit} 
-                className="w-full sm:w-auto bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-3 px-6 rounded-full shadow-2xl disabled:opacity-50 transition-all action-button"
+                className="w-1/3 sm:w-auto bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-3 px-3 sm:px-6 rounded-full shadow-2xl disabled:opacity-50 transition-all action-button text-sm sm:text-base"
                 disabled={gameState !== 'playerTurn'}
             >
                 HIT
             </button>
             <button 
                 onClick={stand} 
-                className="w-full sm:w-auto bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-6 rounded-full shadow-2xl disabled:opacity-50 transition-all action-button"
+                className="w-1/3 sm:w-auto bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-3 sm:px-6 rounded-full shadow-2xl disabled:opacity-50 transition-all action-button text-sm sm:text-base"
                 disabled={gameState !== 'playerTurn'}
             >
                 STAND
             </button>
             <button 
                 onClick={doubleDown} 
-                className="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-full shadow-2xl disabled:opacity-50 transition-all action-button"
+                className="w-1/3 sm:w-auto bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-3 sm:px-6 rounded-full shadow-2xl disabled:opacity-50 transition-all action-button text-sm sm:text-base"
                 disabled={gameState !== 'playerTurn' || currentBet * 2 > balance || playerHand.length > 2}
             >
                 DOUBLE DOWN
@@ -384,10 +384,17 @@ const BlackjackGame = ({ onBack, userToken }) => {
     );
     
     const renderBettingArea = () => (
-        <div className="w-full p-4 sm:p-6 bg-gray-900/95 border-t border-yellow-500/30 rounded-t-xl shadow-2xl flex flex-col sm:flex-row items-center justify-center">
+        <div className="w-full p-4 sm:p-6 bg-gray-900/95 border-t border-yellow-500/30 rounded-t-xl shadow-2xl flex flex-col sm:flex-row items-center justify-between">
             
-            {/* 1. Chip Controls (takes up more space now) */}
-            <div className="flex flex-wrap gap-2 justify-center w-full sm:w-2/3 mb-4 sm:mb-0">
+            {/* FIX 2: Bet Amount Displayed near chips */}
+            <div className="flex justify-center items-center w-full sm:w-1/4 mb-4 sm:mb-0">
+                <p className={`font-semibold ${currentBet > 0 ? 'text-green-400' : 'text-gray-400'} transition-colors text-lg sm:text-xl`}>
+                    CURRENT BET: <span className="font-extrabold text-2xl sm:text-3xl">₹{currentBet.toLocaleString()}</span>
+                </p>
+            </div>
+            
+            {/* 2. Chip Controls */}
+            <div className="flex flex-wrap gap-2 justify-center w-full sm:w-1/2 mb-4 sm:mb-0">
                 {chips.map(value => (
                     <button
                         key={value}
@@ -408,11 +415,11 @@ const BlackjackGame = ({ onBack, userToken }) => {
                 </button>
             </div>
             
-            {/* 2. Deal Button (takes up remaining space) */}
-            <div className="w-full sm:w-1/3 flex justify-center sm:justify-end">
+            {/* 3. Deal Button */}
+            <div className="w-full sm:w-1/4 flex justify-center sm:justify-end">
                  <button 
                     onClick={deal} 
-                    className="bg-red-700 hover:bg-red-800 text-white font-black py-3 px-8 rounded-full shadow-2xl disabled:opacity-50 transition-all transform hover:scale-[1.05] text-lg tracking-widest deal-button w-full sm:w-auto"
+                    className="bg-red-700 hover:bg-red-800 text-white font-black py-3 px-8 rounded-full shadow-2xl disabled:opacity-50 transition-all transform hover:scale-[1.05] text-lg tracking-widest deal-button w-full sm:w-auto mt-4 sm:mt-0"
                     disabled={gameState !== 'betting' || currentBet < minBet}
                 >
                     DEAL
@@ -424,7 +431,7 @@ const BlackjackGame = ({ onBack, userToken }) => {
     return (
         <div className="blackjack-game-container p-2 sm:p-8 min-h-screen text-white flex flex-col">
             
-            {/* TOP HEADER - Balance and Bet displayed here (FIXED POSITION) */}
+            {/* TOP HEADER - Balance and Bet displayed here */}
             <div className="top-game-header flex justify-between items-center max-w-4xl mx-auto w-full mb-4 p-2 bg-gray-900 rounded-lg shadow-lg border-b border-yellow-500/30">
                  <button onClick={onBack} className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-1 px-3 rounded-lg shadow-md transition-colors flex items-center text-sm">
                     <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
@@ -434,8 +441,7 @@ const BlackjackGame = ({ onBack, userToken }) => {
                 <h1 className="text-xl sm:text-3xl font-extrabold text-yellow-500 tracking-widest text-shadow-lg hidden sm:block">Blackjack 21</h1>
 
                 <div className="flex items-center gap-4 text-sm sm:text-lg">
-                    <p className="font-bold text-white tracking-wider">BAL: <span className="text-yellow-400 font-extrabold">₹{balance.toLocaleString()}</span></p>
-                    <p className={`font-semibold ${currentBet > 0 ? 'text-green-400' : 'text-gray-400'} transition-colors`}>BET: <span className="font-extrabold">₹{currentBet.toLocaleString()}</span></p>
+                    <p className="font-bold text-white tracking-wider">BALANCE: <span className="text-yellow-400 font-extrabold">₹{balance.toLocaleString()}</span></p>
                 </div>
             </div>
             
@@ -450,7 +456,6 @@ const BlackjackGame = ({ onBack, userToken }) => {
                             Dealer ({dealerHand.length > 0 && !isDealerCardHidden ? dealerValue : getDealerVisibleValue()})
                         </p>
                         <div className="card-hand-container"> 
-                            {/* Card Stacking with Z-Index */}
                             {dealerHand.map((card, index) => (
                                 <div key={index} style={{zIndex: index + 1}}>
                                     <Card card={card} isHidden={isDealerCardHidden && index === 1} />
@@ -484,7 +489,6 @@ const BlackjackGame = ({ onBack, userToken }) => {
                             Your Hand ({playerHand.length > 0 ? playerValue : '0'})
                         </p>
                         <div className="card-hand-container"> 
-                            {/* Card Stacking with Z-Index */}
                             {playerHand.map((card, index) => (
                                 <div key={index} style={{zIndex: index + 1}}>
                                     <Card card={card} isHidden={false} />
