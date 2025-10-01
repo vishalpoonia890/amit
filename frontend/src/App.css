@@ -1,4 +1,12 @@
 /* --- Core App Layout & Theme Variables --- */
+/* globals.css or index.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Then import your custom styles */
+@import './BlackjackGame.css';
+
 :root {
     --primary-color: #4F46E5;
     --primary-hover-color: #6366F1;
