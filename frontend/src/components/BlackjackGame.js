@@ -1,4 +1,4 @@
-// blackjackgame.jsx (Final Version - Syntax Error Fixed)
+// blackjackgame.jsx (Final Version - Mobile-Friendly, Integrated Logic)
 
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
@@ -6,7 +6,7 @@ import './BlackjackGame.css';
 
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
 
-// --- Utility Functions (Deck/Hand Logic) ---
+// --- Utility Functions (Deck/Hand Logic - Unchanged) ---
 
 const createDeck = () => {
     const suits = ['♥', '♦', '♣', '♠'];
@@ -52,10 +52,10 @@ const calculateHandValue = (hand) => {
 };
 
 
-// --- Card Component (Guaranteed Color Fix) ---
+// --- Card Component (Color Fix Implemented via Guaranteed Inline Style) ---
 
 const Card = ({ card, isHidden = false }) => {
-    // Guaranteed color visibility via inline style
+    // FIX 1: Use direct hex codes for guaranteed color visibility
     const hexColor = card && (card.suit === '♥' || card.suit === '♦') ? '#B91C1C' : '#1F2937'; 
     
     const cardSizeClasses = "card-size-mobile sm:card-size-desktop flex-shrink-0"; 
@@ -71,17 +71,14 @@ const Card = ({ card, isHidden = false }) => {
     return (
         <div className={`card-face card-front card-front-3d bg-white border ${cardSizeClasses} rounded-lg shadow-md flex flex-col p-1 sm:p-2 text-xs sm:text-base font-bold select-none transition-all duration-300`}>
             
-            {/* Explicit inline style for rank */}
             <div className={`text-left text-sm sm:text-xl`} style={{ color: hexColor }}>
                 {card.value}
             </div> 
             
-            {/* Explicit inline style for suit symbol */}
             <div className={`flex-grow flex items-center justify-center text-2xl sm:text-5xl`} style={{ color: hexColor }}>
                 {card.suit}
             </div>
             
-            {/* Explicit inline style for mirrored rank */}
             <div className={`text-right text-sm sm:text-xl rotate-180`} style={{ color: hexColor }}>
                 {card.value}
             </div> 
@@ -105,6 +102,8 @@ const BlackjackGame = ({ onBack, userToken }) => {
     const [isResultVisible, setIsResultVisible] = useState(false); 
     const [dialogTitle, setDialogTitle] = useState('');
     const [dialogMessage, setDialogMessage] = useState('');
+    const [isOutOfCashModalVisible, setIsOutOfCashModalVisible] = useState(false); // NEW STATE
+    const [manualWager, setManualWager] = useState(10); // NEW STATE for manual input
     const [blackjackSettings, setBlackjackSettings] = useState({ luckFactor: 0, isManualShuffle: false });
 
     const chips = [10, 50, 100, 500];
@@ -113,7 +112,7 @@ const BlackjackGame = ({ onBack, userToken }) => {
     const dealerValue = calculateHandValue(dealerHand);
 
 
-    // --- Game Logic Functions (omitted for brevity, unchanged sections) ---
+    // --- Admin Settings Fetch ---
     const fetchAdminSettings = useCallback(async () => { 
         try {
             const response = await axios.get(`${API_BASE_URL}/api/admin/blackjack-settings`, {
@@ -129,6 +128,7 @@ const BlackjackGame = ({ onBack, userToken }) => {
         fetchAdminSettings();
     }, [fetchAdminSettings]);
     
+    // --- Game Logic Functions ---
     const drawCard = () => {
         let currentDeck = Array.isArray(deck) && deck.length >= 1 
                               ? [...deck] 
@@ -152,22 +152,60 @@ const BlackjackGame = ({ onBack, userToken }) => {
         }
         setBalance(b => b - amount);
         setCurrentBet(b => b + amount);
+        setManualWager(currentBet + amount); // Sync manual wager
         setMessage(`Bet increased to ₹${currentBet + amount}.`);
     };
+
+    const placeManualBet = (event) => {
+        const value = parseInt(event.target.value, 10);
+        setManualWager(value > 0 ? value : 0);
+    };
+
+    const confirmManualBet = () => {
+        if (gameState !== 'betting') return;
+        if (currentBet > 0) {
+            setMessage('Clear your current chip bet first, or hit DEAL.');
+            return;
+        }
+        if (manualWager > balance) {
+            setMessage('Insufficient balance for this wager.');
+            return;
+        }
+        if (manualWager < minBet) {
+            setMessage(`Minimum bet is ₹${minBet}.`);
+            return;
+        }
+        
+        setBalance(b => b - manualWager);
+        setCurrentBet(manualWager);
+        setMessage(`Wager of ₹${manualWager} placed. Hit DEAL.`);
+    };
+
 
     const clearBet = () => {
         if (gameState !== 'betting' || currentBet === 0) return;
         setBalance(b => b + currentBet);
         setCurrentBet(0);
+        setManualWager(minBet); // Reset manual wager
         setMessage('Bet cleared. Place a new bet.');
     };
 
     const deal = () => {
-        if (gameState !== 'betting' || currentBet < minBet) {
-            setMessage(`Minimum bet is ₹${minBet}.`);
+        const betToUse = currentBet > 0 ? currentBet : manualWager;
+
+        if (gameState !== 'betting') return;
+        
+        if (betToUse < minBet || betToUse > balance) {
+            setMessage(`Minimum bet is ₹${minBet}. Ensure bet is placed and within balance.`);
             return;
         }
         
+        // If currentBet is 0 but manualWager is valid, confirm it first
+        if (currentBet === 0 && betToUse > 0) {
+             setBalance(b => b - betToUse);
+             setCurrentBet(betToUse);
+        }
+
         setGameState('playerTurn');
         setMessage('Dealing cards...');
         setIsDealerCardHidden(true); 
@@ -244,7 +282,7 @@ const BlackjackGame = ({ onBack, userToken }) => {
 
         const newValue = calculateHandValue(newHand);
 
-        if (newValue > 21) { // 🛑 SYNTAX FIX APPLIED HERE: Changed from > 247 to > 21
+        if (newValue > 21) {
             setTimeout(() => finishGame('dealerWin'), 1500);
         } else {
             setGameState('dealerTurn');
@@ -295,32 +333,33 @@ const BlackjackGame = ({ onBack, userToken }) => {
 
         const finalPValue = calculateHandValue(playerHand);
         const finalDValue = calculateHandValue(dealerHand);
+        const finalBet = currentBet; // Capture current bet before reset
 
         switch (result) {
             case 'playerWin':
                 title = 'PLAYER WINS! 🎉'; 
-                finalMessage = `You won ₹${currentBet}! Your ${finalPValue} beat the dealer's ${finalDValue}.`;
-                payout = currentBet * 2;
+                finalMessage = `You won ₹${finalBet}! Your ${finalPValue} beat the dealer's ${finalDValue}.`;
+                payout = finalBet * 2;
                 break;
             case 'playerBlackjack':
                 title = 'BLACKJACK! ♠️'; 
-                finalMessage = `You got a Blackjack! Payout is 1.5x. You win ₹${(currentBet * 1.5).toFixed(0)}.`;
-                payout = currentBet * 2.5;
+                finalMessage = `You got a Blackjack! Payout is 1.5x. You win ₹${(finalBet * 1.5).toFixed(0)}.`;
+                payout = finalBet * 2.5;
                 break;
             case 'dealerWin':
                 title = 'DEALER WINS! 💔'; 
-                finalMessage = `The dealer won with ${finalDValue}. You lost ₹${currentBet}.`;
+                finalMessage = `The dealer won with ${finalDValue}. You lost ₹${finalBet}.`;
                 payout = 0;
                 break;
             case 'push':
                 title = 'PUSH (TIE) 🤝'; 
-                finalMessage = `It's a tie at ${finalPValue}. Your bet of ₹${currentBet} is returned.`;
-                payout = currentBet;
+                finalMessage = `It's a tie at ${finalPValue}. Your bet of ₹${finalBet} is returned.`;
+                payout = finalBet;
                 break;
             default:
                 title = 'ERROR';
                 finalMessage = 'An unexpected result occurred. Bet returned.';
-                payout = currentBet;
+                payout = finalBet;
         }
 
         setBalance(b => b + payout);
@@ -329,12 +368,19 @@ const BlackjackGame = ({ onBack, userToken }) => {
         setDialogMessage(finalMessage);
         
         setTimeout(() => {
-              setIsResultVisible(true);
+             setIsResultVisible(true);
         }, 500);
         
         setTimeout(() => {
-              setCurrentBet(0);
+             setCurrentBet(0);
         }, 100);
+        
+        // CHECK FOR OUT OF CASH (mimics classic game logic)
+        setTimeout(() => {
+            if (balance + payout < minBet) {
+                setIsOutOfCashModalVisible(true);
+            }
+        }, 600);
     };
 
     const startNewRound = () => {
@@ -346,7 +392,17 @@ const BlackjackGame = ({ onBack, userToken }) => {
         setMessage('Place your bet and hit DEAL.');
         setDialogTitle('');
         setDialogMessage('');
+        setCurrentBet(0);
+        setManualWager(minBet);
     };
+    
+    // NEW: Handle out-of-cash scenario
+    const handleNewGameFromModal = () => {
+        setBalance(1000);
+        setIsOutOfCashModalVisible(false);
+        startNewRound();
+    };
+
 
     const getDealerVisibleValue = () => {
         if (dealerHand.length === 0) return 0;
@@ -380,27 +436,29 @@ const BlackjackGame = ({ onBack, userToken }) => {
                 className="w-1/3 sm:w-auto bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-3 sm:px-6 rounded-full shadow-2xl disabled:opacity-50 transition-all action-button text-sm sm:text-base"
                 disabled={gameState !== 'playerTurn' || currentBet * 2 > balance || playerHand.length > 2}
             >
-                DOUBLE DOWN
+                DOUBLE
+            </button>
+            {/* Added for visual parity with classic game, disabled for now */}
+             <button 
+                className="hidden sm:block w-auto bg-blue-600/50 text-white font-bold py-3 px-3 sm:px-6 rounded-full shadow-2xl disabled:opacity-50 transition-all action-button text-sm sm:text-base"
+                disabled
+            >
+                SPLIT
             </button>
         </div>
     );
     
+    // NEW/UPDATED: Betting area combining chips and manual wager
     const renderBettingArea = () => (
-        <div className="w-full p-4 sm:p-6 bg-gray-900/95 border-t border-yellow-500/30 rounded-t-xl shadow-2xl flex flex-col sm:flex-row items-center justify-between">
+        <div className="w-full p-4 sm:p-6 bg-gray-900/95 border-t border-yellow-500/30 rounded-t-xl shadow-2xl flex flex-col items-center">
             
-            {/* CURRENT BET DISPLAY */}
-            <div className="flex justify-center items-center w-full sm:w-1/4 mb-4 sm:mb-0 order-1 sm:order-1">
-                <p className={`font-semibold ${currentBet > 0 ? 'text-green-400' : 'text-gray-400'} transition-colors text-lg sm:text-xl text-center`}>
-                    CURRENT BET: <span className="font-extrabold text-2xl sm:text-3xl">₹{currentBet.toLocaleString()}</span>
-                </p>
-            </div>
-            
-            {/* CHIP CONTROLS */}
-            <div className="flex flex-wrap gap-2 justify-center w-full sm:w-1/2 mb-4 sm:mb-0 order-2 sm:order-2">
+            {/* Chips Area for quick betting */}
+            <div className="flex flex-wrap gap-2 justify-center w-full mb-6">
+                <p className="w-full text-center text-sm font-semibold text-gray-400 mb-2">Place chips or enter wager:</p>
                 {chips.map(value => (
                     <button
                         key={value}
-                        className="betting-chip w-12 h-12 text-sm font-extrabold rounded-full transition-transform sm:w-16 sm:h-16 sm:text-base"
+                        className="betting-chip w-12 h-12 text-sm font-extrabold rounded-full transition-transform sm:w-14 sm:h-14 sm:text-base"
                         style={{ backgroundColor: value === 500 ? '#ffb700' : value === 100 ? '#4caf50' : value === 50 ? '#2196f3' : '#e91e63' }}
                         onClick={() => placeBet(value)}
                         disabled={gameState !== 'betting' || value > balance}
@@ -409,20 +467,36 @@ const BlackjackGame = ({ onBack, userToken }) => {
                     </button>
                 ))}
                 <button
-                    className="clear-bet-button bg-red-600 hover:bg-red-700 text-white font-bold py-1 px-2 rounded-full shadow-md disabled:opacity-50 transition-colors text-xs self-center"
+                    className="clear-bet-button bg-red-600 hover:bg-red-700 text-white font-bold py-1 px-3 rounded-full shadow-md disabled:opacity-50 transition-colors text-xs self-center h-8"
                     onClick={clearBet}
                     disabled={gameState !== 'betting' || currentBet === 0}
                 >
-                    Clear
+                    Clear Chips
                 </button>
             </div>
             
-            {/* DEAL BUTTON */}
-            <div className="w-full sm:w-1/4 flex justify-center sm:justify-end order-3 sm:order-3">
-                 <button 
+            {/* Manual Wager/Deal Button Area */}
+            <div className="flex flex-col sm:flex-row items-center justify-center w-full max-w-lg gap-4">
+                 <p className={`font-semibold text-lg sm:text-xl transition-colors text-center text-white`}>
+                    Wager: 
+                </p>
+                <input
+                    id="wager"
+                    type="number"
+                    className="input-small bg-gray-700 text-white p-2 rounded-lg text-center w-24 border border-yellow-500"
+                    value={currentBet > 0 ? currentBet : manualWager}
+                    onChange={placeManualBet}
+                    onBlur={confirmManualBet}
+                    disabled={gameState !== 'betting' || currentBet > 0}
+                />
+                <p className={`font-semibold ${currentBet > 0 ? 'text-green-400' : 'text-gray-400'} transition-colors text-lg sm:text-xl text-center`}>
+                    CURRENT BET: <span className="font-extrabold text-2xl sm:text-3xl">₹{currentBet.toLocaleString()}</span>
+                </p>
+                
+                <button 
                     onClick={deal} 
                     className="bg-red-700 hover:bg-red-800 text-white font-black py-3 px-8 rounded-full shadow-2xl disabled:opacity-50 transition-all transform hover:scale-[1.05] text-lg tracking-widest deal-button w-full sm:w-auto mt-4 sm:mt-0"
-                    disabled={gameState !== 'betting' || currentBet < minBet}
+                    disabled={gameState !== 'betting' || (currentBet === 0 && manualWager < minBet) || (currentBet === 0 && manualWager > balance)}
                 >
                     DEAL
                 </button>
@@ -436,15 +510,15 @@ const BlackjackGame = ({ onBack, userToken }) => {
             {/* TOP HEADER - BALANCE ONLY displayed here */}
             <div className="top-game-header flex justify-between items-center max-w-4xl mx-auto w-full mb-4 p-2 bg-gray-900 rounded-lg shadow-lg border-b border-yellow-500/30">
                  <button onClick={onBack} className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-1 px-3 rounded-lg shadow-md transition-colors flex items-center text-sm">
-                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-                    Lobby
-                </button>
+                     <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+                     Lobby
+                 </button>
                 
-                <h1 className="text-xl sm:text-3xl font-extrabold text-yellow-500 tracking-widest text-shadow-lg hidden sm:block">Blackjack 21</h1>
+                 <h1 className="text-xl sm:text-3xl font-extrabold text-yellow-500 tracking-widest text-shadow-lg hidden sm:block">Blackjack 21</h1>
 
-                <div className="flex items-center gap-4 text-sm sm:text-lg">
-                    <p className="font-bold text-white tracking-wider">BALANCE: <span className="text-yellow-400 font-extrabold">₹{balance.toLocaleString()}</span></p>
-                </div>
+                 <div className="flex items-center gap-4 text-sm sm:text-lg">
+                     <p className="font-bold text-white tracking-wider">BALANCE: <span className="text-yellow-400 font-extrabold">₹{balance.toLocaleString()}</span></p>
+                 </div>
             </div>
             
             <div className="max-w-4xl mx-auto w-full flex-grow flex flex-col">
@@ -480,8 +554,8 @@ const BlackjackGame = ({ onBack, userToken }) => {
 
                         <div className="absolute inset-0 flex items-center justify-center">
                              <p className={`text-lg sm:text-2xl font-black text-yellow-100 p-2 rounded-lg bg-black/50 backdrop-blur-sm transition-opacity duration-500 message-bar message-bar-animate ${gameState !== 'betting' ? 'opacity-100' : 'opacity-80'}`}>
-                                {message}
-                            </p>
+                                 {message}
+                             </p>
                         </div>
                     </div>
 
@@ -499,7 +573,7 @@ const BlackjackGame = ({ onBack, userToken }) => {
                         </div>
                     </div>
                     
-                    {/* MODAL DIALOG (unchanged) */}
+                    {/* MODAL DIALOG (Game Result) */}
                     {isResultVisible && (
                         <div id="resultDialog" className={`dialog-overlay absolute inset-0 bg-black bg-opacity-80 flex items-center justify-center z-40`}>
                             <div className="bg-gray-900 p-6 rounded-xl shadow-2xl text-center max-w-xs w-11/12 transform transition-all result-dialog-style">
@@ -515,6 +589,32 @@ const BlackjackGame = ({ onBack, userToken }) => {
                             </div>
                         </div>
                     )}
+                    
+                    {/* NEW: OUT OF CASH MODAL (myModal from classic game) */}
+                    {isOutOfCashModalVisible && (
+                        <div id="myModal" className={`dialog-overlay absolute inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50`}>
+                            <div className="bg-gray-800 p-6 rounded-xl shadow-2xl text-center max-w-xs w-11/12 transform transition-all result-dialog-style border-red-500">
+                                <h3 className="text-2xl sm:text-3xl font-extrabold mb-4 text-red-400">Out of cash!</h3>
+                                <p className="text-sm sm:text-lg mb-6 text-gray-300">You ran out of cash. Would you like to withdraw another ₹1,000 and try your luck again?</p>
+                                <div className="flex justify-around gap-4">
+                                    <button 
+                                        id="cancel" 
+                                        className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-full shadow-lg transition-colors w-1/2" 
+                                        onClick={() => setIsOutOfCashModalVisible(false)}
+                                    >
+                                        Nah
+                                    </button>
+                                    <button 
+                                        id="newGame" 
+                                        className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-full shadow-lg transition-colors w-1/2" 
+                                        onClick={handleNewGameFromModal}
+                                    >
+                                        Yes!
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* --- Action/Betting Control Panel --- */}
@@ -522,17 +622,17 @@ const BlackjackGame = ({ onBack, userToken }) => {
                     {gameState === 'betting' ? renderBettingArea() : renderActionButtons()}
                 </div>
 
-                 {/* --- How to Play Section (unchanged) --- */}
-                <div className="mt-6 p-4 sm:p-6 bg-gray-700 rounded-xl shadow-xl">
-                    <h2 className="text-2xl font-extrabold text-yellow-300 mb-4">How to Play Blackjack</h2>
-                    <ol className="list-decimal list-inside space-y-3 text-lg text-gray-200 text-left">
-                        <li>**Place a Bet:** Use the chips to place your bet (min **₹{minBet}**) and hit "DEAL".</li>
-                        <li>**Scoring:** Aim for a hand total closer to **21** than the Dealer, without exceeding 21. Aces are 1 or 11; Face cards are 10.</li>
-                        <li>**Actions:** Use **HIT** (take a card), **STAND** (keep hand), or **DOUBLE DOWN** (double bet, take one card, then stand).</li>
-                        <li>**Dealer's Rules:** The Dealer must **hit on 16 or less** and must **stand on 17 or more**.</li>
-                        <li>**Payouts:** Win (**1:1**), Blackjack (**3:2**), Push (bet returned), Lose (bet lost).</li>
-                    </ol>
-                </div>
+                {/* --- How to Play Section (unchanged) --- */}
+                 <div className="mt-6 p-4 sm:p-6 bg-gray-700 rounded-xl shadow-xl">
+                     <h2 className="text-2xl font-extrabold text-yellow-300 mb-4">How to Play Blackjack</h2>
+                     <ol className="list-decimal list-inside space-y-3 text-lg text-gray-200 text-left">
+                         <li>**Place a Bet:** Use the chips or enter a wager (min **₹{minBet}**) and hit "DEAL".</li>
+                         <li>**Scoring:** Aim for a hand total closer to **21** than the Dealer, without exceeding 21. Aces are 1 or 11; Face cards are 10.</li>
+                         <li>**Actions:** Use **HIT** (take a card), **STAND** (keep hand), or **DOUBLE DOWN** (double bet, take one card, then stand).</li>
+                         <li>**Dealer's Rules:** The Dealer must **hit on 16 or less** and must **stand on 17 or more**.</li>
+                         <li>**Payouts:** Win (**1:1**), Blackjack (**3:2**), Push (bet returned), Lose (bet lost).</li>
+                     </ol>
+                 </div>
             </div>
         </div>
     );
