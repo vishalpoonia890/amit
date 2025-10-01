@@ -24,7 +24,7 @@
                 inset 0 0 40px rgba(0, 0, 0, 0.7); 
 }
 
-/* --- 3. Card Styling (REALISM ENHANCED) --- */
+/* --- 3. Card Styling (REALISM ENHANCED: 3D Thickness) --- */
 
 .card-face {
     transform-style: preserve-3d;
@@ -37,7 +37,7 @@
 
 .card-hand-container {
     overflow-x: auto; 
-    perspective: 1000px;
+    perspective: 1000px; /* Essential for 3D transforms */
     padding-bottom: 20px;
     
     -webkit-overflow-scrolling: touch; 
@@ -48,37 +48,25 @@
     scroll-snap-align: center;
 }
 
-/* 3D THICKNESS EFFECT FOR REALISM */
+/* 3D THICKNESS EFFECT: Pushes the card visually forward */
 .card-front-3d {
-    /* Push the front face slightly forward for thickness illusion */
-    transform: translateZ(2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4), 0 0 0 3px rgba(255, 255, 255, 0.8);
+    /* TranslateZ makes the card look like it has depth/thickness */
+    transform: translateZ(3px); 
+    /* Subtle white edge glow for realism */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5), 0 0 0 2px rgba(255, 255, 255, 0.8);
 }
 .card-back-3d {
-    /* Push the back face slightly forward */
-    transform: translateZ(2px); 
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
+    transform: translateZ(3px); 
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
 }
+/* End of 3D Fix */
 
-/* Card Front: visible */
-.card-front {
-    background-color: #fff;
-    backface-visibility: hidden;
-    transform: rotateY(0deg);
-}
-
-/* Card Back: Hidden Dealer Card */
-.card-back {
-    background: linear-gradient(135deg, #6d4e16 0%, #a06e1b 50%, #6d4e16 100%);
-    backface-visibility: hidden;
-    transform: rotateY(0deg); 
-}
 
 /* Keyframe for "Card Deal" effect */
 @keyframes card-slide-in {
     0% {
         opacity: 0;
-        transform: translateY(-20px) scale(0.8) rotateZ(-5deg); /* Added slight rotation */
+        transform: translateY(-20px) scale(0.8) rotateZ(-5deg); 
     }
     100% {
         opacity: 1;
@@ -173,7 +161,7 @@
     border: 3px solid #ffc107;
     background-color: #1f2937;
     box-shadow: 0 0 50px rgba(255, 215, 0, 1);
-    animation: bounce-in 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    /* No animation definition here; animation is handled by bounce-in keyframe */
 }
 
 @keyframes bounce-in {
