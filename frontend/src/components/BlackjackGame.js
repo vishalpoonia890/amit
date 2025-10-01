@@ -1,42 +1,82 @@
-// blackjackgame.js (Fixes Applied)
-
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import './BlackjackGame.css'; 
+import './BlackjackGame.css'; // Ensure this path is correct
 
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
 
-// --- Utility Functions (Deck/Hand Logic - kept same) ---
-const createDeck = () => { /* ... */ };
-const shuffleDeck = (deck) => { /* ... */ };
-const calculateHandValue = (hand) => { /* ... */ };
+// --- Utility Functions (Deck/Hand Logic) ---
+
+const createDeck = () => {
+    const suits = ['♥', '♦', '♣', '♠'];
+    const values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+    const newDeck = [];
+    for (const suit of suits) {
+        for (const value of values) {
+            newDeck.push({ value, suit });
+        }
+    }
+    return newDeck;
+};
+
+const shuffleDeck = (deck) => {
+    let newDeck = [...deck];
+    for (let i = newDeck.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [newDeck[i], newDeck[j]] = [newDeck[j], newDeck[i]];
+    }
+    return newDeck;
+};
+
+const calculateHandValue = (hand) => {
+    let value = 0;
+    let aceCount = 0;
+
+    for (const card of hand) {
+        if (card.value === 'A') {
+            aceCount++;
+            value += 11;
+        } else if (['K', 'Q', 'J'].includes(card.value)) {
+            value += 10;
+        } else {
+            value += parseInt(card.value);
+        }
+    }
+
+    while (value > 21 && aceCount > 0) {
+        value -= 10;
+        aceCount--;
+    }
+    return value;
+};
 
 
-// --- Card Component (CRITICAL FIX: Card Size) ---
-// Changed fixed w-[70px] h-[100px] to responsive classes
+// --- Card Component (Styled & Responsive) ---
+
 const Card = ({ card, isHidden = false }) => {
-    // Suits color refinement
+    // Suit color refinement for better contrast on a white card face
     const suitColor = card && (card.suit === '♥' || card.suit === '♦') ? 'text-red-700' : 'text-gray-900';
     
-    // Classes for card sizing: w-[50px] on mobile, growing to sm:w-24 on larger screens
-    const cardSizeClasses = "w-[50px] h-[80px] sm:w-24 sm:h-32"; 
+    // Responsive sizing: w-[50px] on mobile, growing to sm:w-24
+    // flex-shrink-0 is CRITICAL for preventing cards from collapsing in the flex container
+    const cardSizeClasses = "w-[50px] h-[80px] sm:w-24 sm:h-32 flex-shrink-0"; 
 
     if (isHidden) {
         return (
-            <div className={`card-face card-back ${cardSizeClasses} bg-yellow-900/90 border-2 border-yellow-300 rounded-lg shadow-xl flex items-center justify-center transform rotate-3 flex-shrink-0`}>
+            <div className={`card-face card-back ${cardSizeClasses} bg-yellow-900/90 border-2 border-yellow-300 rounded-lg shadow-xl flex items-center justify-center transform rotate-3`}>
                 <span className="text-xl font-extrabold text-gray-800 tracking-widest text-shadow-md">MP</span>
             </div>
         );
     }
     
     return (
-        // Added flex-shrink-0 to prevent card from being squeezed by the flex container
-        <div className={`card-face card-front bg-white border ${cardSizeClasses} rounded-lg shadow-md flex flex-col p-1 sm:p-2 text-xs sm:text-base font-bold select-none transition-all duration-300 flex-shrink-0`}>
-            <div className={`text-left text-sm sm:text-lg ${suitColor}`}>{card.value}</div>
+        <div className={`card-face card-front bg-white border ${cardSizeClasses} rounded-lg shadow-md flex flex-col p-1 sm:p-2 text-xs sm:text-base font-bold select-none transition-all duration-300`}>
+            {/* Reduced font size for mobile compatibility */}
+            <div className={`text-left text-xs sm:text-lg ${suitColor}`}>{card.value}</div> 
             <div className={`flex-grow flex items-center justify-center text-xl sm:text-4xl ${suitColor}`}>
                 {card.suit}
             </div>
-            <div className={`text-right text-sm sm:text-lg ${suitColor} rotate-180`}>{card.value}</div>
+            {/* Reduced font size for mobile compatibility */}
+            <div className={`text-right text-xs sm:text-lg ${suitColor} rotate-180`}>{card.value}</div> 
         </div>
     );
 };
@@ -45,7 +85,7 @@ const Card = ({ card, isHidden = false }) => {
 // --- Main Blackjack Component ---
 
 const BlackjackGame = ({ onBack, userToken }) => {
-    // --- State Management (kept same) ---
+    // --- State Management ---
     const [balance, setBalance] = useState(1000); 
     const [currentBet, setCurrentBet] = useState(0);
     const [deck, setDeck] = useState(shuffleDeck(createDeck()));
@@ -61,20 +101,41 @@ const BlackjackGame = ({ onBack, userToken }) => {
     const playerValue = calculateHandValue(playerHand);
     const dealerValue = calculateHandValue(dealerHand);
 
-    // ... (Game Logic Functions - kept same for brevity) ...
-    const fetchAdminSettings = useCallback(async () => { /* ... */ }, [userToken]);
-    useEffect(() => { fetchAdminSettings(); }, [fetchAdminSettings]);
-    // NOTE: Game logic functions (drawCard, placeBet, clearBet, deal, hit, stand, doubleDown, dealerPlay, finishGame, startNewRound, getDealerVisibleValue) go here.
 
-    // --- Game Logic Functions (Re-included for completeness) ---
+    // --- Server Settings Fetch ---
+    const fetchAdminSettings = useCallback(async () => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/api/admin/blackjack-settings`, {
+                headers: { Authorization: `Bearer ${userToken || 'MOCK_TOKEN'}` }
+            });
+            setBlackjackSettings(response.data.settings);
+        } catch (error) {
+            setBlackjackSettings({ luckFactor: 0, isManualShuffle: false });
+        }
+    }, [userToken]);
 
-    const drawCard = (currentDeck) => {
-        if (currentDeck.length < 5) { 
+    useEffect(() => {
+        fetchAdminSettings();
+    }, [fetchAdminSettings]);
+
+
+    // --- Game Logic Functions ---
+
+    // CRITICAL FIX: drawCard now handles deck retrieval and shuffling internally with safety checks.
+    const drawCard = () => {
+        // Use the current deck state, falling back to a new deck if state is null/undefined (the cause of the error)
+        let currentDeck = Array.isArray(deck) && deck.length >= 1 
+                          ? [...deck] 
+                          : shuffleDeck(createDeck()); 
+
+        // Reshuffle check
+        if (currentDeck.length < 5) {
             setMessage("Shuffling a new deck...");
             currentDeck = shuffleDeck(createDeck());
         }
+
         const card = currentDeck.pop();
-        setDeck(currentDeck);
+        setDeck(currentDeck); // Update the state with the modified deck
         return card;
     };
 
@@ -106,14 +167,14 @@ const BlackjackGame = ({ onBack, userToken }) => {
         setMessage('Player turn! Hit, Stand, or Double.');
         setIsDealerCardHidden(true);
 
-        let currentDeck = [...deck];
+        // Call drawCard without passing the deck, as it manages state internally now.
         let pHand = [];
         let dHand = [];
 
-        pHand.push(drawCard(currentDeck));
-        dHand.push(drawCard(currentDeck));
-        pHand.push(drawCard(currentDeck));
-        dHand.push(drawCard(currentDeck));
+        pHand.push(drawCard());
+        dHand.push(drawCard());
+        pHand.push(drawCard());
+        dHand.push(drawCard());
 
         setPlayerHand(pHand);
         setDealerHand(dHand);
@@ -126,8 +187,9 @@ const BlackjackGame = ({ onBack, userToken }) => {
 
     const hit = () => {
         if (gameState !== 'playerTurn') return;
-        let currentDeck = [...deck];
-        const newCard = drawCard(currentDeck);
+        
+        // Call drawCard without passing the deck
+        const newCard = drawCard();
         const newHand = [...playerHand, newCard];
         setPlayerHand(newHand);
         
@@ -161,8 +223,7 @@ const BlackjackGame = ({ onBack, userToken }) => {
         setBalance(b => b - currentBet);
         setCurrentBet(b => b * 2);
 
-        let currentDeck = [...deck];
-        const newCard = drawCard(currentDeck);
+        const newCard = drawCard();
         const newHand = [...playerHand, newCard];
         setPlayerHand(newHand);
         setMessage('Double Down! One card taken. Standing.');
@@ -185,8 +246,7 @@ const BlackjackGame = ({ onBack, userToken }) => {
             const pValue = calculateHandValue(playerHand);
 
             if (dValue < 17) {
-                let currentDeck = [...deck];
-                const newCard = drawCard(currentDeck);
+                const newCard = drawCard();
                 dHand.push(newCard);
                 setDealerHand(dHand);
                 setMessage('Dealer hits...');
@@ -283,7 +343,7 @@ const BlackjackGame = ({ onBack, userToken }) => {
     // --- UI Rendering ---
 
     const renderActionButtons = () => (
-        // Mobile Fix: Used flex-col (full-width buttons) on mobile, sm:flex-row on larger screens
+        // Mobile: full-width buttons, sm: side-by-side
         <div id="actionControls" className="flex flex-col sm:flex-row gap-4 justify-center p-2"> 
             <button 
                 onClick={hit} 
@@ -310,21 +370,21 @@ const BlackjackGame = ({ onBack, userToken }) => {
     );
     
     const renderBettingArea = () => (
-        // Mobile Fix: Changed layout to flex-col on mobile, using sm:flex-row for large devices
+        // Mobile: stacking info, chips, deal button vertically
         <div className="w-full p-4 sm:p-6 bg-gray-900/95 border-t border-yellow-500/30 rounded-t-xl shadow-2xl flex flex-col sm:flex-row items-center justify-between">
             
-            {/* 1. Player Info & Current Bet */}
+            {/* 1. Player Info & Current Bet (Flex for horizontal display on mobile) */}
             <div className="flex justify-between items-center w-full sm:w-1/3 mb-4 sm:mb-0">
                 <p className="text-sm font-bold text-white tracking-wider sm:text-lg">BALANCE: <span className="text-yellow-400 text-lg sm:text-2xl">₹{balance.toLocaleString()}</span></p>
                 <p className={`text-sm font-semibold ${currentBet > 0 ? 'text-green-400' : 'text-gray-400'} transition-colors sm:text-lg`}>BET: <span className="text-lg sm:text-2xl font-extrabold">₹{currentBet.toLocaleString()}</span></p>
             </div>
             
-            {/* 2. Chip Controls (Center on mobile, wraps) */}
+            {/* 2. Chip Controls */}
             <div className="flex flex-wrap gap-2 justify-center w-full sm:w-1/3 mb-4 sm:mb-0">
                 {chips.map(value => (
                     <button
                         key={value}
-                        className="betting-chip w-12 h-12 text-sm font-extrabold rounded-full transition-transform sm:w-16 sm:h-16 sm:text-base" // Smaller chips for mobile
+                        className="betting-chip w-12 h-12 text-sm font-extrabold rounded-full transition-transform sm:w-16 sm:h-16 sm:text-base"
                         style={{ backgroundColor: value === 500 ? '#ffb700' : value === 100 ? '#4caf50' : value === 50 ? '#2196f3' : '#e91e63' }}
                         onClick={() => placeBet(value)}
                         disabled={gameState !== 'betting' || value > balance}
@@ -333,7 +393,7 @@ const BlackjackGame = ({ onBack, userToken }) => {
                     </button>
                 ))}
                 <button
-                    className="clear-bet-button bg-red-600 hover:bg-red-700 text-white font-bold py-1 px-2 rounded-full shadow-md disabled:opacity-50 transition-colors text-xs self-center" // Smaller clear button
+                    className="clear-bet-button bg-red-600 hover:bg-red-700 text-white font-bold py-1 px-2 rounded-full shadow-md disabled:opacity-50 transition-colors text-xs self-center"
                     onClick={clearBet}
                     disabled={gameState !== 'betting' || currentBet === 0}
                 >
@@ -345,7 +405,7 @@ const BlackjackGame = ({ onBack, userToken }) => {
             <div className="w-full sm:w-1/3 flex justify-center sm:justify-end">
                  <button 
                     onClick={deal} 
-                    className="bg-red-700 hover:bg-red-800 text-white font-black py-3 px-8 rounded-full shadow-2xl disabled:opacity-50 transition-all transform hover:scale-[1.05] text-lg tracking-widest deal-button w-full sm:w-auto" // Full-width deal on mobile
+                    className="bg-red-700 hover:bg-red-800 text-white font-black py-3 px-8 rounded-full shadow-2xl disabled:opacity-50 transition-all transform hover:scale-[1.05] text-lg tracking-widest deal-button w-full sm:w-auto"
                     disabled={gameState !== 'betting' || currentBet < minBet}
                 >
                     DEAL
@@ -355,13 +415,13 @@ const BlackjackGame = ({ onBack, userToken }) => {
     );
 
     return (
-        <div className="blackjack-game-container p-2 sm:p-8 min-h-screen text-white flex flex-col"> {/* Smaller initial padding */}
+        <div className="blackjack-game-container p-2 sm:p-8 min-h-screen text-white flex flex-col">
             <div className="flex justify-between items-center max-w-4xl mx-auto w-full mb-4">
-                 <button onClick={onBack} className="mb-2 bg-gray-700 hover:bg-gray-600 text-white font-bold py-1 px-3 rounded-lg shadow-md transition-colors flex items-center text-sm"> {/* Smaller back button */}
+                 <button onClick={onBack} className="mb-2 bg-gray-700 hover:bg-gray-600 text-white font-bold py-1 px-3 rounded-lg shadow-md transition-colors flex items-center text-sm">
                     <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
                     Lobby
                 </button>
-                <h1 className="text-2xl sm:text-4xl font-extrabold text-yellow-500 tracking-widest text-shadow-lg">Blackjack 21</h1> {/* Responsive title */}
+                <h1 className="text-2xl sm:text-4xl font-extrabold text-yellow-500 tracking-widest text-shadow-lg">Blackjack 21</h1>
             </div>
             
             <div className="max-w-4xl mx-auto w-full flex-grow flex flex-col">
@@ -374,7 +434,6 @@ const BlackjackGame = ({ onBack, userToken }) => {
                         <p className="text-base sm:text-xl font-bold mb-3 text-yellow-300">
                             Dealer ({dealerHand.length > 0 ? getDealerVisibleValue() : '0'})
                         </p>
-                        {/* CRITICAL FIX: Added flex-nowrap and overflow-x-auto */}
                         <div className="flex gap-3 justify-center min-h-[120px] overflow-x-auto card-hand-container flex-nowrap"> 
                             {dealerHand.map((card, index) => (
                                 <Card key={index} card={card} isHidden={isDealerCardHidden && index === 1} />
@@ -383,7 +442,7 @@ const BlackjackGame = ({ onBack, userToken }) => {
                     </div>
 
                     {/* Game Message (Center) & Bet Visualizer */}
-                    <div className="flex justify-center items-center my-4 h-16 relative sm:h-20"> {/* Smaller height for mobile */}
+                    <div className="flex justify-center items-center my-4 h-16 relative sm:h-20">
                         <div className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 ${currentBet > 0 ? 'visible' : 'hidden'} transition-all duration-500 bet-visualizer`}>
                             <div className="chip-stack bg-red-800 rounded-full w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center border-4 border-yellow-500 shadow-2xl p-2 text-center">
                                 <span className="text-sm font-black text-white sm:text-xl">BET <br/> ₹{currentBet.toLocaleString()}</span>
@@ -402,7 +461,6 @@ const BlackjackGame = ({ onBack, userToken }) => {
                         <p className="text-base sm:text-xl font-bold mb-3 text-yellow-300">
                             Your Hand ({playerHand.length > 0 ? playerValue : '0'})
                         </p>
-                        {/* CRITICAL FIX: Added flex-nowrap and overflow-x-auto */}
                         <div className="flex gap-3 justify-center min-h-[120px] overflow-x-auto card-hand-container flex-nowrap"> 
                             {playerHand.map((card, index) => (
                                 <Card key={index} card={card} isHidden={false} />
@@ -417,7 +475,7 @@ const BlackjackGame = ({ onBack, userToken }) => {
                 </div>
             </div>
 
-            {/* Modal Dialog for Game End (kept same, uses responsive text) */}
+            {/* Modal Dialog for Game End */}
             <div id="resultDialog" className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 hidden">
                 <div className="bg-gray-900 p-6 rounded-xl shadow-2xl text-center max-w-xs w-11/12 transform transition-all result-dialog-style">
                     <h3 id="dialogTitle" className="text-2xl sm:text-3xl font-extrabold mb-4 text-yellow-400">Game Over!</h3>
