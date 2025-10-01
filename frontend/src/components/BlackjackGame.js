@@ -1,3 +1,5 @@
+// blackjackgame.js (Final Version with Card Display Fix)
+
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import './BlackjackGame.css'; // Ensure this path is correct
@@ -50,14 +52,12 @@ const calculateHandValue = (hand) => {
 };
 
 
-// --- Card Component (Styled & Responsive) ---
+// --- Card Component (Styled, Responsive, and FIXED) ---
 
 const Card = ({ card, isHidden = false }) => {
-    // Suit color refinement for better contrast on a white card face
     const suitColor = card && (card.suit === '♥' || card.suit === '♦') ? 'text-red-700' : 'text-gray-900';
     
-    // Responsive sizing: w-[50px] on mobile, growing to sm:w-24
-    // flex-shrink-0 is CRITICAL for preventing cards from collapsing in the flex container
+    // Responsive sizing and CRITICAL: flex-shrink-0 to prevent collapsing
     const cardSizeClasses = "w-[50px] h-[80px] sm:w-24 sm:h-32 flex-shrink-0"; 
 
     if (isHidden) {
@@ -69,14 +69,23 @@ const Card = ({ card, isHidden = false }) => {
     }
     
     return (
+        // *** CRITICAL FIX: The card container MUST be 'flex flex-col' for correct internal layout ***
         <div className={`card-face card-front bg-white border ${cardSizeClasses} rounded-lg shadow-md flex flex-col p-1 sm:p-2 text-xs sm:text-base font-bold select-none transition-all duration-300`}>
-            {/* Reduced font size for mobile compatibility */}
-            <div className={`text-left text-xs sm:text-lg ${suitColor}`}>{card.value}</div> 
+            
+            {/* Top Value (Properly sized and aligned) */}
+            <div className={`text-left text-xs sm:text-lg ${suitColor}`}>
+                {card.value}
+            </div> 
+            
+            {/* Center Suit (Uses flex-grow to occupy space) */}
             <div className={`flex-grow flex items-center justify-center text-xl sm:text-4xl ${suitColor}`}>
                 {card.suit}
             </div>
-            {/* Reduced font size for mobile compatibility */}
-            <div className={`text-right text-xs sm:text-lg ${suitColor} rotate-180`}>{card.value}</div> 
+            
+            {/* Bottom Value (Rotated) */}
+            <div className={`text-right text-xs sm:text-lg ${suitColor} rotate-180`}>
+                {card.value}
+            </div> 
         </div>
     );
 };
@@ -119,23 +128,21 @@ const BlackjackGame = ({ onBack, userToken }) => {
     }, [fetchAdminSettings]);
 
 
-    // --- Game Logic Functions ---
+    // --- Game Logic Functions (Includes 'is not iterable' Fix) ---
 
-    // CRITICAL FIX: drawCard now handles deck retrieval and shuffling internally with safety checks.
     const drawCard = () => {
-        // Use the current deck state, falling back to a new deck if state is null/undefined (the cause of the error)
+        // Fix for "is not iterable" error: Ensure 'deck' is a valid array, reshuffle if empty/invalid.
         let currentDeck = Array.isArray(deck) && deck.length >= 1 
                           ? [...deck] 
                           : shuffleDeck(createDeck()); 
 
-        // Reshuffle check
         if (currentDeck.length < 5) {
             setMessage("Shuffling a new deck...");
             currentDeck = shuffleDeck(createDeck());
         }
 
         const card = currentDeck.pop();
-        setDeck(currentDeck); // Update the state with the modified deck
+        setDeck(currentDeck); 
         return card;
     };
 
@@ -167,7 +174,6 @@ const BlackjackGame = ({ onBack, userToken }) => {
         setMessage('Player turn! Hit, Stand, or Double.');
         setIsDealerCardHidden(true);
 
-        // Call drawCard without passing the deck, as it manages state internally now.
         let pHand = [];
         let dHand = [];
 
@@ -188,7 +194,6 @@ const BlackjackGame = ({ onBack, userToken }) => {
     const hit = () => {
         if (gameState !== 'playerTurn') return;
         
-        // Call drawCard without passing the deck
         const newCard = drawCard();
         const newHand = [...playerHand, newCard];
         setPlayerHand(newHand);
@@ -343,7 +348,6 @@ const BlackjackGame = ({ onBack, userToken }) => {
     // --- UI Rendering ---
 
     const renderActionButtons = () => (
-        // Mobile: full-width buttons, sm: side-by-side
         <div id="actionControls" className="flex flex-col sm:flex-row gap-4 justify-center p-2"> 
             <button 
                 onClick={hit} 
@@ -370,10 +374,9 @@ const BlackjackGame = ({ onBack, userToken }) => {
     );
     
     const renderBettingArea = () => (
-        // Mobile: stacking info, chips, deal button vertically
         <div className="w-full p-4 sm:p-6 bg-gray-900/95 border-t border-yellow-500/30 rounded-t-xl shadow-2xl flex flex-col sm:flex-row items-center justify-between">
             
-            {/* 1. Player Info & Current Bet (Flex for horizontal display on mobile) */}
+            {/* 1. Player Info & Current Bet */}
             <div className="flex justify-between items-center w-full sm:w-1/3 mb-4 sm:mb-0">
                 <p className="text-sm font-bold text-white tracking-wider sm:text-lg">BALANCE: <span className="text-yellow-400 text-lg sm:text-2xl">₹{balance.toLocaleString()}</span></p>
                 <p className={`text-sm font-semibold ${currentBet > 0 ? 'text-green-400' : 'text-gray-400'} transition-colors sm:text-lg`}>BET: <span className="text-lg sm:text-2xl font-extrabold">₹{currentBet.toLocaleString()}</span></p>
