@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import axios from 'axios';
-import './landingpage.css'; // Re-importing the CSS file
+import './LandingPage.css'; // Re-importing the CSS file
 
 // --- Placeholder Icon Definitions (Replaces import from './Icons') ---
 const FidelityLogoIcon = () => (
