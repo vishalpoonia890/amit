@@ -36,26 +36,24 @@
     cursor: default;
     border: 1px solid #1a202c;
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.7);
-    /* The 'flex-shrink-0' Tailwind class in the Card component handles the sizing fix. */
 }
 
 .card-hand-container {
-    /* Enables smooth horizontal scrolling for hands with many cards on mobile */
+    /* CRITICAL FIX: Ensures horizontal scrollability on mobile if too many cards are dealt */
     overflow-x: auto; 
     
-    /* Slight downward projection for realism */
     perspective: 1000px;
     padding-bottom: 20px;
     
-    /* Optional: Improves mobile scroll experience */
+    /* Improves mobile scroll experience */
     -webkit-overflow-scrolling: touch; 
     scroll-snap-type: x mandatory; 
     
-    /* Ensure the content aligns to the start of the visible area */
+    /* Centers the hand when there's space */
     justify-content: center;
 }
 .card-face {
-    scroll-snap-align: center; /* Ensures the first card snaps into view */
+    scroll-snap-align: center;
 }
 
 /* Card Front: visible */
@@ -77,7 +75,7 @@
 @keyframes card-slide-in {
     from {
         opacity: 0;
-        transform: translateX(-50px) rotate(-10deg) scale(0.9); /* Scale down slightly */
+        transform: translateX(-50px) rotate(-10deg) scale(0.9);
     }
     to {
         opacity: 1;
