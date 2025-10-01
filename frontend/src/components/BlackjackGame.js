@@ -1,8 +1,8 @@
-// blackjackgame.js (Final Version with Larger Cards and Repositioned Dialog)
+// blackjackgame.js (Final Version: Logic Fixed, Cards Larger, How to Play Added)
 
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import './BlackjackGame.css'; // Ensure this path is correct
+import './BlackjackGame.css'; 
 
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
 
@@ -52,38 +52,35 @@ const calculateHandValue = (hand) => {
 };
 
 
-// --- Card Component (Larger Dimensions and Fixed) ---
+// --- Card Component (Realism Enhanced) ---
 
 const Card = ({ card, isHidden = false }) => {
     const suitColor = card && (card.suit === '♥' || card.suit === '♦') ? 'text-red-700' : 'text-gray-900';
     
-    // INCREASED DIMENSIONS: w-[60px] h-[90px] on mobile, sm:w-28 sm:h-40 (Larger for better feel)
+    // Increased Dimensions & flex-shrink-0 for stability
     const cardSizeClasses = "w-[60px] h-[90px] sm:w-28 sm:h-40 flex-shrink-0"; 
 
     if (isHidden) {
         return (
-            <div className={`card-face card-back ${cardSizeClasses} bg-yellow-900/90 border-2 border-yellow-300 rounded-lg shadow-xl flex items-center justify-center transform rotate-3`}>
-                {/* Font size increased slightly to match larger card */}
+            // Added card-back-3d class for thickness effect in CSS
+            <div className={`card-face card-back card-back-3d ${cardSizeClasses} bg-yellow-900/90 border-2 border-yellow-300 rounded-lg shadow-xl flex items-center justify-center transform rotate-3`}>
                 <span className="text-xl sm:text-2xl font-extrabold text-gray-800 tracking-widest text-shadow-md">MP</span>
             </div>
         );
     }
     
     return (
-        // Card Front: MUST use 'flex flex-col' for vertical stacking of value/suit
-        <div className={`card-face card-front bg-white border ${cardSizeClasses} rounded-lg shadow-md flex flex-col p-1 sm:p-2 text-xs sm:text-base font-bold select-none transition-all duration-300`}>
+        // Added card-front-3d class for thickness effect in CSS
+        <div className={`card-face card-front card-front-3d bg-white border ${cardSizeClasses} rounded-lg shadow-md flex flex-col p-1 sm:p-2 text-xs sm:text-base font-bold select-none transition-all duration-300`}>
             
-            {/* Top Value */}
             <div className={`text-left text-sm sm:text-xl ${suitColor}`}>
                 {card.value}
             </div> 
             
-            {/* Center Suit */}
             <div className={`flex-grow flex items-center justify-center text-2xl sm:text-5xl ${suitColor}`}>
                 {card.suit}
             </div>
             
-            {/* Bottom Value (Rotated) */}
             <div className={`text-right text-sm sm:text-xl ${suitColor} rotate-180`}>
                 {card.value}
             </div> 
@@ -104,6 +101,7 @@ const BlackjackGame = ({ onBack, userToken }) => {
     const [gameState, setGameState] = useState('betting');
     const [message, setMessage] = useState('Place your bet and hit DEAL.');
     const [isDealerCardHidden, setIsDealerCardHidden] = useState(true);
+    const [isResultVisible, setIsResultVisible] = useState(false); // New state for dialog control
     const [blackjackSettings, setBlackjackSettings] = useState({ luckFactor: 0, isManualShuffle: false });
 
     const chips = [10, 50, 100, 500];
@@ -171,8 +169,9 @@ const BlackjackGame = ({ onBack, userToken }) => {
         }
         
         setGameState('playerTurn');
-        setMessage('Player turn! Hit, Stand, or Double.');
+        setMessage('Dealing cards...');
         setIsDealerCardHidden(true);
+        setIsResultVisible(false); // Hide result box if somehow visible
 
         // Deal cards with a slight delay for animation effect
         let pHand = [];
@@ -194,6 +193,8 @@ const BlackjackGame = ({ onBack, userToken }) => {
             if (calculateHandValue(pHand) === 21) {
                 setMessage('BLACKJACK! Checking dealer...');
                 setTimeout(() => finishGame(calculateHandValue(dHand) === 21 ? 'push' : 'playerBlackjack'), 1500);
+            } else {
+                 setMessage('Player turn! Hit, Stand, or Double.');
             }
         }, 500); // 0.5 second delay between dealing card 1 and card 2
     };
@@ -323,11 +324,11 @@ const BlackjackGame = ({ onBack, userToken }) => {
 
         setBalance(b => b + payout);
         
-        // Show dialog inside the game table
+        // Show dialog using state control
         setTimeout(() => {
-             document.getElementById('resultDialog').classList.remove('hidden');
              document.getElementById('dialogTitle').textContent = title;
              document.getElementById('dialogMessage').textContent = finalMessage;
+             setIsResultVisible(true);
         }, 500);
         
         setTimeout(() => {
@@ -336,7 +337,7 @@ const BlackjackGame = ({ onBack, userToken }) => {
     };
 
     const startNewRound = () => {
-        document.getElementById('resultDialog').classList.add('hidden');
+        setIsResultVisible(false); // Hide dialog
         setGameState('betting');
         setPlayerHand([]);
         setDealerHand([]);
@@ -438,7 +439,6 @@ const BlackjackGame = ({ onBack, userToken }) => {
             <div className="max-w-4xl mx-auto w-full flex-grow flex flex-col">
                 
                 {/* --- Main Game Table --- */}
-                {/* Repositioned the result dialog container to be relative to the game table */}
                 <div className="game-table-felt p-4 sm:p-8 rounded-2xl shadow-2xl flex-grow mb-4 relative overflow-hidden"> 
                     
                     {/* Dealer Hand Area (Top) */}
@@ -462,7 +462,6 @@ const BlackjackGame = ({ onBack, userToken }) => {
                         </div>
 
                         <div className="absolute inset-0 flex items-center justify-center">
-                            {/* Added message-bar-animate class for pulsing effect */}
                              <p className={`text-lg sm:text-2xl font-black text-yellow-100 p-2 rounded-lg bg-black/50 backdrop-blur-sm transition-opacity duration-500 message-bar message-bar-animate ${gameState !== 'betting' ? 'opacity-100' : 'opacity-80'}`}>
                                 {message}
                             </p>
@@ -481,8 +480,8 @@ const BlackjackGame = ({ onBack, userToken }) => {
                         </div>
                     </div>
                     
-                    {/* MODAL DIALOG IS NOW POSITIONED RELATIVE TO THE GAME TABLE */}
-                    <div id="resultDialog" className="absolute inset-0 bg-black bg-opacity-80 flex items-center justify-center z-40 hidden">
+                    {/* MODAL DIALOG: Controlled by isResultVisible state */}
+                    <div id="resultDialog" className={`absolute inset-0 bg-black bg-opacity-80 flex items-center justify-center z-40 ${isResultVisible ? '' : 'hidden'}`}>
                         <div className="bg-gray-900 p-6 rounded-xl shadow-2xl text-center max-w-xs w-11/12 transform transition-all result-dialog-style">
                             <h3 id="dialogTitle" className="text-2xl sm:text-3xl font-extrabold mb-4 text-yellow-400">Game Over!</h3>
                             <p id="dialogMessage" className="text-sm sm:text-lg mb-6 text-gray-300"></p>
@@ -500,6 +499,18 @@ const BlackjackGame = ({ onBack, userToken }) => {
                 {/* --- Action/Betting Control Panel --- */}
                 <div className="bg-gray-900/90 py-4 shadow-top-heavy">
                     {gameState === 'betting' ? renderBettingArea() : renderActionButtons()}
+                </div>
+
+                 {/* --- How to Play Section --- */}
+                <div className="mt-6 p-4 sm:p-6 bg-gray-700 rounded-xl shadow-xl">
+                    <h2 className="text-2xl font-extrabold text-yellow-300 mb-4">How to Play Blackjack</h2>
+                    <ol className="list-decimal list-inside space-y-3 text-lg text-gray-200">
+                        <li><strong>Place a Bet:</strong> Use the chips to place your bet (min ₹{minBet}) and hit "DEAL".</li>
+                        <li><strong>Scoring:</strong> Aim for a hand total closer to 21 than the Dealer, without exceeding 21. Aces are 1 or 11; Face cards are 10.</li>
+                        <li><strong>Actions:</strong> Use **HIT** (take a card), **STAND** (keep hand), or **DOUBLE DOWN** (double bet, take one card, then stand).</li>
+                        <li><strong>Dealer's Rules:</strong> The Dealer must hit on 16 or less and must stand on 17 or more.</li>
+                        <li><strong>Payouts:</strong> Win (1:1), Blackjack (3:2), Push (bet returned), Lose (bet lost).</li>
+                    </ol>
                 </div>
             </div>
         </div>
