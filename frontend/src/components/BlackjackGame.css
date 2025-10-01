@@ -1,10 +1,10 @@
-/* BlackjackGame.css: Advanced Graphics for Casino Aesthetic (FINAL, Mobile-Optimized) */
+/* blackjackgame.css (Final Version with Advanced Graphics and Mobile Scroll Fix) */
 
 /* --- 1. General Theme & Typography --- */
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@700&family=Orbitron:wght@900&display=swap');
 
 .blackjack-game-container {
-    background: #0d1117; /* Darkest background for premium feel */
+    background: #0d1117; 
     min-height: 100vh;
     font-family: 'Roboto Mono', monospace;
 }
@@ -19,14 +19,14 @@
     background: radial-gradient(ellipse at 50% 100%, #157347 0%, #044b36 70%);
     position: relative;
     overflow: hidden;
-    border: 8px solid #3c2a0e; /* Wood/leather table edge */
+    border: 8px solid #3c2a0e; 
     
     /* Strong 3D Felt Texture */
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), /* Outer Shadow */
-                inset 0 0 40px rgba(0, 0, 0, 0.7); /* Inner Shadow for depth */
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 
+                inset 0 0 40px rgba(0, 0, 0, 0.7); 
 }
 
-/* --- 3. Card Styling (CRITICAL MOBILE/DISPLAY FIXES) --- */
+/* --- 3. Card Styling (FIXED SCROLLING) --- */
 
 /* Base card setup for perspective */
 .card-face {
@@ -39,17 +39,15 @@
 }
 
 .card-hand-container {
-    /* CRITICAL FIX: Ensures horizontal scrollability on mobile if too many cards are dealt */
+    /* CRITICAL FIX: Enables smooth horizontal scrollability on mobile */
     overflow-x: auto; 
     
     perspective: 1000px;
     padding-bottom: 20px;
     
-    /* Improves mobile scroll experience */
     -webkit-overflow-scrolling: touch; 
     scroll-snap-type: x mandatory; 
     
-    /* Centers the hand when there's space */
     justify-content: center;
 }
 .card-face {
@@ -65,10 +63,9 @@
 
 /* Card Back: Hidden Dealer Card */
 .card-back {
-    /* Back side design: Rich gold/dark red pattern */
     background: linear-gradient(135deg, #6d4e16 0%, #a06e1b 50%, #6d4e16 100%);
     backface-visibility: hidden;
-    transform: rotateY(0deg); /* Start position */
+    transform: rotateY(0deg); 
 }
 
 /* Keyframe for "Card Deal" effect */
@@ -89,7 +86,6 @@
 
 /* --- 4. Interactive Elements (Chips & Buttons) --- */
 
-/* Betting Chips: Strong 3D look */
 .betting-chip {
     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     font-family: 'Orbitron', sans-serif;
@@ -104,7 +100,6 @@
                 inset 0 4px 8px rgba(255, 255, 255, 0.6);
 }
 
-/* Action Buttons: Polished look with glow */
 .action-button {
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -119,7 +114,6 @@
 }
 
 .deal-button {
-    /* Distinct red button for the primary action */
     box-shadow: 0 0 25px rgba(255, 0, 0, 0.7);
     animation: pulse 2s infinite;
 }
