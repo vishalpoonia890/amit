@@ -36,6 +36,7 @@
 /* --- 2. Game Table Styling: The Felt & Layout Fixes --- */
 .game-table-felt {
     position: relative; 
+    /* Deep green felt color */
     background: radial-gradient(ellipse at 50% 100%, #157347 0%, #044b36 70%);
     border: 8px solid #3c2a0e; 
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 
