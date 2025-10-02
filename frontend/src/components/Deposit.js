@@ -8,12 +8,48 @@ import './Deposit.css';
 import upiQrImage from '../assets/ptyss.jpg';
 import usdtQrImage from '../assets/usdt.jpg';
 
+
 const API_BASE_URL = 'https://investmentpro-nu7s.onrender.com';
 
 // IMPORTANT: You must add these variables to your frontend's .env file
 const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
 const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+
+// ✅ IMPORTANT: Make sure the Google Ads base tag (gtag setup) is loaded in your main index.html file!
+
+// --- NEW CODE: PURCHASE CONVERSION FUNCTION ---
+// The conversion tracking function provided by Google Ads for Purchase.
+// We access 'gtag' from the global window object to avoid ESLint errors.
+/* global gtag */
+function gtag_report_purchase_conversion(url, transactionId, value, currency) {
+    if (typeof window.gtag !== 'function') {
+        console.error("Google Ads gtag function is not loaded!");
+        return true; 
+    }
+    
+    const gtag = window.gtag; 
+    
+    var callback = function () {
+        if (typeof(url) !== 'undefined') {
+            window.location = url;
+        }
+    };
+    
+    // NOTE: The Purchase snippet must include the 'value' and 'currency' for better tracking.
+    // The transaction ID is optional but highly recommended to prevent duplicate counts.
+    gtag('event', 'conversion', {
+        'send_to': 'AW-17609971527/VDulCLWV-6UbEMeui81B', // YOUR PURCHASE CONVERSION ID
+        'value': value || 0.0,
+        'currency': currency || 'INR', 
+        'transaction_id': transactionId || '',
+        'event_callback': callback
+    });
+    return false;
+}
+// ---------------------------------------------
+
 
 function Deposit({ token, userData, onBack, onDepositRequest }) {
     const [step, setStep] = useState(1);
