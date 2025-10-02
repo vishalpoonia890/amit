@@ -12,8 +12,29 @@ import casinoNews1 from '../assets/casino1.jpg';
 import casinoNews2 from '../assets/casino2.jpg';
 import casinoNews3 from '../assets/casino3.jpg';
 
+// ... (Your imports)
+
+// The conversion tracking function provided by Google Ads
+// NOTE: Ensure the Google Ads base tag (gtag setup) is loaded in your main index.html file!
+function gtag_report_conversion(url) {
+    var callback = function () {
+        if (typeof(url) != 'undefined') {
+            window.location = url;
+        }
+    };
+    // Replace 'AW-17609971527/xMgkCI_v_qUbEMeui81B' with your actual conversion ID if it changes
+    gtag('event', 'conversion', {
+        'send_to': 'AW-17609971527/xMgkCI_v_qUbEMeui81B',
+        'value': 1.0,
+        'currency': 'INR',
+        'event_callback': callback
+    });
+    return false;
+}
+
 // Debounce utility function (to prevent too many API calls while typing)
 const debounce = (func, delay) => {
+
     let timeoutId;
     return (...args) => {
         clearTimeout(timeoutId);
