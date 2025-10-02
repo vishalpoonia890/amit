@@ -97,8 +97,29 @@ function AdminPanel({ token }) {
 
     // --- Helper Functions ---
     const isNewUser = (userTotalDeposits) => userTotalDeposits < 1000; // Define 'new user' threshold
-    const formatDateTime = (dateString) => new Date(dateString).toLocaleString();
+   // 🚨 EDIT THIS FUNCTION 🚨
+// This function ensures the date includes the time and is consistently formatted.
+const formatDateTime = (dateString) => {
+    // If the dateString is null, undefined, or empty, return N/A
+    if (!dateString) return 'N/A'; 
+    
+    const date = new Date(dateString);
+    
+    // Check if the date conversion was successful
+    if (isNaN(date.getTime())) return 'Invalid Date';
 
+    // Use toLocaleString for a full date/time representation (e.g., 10/3/2025, 1:02:09 AM)
+    // You can specify options for a precise format, or rely on browser locale.
+    return date.toLocaleString('en-IN', {
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true
+    });
+};
 
     const getLotteryRoundId = () => {
         const now = new Date();
