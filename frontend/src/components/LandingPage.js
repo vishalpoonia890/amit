@@ -15,14 +15,23 @@ import casinoNews3 from '../assets/casino3.jpg';
 // ... (Your imports)
 
 // The conversion tracking function provided by Google Ads
-// NOTE: Ensure the Google Ads base tag (gtag setup) is loaded in your main index.html file!
+// We access 'gtag' from the global window object to avoid ESLint 'gtag is not defined' error.
+// The base Google Ads tag MUST be loaded in your index.html file for this to work.
 function gtag_report_conversion(url) {
+    // Check if gtag is defined before calling it
+    if (typeof window.gtag !== 'function') {
+        console.error("Google Ads gtag function is not loaded!");
+        return true; // Prevent further execution if gtag is missing
+    }
+    
+    // Assign window.gtag to a local variable named gtag for cleaner use inside this function
+    const gtag = window.gtag; 
+    
     var callback = function () {
         if (typeof(url) != 'undefined') {
             window.location = url;
         }
     };
-    // Replace 'AW-17609971527/xMgkCI_v_qUbEMeui81B' with your actual conversion ID if it changes
     gtag('event', 'conversion', {
         'send_to': 'AW-17609971527/xMgkCI_v_qUbEMeui81B',
         'value': 1.0,
