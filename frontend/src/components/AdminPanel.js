@@ -61,12 +61,13 @@ function AdminPanel({ token }) {
     const [manualNumA, setManualNumA] = useState('');
     const [manualNumB, setManualNumB] = useState('');
     const [currentLotteryRoundId, setCurrentLotteryRoundId] = useState('');
-    const [lotteryProfitPreference, setLotteryProfitPreference] = useState('max_profit');
+    const [lotteryProfitPreference, setLotteryProfitPreference] = useState('max_profit'); // Unused state, kept for completeness
 
 
     const [aviatorLiveBets, setAviatorLiveBets] = useState([]);
     const [aviatorAnalysis, setAviatorAnalysis] = useState([]);
-    const [aviatorSettings, setAviatorSettings] = useState({ mode: 'auto', profitMargin: 0.10, manualCrashPoint: null });
+    // FIX 1: Set manualCrashPoint to an empty string for controlled input
+    const [aviatorSettings, setAviatorSettings] = useState({ mode: 'auto', profitMargin: 0.10, manualCrashPoint: '' }); 
 
 
     const [incomeStatus, setIncomeStatus] = useState({ canDistribute: false, nextDistributionTime: null });
@@ -86,8 +87,9 @@ function AdminPanel({ token }) {
     
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const [pendingInvestmentApprovals, setPendingInvestmentApprovals] = useState([]); // Consolidated approvals
+    const [pendingInvestmentApprovals, setPendingInvestmentApprovals] = useState([]);
     const [bonusPercentage, setBonusPercentage] = useState(100);
+
 
     // NEW: Blackjack State
     const [blackjackSettings, setBlackjackSettings] = useState({ luckFactor: 0, isManualShuffle: false });
@@ -120,11 +122,9 @@ function AdminPanel({ token }) {
                 depositsRes, withdrawalsRes, gameStatusRes, statsRes, betsRes, 
                 analysisRes, incomeRes, platformStatsRes, lotteryAnalysisRes, 
                 overallGameStatsRes, aviatorBetsRes, aviatorAnalysisRes, investmentApprovalsRes,
-                blackjackSettingsRes // NEW: Fetch Blackjack settings
+                blackjackSettingsRes
             ] = await Promise.all([
                 axios.get(`${API_BASE_URL}/api/admin/recharges/pending`, { headers: { Authorization: `Bearer ${token}` } }),
-                // Note: The /api/admin/withdrawals/pending endpoint in the backend needs to be updated 
-                // to include user details (name, status, total_deposits) for the UI to display them correctly.
                 axios.get(`${API_BASE_URL}/api/admin/withdrawals/pending`, { headers: { Authorization: `Bearer ${token}` } }), 
                 axios.get(`${API_BASE_URL}/api/admin/game-status`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/game-statistics`, { headers: { Authorization: `Bearer ${token}` } }),
@@ -137,7 +137,7 @@ function AdminPanel({ token }) {
                 axios.get(`${API_BASE_URL}/api/admin/aviator/live-bets`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/aviator-analysis`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_BASE_URL}/api/admin/investments/pending`, { headers: { Authorization: `Bearer ${token}` } }),
-                axios.get(`${API_BASE_URL}/api/admin/blackjack-settings`, { headers: { Authorization: `Bearer ${token}` } }) // NEW FETCH
+                axios.get(`${API_BASE_URL}/api/admin/blackjack-settings`, { headers: { Authorization: `Bearer ${token}` } })
             ]);
             
             setPendingDeposits(depositsRes.data.recharges || []);
@@ -153,8 +153,8 @@ function AdminPanel({ token }) {
             setOverallGameStats(overallGameStatsRes.data);
             setAviatorLiveBets(aviatorBetsRes.data.bets || []);
             setAviatorAnalysis(aviatorAnalysisRes.data.analysis || []);
-            setPendingInvestmentApprovals(investmentApprovalsRes.data.pendingRequests || []); // Use new state
-            setBlackjackSettings(blackjackSettingsRes.data.settings); // NEW STATE UPDATE
+            setPendingInvestmentApprovals(investmentApprovalsRes.data.pendingRequests || []);
+            setBlackjackSettings(blackjackSettingsRes.data.settings);
         } catch (err) {
             if (isInitialLoad) setError('Failed to fetch admin data. Auto-refresh paused.');
             console.error(err);
@@ -203,20 +203,19 @@ function AdminPanel({ token }) {
 
 
     const handleBonusApproval = async (depositId, userId, amount) => {
-        const bonusAmount = amount * (bonusPercentage / 100);
-        if (!window.confirm(`Are you sure you want to approve deposit #${depositId} AND grant a ${bonusPercentage}% bonus of ${formatCurrency(bonusAmount)}?`)) return;
+        const bonusAmountValue = amount * (bonusPercentage / 100);
+        if (!window.confirm(`Are you sure you want to approve deposit #${depositId} AND grant a ${bonusPercentage}% bonus of ${formatCurrency(bonusAmountValue)}?`)) return;
 
 
         try {
             // 1. Approve the base deposit
-            // We use the existing approve-deposit handler which also processes the referral bonus
             await axios.post(`${API_BASE_URL}/api/admin/recharge/${depositId}/approve`, {}, { headers: { Authorization: `Bearer ${token}` } });
             
             // 2. Grant the bonus separately
             let bonusMessage = 'Deposit Approved successfully.';
-            if (bonusAmount > 0) {
+            if (bonusAmountValue > 0) {
                 const res = await axios.post(`${API_BASE_URL}/api/admin/grant-bonus`, 
-                    { amount: bonusAmount, reason: `Welcome Deposit Bonus (${bonusPercentage}%) for Deposit ID ${depositId}`, user_ids: [userId] },
+                    { amount: bonusAmountValue, reason: `Welcome Deposit Bonus (${bonusPercentage}%) for Deposit ID ${depositId}`, user_ids: [userId] },
                     { headers: { Authorization: `Bearer ${token}` } }
                 );
                 bonusMessage += ` Bonus granted: ${res.data.message}`;
@@ -381,27 +380,48 @@ function AdminPanel({ token }) {
         }
     };
     
+    // FIX 2: Corrected logic for setting Lottery result (using manualNumA and manualNumB)
     const handleSetLotteryResult = async (e) => {
         e.preventDefault();
         const numA = parseInt(manualNumA, 10);
         const numB = parseInt(manualNumB, 10);
+        
         if (isNaN(numA) || isNaN(numB) || numA < 0 || numA > 9 || numB < 0 || numB > 9) {
-            alert('Please enter valid numbers between 0 and 9.');
+            alert('Please enter valid numbers between 0 and 9 for both Num A and Num B.');
             return;
         }
+
+        const combinedResult = `${numA}${numB}`; // e.g., "53"
+        
         try {
-            await axios.post(`${API_BASE_URL}/api/admin/lottery-set-result`, { result: parseInt(nextResult) }, { headers: { Authorization: `Bearer ${token}` } });
-            alert(`Next result set to ${nextResult}!`);
-            setNextResult('');
+            // Assuming the backend endpoint for setting lottery result is '/api/admin/lottery-set-result'
+            // and expects a 'result' string/number containing both numbers.
+            const res = await axios.post(`${API_BASE_URL}/api/admin/lottery-set-result`, { result: combinedResult }, { headers: { Authorization: `Bearer ${token}` } });
+            
+            alert(res.data.message || `Next Lottery result set to ${combinedResult}!`);
+            setManualNumA('');
+            setManualNumB('');
+            fetchData(false); // Refresh data
         } catch (err) {
-            alert(err.response?.data?.error || 'Failed to set next result.');
+            alert(err.response?.data?.error || 'Failed to set next Lottery result.');
         }
     };
     
     const handleAviatorSettingsUpdate = async (update) => {
+        // Convert manualCrashPoint to float only if it's set
+        const payload = {
+            ...update,
+            manualCrashPoint: update.manualCrashPoint !== undefined ? parseFloat(update.manualCrashPoint) || null : undefined,
+            profitMargin: update.profitMargin !== undefined ? parseFloat(update.profitMargin) : undefined,
+        };
+        
         try {
-            const res = await axios.post(`${API_BASE_URL}/api/admin/aviator-settings`, update, { headers: { Authorization: `Bearer ${token}` } });
-            setAviatorSettings(res.data.settings);
+            const res = await axios.post(`${API_BASE_URL}/api/admin/aviator-settings`, payload, { headers: { Authorization: `Bearer ${token}` } });
+            setAviatorSettings(prev => ({
+                ...prev,
+                ...res.data.settings,
+                manualCrashPoint: res.data.settings.manualCrashPoint || '', // Keep UI input as string
+            }));
             alert(res.data.message);
         } catch (err) {
             alert('Failed to update Aviator settings.');
@@ -429,7 +449,6 @@ function AdminPanel({ token }) {
                 </div>
             </div>
 
-
             <div className="admin-section stats-section">
                 <h2>Overall Game Financials</h2>
                 <div className="stats-grid">
@@ -448,7 +467,6 @@ function AdminPanel({ token }) {
                 </div>
             </div>
 
-
             <div className="admin-grid">
                 <div className="grid-column">
                     <div className="admin-section">
@@ -456,7 +474,15 @@ function AdminPanel({ token }) {
                         <div className="control-group"><label>Game Status</label><div className="toggle-switch"><button onClick={() => handleGameStatusUpdate({ is_on: true })} className={gameStatus.is_on ? 'active' : ''}>ON</button><button onClick={() => handleGameStatusUpdate({ is_on: false })} className={!gameStatus.is_on ? 'active' : ''}>OFF</button></div></div>
                         <div className="control-group"><label>Game Mode</label><div className="toggle-switch"><button onClick={() => handleGameStatusUpdate({ mode: 'auto' })} className={gameStatus.mode === 'auto' ? 'active' : ''}>Auto</button><button onClick={() => handleGameStatusUpdate({ mode: 'admin' })} className={gameStatus.mode === 'admin' ? 'active' : ''}>Admin</button></div></div>
                         <div className="control-group"><label>Payout Priority</label><div className="toggle-switch"><button onClick={() => handleGameStatusUpdate({ payout_priority: 'admin' })} className={gameStatus.payout_priority === 'admin' ? 'active' : ''}>Admin</button><button onClick={() => handleGameStatusUpdate({ payout_priority: 'users' })} className={gameStatus.payout_priority === 'users' ? 'active' : ''}>Users</button></div></div>
-                        {gameStatus.mode === 'admin' && gameStatus.is_on && (<div className="control-group manual-control"><label>Set Next Winning Number (0-9)</label><div className="input-group"><input type="number" value={nextResult} onChange={(e) => setNextResult(e.target.value)} min="0" max="9" placeholder="e.g., 5" /><button onClick={handleSetNextResult}>Set Result</button></div></div>)}
+                        {gameStatus.mode === 'admin' && gameStatus.is_on && (
+                            <div className="control-group manual-control">
+                                <label>Set Next Winning Number (0-9)</label>
+                                <div className="input-group">
+                                    <input type="number" value={nextResult} onChange={(e) => setNextResult(e.target.value)} min="0" max="9" placeholder="e.g., 5" />
+                                    <button onClick={handleSetNextResult}>Set Result</button>
+                                </div>
+                            </div>
+                        )}
                     </div>
                     <div className="admin-section live-bets">
                         <h2>Color Prediction: Live Bets</h2>
@@ -486,8 +512,8 @@ function AdminPanel({ token }) {
                             <form className="action-group" onSubmit={handleSetLotteryResult}>
                                 <h4>Set Manual Result for Next Draw</h4>
                                 <div className="input-group">
-                                    <input type="number" value={manualNumA} onChange={e => setManualNumA(e.target.value)} min="0" max="9" placeholder="Num A" required />
-                                    <input type="number" value={manualNumB} onChange={e => setManualNumB(e.target.value)} min="0" max="9" placeholder="Num B" required />
+                                    <input type="number" value={manualNumA} onChange={e => setManualNumA(e.target.value)} min="0" max="9" placeholder="Num A (0-9)" required />
+                                    <input type="number" value={manualNumB} onChange={e => setManualNumB(e.target.value)} min="0" max="9" placeholder="Num B (0-9)" required />
                                     <button type="submit" className="action-btn">Set Result</button>
                                 </div>
                             </form>
@@ -568,7 +594,15 @@ function AdminPanel({ token }) {
                     {aviatorSettings.mode === 'admin' && (
                         <div className="action-group">
                             <h4>Set Manual Crash Point</h4>
-                            <input type="number" step="0.01" placeholder="e.g., 2.50" onChange={e => handleAviatorSettingsUpdate({ manualCrashPoint: parseFloat(e.target.value) })} />
+                            {/* FIX 1: Use aviatorSettings.manualCrashPoint which is now an empty string '' when not set */}
+                            <input 
+                                type="number" 
+                                step="0.01" 
+                                placeholder="e.g., 2.50" 
+                                value={aviatorSettings.manualCrashPoint}
+                                onChange={e => setAviatorSettings(prev => ({ ...prev, manualCrashPoint: e.target.value }))} 
+                                onBlur={e => handleAviatorSettingsUpdate({ manualCrashPoint: e.target.value })}
+                            />
                         </div>
                     )}
                     <h4>Live Bets in Current Round ({aviatorLiveBets.length})</h4>
